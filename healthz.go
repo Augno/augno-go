@@ -12,36 +12,35 @@ import (
 	"github.com/stainless-sdks/augno-go/packages/respjson"
 )
 
-// HealthService contains methods and other services that help with interacting
+// HealthzService contains methods and other services that help with interacting
 // with the augno API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
-// the [NewHealthService] method instead.
-type HealthService struct {
+// the [NewHealthzService] method instead.
+type HealthzService struct {
 	Options []option.RequestOption
 }
 
-// NewHealthService generates a new service that applies the given options to each
+// NewHealthzService generates a new service that applies the given options to each
 // request. These options are applied after the parent client's options (if there
 // is one), and before any request-specific options.
-func NewHealthService(opts ...option.RequestOption) (r HealthService) {
-	r = HealthService{}
+func NewHealthzService(opts ...option.RequestOption) (r HealthzService) {
+	r = HealthzService{}
 	r.Options = opts
 	return
 }
 
-// Returns the current health status, environment, and version information of the
-// API service.
-func (r *HealthService) Check(ctx context.Context, opts ...option.RequestOption) (res *HealthCheckResponse, err error) {
+// Returns the current health status, environment, and version.
+func (r *HealthzService) Check(ctx context.Context, query HealthzCheckParams, opts ...option.RequestOption) (res *HealthzCheckResponse, err error) {
 	opts = append(r.Options[:], opts...)
-	path := "health"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	path := "healthz"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
 }
 
 // Represents a Healthcheck resource
-type HealthCheckResponse struct {
+type HealthzCheckResponse struct {
 	// Deployment environment (development, production)
 	Environment string `json:"environment,required"`
 	// Current operational status of the API service
@@ -59,7 +58,11 @@ type HealthCheckResponse struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r HealthCheckResponse) RawJSON() string { return r.JSON.raw }
-func (r *HealthCheckResponse) UnmarshalJSON(data []byte) error {
+func (r HealthzCheckResponse) RawJSON() string { return r.JSON.raw }
+func (r *HealthzCheckResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+type HealthzCheckParams struct {
+	paramObj
 }

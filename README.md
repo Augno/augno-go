@@ -6,7 +6,7 @@
 
 <!-- x-release-please-end -->
 
-The Augno Go library provides convenient access to the Augno REST API
+The Augno Go library provides convenient access to the [Augno REST API](https://augno.com)
 from applications written in Go.
 
 It is generated with [Stainless](https://www.stainless.com/).
@@ -48,11 +48,11 @@ func main() {
 	client := augno.NewClient(
 		option.WithAPIKey("My API Key"), // defaults to os.LookupEnv("AUGNO_API_KEY")
 	)
-	getCustomerAddress, err := client.Customers.Addresses.List(context.TODO(), "REPLACE_ME")
+	response, err := client.Healthz.Check(context.TODO(), augno.HealthzCheckParams{})
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v\n", getCustomerAddress.ID)
+	fmt.Printf("%+v\n", response.Environment)
 }
 
 ```
@@ -258,7 +258,7 @@ client := augno.NewClient(
 	option.WithHeader("X-Some-Header", "custom_header_info"),
 )
 
-client.Customers.Addresses.List(context.TODO(), ...,
+client.Healthz.Check(context.TODO(), ...,
 	// Override the header
 	option.WithHeader("X-Some-Header", "some_other_custom_header_info"),
 	// Add an undocumented field to the request body, using sjson syntax
@@ -289,14 +289,14 @@ When the API returns a non-success status code, we return an error with type
 To handle errors, we recommend that you use the `errors.As` pattern:
 
 ```go
-_, err := client.Customers.Addresses.List(context.TODO(), "REPLACE_ME")
+_, err := client.Healthz.Check(context.TODO(), augno.HealthzCheckParams{})
 if err != nil {
 	var apierr *augno.Error
 	if errors.As(err, &apierr) {
 		println(string(apierr.DumpRequest(true)))  // Prints the serialized HTTP request
 		println(string(apierr.DumpResponse(true))) // Prints the serialized HTTP response
 	}
-	panic(err.Error()) // GET "/customers/{customer_id}/addresses": 400 Bad Request { ... }
+	panic(err.Error()) // GET "/healthz": 400 Bad Request { ... }
 }
 ```
 
@@ -314,9 +314,9 @@ To set a per-retry timeout, use `option.WithRequestTimeout()`.
 // This sets the timeout for the request, including all the retries.
 ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 defer cancel()
-client.Customers.Addresses.List(
+client.Healthz.Check(
 	ctx,
-	"REPLACE_ME",
+	augno.HealthzCheckParams{},
 	// This sets the per-retry timeout
 	option.WithRequestTimeout(20*time.Second),
 )
@@ -350,9 +350,9 @@ client := augno.NewClient(
 )
 
 // Override per-request:
-client.Customers.Addresses.List(
+client.Healthz.Check(
 	context.TODO(),
-	"REPLACE_ME",
+	augno.HealthzCheckParams{},
 	option.WithMaxRetries(5),
 )
 ```
@@ -365,15 +365,15 @@ you need to examine response headers, status codes, or other details.
 ```go
 // Create a variable to store the HTTP response
 var response *http.Response
-getCustomerAddress, err := client.Customers.Addresses.List(
+response, err := client.Healthz.Check(
 	context.TODO(),
-	"REPLACE_ME",
+	augno.HealthzCheckParams{},
 	option.WithResponseInto(&response),
 )
 if err != nil {
 	// handle error
 }
-fmt.Printf("%+v\n", getCustomerAddress)
+fmt.Printf("%+v\n", response)
 
 fmt.Printf("Status Code: %d\n", response.StatusCode)
 fmt.Printf("Headers: %+#v\n", response.Header)

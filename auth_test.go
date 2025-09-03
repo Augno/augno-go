@@ -4,6 +4,7 @@ package augno_test
 
 import (
 	"context"
+	"errors"
 	"os"
 	"testing"
 
@@ -12,7 +13,8 @@ import (
 	"github.com/stainless-sdks/augno-go/option"
 )
 
-func TestUsage(t *testing.T) {
+func TestAuthRefreshTokenWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,9 +26,14 @@ func TestUsage(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	response, err := client.Healthz.Check(context.TODO(), augno.HealthzCheckParams{})
+	_, err := client.Auth.RefreshToken(context.TODO(), augno.AuthRefreshTokenParams{
+		RefreshToken: augno.String(""),
+	})
 	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
-	t.Logf("%+v\n", response.Environment)
 }

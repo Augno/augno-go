@@ -15,9 +15,9 @@ import (
 // interacting with the augno API. You should not instantiate this client directly,
 // and instead use the [NewClient] method instead.
 type Client struct {
-	Options   []option.RequestOption
-	Customers CustomerService
-	Health    HealthService
+	Options []option.RequestOption
+	Healthz HealthzService
+	Auth    AuthService
 }
 
 // DefaultClientOptions read from the environment (AUGNO_API_KEY, AUGNO_BASE_URL).
@@ -42,8 +42,8 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 
 	r = Client{Options: opts}
 
-	r.Customers = NewCustomerService(opts...)
-	r.Health = NewHealthService(opts...)
+	r.Healthz = NewHealthzService(opts...)
+	r.Auth = NewAuthService(opts...)
 
 	return
 }
