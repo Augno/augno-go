@@ -135,21 +135,23 @@ func (r *AuthActionLoginUserResponseCurrentAccount) UnmarshalJSON(data []byte) e
 
 // The user that was logged in
 type AuthActionLoginUserResponseUser struct {
-	// The ID of the user
+	// The ID of the user - required field, always present, never null
 	ID string `json:"id,required"`
-	// The created at timestamp of the user
+	// The created at timestamp of the user - required field, always present, never
+	// null
 	CreatedAt string `json:"created_at,required"`
-	// The updated at timestamp of the user
+	// The updated at timestamp of the user - required field, always present, never
+	// null
 	UpdatedAt string `json:"updated_at,required"`
-	// The email of the user
+	// The email of the user - optional field, can be omitted from JSON
 	Email string `json:"email"`
-	// The email verified status of the user
+	// The email verified status of the user - optional field, can be omitted from JSON
 	EmailVerified string `json:"email_verified"`
-	// The image URL of the user
+	// The image URL of the user - optional nullable field, can be omitted or be null
 	ImageURL string `json:"image_url,nullable"`
-	// The name of the user
+	// The name of the user - optional field, can be omitted from JSON
 	Name string `json:"name"`
-	// The username of the user
+	// The username of the user - optional field, can be omitted from JSON
 	Username string `json:"username"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
