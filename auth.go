@@ -47,7 +47,7 @@ type AuthRefreshTokenResponse struct {
 	// The new access token
 	AccessToken string `json:"access_token,required"`
 	// A new refresh token
-	RefreshToken any `json:"refresh_token,required"`
+	RefreshToken AuthRefreshTokenResponseRefreshToken `json:"refresh_token,required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		AccessToken  respjson.Field
@@ -60,6 +60,27 @@ type AuthRefreshTokenResponse struct {
 // Returns the unmodified JSON received from the API
 func (r AuthRefreshTokenResponse) RawJSON() string { return r.JSON.raw }
 func (r *AuthRefreshTokenResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A new refresh token
+type AuthRefreshTokenResponseRefreshToken struct {
+	// The refresh token
+	Token string `json:"token,required"`
+	// The refresh token expires at
+	ExpiresAt string `json:"expires_at,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Token       respjson.Field
+		ExpiresAt   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AuthRefreshTokenResponseRefreshToken) RawJSON() string { return r.JSON.raw }
+func (r *AuthRefreshTokenResponseRefreshToken) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
