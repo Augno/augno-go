@@ -146,7 +146,7 @@ type AuthActionLoginUserResponseUser struct {
 	// The email verified status of the user
 	EmailVerified string `json:"email_verified"`
 	// The image URL of the user
-	ImageURL string `json:"image_url"`
+	ImageURL string `json:"image_url,nullable"`
 	// The name of the user
 	Name string `json:"name"`
 	// The username of the user
