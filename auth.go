@@ -35,7 +35,7 @@ func NewAuthService(opts ...option.RequestOption) (r AuthService) {
 }
 
 // Refresh an access token using a refresh token.
-func (r *AuthService) RefreshToken(ctx context.Context, body AuthRefreshTokenParams, opts ...option.RequestOption) (res *CreateAccessTokenResponse, err error) {
+func (r *AuthService) RefreshToken(ctx context.Context, body AuthRefreshTokenParams, opts ...option.RequestOption) (res *AuthRefreshTokenResponse, err error) {
 	opts = append(r.Options[:], opts...)
 	path := "v2/auth/access-tokens"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
@@ -43,7 +43,7 @@ func (r *AuthService) RefreshToken(ctx context.Context, body AuthRefreshTokenPar
 }
 
 // Response schema for CreateAccessTokenResponse
-type CreateAccessTokenResponse struct {
+type AuthRefreshTokenResponse struct {
 	// The new access token
 	AccessToken string `json:"access_token,required"`
 	// A new refresh token
@@ -58,8 +58,8 @@ type CreateAccessTokenResponse struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r CreateAccessTokenResponse) RawJSON() string { return r.JSON.raw }
-func (r *CreateAccessTokenResponse) UnmarshalJSON(data []byte) error {
+func (r AuthRefreshTokenResponse) RawJSON() string { return r.JSON.raw }
+func (r *AuthRefreshTokenResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
