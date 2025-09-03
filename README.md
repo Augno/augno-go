@@ -48,7 +48,7 @@ func main() {
 	client := augno.NewClient(
 		option.WithAPIKey("My API Key"), // defaults to os.LookupEnv("AUGNO_API_KEY")
 	)
-	response, err := client.Healthz.Check(context.TODO(), augno.HealthzCheckParams{})
+	response, err := client.Healthz.Check(context.TODO())
 	if err != nil {
 		panic(err.Error())
 	}
@@ -289,7 +289,7 @@ When the API returns a non-success status code, we return an error with type
 To handle errors, we recommend that you use the `errors.As` pattern:
 
 ```go
-_, err := client.Healthz.Check(context.TODO(), augno.HealthzCheckParams{})
+_, err := client.Healthz.Check(context.TODO())
 if err != nil {
 	var apierr *augno.Error
 	if errors.As(err, &apierr) {
@@ -316,7 +316,6 @@ ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 defer cancel()
 client.Healthz.Check(
 	ctx,
-	augno.HealthzCheckParams{},
 	// This sets the per-retry timeout
 	option.WithRequestTimeout(20*time.Second),
 )
@@ -350,11 +349,7 @@ client := augno.NewClient(
 )
 
 // Override per-request:
-client.Healthz.Check(
-	context.TODO(),
-	augno.HealthzCheckParams{},
-	option.WithMaxRetries(5),
-)
+client.Healthz.Check(context.TODO(), option.WithMaxRetries(5))
 ```
 
 ### Accessing raw response data (e.g. response headers)
@@ -365,11 +360,7 @@ you need to examine response headers, status codes, or other details.
 ```go
 // Create a variable to store the HTTP response
 var response *http.Response
-response, err := client.Healthz.Check(
-	context.TODO(),
-	augno.HealthzCheckParams{},
-	option.WithResponseInto(&response),
-)
+response, err := client.Healthz.Check(context.TODO(), option.WithResponseInto(&response))
 if err != nil {
 	// handle error
 }

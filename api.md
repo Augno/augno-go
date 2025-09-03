@@ -6,7 +6,7 @@ Response Types:
 
 Methods:
 
-- <code title="get /healthz">client.Healthz.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#HealthzService.Check">Check</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#HealthzCheckParams">HealthzCheckParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#HealthzCheckResponse">HealthzCheckResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /healthz">client.Healthz.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#HealthzService.Check">Check</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#HealthzCheckResponse">HealthzCheckResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Auth
 

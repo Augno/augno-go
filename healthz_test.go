@@ -26,7 +26,7 @@ func TestHealthzCheck(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Healthz.Check(context.TODO(), augno.HealthzCheckParams{})
+	_, err := client.Healthz.Check(context.TODO())
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

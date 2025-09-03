@@ -32,10 +32,10 @@ func NewHealthzService(opts ...option.RequestOption) (r HealthzService) {
 }
 
 // Returns the current health status, environment, and version.
-func (r *HealthzService) Check(ctx context.Context, query HealthzCheckParams, opts ...option.RequestOption) (res *HealthzCheckResponse, err error) {
+func (r *HealthzService) Check(ctx context.Context, opts ...option.RequestOption) (res *HealthzCheckResponse, err error) {
 	opts = append(r.Options[:], opts...)
 	path := "healthz"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
@@ -61,8 +61,4 @@ type HealthzCheckResponse struct {
 func (r HealthzCheckResponse) RawJSON() string { return r.JSON.raw }
 func (r *HealthzCheckResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-type HealthzCheckParams struct {
-	paramObj
 }
