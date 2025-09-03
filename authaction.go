@@ -173,8 +173,8 @@ func (r *AuthActionLoginUserResponseUser) UnmarshalJSON(data []byte) error {
 }
 
 type AuthActionLoginUserParams struct {
-	Password param.Opt[string] `json:"password,omitzero"`
-	Username param.Opt[string] `json:"username,omitzero"`
+	Password string `json:"password,required"`
+	Username string `json:"username,required"`
 	paramObj
 }
 

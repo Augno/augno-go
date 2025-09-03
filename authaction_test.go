@@ -13,7 +13,7 @@ import (
 	"github.com/stainless-sdks/augno-go/option"
 )
 
-func TestAuthActionLoginUserWithOptionalParams(t *testing.T) {
+func TestAuthActionLoginUser(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -27,8 +27,8 @@ func TestAuthActionLoginUserWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Auth.Actions.LoginUser(context.TODO(), augno.AuthActionLoginUserParams{
-		Password: augno.String(""),
-		Username: augno.String(""),
+		Password: "",
+		Username: "",
 	})
 	if err != nil {
 		var apierr *augno.Error
