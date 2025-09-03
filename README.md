@@ -1,6 +1,10 @@
 # Augno Go API Library
 
+<!-- x-release-please-start-version -->
+
 <a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go"><img src="https://pkg.go.dev/badge/github.com/stainless-sdks/augno-go.svg" alt="Go Reference"></a>
+
+<!-- x-release-please-end -->
 
 The Augno Go library provides convenient access to the Augno REST API
 from applications written in Go.
