@@ -20,6 +20,10 @@ Methods:
 
 ## Actions
 
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#AuthActionLoginUserResponse">AuthActionLoginUserResponse</a>
+
 Methods:
 
-- <code title="post /v2/auth/actions/login">client.Auth.Actions.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#AuthActionService.LoginUser">LoginUser</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#AuthActionLoginUserParams">AuthActionLoginUserParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#CreateAccessTokenResponse">CreateAccessTokenResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v2/auth/actions/login">client.Auth.Actions.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#AuthActionService.LoginUser">LoginUser</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#AuthActionLoginUserParams">AuthActionLoginUserParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#AuthActionLoginUserResponse">AuthActionLoginUserResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
