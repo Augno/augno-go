@@ -135,33 +135,31 @@ func (r *AuthActionLoginUserResponseCurrentAccount) UnmarshalJSON(data []byte) e
 
 // The user that was logged in
 type AuthActionLoginUserResponseUser struct {
-	// The ID of the user - required field, always present, never null
+	// The ID of the user
 	ID string `json:"id,required"`
-	// The created at timestamp of the user - required field, always present, never
-	// null
+	// The created at timestamp of the user
 	CreatedAt string `json:"created_at,required"`
-	// The updated at timestamp of the user - required field, always present, never
-	// null
+	// The email of the user
+	Email string `json:"email,required"`
+	// The email verified status of the user
+	EmailVerified string `json:"email_verified,required"`
+	// The image URL of the user
+	ImageURL string `json:"image_url,required"`
+	// The name of the user
+	Name string `json:"name,required"`
+	// The updated at timestamp of the user
 	UpdatedAt string `json:"updated_at,required"`
-	// The email of the user - optional field, can be omitted from JSON
-	Email string `json:"email"`
-	// The email verified status of the user - optional field, can be omitted from JSON
-	EmailVerified string `json:"email_verified"`
-	// The image URL of the user - optional nullable field, can be omitted or be null
-	ImageURL string `json:"image_url,nullable"`
-	// The name of the user - optional field, can be omitted from JSON
-	Name string `json:"name"`
-	// The username of the user - optional field, can be omitted from JSON
-	Username string `json:"username"`
+	// The username of the user
+	Username string `json:"username,required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID            respjson.Field
 		CreatedAt     respjson.Field
-		UpdatedAt     respjson.Field
 		Email         respjson.Field
 		EmailVerified respjson.Field
 		ImageURL      respjson.Field
 		Name          respjson.Field
+		UpdatedAt     respjson.Field
 		Username      respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
