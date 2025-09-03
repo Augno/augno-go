@@ -45,13 +45,13 @@ func (r *AuthService) RefreshToken(ctx context.Context, body AuthRefreshTokenPar
 // Response schema for CreateAccessTokenResponse
 type CreateAccessTokenResponse struct {
 	// The new access token
-	AccessToken string `json:"accessToken,required"`
+	AccessToken string `json:"access_token,required"`
 	// The account affiliations
-	AccountAffiliations []any `json:"accountAffiliations,required"`
+	AccountAffiliations []any `json:"account_affiliations,required"`
 	// The current account in use
-	CurrentAccount any `json:"currentAccount,required"`
+	CurrentAccount any `json:"current_account,required"`
 	// A new refresh token
-	RefreshToken string `json:"refreshToken,required"`
+	RefreshToken string `json:"refresh_token,required"`
 	// The user
 	User any `json:"user,required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
