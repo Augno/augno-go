@@ -45,11 +45,11 @@ type AuthActionLoginUserResponse struct {
 	// The account affiliations
 	AccountAffiliations []AuthActionLoginUserResponseAccountAffiliation `json:"account_affiliations,required"`
 	// The current account in use
-	CurrentAccount any `json:"current_account,required"`
+	CurrentAccount AuthActionLoginUserResponseCurrentAccount `json:"current_account,required"`
 	// The access token for the user
 	AccessToken string `json:"access_token"`
 	// The refresh token for the user
-	RefreshToken AuthActionLoginUserResponseRefreshToken `json:"refresh_token"`
+	RefreshToken RefreshToken `json:"refresh_token"`
 	// The user that was logged in
 	User AuthActionLoginUserResponseUser `json:"user"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -115,24 +115,21 @@ func (r *AuthActionLoginUserResponseAccountAffiliationRole) UnmarshalJSON(data [
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The refresh token for the user
-type AuthActionLoginUserResponseRefreshToken struct {
-	// The refresh token
-	Token string `json:"token,required"`
-	// The refresh token expires at
-	ExpiresAt string `json:"expires_at,required"`
+// The current account in use
+type AuthActionLoginUserResponseCurrentAccount struct {
+	// The ID of the current account
+	ID string `json:"id,required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Token       respjson.Field
-		ExpiresAt   respjson.Field
+		ID          respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
 }
 
 // Returns the unmodified JSON received from the API
-func (r AuthActionLoginUserResponseRefreshToken) RawJSON() string { return r.JSON.raw }
-func (r *AuthActionLoginUserResponseRefreshToken) UnmarshalJSON(data []byte) error {
+func (r AuthActionLoginUserResponseCurrentAccount) RawJSON() string { return r.JSON.raw }
+func (r *AuthActionLoginUserResponseCurrentAccount) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

@@ -12,6 +12,7 @@ Methods:
 
 Response Types:
 
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#RefreshToken">RefreshToken</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go#AuthRefreshTokenResponse">AuthRefreshTokenResponse</a>
 
 Methods:

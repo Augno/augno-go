@@ -42,29 +42,8 @@ func (r *AuthService) RefreshToken(ctx context.Context, body AuthRefreshTokenPar
 	return
 }
 
-// Response schema for CreateAccessTokenResponse
-type AuthRefreshTokenResponse struct {
-	// The new access token
-	AccessToken string `json:"access_token,required"`
-	// A new refresh token
-	RefreshToken AuthRefreshTokenResponseRefreshToken `json:"refresh_token,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AccessToken  respjson.Field
-		RefreshToken respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AuthRefreshTokenResponse) RawJSON() string { return r.JSON.raw }
-func (r *AuthRefreshTokenResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// A new refresh token
-type AuthRefreshTokenResponseRefreshToken struct {
+// Represents a RefreshToken resource
+type RefreshToken struct {
 	// The refresh token
 	Token string `json:"token,required"`
 	// The refresh token expires at
@@ -79,8 +58,29 @@ type AuthRefreshTokenResponseRefreshToken struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r AuthRefreshTokenResponseRefreshToken) RawJSON() string { return r.JSON.raw }
-func (r *AuthRefreshTokenResponseRefreshToken) UnmarshalJSON(data []byte) error {
+func (r RefreshToken) RawJSON() string { return r.JSON.raw }
+func (r *RefreshToken) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response schema for CreateAccessTokenResponse
+type AuthRefreshTokenResponse struct {
+	// The new access token
+	AccessToken string `json:"access_token,required"`
+	// A new refresh token
+	RefreshToken RefreshToken `json:"refresh_token,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AccessToken  respjson.Field
+		RefreshToken respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AuthRefreshTokenResponse) RawJSON() string { return r.JSON.raw }
+func (r *AuthRefreshTokenResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
