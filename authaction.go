@@ -42,21 +42,21 @@ func (r *AuthActionService) LoginUser(ctx context.Context, body AuthActionLoginU
 
 // Response schema for LoginResponse
 type AuthActionLoginUserResponse struct {
+	// The access token for the user
+	AccessToken string `json:"access_token,required"`
 	// The account affiliations
 	AccountAffiliations []AuthActionLoginUserResponseAccountAffiliation `json:"account_affiliations,required"`
 	// The current account in use
 	CurrentAccount AuthActionLoginUserResponseCurrentAccount `json:"current_account,required"`
-	// The access token for the user
-	AccessToken string `json:"access_token"`
 	// The refresh token for the user
-	RefreshToken RefreshToken `json:"refresh_token"`
+	RefreshToken RefreshToken `json:"refresh_token,required"`
 	// The user that was logged in
-	User AuthActionLoginUserResponseUser `json:"user"`
+	User AuthActionLoginUserResponseUser `json:"user,required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		AccessToken         respjson.Field
 		AccountAffiliations respjson.Field
 		CurrentAccount      respjson.Field
-		AccessToken         respjson.Field
 		RefreshToken        respjson.Field
 		User                respjson.Field
 		ExtraFields         map[string]respjson.Field
