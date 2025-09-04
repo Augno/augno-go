@@ -139,27 +139,27 @@ type AuthActionLoginUserResponseUser struct {
 	ID string `json:"id,required"`
 	// The created at timestamp of the user
 	CreatedAt string `json:"created_at,required"`
-	// The email of the user
-	Email string `json:"email,required"`
-	// The email verified status of the user
-	EmailVerified string `json:"email_verified,required"`
-	// The image URL of the user
-	ImageURL string `json:"image_url,required"`
-	// The name of the user
-	Name string `json:"name,required"`
 	// The updated at timestamp of the user
 	UpdatedAt string `json:"updated_at,required"`
+	// The email of the user
+	Email string `json:"email"`
+	// The email verified status of the user
+	EmailVerified string `json:"email_verified"`
+	// The image URL of the user
+	ImageURL string `json:"image_url,nullable"`
+	// The name of the user
+	Name string `json:"name"`
 	// The username of the user
-	Username string `json:"username,required"`
+	Username string `json:"username"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID            respjson.Field
 		CreatedAt     respjson.Field
+		UpdatedAt     respjson.Field
 		Email         respjson.Field
 		EmailVerified respjson.Field
 		ImageURL      respjson.Field
 		Name          respjson.Field
-		UpdatedAt     respjson.Field
 		Username      respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
