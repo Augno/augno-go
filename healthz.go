@@ -5,6 +5,7 @@ package augno
 import (
 	"context"
 	"net/http"
+	"slices"
 
 	"github.com/stainless-sdks/augno-go/internal/apijson"
 	"github.com/stainless-sdks/augno-go/internal/requestconfig"
@@ -33,7 +34,7 @@ func NewHealthzService(opts ...option.RequestOption) (r HealthzService) {
 
 // Returns the current health status, environment, and version.
 func (r *HealthzService) Check(ctx context.Context, opts ...option.RequestOption) (res *HealthzCheckResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "healthz"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return

@@ -5,6 +5,7 @@ package augno
 import (
 	"context"
 	"net/http"
+	"slices"
 
 	"github.com/stainless-sdks/augno-go/internal/apijson"
 	"github.com/stainless-sdks/augno-go/internal/requestconfig"
@@ -36,7 +37,7 @@ func NewAuthService(opts ...option.RequestOption) (r AuthService) {
 
 // Refresh an access token using a refresh token.
 func (r *AuthService) RefreshToken(ctx context.Context, body AuthRefreshTokenParams, opts ...option.RequestOption) (res *AuthRefreshTokenResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "v2/auth/access-tokens"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return

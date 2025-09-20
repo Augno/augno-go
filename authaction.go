@@ -5,6 +5,7 @@ package augno
 import (
 	"context"
 	"net/http"
+	"slices"
 
 	"github.com/stainless-sdks/augno-go/internal/apijson"
 	"github.com/stainless-sdks/augno-go/internal/requestconfig"
@@ -34,7 +35,7 @@ func NewAuthActionService(opts ...option.RequestOption) (r AuthActionService) {
 
 // Login a user and get an access and refresh token.
 func (r *AuthActionService) LoginUser(ctx context.Context, body AuthActionLoginUserParams, opts ...option.RequestOption) (res *AuthActionLoginUserResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "v2/auth/actions/login"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
