@@ -6,6 +6,7 @@ import (
 	"context"
 	"net/http"
 	"slices"
+	"time"
 
 	"github.com/stainless-sdks/augno-go/internal/apijson"
 	"github.com/stainless-sdks/augno-go/internal/requestconfig"
@@ -41,27 +42,36 @@ func (r *AuthActionService) LoginUser(ctx context.Context, body AuthActionLoginU
 	return
 }
 
-// Response schema for LoginResponse
+// Response schema for User
 type AuthActionLoginUserResponse struct {
-	// The access token for the user
-	AccessToken string `json:"access_token,required"`
-	// The account affiliations
-	AccountAffiliations []AuthActionLoginUserResponseAccountAffiliation `json:"account_affiliations,required"`
-	// The current account in use
-	CurrentAccount AuthActionLoginUserResponseCurrentAccount `json:"current_account,required"`
-	// The refresh token for the user
-	RefreshToken RefreshToken `json:"refresh_token,required"`
-	// The user that was logged in
-	User AuthActionLoginUserResponseUser `json:"user,required"`
+	// The ID of the user
+	ID string `json:"id,required"`
+	// The created at timestamp of the user
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// The email of the user
+	Email string `json:"email,required"`
+	// The email verified status of the user
+	EmailVerified time.Time `json:"email_verified,required" format:"date-time"`
+	// The image URL of the user
+	ImageURL string `json:"image_url,required"`
+	// The name of the user
+	Name string `json:"name,required"`
+	// The updated at timestamp of the user
+	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	// The username of the user
+	Username string `json:"username,required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		AccessToken         respjson.Field
-		AccountAffiliations respjson.Field
-		CurrentAccount      respjson.Field
-		RefreshToken        respjson.Field
-		User                respjson.Field
-		ExtraFields         map[string]respjson.Field
-		raw                 string
+		ID            respjson.Field
+		CreatedAt     respjson.Field
+		Email         respjson.Field
+		EmailVerified respjson.Field
+		ImageURL      respjson.Field
+		Name          respjson.Field
+		UpdatedAt     respjson.Field
+		Username      respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
 	} `json:"-"`
 }
 
@@ -71,111 +81,11 @@ func (r *AuthActionLoginUserResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Represents a AccountAffiliation resource
-type AuthActionLoginUserResponseAccountAffiliation struct {
-	// The ID of the account affiliation
-	ID string `json:"id,required"`
-	// The name of the account affiliation
-	Name string `json:"name,required"`
-	// Represents a AccountAffiliationRole resource
-	Role AuthActionLoginUserResponseAccountAffiliationRole `json:"role,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		Name        respjson.Field
-		Role        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AuthActionLoginUserResponseAccountAffiliation) RawJSON() string { return r.JSON.raw }
-func (r *AuthActionLoginUserResponseAccountAffiliation) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Represents a AccountAffiliationRole resource
-type AuthActionLoginUserResponseAccountAffiliationRole struct {
-	// The ID of the role
-	ID string `json:"id,required"`
-	// The name of the role
-	Name string `json:"name,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		Name        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AuthActionLoginUserResponseAccountAffiliationRole) RawJSON() string { return r.JSON.raw }
-func (r *AuthActionLoginUserResponseAccountAffiliationRole) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The current account in use
-type AuthActionLoginUserResponseCurrentAccount struct {
-	// The ID of the current account
-	ID string `json:"id,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AuthActionLoginUserResponseCurrentAccount) RawJSON() string { return r.JSON.raw }
-func (r *AuthActionLoginUserResponseCurrentAccount) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The user that was logged in
-type AuthActionLoginUserResponseUser struct {
-	// The ID of the user
-	ID string `json:"id,required"`
-	// The created at timestamp of the user
-	CreatedAt string `json:"created_at,required"`
-	// The updated at timestamp of the user
-	UpdatedAt string `json:"updated_at,required"`
-	// The email of the user
-	Email string `json:"email"`
-	// The email verified status of the user
-	EmailVerified string `json:"email_verified"`
-	// The image URL of the user
-	ImageURL string `json:"image_url,nullable"`
-	// The name of the user
-	Name string `json:"name"`
-	// The username of the user
-	Username string `json:"username"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID            respjson.Field
-		CreatedAt     respjson.Field
-		UpdatedAt     respjson.Field
-		Email         respjson.Field
-		EmailVerified respjson.Field
-		ImageURL      respjson.Field
-		Name          respjson.Field
-		Username      respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AuthActionLoginUserResponseUser) RawJSON() string { return r.JSON.raw }
-func (r *AuthActionLoginUserResponseUser) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 type AuthActionLoginUserParams struct {
+	// The username or email of the user
+	Identifier string `json:"identifier,required"`
+	// The password of the user
 	Password string `json:"password,required"`
-	Username string `json:"username,required"`
 	paramObj
 }
 

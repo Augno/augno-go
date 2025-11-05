@@ -27,8 +27,8 @@ func TestAuthActionLoginUser(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Auth.Actions.LoginUser(context.TODO(), augno.AuthActionLoginUserParams{
-		Password: "",
-		Username: "",
+		Identifier: "identifier",
+		Password:   "password",
 	})
 	if err != nil {
 		var apierr *augno.Error
