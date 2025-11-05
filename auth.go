@@ -33,11 +33,19 @@ func NewAuthService(opts ...option.RequestOption) (r AuthService) {
 }
 
 // Refresh an access token using a refresh token.
-func (r *AuthService) RefreshToken(ctx context.Context, opts ...option.RequestOption) (res *AuthRefreshTokenResponse, err error) {
+func (r *AuthService) RefreshToken(ctx context.Context, opts ...option.RequestOption) (res *EmptyResource, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "v2/auth/access-tokens"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
 	return
 }
 
-type AuthRefreshTokenResponse = any
+// Revoke a refresh token.
+func (r *AuthService) RevokeRefreshToken(ctx context.Context, opts ...option.RequestOption) (res *EmptyResource, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "v2/auth/refresh-tokens"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return
+}
+
+type EmptyResource = any
