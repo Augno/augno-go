@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"slices"
 
+	"github.com/stainless-sdks/augno-go/internal/apijson"
 	"github.com/stainless-sdks/augno-go/internal/requestconfig"
 	"github.com/stainless-sdks/augno-go/option"
+	"github.com/stainless-sdks/augno-go/packages/respjson"
 )
 
 // AuthService contains methods and other services that help with interacting with
@@ -48,4 +50,17 @@ func (r *AuthService) RevokeRefreshToken(ctx context.Context, opts ...option.Req
 	return
 }
 
-type EmptyResource = any
+// Request schema for EmptyResource
+type EmptyResource struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EmptyResource) RawJSON() string { return r.JSON.raw }
+func (r *EmptyResource) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
