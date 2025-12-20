@@ -2,8 +2,8 @@ package apijson_test
 
 import (
 	"encoding/json"
-	"github.com/Augno/go-sdk/internal/apijson"
-	"github.com/Augno/go-sdk/packages/respjson"
+	"github.com/stainless-sdks/augno-go/internal/apijson"
+	"github.com/stainless-sdks/augno-go/packages/respjson"
 	"testing"
 )
 

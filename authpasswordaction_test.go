@@ -13,30 +13,7 @@ import (
 	"github.com/stainless-sdks/augno-go/option"
 )
 
-func TestAuthRefreshToken(t *testing.T) {
-	t.Skip("Some required params are not supported yet.")
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := augno.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
-	)
-	_, err := client.Auth.RefreshToken(context.TODO())
-	if err != nil {
-		var apierr *augno.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestAuthRegisterUserWithOptionalParams(t *testing.T) {
+func TestAuthPasswordActionRequestPasswordResetWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -49,10 +26,9 @@ func TestAuthRegisterUserWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Auth.RegisterUser(context.TODO(), augno.AuthRegisterUserParams{
-		Email:    augno.String("jdoe@augno.com"),
-		Name:     augno.String("John Doe"),
-		Password: augno.String("super-secret-password"),
+	_, err := client.Auth.Passwords.Actions.RequestPasswordReset(context.TODO(), augno.AuthPasswordActionRequestPasswordResetParams{
+		AccountSlug: augno.String("account_slug"),
+		Identifier:  augno.String("jdoe@augno.com"),
 	})
 	if err != nil {
 		var apierr *augno.Error
@@ -63,8 +39,8 @@ func TestAuthRegisterUserWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestAuthRevokeRefreshToken(t *testing.T) {
-	t.Skip("Some required params are not supported yet.")
+func TestAuthPasswordActionResetPasswordWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -76,7 +52,10 @@ func TestAuthRevokeRefreshToken(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Auth.RevokeRefreshToken(context.TODO())
+	_, err := client.Auth.Passwords.Actions.ResetPassword(context.TODO(), augno.AuthPasswordActionResetPasswordParams{
+		Token:    augno.String("eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1Z25vLmNvbSIsInN1YiI6InVzXzAxZ2Y3YTgyMDBlMXNyMjBwZzl3eDZkMmswIiwiZXhwIjoxNzU2ODIzMzI5LCJpYXQiOjE3NTY4MTk3Mjl9.2ZodhtiHDqIQnDjzrJZvqIdEbQbmkgbTaz4OXdbXCWNjzEsy2-5e78XQRu-aZ8MoZ2dusIVKQcN1Tm-arKR0_Q"),
+		Password: augno.String("new-super-secret-password"),
+	})
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

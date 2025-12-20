@@ -41,7 +41,7 @@ To use a local version of this library from source in another project, edit the 
 directive. This can be done through the CLI with the following:
 
 ```sh
-$ go mod edit -replace github.com/Augno/go-sdk=/path/to/go-sdk
+$ go mod edit -replace github.com/stainless-sdks/augno-go=/path/to/augno-go
 ```
 
 ## Running tests

@@ -2,7 +2,7 @@ package apiform
 
 import (
 	"bytes"
-	"github.com/Augno/go-sdk/packages/param"
+	"github.com/stainless-sdks/augno-go/packages/param"
 	"io"
 	"mime/multipart"
 	"strings"

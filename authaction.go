@@ -8,11 +8,11 @@ import (
 	"slices"
 	"time"
 
-	"github.com/Augno/go-sdk/internal/apijson"
-	"github.com/Augno/go-sdk/internal/requestconfig"
-	"github.com/Augno/go-sdk/option"
-	"github.com/Augno/go-sdk/packages/param"
-	"github.com/Augno/go-sdk/packages/respjson"
+	"github.com/stainless-sdks/augno-go/internal/apijson"
+	"github.com/stainless-sdks/augno-go/internal/requestconfig"
+	"github.com/stainless-sdks/augno-go/option"
+	"github.com/stainless-sdks/augno-go/packages/param"
+	"github.com/stainless-sdks/augno-go/packages/respjson"
 )
 
 // AuthActionService contains methods and other services that help with interacting
@@ -34,32 +34,37 @@ func NewAuthActionService(opts ...option.RequestOption) (r AuthActionService) {
 	return
 }
 
-// Login a user and get an access and refresh token.
-func (r *AuthActionService) LoginUser(ctx context.Context, body AuthActionLoginUserParams, opts ...option.RequestOption) (res *AuthActionLoginUserResponse, err error) {
+// This endpoint is utilized to login a user. Once completed, the user object is
+// returned. An access and refresh token are set in cookies. Learn more about
+// authentication and authorization in our
+// [documentation](https://docs.augno.com/guides/authentication).
+func (r *AuthActionService) LoginUser(ctx context.Context, body AuthActionLoginUserParams, opts ...option.RequestOption) (res *User, err error) {
 	opts = slices.Concat(r.Options, opts)
-	path := "v2/auth/actions/login"
+	path := "v1/auth/actions/login"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
 
-// Response schema for User
-type AuthActionLoginUserResponse struct {
+// A user in the Augno system
+type User struct {
 	// The ID of the user
-	ID string `json:"id,required"`
+	ID string `json:"id"`
 	// The created at timestamp of the user
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" format:"date-time"`
 	// The email of the user
-	Email string `json:"email,required"`
+	Email string `json:"email"`
 	// The email verified status of the user
-	EmailVerified time.Time `json:"email_verified,required" format:"date-time"`
+	EmailVerified time.Time `json:"email_verified" format:"date-time"`
 	// The image URL of the user
-	ImageURL string `json:"image_url,required"`
+	ImageURL string `json:"image_url"`
 	// The name of the user
-	Name string `json:"name,required"`
+	Name string `json:"name"`
+	// The object type, always "user"
+	Object string `json:"object"`
 	// The updated at timestamp of the user
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" format:"date-time"`
 	// The username of the user
-	Username string `json:"username,required"`
+	Username string `json:"username"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID            respjson.Field
@@ -68,6 +73,7 @@ type AuthActionLoginUserResponse struct {
 		EmailVerified respjson.Field
 		ImageURL      respjson.Field
 		Name          respjson.Field
+		Object        respjson.Field
 		UpdatedAt     respjson.Field
 		Username      respjson.Field
 		ExtraFields   map[string]respjson.Field
@@ -76,16 +82,16 @@ type AuthActionLoginUserResponse struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r AuthActionLoginUserResponse) RawJSON() string { return r.JSON.raw }
-func (r *AuthActionLoginUserResponse) UnmarshalJSON(data []byte) error {
+func (r User) RawJSON() string { return r.JSON.raw }
+func (r *User) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 type AuthActionLoginUserParams struct {
-	// The username or email of the user
-	Identifier string `json:"identifier,required"`
-	// The password of the user
-	Password string `json:"password,required"`
+	// The username or email for authentication
+	Identifier param.Opt[string] `json:"identifier,omitzero"`
+	// The password for authentication
+	Password param.Opt[string] `json:"password,omitzero"`
 	paramObj
 }
 

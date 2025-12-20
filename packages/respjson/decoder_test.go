@@ -3,8 +3,8 @@ package respjson_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Augno/go-sdk/internal/apijson"
-	rj "github.com/Augno/go-sdk/packages/respjson"
+	"github.com/stainless-sdks/augno-go/internal/apijson"
+	rj "github.com/stainless-sdks/augno-go/packages/respjson"
 	"reflect"
 	"testing"
 )

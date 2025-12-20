@@ -2,7 +2,7 @@ package param
 
 import (
 	"encoding/json"
-	"github.com/Augno/go-sdk/internal/encoding/json/sentinel"
+	"github.com/stainless-sdks/augno-go/internal/encoding/json/sentinel"
 	"reflect"
 )
 

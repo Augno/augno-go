@@ -1,4 +1,4 @@
-configured_endpoints: 4
-openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/augno%2Faugno-fc845eac2371fdc3bfb1cf2e0283b1d788f6b361052d1a6b50a6709dbf2d3fd3.yml
-openapi_spec_hash: 9b1fa36df0a5fb9a8c361d3ade122c5a
-config_hash: 7c707e6747fedf05c1cc646761e2b570
+configured_endpoints: 7
+openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/augno%2Faugno-b5e761e58ce496daa533abdde31b89f42a65891086cc2f4db2bae3305a183ecd.yml
+openapi_spec_hash: cce8266cdf0957747c12efc54be2ec90
+config_hash: 5dfd3a5e8df4f44fb543a5acfad32829

@@ -8,12 +8,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Augno/go-sdk"
-	"github.com/Augno/go-sdk/internal/testutil"
-	"github.com/Augno/go-sdk/option"
+	"github.com/stainless-sdks/augno-go"
+	"github.com/stainless-sdks/augno-go/internal/testutil"
+	"github.com/stainless-sdks/augno-go/option"
 )
 
-func TestHealthzCheck(t *testing.T) {
+func TestAuthPasswordUpdatePasswordWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -26,7 +26,10 @@ func TestHealthzCheck(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Healthz.Check(context.TODO())
+	_, err := client.Auth.Passwords.UpdatePassword(context.TODO(), augno.AuthPasswordUpdatePasswordParams{
+		NewPassword: augno.String("new-super-secret-password"),
+		OldPassword: augno.String("super-secret-password"),
+	})
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

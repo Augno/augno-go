@@ -8,8 +8,8 @@ import (
 	"os"
 	"slices"
 
-	"github.com/Augno/go-sdk/internal/requestconfig"
-	"github.com/Augno/go-sdk/option"
+	"github.com/stainless-sdks/augno-go/internal/requestconfig"
+	"github.com/stainless-sdks/augno-go/option"
 )
 
 // Client creates a struct with services and top level methods that help with
@@ -17,7 +17,6 @@ import (
 // and instead use the [NewClient] method instead.
 type Client struct {
 	Options []option.RequestOption
-	Healthz HealthzService
 	Auth    AuthService
 }
 
@@ -43,7 +42,6 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 
 	r = Client{Options: opts}
 
-	r.Healthz = NewHealthzService(opts...)
 	r.Auth = NewAuthService(opts...)
 
 	return

@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Augno/go-sdk/packages/param"
+	"github.com/stainless-sdks/augno-go/packages/param"
 )
 
 var encoders sync.Map // map[reflect.Type]encoderFunc
