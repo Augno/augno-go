@@ -2,7 +2,7 @@ package apijson
 
 import (
 	"errors"
-	"github.com/stainless-sdks/augno-go/packages/param"
+	"github.com/Augno/go-sdk/packages/param"
 	"reflect"
 
 	"github.com/tidwall/gjson"

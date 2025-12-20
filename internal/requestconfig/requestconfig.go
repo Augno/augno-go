@@ -18,10 +18,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stainless-sdks/augno-go/internal"
-	"github.com/stainless-sdks/augno-go/internal/apierror"
-	"github.com/stainless-sdks/augno-go/internal/apiform"
-	"github.com/stainless-sdks/augno-go/internal/apiquery"
+	"github.com/Augno/go-sdk/internal"
+	"github.com/Augno/go-sdk/internal/apierror"
+	"github.com/Augno/go-sdk/internal/apiform"
+	"github.com/Augno/go-sdk/internal/apiquery"
 )
 
 func getDefaultHeaders() map[string]string {

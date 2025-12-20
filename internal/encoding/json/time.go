@@ -2,7 +2,7 @@
 package json
 
 import (
-	"github.com/stainless-sdks/augno-go/internal/encoding/json/shims"
+	"github.com/Augno/go-sdk/internal/encoding/json/shims"
 	"reflect"
 	"time"
 )

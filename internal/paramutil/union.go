@@ -2,7 +2,7 @@ package paramutil
 
 import (
 	"fmt"
-	"github.com/stainless-sdks/augno-go/packages/param"
+	"github.com/Augno/go-sdk/packages/param"
 	"reflect"
 )
 

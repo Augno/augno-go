@@ -1,8 +1,8 @@
 package paramutil
 
 import (
-	"github.com/stainless-sdks/augno-go/packages/param"
-	"github.com/stainless-sdks/augno-go/packages/respjson"
+	"github.com/Augno/go-sdk/packages/param"
+	"github.com/Augno/go-sdk/packages/respjson"
 )
 
 func AddrIfPresent[T comparable](v param.Opt[T]) *T {

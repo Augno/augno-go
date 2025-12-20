@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/augno-go"
-	"github.com/stainless-sdks/augno-go/internal"
-	"github.com/stainless-sdks/augno-go/option"
+	"github.com/Augno/go-sdk"
+	"github.com/Augno/go-sdk/internal"
+	"github.com/Augno/go-sdk/option"
 )
 
 type closureTransport struct {

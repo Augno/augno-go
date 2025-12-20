@@ -2,7 +2,7 @@ package param_test
 
 import (
 	"encoding/json"
-	"github.com/stainless-sdks/augno-go/packages/param"
+	"github.com/Augno/go-sdk/packages/param"
 	"testing"
 )
 

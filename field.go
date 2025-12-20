@@ -1,7 +1,7 @@
 package augno
 
 import (
-	"github.com/stainless-sdks/augno-go/packages/param"
+	"github.com/Augno/go-sdk/packages/param"
 	"io"
 	"time"
 )
