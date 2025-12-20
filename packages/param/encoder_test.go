@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/augno-go/packages/param"
+	"github.com/Augno/go-sdk/packages/param"
 )
 
 type Struct struct {

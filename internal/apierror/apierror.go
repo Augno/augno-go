@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"github.com/stainless-sdks/augno-go/internal/apijson"
-	"github.com/stainless-sdks/augno-go/packages/respjson"
+	"github.com/Augno/go-sdk/internal/apijson"
+	"github.com/Augno/go-sdk/packages/respjson"
 )
 
 // Error represents an error that originates from the API, i.e. when a request is

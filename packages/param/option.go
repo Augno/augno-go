@@ -3,7 +3,7 @@ package param
 import (
 	"encoding/json"
 	"fmt"
-	shimjson "github.com/stainless-sdks/augno-go/internal/encoding/json"
+	shimjson "github.com/Augno/go-sdk/internal/encoding/json"
 	"time"
 )
 

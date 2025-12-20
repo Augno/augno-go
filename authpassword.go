@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/stainless-sdks/augno-go/internal/apijson"
-	"github.com/stainless-sdks/augno-go/internal/requestconfig"
-	"github.com/stainless-sdks/augno-go/option"
-	"github.com/stainless-sdks/augno-go/packages/param"
-	"github.com/stainless-sdks/augno-go/packages/respjson"
+	"github.com/Augno/go-sdk/internal/apijson"
+	"github.com/Augno/go-sdk/internal/requestconfig"
+	"github.com/Augno/go-sdk/option"
+	"github.com/Augno/go-sdk/packages/param"
+	"github.com/Augno/go-sdk/packages/respjson"
 )
 
 // AuthPasswordService contains methods and other services that help with

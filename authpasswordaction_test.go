@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/augno-go"
-	"github.com/stainless-sdks/augno-go/internal/testutil"
-	"github.com/stainless-sdks/augno-go/option"
+	"github.com/Augno/go-sdk"
+	"github.com/Augno/go-sdk/internal/testutil"
+	"github.com/Augno/go-sdk/option"
 )
 
 func TestAuthPasswordActionRequestPasswordResetWithOptionalParams(t *testing.T) {
