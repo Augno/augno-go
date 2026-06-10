@@ -7,29 +7,44 @@ import (
 	"net/http"
 	"os"
 	"slices"
+	"strings"
 
-	"github.com/stainless-sdks/augno-go/internal/requestconfig"
-	"github.com/stainless-sdks/augno-go/option"
+	"github.com/augno/augno-go/internal/requestconfig"
+	"github.com/augno/augno-go/option"
 )
 
 // Client creates a struct with services and top level methods that help with
 // interacting with the augno API. You should not instantiate this client directly,
 // and instead use the [NewClient] method instead.
 type Client struct {
-	Options []option.RequestOption
-	Healthz HealthzService
+	options []option.RequestOption
 	Auth    AuthService
+	Core    CoreService
+	Catalog CatalogService
+	Sales   SaleService
+	// Create, view, update, and delete transactions.
+	Finance    FinanceService
+	Operations OperationService
+	Identity   IdentityService
 }
 
 // DefaultClientOptions read from the environment (AUGNO_API_KEY, AUGNO_BASE_URL).
 // This should be used to initialize new clients.
 func DefaultClientOptions() []option.RequestOption {
-	defaults := []option.RequestOption{option.WithEnvironmentProduction()}
+	defaults := []option.RequestOption{option.WithHTTPClient(defaultHTTPClient()), option.WithEnvironmentProduction()}
 	if o, ok := os.LookupEnv("AUGNO_BASE_URL"); ok {
 		defaults = append(defaults, option.WithBaseURL(o))
 	}
 	if o, ok := os.LookupEnv("AUGNO_API_KEY"); ok {
-		defaults = append(defaults, option.WithAPIKey(o))
+		defaults = append(defaults, option.WithBearerToken(o))
+	}
+	if o, ok := os.LookupEnv("AUGNO_CUSTOM_HEADERS"); ok {
+		for _, line := range strings.Split(o, "\n") {
+			colon := strings.Index(line, ":")
+			if colon >= 0 {
+				defaults = append(defaults, option.WithHeader(strings.TrimSpace(line[:colon]), strings.TrimSpace(line[colon+1:])))
+			}
+		}
 	}
 	return defaults
 }
@@ -41,10 +56,15 @@ func DefaultClientOptions() []option.RequestOption {
 func NewClient(opts ...option.RequestOption) (r Client) {
 	opts = append(DefaultClientOptions(), opts...)
 
-	r = Client{Options: opts}
+	r = Client{options: opts}
 
-	r.Healthz = NewHealthzService(opts...)
 	r.Auth = NewAuthService(opts...)
+	r.Core = NewCoreService(opts...)
+	r.Catalog = NewCatalogService(opts...)
+	r.Sales = NewSaleService(opts...)
+	r.Finance = NewFinanceService(opts...)
+	r.Operations = NewOperationService(opts...)
+	r.Identity = NewIdentityService(opts...)
 
 	return
 }
@@ -81,7 +101,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 // For even greater flexibility, see [option.WithResponseInto] and
 // [option.WithResponseBodyInto].
 func (r *Client) Execute(ctx context.Context, method string, path string, params any, res any, opts ...option.RequestOption) error {
-	opts = slices.Concat(r.Options, opts)
+	opts = slices.Concat(r.options, opts)
 	return requestconfig.ExecuteNewRequest(ctx, method, path, params, res, opts...)
 }
 

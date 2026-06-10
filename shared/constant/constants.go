@@ -3,7 +3,7 @@
 package constant
 
 import (
-	shimjson "github.com/stainless-sdks/augno-go/internal/encoding/json"
+	shimjson "github.com/augno/augno-go/internal/encoding/json"
 )
 
 type Constant[T any] interface {

@@ -3,8 +3,8 @@ package respjson_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stainless-sdks/augno-go/internal/apijson"
-	rj "github.com/stainless-sdks/augno-go/packages/respjson"
+	"github.com/augno/augno-go/internal/apijson"
+	rj "github.com/augno/augno-go/packages/respjson"
 	"reflect"
 	"testing"
 )
@@ -30,7 +30,7 @@ func (r *UnionOfStringIntOrObject) UnmarshalJSON(data []byte) error {
 
 type SubFields struct {
 	OfBool bool   `json:",inline"`
-	Name   string `json:"name,required"`
+	Name   string `json:"name" api:"required"`
 	JSON   struct {
 		OfBool      rj.Field
 		Name        rj.Field

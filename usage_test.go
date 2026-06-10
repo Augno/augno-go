@@ -7,9 +7,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/augno-go"
-	"github.com/stainless-sdks/augno-go/internal/testutil"
-	"github.com/stainless-sdks/augno-go/option"
+	"github.com/augno/augno-go"
+	"github.com/augno/augno-go/internal/testutil"
+	"github.com/augno/augno-go/option"
 )
 
 func TestUsage(t *testing.T) {
@@ -22,12 +22,11 @@ func TestUsage(t *testing.T) {
 	}
 	client := augno.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
-	t.Skip("Prism tests are disabled")
-	response, err := client.Healthz.Check(context.TODO())
+	listItem, err := client.Catalog.Items.List(context.TODO(), augno.CatalogItemListParams{})
 	if err != nil {
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
-	t.Logf("%+v\n", response.Environment)
+	t.Logf("%+v\n", listItem.Data)
 }

@@ -3,8 +3,8 @@
 package augno
 
 import (
-	"github.com/stainless-sdks/augno-go/internal/apierror"
-	"github.com/stainless-sdks/augno-go/packages/param"
+	"github.com/augno/augno-go/internal/apierror"
+	"github.com/augno/augno-go/packages/param"
 )
 
 // aliased to make [param.APIUnion] private when embedding

@@ -1,4 +1,4 @@
-module github.com/stainless-sdks/augno-go
+module github.com/augno/augno-go
 
 go 1.22
 

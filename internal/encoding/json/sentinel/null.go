@@ -1,7 +1,7 @@
 package sentinel
 
 import (
-	"github.com/stainless-sdks/augno-go/internal/encoding/json/shims"
+	"github.com/augno/augno-go/internal/encoding/json/shims"
 	"reflect"
 	"sync"
 )

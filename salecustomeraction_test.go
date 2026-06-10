@@ -8,13 +8,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/augno-go"
-	"github.com/stainless-sdks/augno-go/internal/testutil"
-	"github.com/stainless-sdks/augno-go/option"
+	"github.com/augno/augno-go"
+	"github.com/augno/augno-go/internal/testutil"
+	"github.com/augno/augno-go/option"
 )
 
-func TestHealthzCheck(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestSaleCustomerActionMergeWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,9 +23,18 @@ func TestHealthzCheck(t *testing.T) {
 	}
 	client := augno.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Healthz.Check(context.TODO())
+	_, err := client.Sales.Customers.Actions.Merge(
+		context.TODO(),
+		"ac_0170df1ac58e4d24c66fc89f5f",
+		augno.SaleCustomerActionMergeParams{
+			MergeCustomersRequest: augno.MergeCustomersRequestParam{
+				SourceCustomerIDs: []string{"ac_0170df1ac58e4d24c66fc89f5f"},
+			},
+			Include: []string{"bill_to_address"},
+		},
+	)
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
