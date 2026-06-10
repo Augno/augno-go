@@ -8,13 +8,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/augno-go"
-	"github.com/stainless-sdks/augno-go/internal/testutil"
-	"github.com/stainless-sdks/augno-go/option"
+	"github.com/augno/augno-go"
+	"github.com/augno/augno-go/internal/testutil"
+	"github.com/augno/augno-go/option"
 )
 
-func TestAuthRefreshToken(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestCatalogItemAttributeUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,9 +23,16 @@ func TestAuthRefreshToken(t *testing.T) {
 	}
 	client := augno.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Auth.RefreshToken(context.TODO())
+	_, err := client.Catalog.Items.Attributes.Update(
+		context.TODO(),
+		"at_01c9493ec0c46bb0ed12708ae4",
+		augno.CatalogItemAttributeUpdateParams{
+			ID:      "it_0131e386ac683e8c29a71f6f1f",
+			Include: []string{"category"},
+		},
+	)
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -36,8 +42,7 @@ func TestAuthRefreshToken(t *testing.T) {
 	}
 }
 
-func TestAuthRevokeRefreshToken(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestCatalogItemAttributeDeleteWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -47,9 +52,16 @@ func TestAuthRevokeRefreshToken(t *testing.T) {
 	}
 	client := augno.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Auth.RevokeRefreshToken(context.TODO())
+	_, err := client.Catalog.Items.Attributes.Delete(
+		context.TODO(),
+		"at_01c9493ec0c46bb0ed12708ae4",
+		augno.CatalogItemAttributeDeleteParams{
+			ID:      "it_0131e386ac683e8c29a71f6f1f",
+			Include: []string{"category"},
+		},
+	)
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

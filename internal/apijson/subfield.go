@@ -1,7 +1,7 @@
 package apijson
 
 import (
-	"github.com/stainless-sdks/augno-go/packages/respjson"
+	"github.com/augno/augno-go/packages/respjson"
 	"reflect"
 )
 

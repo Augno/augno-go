@@ -1,7 +1,7 @@
 package apiquery
 
 import (
-	"github.com/stainless-sdks/augno-go/packages/param"
+	"github.com/augno/augno-go/packages/param"
 	"net/url"
 	"testing"
 	"time"

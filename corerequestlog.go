@@ -1,0 +1,343 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+package augno
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"net/url"
+	"slices"
+	"time"
+
+	"github.com/augno/augno-go/internal/apijson"
+	"github.com/augno/augno-go/internal/apiquery"
+	"github.com/augno/augno-go/internal/requestconfig"
+	"github.com/augno/augno-go/option"
+	"github.com/augno/augno-go/packages/param"
+	"github.com/augno/augno-go/packages/respjson"
+)
+
+// List and retrieve request logs.
+//
+// CoreRequestLogService contains methods and other services that help with
+// interacting with the augno API.
+//
+// Note, unlike clients, this service does not read variables from the environment
+// automatically. You should not instantiate this service directly, and instead use
+// the [NewCoreRequestLogService] method instead.
+type CoreRequestLogService struct {
+	options []option.RequestOption
+}
+
+// NewCoreRequestLogService generates a new service that applies the given options
+// to each request. These options are applied after the parent client's options (if
+// there is one), and before any request-specific options.
+func NewCoreRequestLogService(opts ...option.RequestOption) (r CoreRequestLogService) {
+	r = CoreRequestLogService{}
+	r.options = opts
+	return
+}
+
+// Returns a request log by ID.
+func (r *CoreRequestLogService) Get(ctx context.Context, id string, query CoreRequestLogGetParams, opts ...option.RequestOption) (res *RequestLog, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/core/request-logs/%s", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
+// Returns a paginated list of request logs.
+func (r *CoreRequestLogService) List(ctx context.Context, query CoreRequestLogListParams, opts ...option.RequestOption) (res *ListRequestLog, err error) {
+	opts = slices.Concat(r.options, opts)
+	path := "v1/core/request-logs"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
+// Reference to an actor (user, API key, or agent).
+type Actor struct {
+	// Actor ID.
+	ID string `json:"id" api:"required"`
+	// Human-readable handle (`email` for users, `redacted_value` for API keys, `slug`
+	// for agents).
+	Handle string `json:"handle" api:"required"`
+	// Display name.
+	Name string `json:"name" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "actor".
+	Object ActorObject `json:"object" api:"required"`
+	// Role resource.
+	Role Role `json:"role" api:"required"`
+	// Actor type.
+	//
+	// Any of "user", "api_key", "agent".
+	Type ActorType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		Handle      respjson.Field
+		Name        respjson.Field
+		Object      respjson.Field
+		Role        respjson.Field
+		Type        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r Actor) RawJSON() string { return r.JSON.raw }
+func (r *Actor) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ActorObject string
+
+const (
+	ActorObjectActor ActorObject = "actor"
+)
+
+// Actor type.
+type ActorType string
+
+const (
+	ActorTypeUser   ActorType = "user"
+	ActorTypeAPIKey ActorType = "api_key"
+	ActorTypeAgent  ActorType = "agent"
+)
+
+// List represents a paginated list of resources.
+type ListRequestLog struct {
+	// Resources in this page.
+	Data []RequestLog `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListRequestLogObject `json:"object" api:"required"`
+	// PageInfo contains URL-based pagination metadata.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListRequestLog) RawJSON() string { return r.JSON.raw }
+func (r *ListRequestLog) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListRequestLogObject string
+
+const (
+	ListRequestLogObjectList ListRequestLogObject = "list"
+)
+
+// RequestLog is an API request log entry.
+type RequestLog struct {
+	// Request log ID.
+	ID string `json:"id" api:"required"`
+	// Account with optional branding and portal sub-resources.
+	Account Account `json:"account" api:"required"`
+	// Reference to an actor (user, API key, or agent).
+	Actor Actor `json:"actor" api:"required"`
+	// API version used.
+	APIVersion string `json:"api_version" api:"required"`
+	// Client IP address.
+	ClientIP string `json:"client_ip" api:"required"`
+	// When the log entry was created.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// API error code.
+	ErrorCode string `json:"error_code" api:"required"`
+	// Error message.
+	ErrorMessage string `json:"error_message" api:"required"`
+	// Request host. Usually `api.augno.com`.
+	Host string `json:"host" api:"required"`
+	// User-provided idempotency key.
+	IdempotencyKey string `json:"idempotency_key" api:"required"`
+	// Request latency in microseconds.
+	LatencyUs int64 `json:"latency_us" api:"required"`
+	// HTTP method.
+	Method string `json:"method" api:"required"`
+	// _Normalized_ route template. For example `PATCH /v1/sales/customers/{id}` is the
+	// normalized route for a request route `PUT /v1/sales/customers/ac_...`.
+	NormalizedRoute string `json:"normalized_route" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "request_log".
+	Object RequestLogObject `json:"object" api:"required"`
+	// When the request occurred.
+	OccurredAt time.Time `json:"occurred_at" api:"required" format:"date-time"`
+	// Non-normalized request path.
+	Path string `json:"path" api:"required"`
+	// Query parameters. Encoded as a JSON value (object, array, string, number,
+	// boolean, or null), not a JSON-encoded string.
+	QueryParams any `json:"query_params" api:"required"`
+	// Referrer header.
+	Referrer string `json:"referrer" api:"required"`
+	// Request body. Encoded as a JSON value (object, array, string, number, boolean,
+	// or null), not a JSON-encoded string.
+	RequestBody any `json:"request_body" api:"required"`
+	// Response body. Encoded as a JSON value (object, array, string, number, boolean,
+	// or null), not a JSON-encoded string.
+	ResponseBody any `json:"response_body" api:"required"`
+	// HTTP status code. Exception to the `status` naming convention: this is a numeric
+	// HTTP response code (200/404/…), not a domain lifecycle status enum, so the
+	// `_code` suffix is meaningful.
+	StatusCode int64 `json:"status_code" api:"required"`
+	// User agent.
+	UserAgent string `json:"user_agent" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID              respjson.Field
+		Account         respjson.Field
+		Actor           respjson.Field
+		APIVersion      respjson.Field
+		ClientIP        respjson.Field
+		CreatedAt       respjson.Field
+		ErrorCode       respjson.Field
+		ErrorMessage    respjson.Field
+		Host            respjson.Field
+		IdempotencyKey  respjson.Field
+		LatencyUs       respjson.Field
+		Method          respjson.Field
+		NormalizedRoute respjson.Field
+		Object          respjson.Field
+		OccurredAt      respjson.Field
+		Path            respjson.Field
+		QueryParams     respjson.Field
+		Referrer        respjson.Field
+		RequestBody     respjson.Field
+		ResponseBody    respjson.Field
+		StatusCode      respjson.Field
+		UserAgent       respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RequestLog) RawJSON() string { return r.JSON.raw }
+func (r *RequestLog) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type RequestLogObject string
+
+const (
+	RequestLogObjectRequestLog RequestLogObject = "request_log"
+)
+
+type CoreRequestLogGetParams struct {
+	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
+	// `null`.
+	//
+	// Any of "account", "actor", "actor.role", "actor.role.permissions",
+	// "query_params", "request_body", "response_body".
+	Include []string `query:"include,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [CoreRequestLogGetParams]'s query parameters as
+// `url.Values`.
+func (r CoreRequestLogGetParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type CoreRequestLogListParams struct {
+	// Cursor token used to retrieve the next or previous page of results.
+	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	// Restricts results to request logs on or before this timestamp.
+	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
+	// Filter by the user-provided idempotency key.
+	IdempotencyKey param.Opt[string] `query:"idempotency_key,omitzero" json:"-"`
+	// Maximum number of results per page (default: 100, max: 1000).
+	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
+	// Filter by the minimum latency in microseconds.
+	MinLatencyUs param.Opt[int64] `query:"min_latency_us,omitzero" json:"-"`
+	// Search query used to filter results.
+	Q param.Opt[string] `query:"q,omitzero" json:"-"`
+	// Restricts results to request logs on or after this timestamp.
+	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
+	// Filter by the _acting_ account: the account the actor belongs to, not the
+	// account targeted by the request.
+	//
+	// This is usually your own account, but differs when another account acts on yours
+	// — for example a customer using a customer-portal API key, whose acting account
+	// is the customer's account. The request's target account is always your own
+	// account (the only account you are authorized to view request logs for), so this
+	// filter narrows by _who acted_, not by which account was acted upon.
+	AccountIDs []string `query:"account_ids,omitzero" json:"-"`
+	// Filter by the actor identifier.
+	//
+	// This is the `user.id` when `identity_type`=`user` and an `api_key.id` when
+	// `identity_type`=`api_key`.
+	ActorIDs []string `query:"actor_ids,omitzero" json:"-"`
+	// Filter by the actor type.
+	//
+	// Any of "user", "api_key", "agent".
+	ActorTypes []string `query:"actor_types,omitzero" json:"-"`
+	// Filter by API error code.
+	//
+	// Any of "expired_token", "api_key_expired", "api_key_revoked",
+	// "invalid_credentials", "insufficient_permissions", "payment_required",
+	// "validation_failed", "missing_field", "invalid_format", "method_not_allowed",
+	// "resource_not_found", "resource_exists", "resource_conflict", "resource_gone",
+	// "idempotency_in_progress", "limit_exceeded", "registration_closed",
+	// "rate_limit_exceeded", "parameter_missing", "parameter_invalid",
+	// "parameter_unknown", "parameters_exclusive", "internal_error",
+	// "service_unavailable", "external_service_error", "timeout", "connection_error",
+	// "request_timeout", "client_closed_request", "api_version_required",
+	// "api_version_invalid", "api_version_too_old".
+	ErrorCodes []string `query:"error_codes,omitzero" json:"-"`
+	// Filter by the request host. Typically, `api.augno.com`.
+	Hosts []string `query:"hosts,omitzero" json:"-"`
+	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
+	// `null`.
+	//
+	// Any of "account", "actor", "actor.role".
+	Include []string `query:"include,omitzero" json:"-"`
+	// Filter by the HTTP method.
+	//
+	// Any of "GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS".
+	Methods []string `query:"methods,omitzero" json:"-"`
+	// Filter by the _normalized_ route template.
+	//
+	// For example `PATCH /v1/sales/customers/{id}` is the normalized route for a
+	// request route `PUT /v1/sales/customers/ac_...`.
+	NormalizedRoutes []string `query:"normalized_routes,omitzero" json:"-"`
+	// Filter by the HTTP status class: 1–5 for 1xx–5xx. Combined with `status_codes`
+	// using OR — e.g. status_codes=401 and status_code_classes=5 matches 401 and any
+	// 5xx.
+	StatusCodeClasses []int64 `query:"status_code_classes,omitzero" json:"-"`
+	// Filter by the HTTP status code.
+	StatusCodes []int64 `query:"status_codes,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [CoreRequestLogListParams]'s query parameters as
+// `url.Values`.
+func (r CoreRequestLogListParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}

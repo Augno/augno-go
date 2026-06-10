@@ -2,28 +2,34 @@
 
 <!-- x-release-please-start-version -->
 
-<a href="https://pkg.go.dev/github.com/stainless-sdks/augno-go"><img src="https://pkg.go.dev/badge/github.com/stainless-sdks/augno-go.svg" alt="Go Reference"></a>
+<a href="https://pkg.go.dev/github.com/augno/augno-go"><img src="https://pkg.go.dev/badge/github.com/augno/augno-go.svg" alt="Go Reference"></a>
 
 <!-- x-release-please-end -->
 
-The Augno Go library provides convenient access to the [Augno REST API](https://augno.com)
+The Augno Go library provides convenient access to the Augno REST API
 from applications written in Go.
-
-It is generated with [Stainless](https://www.stainless.com/).
 
 ## Installation
 
+<!-- x-release-please-start-version -->
+
 ```go
 import (
-	"github.com/stainless-sdks/augno-go" // imported as augno
+	"github.com/augno/augno-go" // imported as augno
 )
 ```
 
+<!-- x-release-please-end -->
+
 Or to pin the version:
 
+<!-- x-release-please-start-version -->
+
 ```sh
-go get -u 'github.com/stainless-sdks/augno-go@v0.0.1'
+go get -u 'github.com/augno/augno-go@v0.0.1'
 ```
+
+<!-- x-release-please-end -->
 
 ## Requirements
 
@@ -40,19 +46,20 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/stainless-sdks/augno-go"
-	"github.com/stainless-sdks/augno-go/option"
+	"github.com/augno/augno-go"
+	"github.com/augno/augno-go/option"
 )
 
 func main() {
 	client := augno.NewClient(
-		option.WithAPIKey("My API Key"), // defaults to os.LookupEnv("AUGNO_API_KEY")
+		option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("AUGNO_API_KEY")
+		option.WithEnvironmentLocal(),             // defaults to option.WithEnvironmentProduction()
 	)
-	response, err := client.Healthz.Check(context.TODO())
+	listItem, err := client.Catalog.Items.List(context.TODO(), augno.CatalogItemListParams{})
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v\n", response.Environment)
+	fmt.Printf("%+v\n", listItem.Data)
 }
 
 ```
@@ -62,7 +69,7 @@ func main() {
 The augno library uses the [`omitzero`](https://tip.golang.org/doc/go1.24#encodingjsonpkgencodingjson)
 semantics from the Go 1.24+ `encoding/json` release for request fields.
 
-Required primitive fields (`int64`, `string`, etc.) feature the tag <code>\`json:"...,required"\`</code>. These
+Required primitive fields (`int64`, `string`, etc.) feature the tag <code>\`api:"required"\`</code>. These
 fields are always serialized, even their zero values.
 
 Optional primitive types are wrapped in a `param.Opt[T]`. These fields can be set with the provided constructors, `augno.String(string)`, `augno.Int(int64)`, etc.
@@ -258,7 +265,7 @@ client := augno.NewClient(
 	option.WithHeader("X-Some-Header", "custom_header_info"),
 )
 
-client.Healthz.Check(context.TODO(), ...,
+client.Catalog.Items.List(context.TODO(), ...,
 	// Override the header
 	option.WithHeader("X-Some-Header", "some_other_custom_header_info"),
 	// Add an undocumented field to the request body, using sjson syntax
@@ -268,7 +275,7 @@ client.Healthz.Check(context.TODO(), ...,
 
 The request option `option.WithDebugLog(nil)` may be helpful while debugging.
 
-See the [full list of request options](https://pkg.go.dev/github.com/stainless-sdks/augno-go/option).
+See the [full list of request options](https://pkg.go.dev/github.com/augno/augno-go/option).
 
 ### Pagination
 
@@ -289,14 +296,14 @@ When the API returns a non-success status code, we return an error with type
 To handle errors, we recommend that you use the `errors.As` pattern:
 
 ```go
-_, err := client.Healthz.Check(context.TODO())
+_, err := client.Catalog.Items.List(context.TODO(), augno.CatalogItemListParams{})
 if err != nil {
 	var apierr *augno.Error
 	if errors.As(err, &apierr) {
 		println(string(apierr.DumpRequest(true)))  // Prints the serialized HTTP request
 		println(string(apierr.DumpResponse(true))) // Prints the serialized HTTP response
 	}
-	panic(err.Error()) // GET "/healthz": 400 Bad Request { ... }
+	panic(err.Error()) // GET "/v1/catalog/items": 400 Bad Request { ... }
 }
 ```
 
@@ -314,8 +321,9 @@ To set a per-retry timeout, use `option.WithRequestTimeout()`.
 // This sets the timeout for the request, including all the retries.
 ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 defer cancel()
-client.Healthz.Check(
+client.Catalog.Items.List(
 	ctx,
+	augno.CatalogItemListParams{},
 	// This sets the per-retry timeout
 	option.WithRequestTimeout(20*time.Second),
 )
@@ -349,7 +357,11 @@ client := augno.NewClient(
 )
 
 // Override per-request:
-client.Healthz.Check(context.TODO(), option.WithMaxRetries(5))
+client.Catalog.Items.List(
+	context.TODO(),
+	augno.CatalogItemListParams{},
+	option.WithMaxRetries(5),
+)
 ```
 
 ### Accessing raw response data (e.g. response headers)
@@ -360,11 +372,15 @@ you need to examine response headers, status codes, or other details.
 ```go
 // Create a variable to store the HTTP response
 var response *http.Response
-response, err := client.Healthz.Check(context.TODO(), option.WithResponseInto(&response))
+listItem, err := client.Catalog.Items.List(
+	context.TODO(),
+	augno.CatalogItemListParams{},
+	option.WithResponseInto(&response),
+)
 if err != nil {
 	// handle error
 }
-fmt.Printf("%+v\n", response)
+fmt.Printf("%+v\n", listItem)
 
 fmt.Printf("Status Code: %d\n", response.StatusCode)
 fmt.Printf("Headers: %+#v\n", response.Header)
@@ -465,7 +481,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/augno-go/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/augno/augno-go/issues) with questions, bugs, or suggestions.
 
 ## Contributing
 

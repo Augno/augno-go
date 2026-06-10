@@ -13,67 +13,19 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
-	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/stainless-sdks/augno-go/internal"
-	"github.com/stainless-sdks/augno-go/internal/apierror"
-	"github.com/stainless-sdks/augno-go/internal/apiform"
-	"github.com/stainless-sdks/augno-go/internal/apiquery"
+	"github.com/augno/augno-go/internal"
+	"github.com/augno/augno-go/internal/apierror"
+	"github.com/augno/augno-go/internal/apiform"
+	"github.com/augno/augno-go/internal/apiquery"
 )
 
 func getDefaultHeaders() map[string]string {
 	return map[string]string{
 		"User-Agent": fmt.Sprintf("Augno/Go %s", internal.PackageVersion),
-	}
-}
-
-func getNormalizedOS() string {
-	switch runtime.GOOS {
-	case "ios":
-		return "iOS"
-	case "android":
-		return "Android"
-	case "darwin":
-		return "MacOS"
-	case "window":
-		return "Windows"
-	case "freebsd":
-		return "FreeBSD"
-	case "openbsd":
-		return "OpenBSD"
-	case "linux":
-		return "Linux"
-	default:
-		return fmt.Sprintf("Other:%s", runtime.GOOS)
-	}
-}
-
-func getNormalizedArchitecture() string {
-	switch runtime.GOARCH {
-	case "386":
-		return "x32"
-	case "amd64":
-		return "x64"
-	case "arm":
-		return "arm"
-	case "arm64":
-		return "arm64"
-	default:
-		return fmt.Sprintf("other:%s", runtime.GOARCH)
-	}
-}
-
-func getPlatformProperties() map[string]string {
-	return map[string]string{
-		"X-Stainless-Lang":            "go",
-		"X-Stainless-Package-Version": internal.PackageVersion,
-		"X-Stainless-OS":              getNormalizedOS(),
-		"X-Stainless-Arch":            getNormalizedArchitecture(),
-		"X-Stainless-Runtime":         "go",
-		"X-Stainless-Runtime-Version": runtime.Version(),
 	}
 }
 
@@ -121,7 +73,13 @@ func NewRequestConfig(ctx context.Context, method string, u string, body any, ds
 		}
 		params := q.Encode()
 		if params != "" {
-			u = u + "?" + params
+			parsed, _ := url.Parse(u)
+			if parsed.RawQuery != "" {
+				parsed.RawQuery = parsed.RawQuery + "&" + params
+				u = parsed.String()
+			} else {
+				u = u + "?" + params
+			}
 		}
 	}
 	if body, ok := body.([]byte); ok {
@@ -154,15 +112,11 @@ func NewRequestConfig(ctx context.Context, method string, u string, body any, ds
 	}
 
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("X-Stainless-Retry-Count", "0")
-	req.Header.Set("X-Stainless-Timeout", "0")
+
 	for k, v := range getDefaultHeaders() {
 		req.Header.Add(k, v)
 	}
 
-	for k, v := range getPlatformProperties() {
-		req.Header.Add(k, v)
-	}
 	cfg := RequestConfig{
 		MaxRetries: 2,
 		Context:    ctx,
@@ -174,17 +128,6 @@ func NewRequestConfig(ctx context.Context, method string, u string, body any, ds
 	err = cfg.Apply(opts...)
 	if err != nil {
 		return nil, err
-	}
-
-	// This must run after `cfg.Apply(...)` above in case the request timeout gets modified. We also only
-	// apply our own logic for it if it's still "0" from above. If it's not, then it was deleted or modified
-	// by the user and we should respect that.
-	if req.Header.Get("X-Stainless-Timeout") == "0" {
-		if cfg.RequestTimeout == time.Duration(0) {
-			req.Header.Del("X-Stainless-Timeout")
-		} else {
-			req.Header.Set("X-Stainless-Timeout", strconv.Itoa(int(cfg.RequestTimeout.Seconds())))
-		}
 	}
 
 	return &cfg, nil
@@ -212,7 +155,8 @@ type RequestConfig struct {
 	CustomHTTPDoer HTTPDoer
 	HTTPClient     *http.Client
 	Middlewares    []middleware
-	APIKey         string
+	BearerToken    string
+	AugnoAccountID string
 	// If ResponseBodyInto not nil, then we will attempt to deserialize into
 	// ResponseBodyInto. If Destination is a []byte, then it will return the body as
 	// is.
@@ -355,11 +299,9 @@ func (b *bodyWithTimeout) Close() error {
 }
 
 func retryDelay(res *http.Response, retryCount int) time.Duration {
-	// If the API asks us to wait a certain amount of time (and it's a reasonable amount),
-	// just do what it says.
-
-	if retryAfterDelay, ok := parseRetryAfterHeader(res); ok && 0 <= retryAfterDelay && retryAfterDelay < time.Minute {
-		return retryAfterDelay
+	// If the backend tells us to wait a certain amount of time, use that value
+	if retryAfterDelay, ok := parseRetryAfterHeader(res); ok {
+		return max(0, retryAfterDelay)
 	}
 
 	maxDelay := 8 * time.Second
@@ -418,9 +360,6 @@ func (cfg *RequestConfig) Execute() (err error) {
 		handler = applyMiddleware(cfg.Middlewares[i], handler)
 	}
 
-	// Don't send the current retry count in the headers if the caller modified the header defaults.
-	shouldSendRetryCount := cfg.Request.Header.Get("X-Stainless-Retry-Count") == "0"
-
 	var res *http.Response
 	var cancel context.CancelFunc
 	for retryCount := 0; retryCount <= cfg.MaxRetries; retryCount += 1 {
@@ -436,9 +375,6 @@ func (cfg *RequestConfig) Execute() (err error) {
 		}
 
 		req := cfg.Request.Clone(ctx)
-		if shouldSendRetryCount {
-			req.Header.Set("X-Stainless-Retry-Count", strconv.Itoa(retryCount))
-		}
 
 		res, err = handler(req)
 		if ctx != nil && ctx.Err() != nil {
@@ -463,10 +399,14 @@ func (cfg *RequestConfig) Execute() (err error) {
 
 		// Close the response body before retrying to prevent connection leaks
 		if res != nil && res.Body != nil {
-			res.Body.Close()
+			_ = res.Body.Close()
 		}
 
-		time.Sleep(retryDelay(res, retryCount))
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(retryDelay(res, retryCount)):
+		}
 	}
 
 	// Save *http.Response if it is requested to, even if there was an error making the request. This is
@@ -487,7 +427,7 @@ func (cfg *RequestConfig) Execute() (err error) {
 
 	if res.StatusCode >= 400 {
 		contents, err := io.ReadAll(res.Body)
-		res.Body.Close()
+		_ = res.Body.Close()
 		if err != nil {
 			return err
 		}
@@ -518,7 +458,7 @@ func (cfg *RequestConfig) Execute() (err error) {
 	}
 
 	contents, err := io.ReadAll(res.Body)
-	res.Body.Close()
+	_ = res.Body.Close()
 	if err != nil {
 		return fmt.Errorf("error reading response body: %w", err)
 	}
@@ -584,7 +524,8 @@ func (cfg *RequestConfig) Clone(ctx context.Context) *RequestConfig {
 		BaseURL:        cfg.BaseURL,
 		HTTPClient:     cfg.HTTPClient,
 		Middlewares:    cfg.Middlewares,
-		APIKey:         cfg.APIKey,
+		BearerToken:    cfg.BearerToken,
+		AugnoAccountID: cfg.AugnoAccountID,
 	}
 
 	return new

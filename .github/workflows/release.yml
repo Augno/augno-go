@@ -1,0 +1,25 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      # For Go there is no registry: release-please opens a `release: <version>`
+      # PR from the conventional-commit sync history, and merging it creates the
+      # vX.Y.Z git tag. pkg.go.dev indexes the public module from the tag — no
+      # publish step or secret required.
+      - uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}

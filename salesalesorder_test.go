@@ -8,13 +8,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/augno-go"
-	"github.com/stainless-sdks/augno-go/internal/testutil"
-	"github.com/stainless-sdks/augno-go/option"
+	"github.com/augno/augno-go"
+	"github.com/augno/augno-go/internal/testutil"
+	"github.com/augno/augno-go/option"
 )
 
-func TestAuthActionLoginUser(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestSaleSalesOrderGetStatusesWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,11 +23,13 @@ func TestAuthActionLoginUser(t *testing.T) {
 	}
 	client := augno.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Auth.Actions.LoginUser(context.TODO(), augno.AuthActionLoginUserParams{
-		Identifier: "identifier",
-		Password:   "password",
+	_, err := client.Sales.SalesOrders.GetStatuses(context.TODO(), augno.SaleSalesOrderGetStatusesParams{
+		Cursor:  augno.String("cursor"),
+		Include: []string{"owner"},
+		Limit:   augno.Int(0),
+		Q:       augno.String("q"),
 	})
 	if err != nil {
 		var apierr *augno.Error

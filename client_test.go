@@ -6,13 +6,12 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/augno-go"
-	"github.com/stainless-sdks/augno-go/internal"
-	"github.com/stainless-sdks/augno-go/option"
+	"github.com/augno/augno-go"
+	"github.com/augno/augno-go/internal"
+	"github.com/augno/augno-go/option"
 )
 
 type closureTransport struct {
@@ -26,7 +25,7 @@ func (t *closureTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 func TestUserAgentHeader(t *testing.T) {
 	var userAgent string
 	client := augno.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
@@ -38,20 +37,20 @@ func TestUserAgentHeader(t *testing.T) {
 			},
 		}),
 	)
-	client.Healthz.Check(context.Background())
+	_, _ = client.Catalog.Items.List(context.Background(), augno.CatalogItemListParams{})
 	if userAgent != fmt.Sprintf("Augno/Go %s", internal.PackageVersion) {
 		t.Errorf("Expected User-Agent to be correct, but got: %#v", userAgent)
 	}
 }
 
 func TestRetryAfter(t *testing.T) {
-	retryCountHeaders := make([]string, 0)
+	attempts := 0
 	client := augno.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
-					retryCountHeaders = append(retryCountHeaders, req.Header.Get("X-Stainless-Retry-Count"))
+					attempts += 1
 					return &http.Response{
 						StatusCode: http.StatusTooManyRequests,
 						Header: http.Header{
@@ -62,86 +61,20 @@ func TestRetryAfter(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Healthz.Check(context.Background())
+	_, err := client.Catalog.Items.List(context.Background(), augno.CatalogItemListParams{})
 	if err == nil {
 		t.Error("Expected there to be a cancel error")
 	}
 
-	attempts := len(retryCountHeaders)
 	if attempts != 3 {
 		t.Errorf("Expected %d attempts, got %d", 3, attempts)
-	}
-
-	expectedRetryCountHeaders := []string{"0", "1", "2"}
-	if !reflect.DeepEqual(retryCountHeaders, expectedRetryCountHeaders) {
-		t.Errorf("Expected %v retry count headers, got %v", expectedRetryCountHeaders, retryCountHeaders)
-	}
-}
-
-func TestDeleteRetryCountHeader(t *testing.T) {
-	retryCountHeaders := make([]string, 0)
-	client := augno.NewClient(
-		option.WithAPIKey("My API Key"),
-		option.WithHTTPClient(&http.Client{
-			Transport: &closureTransport{
-				fn: func(req *http.Request) (*http.Response, error) {
-					retryCountHeaders = append(retryCountHeaders, req.Header.Get("X-Stainless-Retry-Count"))
-					return &http.Response{
-						StatusCode: http.StatusTooManyRequests,
-						Header: http.Header{
-							http.CanonicalHeaderKey("Retry-After"): []string{"0.1"},
-						},
-					}, nil
-				},
-			},
-		}),
-		option.WithHeaderDel("X-Stainless-Retry-Count"),
-	)
-	_, err := client.Healthz.Check(context.Background())
-	if err == nil {
-		t.Error("Expected there to be a cancel error")
-	}
-
-	expectedRetryCountHeaders := []string{"", "", ""}
-	if !reflect.DeepEqual(retryCountHeaders, expectedRetryCountHeaders) {
-		t.Errorf("Expected %v retry count headers, got %v", expectedRetryCountHeaders, retryCountHeaders)
-	}
-}
-
-func TestOverwriteRetryCountHeader(t *testing.T) {
-	retryCountHeaders := make([]string, 0)
-	client := augno.NewClient(
-		option.WithAPIKey("My API Key"),
-		option.WithHTTPClient(&http.Client{
-			Transport: &closureTransport{
-				fn: func(req *http.Request) (*http.Response, error) {
-					retryCountHeaders = append(retryCountHeaders, req.Header.Get("X-Stainless-Retry-Count"))
-					return &http.Response{
-						StatusCode: http.StatusTooManyRequests,
-						Header: http.Header{
-							http.CanonicalHeaderKey("Retry-After"): []string{"0.1"},
-						},
-					}, nil
-				},
-			},
-		}),
-		option.WithHeader("X-Stainless-Retry-Count", "42"),
-	)
-	_, err := client.Healthz.Check(context.Background())
-	if err == nil {
-		t.Error("Expected there to be a cancel error")
-	}
-
-	expectedRetryCountHeaders := []string{"42", "42", "42"}
-	if !reflect.DeepEqual(retryCountHeaders, expectedRetryCountHeaders) {
-		t.Errorf("Expected %v retry count headers, got %v", expectedRetryCountHeaders, retryCountHeaders)
 	}
 }
 
 func TestRetryAfterMs(t *testing.T) {
 	attempts := 0
 	client := augno.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
@@ -156,7 +89,7 @@ func TestRetryAfterMs(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Healthz.Check(context.Background())
+	_, err := client.Catalog.Items.List(context.Background(), augno.CatalogItemListParams{})
 	if err == nil {
 		t.Error("Expected there to be a cancel error")
 	}
@@ -167,7 +100,7 @@ func TestRetryAfterMs(t *testing.T) {
 
 func TestContextCancel(t *testing.T) {
 	client := augno.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
@@ -179,7 +112,7 @@ func TestContextCancel(t *testing.T) {
 	)
 	cancelCtx, cancel := context.WithCancel(context.Background())
 	cancel()
-	_, err := client.Healthz.Check(cancelCtx)
+	_, err := client.Catalog.Items.List(cancelCtx, augno.CatalogItemListParams{})
 	if err == nil {
 		t.Error("Expected there to be a cancel error")
 	}
@@ -187,7 +120,7 @@ func TestContextCancel(t *testing.T) {
 
 func TestContextCancelDelay(t *testing.T) {
 	client := augno.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
@@ -199,7 +132,7 @@ func TestContextCancelDelay(t *testing.T) {
 	)
 	cancelCtx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	_, err := client.Healthz.Check(cancelCtx)
+	_, err := client.Catalog.Items.List(cancelCtx, augno.CatalogItemListParams{})
 	if err == nil {
 		t.Error("expected there to be a cancel error")
 	}
@@ -215,7 +148,7 @@ func TestContextDeadline(t *testing.T) {
 
 	go func() {
 		client := augno.NewClient(
-			option.WithAPIKey("My API Key"),
+			option.WithBearerToken("My Bearer Token"),
 			option.WithHTTPClient(&http.Client{
 				Transport: &closureTransport{
 					fn: func(req *http.Request) (*http.Response, error) {
@@ -225,7 +158,7 @@ func TestContextDeadline(t *testing.T) {
 				},
 			}),
 		)
-		_, err := client.Healthz.Check(deadlineCtx)
+		_, err := client.Catalog.Items.List(deadlineCtx, augno.CatalogItemListParams{})
 		if err == nil {
 			t.Error("expected there to be a deadline error")
 		}

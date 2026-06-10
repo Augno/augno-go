@@ -1,8 +1,8 @@
 package sentinel_test
 
 import (
-	"github.com/stainless-sdks/augno-go/internal/encoding/json/sentinel"
-	"github.com/stainless-sdks/augno-go/packages/param"
+	"github.com/augno/augno-go/internal/encoding/json/sentinel"
+	"github.com/augno/augno-go/packages/param"
 	"reflect"
 	"slices"
 	"testing"
