@@ -26,7 +26,7 @@ func TestIdentityAccountUserNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Identity.AccountUsers.New(context.TODO(), augno.IdentityAccountUserNewParams{
-		Include: []string{"role"},
+		Include: []string{"user"},
 		CreateAccountUserRequest: augno.CreateAccountUserRequestParam{
 			DepartmentID: augno.String("department_id"),
 			Email:        augno.String("jdoe@augno.com"),
@@ -65,7 +65,7 @@ func TestIdentityAccountUserGetWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"acus_01ea9983ddb41dacc44ecf997c",
 		augno.IdentityAccountUserGetParams{
-			Include: []string{"role"},
+			Include: []string{"user"},
 		},
 	)
 	if err != nil {
@@ -93,7 +93,7 @@ func TestIdentityAccountUserUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"acus_01ea9983ddb41dacc44ecf997c",
 		augno.IdentityAccountUserUpdateParams{
-			Include: []string{"role"},
+			Include: []string{"user"},
 			UpdateAccountUserRequest: augno.UpdateAccountUserRequestParam{
 				DepartmentID: augno.String("dp_01791c25ab59da4704cba61874"),
 				Email:        augno.String("email"),
@@ -130,7 +130,7 @@ func TestIdentityAccountUserListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Identity.AccountUsers.List(context.TODO(), augno.IdentityAccountUserListParams{
 		Cursor:       augno.String("cursor"),
-		Include:      []string{"role"},
+		Include:      []string{"user"},
 		Limit:        augno.Int(0),
 		Q:            augno.String("q"),
 		RemovedScope: augno.IdentityAccountUserListParamsRemovedScopeExcluded,

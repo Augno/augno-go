@@ -78,8 +78,9 @@ type SaleCustomerActionMergeParams struct {
 	// Any of "bill_to_address", "ship_to_address", "type", "parent_account",
 	// "freight_preferences.carrier", "freight_preferences.service_level",
 	// "defaults.payment_term", "defaults.shipping_term", "defaults.sales_rep",
-	// "defaults.priority", "contact_info", "freight_preferences", "defaults",
-	// "notification_preferences", "price_groups", "child_accounts", "credit_limit".
+	// "defaults.sales_rep.user", "defaults.priority", "contact_info",
+	// "freight_preferences", "defaults", "notification_preferences", "price_groups",
+	// "child_accounts", "credit_limit".
 	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }

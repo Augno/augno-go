@@ -203,7 +203,7 @@ type IdentityAccountUserNewParams struct {
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
-	// Any of "role", "department".
+	// Any of "user", "role", "department".
 	Include []string `query:"include,omitzero" json:"-"`
 	// Request to create an account user.
 	CreateAccountUserRequest CreateAccountUserRequestParam
@@ -230,7 +230,7 @@ type IdentityAccountUserGetParams struct {
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
-	// Any of "role", "department".
+	// Any of "user", "role", "department".
 	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
@@ -248,7 +248,7 @@ type IdentityAccountUserUpdateParams struct {
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
-	// Any of "role", "department".
+	// Any of "user", "role", "department".
 	Include []string `query:"include,omitzero" json:"-"`
 	// Request to partially update an account user.
 	UpdateAccountUserRequest UpdateAccountUserRequestParam
@@ -281,7 +281,7 @@ type IdentityAccountUserListParams struct {
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
-	// Any of "role", "department".
+	// Any of "user", "role", "department".
 	Include []string `query:"include,omitzero" json:"-"`
 	// Controls whether removed account users are included.
 	//
