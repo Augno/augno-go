@@ -101,7 +101,7 @@ type CreateLocationRequestParam struct {
 	// Location type code.
 	//
 	// Any of "building", "section", "aisle", "rack", "shelf", "bin".
-	Type CreateLocationRequestType `json:"type,omitzero" api:"required"`
+	Type LocationTypeCode `json:"type,omitzero" api:"required"`
 	// Parent location ID. Null for top-level locations.
 	ParentID param.Opt[string] `json:"parent_id,omitzero"`
 	// IDs of child locations to attach.
@@ -117,18 +117,6 @@ func (r *CreateLocationRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Location type code.
-type CreateLocationRequestType string
-
-const (
-	CreateLocationRequestTypeBuilding CreateLocationRequestType = "building"
-	CreateLocationRequestTypeSection  CreateLocationRequestType = "section"
-	CreateLocationRequestTypeAisle    CreateLocationRequestType = "aisle"
-	CreateLocationRequestTypeRack     CreateLocationRequestType = "rack"
-	CreateLocationRequestTypeShelf    CreateLocationRequestType = "shelf"
-	CreateLocationRequestTypeBin      CreateLocationRequestType = "bin"
-)
-
 // Request to partially update a location.
 type UpdateLocationRequestParam struct {
 	// Parent location ID. Send null to clear.
@@ -141,7 +129,7 @@ type UpdateLocationRequestParam struct {
 	// Location type code.
 	//
 	// Any of "building", "section", "aisle", "rack", "shelf", "bin".
-	Type UpdateLocationRequestType `json:"type,omitzero"`
+	Type LocationTypeCode `json:"type,omitzero"`
 	paramObj
 }
 
@@ -152,18 +140,6 @@ func (r UpdateLocationRequestParam) MarshalJSON() (data []byte, err error) {
 func (r *UpdateLocationRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// Location type code.
-type UpdateLocationRequestType string
-
-const (
-	UpdateLocationRequestTypeBuilding UpdateLocationRequestType = "building"
-	UpdateLocationRequestTypeSection  UpdateLocationRequestType = "section"
-	UpdateLocationRequestTypeAisle    UpdateLocationRequestType = "aisle"
-	UpdateLocationRequestTypeRack     UpdateLocationRequestType = "rack"
-	UpdateLocationRequestTypeShelf    UpdateLocationRequestType = "shelf"
-	UpdateLocationRequestTypeBin      UpdateLocationRequestType = "bin"
-)
 
 type OperationLocationDeleteResponse struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].

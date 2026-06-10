@@ -28,7 +28,7 @@ func TestOperationLocationNewWithOptionalParams(t *testing.T) {
 	_, err := client.Operations.Locations.New(context.TODO(), augno.OperationLocationNewParams{
 		CreateLocationRequest: augno.CreateLocationRequestParam{
 			Name:     "Warehouse A",
-			Type:     augno.CreateLocationRequestTypeBuilding,
+			Type:     augno.LocationTypeCodeBuilding,
 			ChildIDs: []string{"string"},
 			ParentID: augno.String("parent_id"),
 		},
@@ -92,7 +92,7 @@ func TestOperationLocationUpdateWithOptionalParams(t *testing.T) {
 				ChildIDs: []string{"string"},
 				Name:     augno.String("Warehouse B"),
 				ParentID: augno.String("parent_id"),
-				Type:     augno.UpdateLocationRequestTypeBuilding,
+				Type:     augno.LocationTypeCodeBuilding,
 			},
 		},
 	)

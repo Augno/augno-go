@@ -130,18 +130,6 @@ func (r *LocationType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Location type code.
-type LocationTypeCode string
-
-const (
-	LocationTypeCodeBuilding LocationTypeCode = "building"
-	LocationTypeCodeSection  LocationTypeCode = "section"
-	LocationTypeCodeAisle    LocationTypeCode = "aisle"
-	LocationTypeCodeRack     LocationTypeCode = "rack"
-	LocationTypeCodeShelf    LocationTypeCode = "shelf"
-	LocationTypeCodeBin      LocationTypeCode = "bin"
-)
-
 // Resource type identifier.
 type LocationTypeObject string
 

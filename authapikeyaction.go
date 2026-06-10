@@ -67,9 +67,9 @@ type RotateAPIKeyRequestParam struct {
 	ExpiresAt param.Opt[time.Time] `json:"expires_at,omitzero" format:"date-time"`
 	// When to revoke the old key.
 	//
-	// If omitted (or in the past), the old key is revoked immediately. A future
-	// timestamp schedules revocation (keeping the old key valid until then) up to a
-	// maximum of 30 days out.
+	// If omitted, the old key is revoked immediately. A future timestamp schedules
+	// revocation (keeping the old key valid until then) up to a maximum of 30 days
+	// out.
 	RevokeAt param.Opt[time.Time] `json:"revoke_at,omitzero" format:"date-time"`
 	paramObj
 }
