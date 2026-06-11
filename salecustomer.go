@@ -123,7 +123,7 @@ type AccountUser struct {
 	// When the account user was last updated.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// User resource.
-	User AccountUserUser `json:"user" api:"required"`
+	User User `json:"user" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
@@ -161,50 +161,6 @@ const (
 	AccountUserStatusDisabled AccountUserStatus = "disabled"
 	AccountUserStatusRemoved  AccountUserStatus = "removed"
 )
-
-// User resource.
-type AccountUserUser struct {
-	// User ID.
-	ID string `json:"id" api:"required"`
-	// Creation timestamp.
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Email address.
-	Email string `json:"email" api:"required"`
-	// Email verified timestamp, null if unverified.
-	EmailVerifiedAt time.Time `json:"email_verified_at" api:"required" format:"date-time"`
-	// Profile image URL.
-	ImageURL string `json:"image_url" api:"required"`
-	// Display name.
-	Name string `json:"name" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "user".
-	Object string `json:"object" api:"required"`
-	// Last updated timestamp.
-	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// Username.
-	Username string `json:"username" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID              respjson.Field
-		CreatedAt       respjson.Field
-		Email           respjson.Field
-		EmailVerifiedAt respjson.Field
-		ImageURL        respjson.Field
-		Name            respjson.Field
-		Object          respjson.Field
-		UpdatedAt       respjson.Field
-		Username        respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AccountUserUser) RawJSON() string { return r.JSON.raw }
-func (r *AccountUserUser) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
 
 // Carrier resource.
 type Carrier struct {
@@ -1702,6 +1658,57 @@ const (
 	UpdateCustomerRequestStatusPreferred    UpdateCustomerRequestStatus = "preferred"
 	UpdateCustomerRequestStatusHoldShipment UpdateCustomerRequestStatus = "hold_shipment"
 	UpdateCustomerRequestStatusHoldAll      UpdateCustomerRequestStatus = "hold_all"
+)
+
+// User resource.
+type User struct {
+	// User ID.
+	ID string `json:"id" api:"required"`
+	// Creation timestamp.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Email address.
+	Email string `json:"email" api:"required"`
+	// Email verified timestamp, null if unverified.
+	EmailVerifiedAt time.Time `json:"email_verified_at" api:"required" format:"date-time"`
+	// Profile image URL.
+	ImageURL string `json:"image_url" api:"required"`
+	// Display name.
+	Name string `json:"name" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "user".
+	Object UserObject `json:"object" api:"required"`
+	// Last updated timestamp.
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
+	// Username.
+	Username string `json:"username" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID              respjson.Field
+		CreatedAt       respjson.Field
+		Email           respjson.Field
+		EmailVerifiedAt respjson.Field
+		ImageURL        respjson.Field
+		Name            respjson.Field
+		Object          respjson.Field
+		UpdatedAt       respjson.Field
+		Username        respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r User) RawJSON() string { return r.JSON.raw }
+func (r *User) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type UserObject string
+
+const (
+	UserObjectUser UserObject = "user"
 )
 
 type SaleCustomerDeleteResponse struct {

@@ -116,6 +116,7 @@ func NewRequestConfig(ctx context.Context, method string, u string, body any, ds
 	for k, v := range getDefaultHeaders() {
 		req.Header.Add(k, v)
 	}
+	req.Header.Set("Augno-Version", "1.0.forge-preview.2")
 
 	cfg := RequestConfig{
 		MaxRetries: 2,

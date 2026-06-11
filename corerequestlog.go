@@ -64,8 +64,11 @@ func (r *CoreRequestLogService) List(ctx context.Context, query CoreRequestLogLi
 type Actor struct {
 	// Actor ID.
 	ID string `json:"id" api:"required"`
-	// Human-readable handle (`email` for users, `redacted_value` for API keys, `slug`
-	// for agents).
+	// Human-readable handle.
+	//
+	// - `email` for users
+	// - `redacted_value` for API keys
+	// - `slug` for agents
 	Handle string `json:"handle" api:"required"`
 	// Display name.
 	Name string `json:"name" api:"required"`
