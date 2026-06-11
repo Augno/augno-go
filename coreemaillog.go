@@ -76,6 +76,9 @@ type EmailLog struct {
 	Recipients []string `json:"recipients" api:"required"`
 	// Email send status.
 	//
+	// - `pending`: the email is queued and has not been sent yet.
+	// - `sent`: the email has been handed off for delivery.
+	//
 	// Any of "sent", "pending".
 	SendStatus EmailLogSendStatus `json:"send_status" api:"required"`
 	// Reference to an actor (user, API key, or agent).
@@ -114,6 +117,9 @@ const (
 )
 
 // Email send status.
+//
+// - `pending`: the email is queued and has not been sent yet.
+// - `sent`: the email has been handed off for delivery.
 type EmailLogSendStatus string
 
 const (

@@ -213,13 +213,25 @@ type Product struct {
 	//
 	// Any of "product".
 	Object ProductObject `json:"object" api:"required"`
-	// Product portal visibility.
+	// Whether the product is shown to buyers in the customer portal.
+	//
+	//   - `visible`: buyers can see and order the product in the portal.
+	//   - `hidden`: the product is concealed from the portal but remains usable
+	//     internally.
 	//
 	// Any of "visible", "hidden".
 	PortalVisibility ProductPortalVisibility `json:"portal_visibility" api:"required"`
 	// Product line resource.
 	ProductLine ProductLine `json:"product_line" api:"required"`
-	// Product type code.
+	// Product type code, which determines how the product behaves on orders and
+	// invoices.
+	//
+	// - `sale`: a standard sellable product.
+	// - `service`: a non-physical service line, such as labor or installation.
+	// - `shipping`: a shipping charge applied to an order.
+	// - `credit`: a credit applied against an order or invoice.
+	// - `return`: a returned product (RMA).
+	// - `tax`: a tax line.
 	//
 	// Any of "sale", "service", "shipping", "credit", "return", "tax".
 	Type ProductType `json:"type" api:"required"`
@@ -253,7 +265,11 @@ const (
 	ProductObjectProduct ProductObject = "product"
 )
 
-// Product portal visibility.
+// Whether the product is shown to buyers in the customer portal.
+//
+//   - `visible`: buyers can see and order the product in the portal.
+//   - `hidden`: the product is concealed from the portal but remains usable
+//     internally.
 type ProductPortalVisibility string
 
 const (
@@ -261,7 +277,15 @@ const (
 	ProductPortalVisibilityHidden  ProductPortalVisibility = "hidden"
 )
 
-// Product type code.
+// Product type code, which determines how the product behaves on orders and
+// invoices.
+//
+// - `sale`: a standard sellable product.
+// - `service`: a non-physical service line, such as labor or installation.
+// - `shipping`: a shipping charge applied to an order.
+// - `credit`: a credit applied against an order or invoice.
+// - `return`: a returned product (RMA).
+// - `tax`: a tax line.
 type ProductType string
 
 const (

@@ -97,7 +97,11 @@ const (
 type Priority struct {
 	// Priority ID.
 	ID string `json:"id" api:"required"`
-	// Machine-readable code.
+	// Machine-readable code identifying the priority level.
+	//
+	// - `low`: lowest urgency; worked after normal and high.
+	// - `normal`: default urgency for most orders and picks.
+	// - `high`: highest urgency; worked ahead of normal and low.
 	//
 	// Any of "low", "normal", "high".
 	Code PriorityCode `json:"code" api:"required"`
@@ -133,7 +137,11 @@ func (r *Priority) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Machine-readable code.
+// Machine-readable code identifying the priority level.
+//
+// - `low`: lowest urgency; worked after normal and high.
+// - `normal`: default urgency for most orders and picks.
+// - `high`: highest urgency; worked ahead of normal and low.
 type PriorityCode string
 
 const (

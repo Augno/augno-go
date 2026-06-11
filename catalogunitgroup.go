@@ -258,7 +258,18 @@ type UnitGroup struct {
 	Object UnitGroupObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// Unit type.
+	// Dimension shared by every unit in this group.
+	//
+	// Only units of this dimension can belong to the group.
+	//
+	// - `currency`: monetary units such as dollars or euros.
+	// - `quantity`: discrete countable units.
+	// - `time`: time-based units such as hours or minutes.
+	// - `mass`: weight-based units such as kilograms or pounds.
+	// - `volume`: volumetric units such as liters or gallons.
+	// - `length`: distance-based units such as meters or feet.
+	// - `temperature`: temperature units such as Celsius or Fahrenheit.
+	// - `area`: area-based units such as square meters or acres.
 	//
 	// Any of "currency", "quantity", "time", "mass", "volume", "length",
 	// "temperature", "area".
@@ -295,7 +306,18 @@ const (
 	UnitGroupObjectUnitGroup UnitGroupObject = "unit_group"
 )
 
-// Unit type.
+// Dimension shared by every unit in this group.
+//
+// Only units of this dimension can belong to the group.
+//
+// - `currency`: monetary units such as dollars or euros.
+// - `quantity`: discrete countable units.
+// - `time`: time-based units such as hours or minutes.
+// - `mass`: weight-based units such as kilograms or pounds.
+// - `volume`: volumetric units such as liters or gallons.
+// - `length`: distance-based units such as meters or feet.
+// - `temperature`: temperature units such as Celsius or Fahrenheit.
+// - `area`: area-based units such as square meters or acres.
 type UnitGroupType string
 
 const (
@@ -315,13 +337,22 @@ type UnitGroupUnit struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Customer portal visibility.
+	// Whether this unit is shown to customers in the customer portal.
+	//
+	// - `visible`: the unit is selectable in the customer portal.
+	// - `hidden`: the unit is hidden from the customer portal.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility UnitGroupUnitCustomerPortalVisibility `json:"customer_portal_visibility" api:"required"`
-	// Fixed discount amount.
+	// Fixed per-unit discount amount applied when ordering in this unit, in the
+	// account's currency.
+	//
+	// Defaults to `0`.
 	DiscountFixed float64 `json:"discount_fixed" api:"required"`
-	// Discount percentage.
+	// Percentage discount applied when ordering in this unit, as a number out of 100
+	// (e.g. `1` means 1%).
+	//
+	// Defaults to `1`.
 	DiscountPercentage float64 `json:"discount_percentage" api:"required"`
 	// Resource type identifier.
 	//
@@ -352,7 +383,10 @@ func (r *UnitGroupUnit) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Customer portal visibility.
+// Whether this unit is shown to customers in the customer portal.
+//
+// - `visible`: the unit is selectable in the customer portal.
+// - `hidden`: the unit is hidden from the customer portal.
 type UnitGroupUnitCustomerPortalVisibility string
 
 const (

@@ -262,6 +262,10 @@ type Address struct {
 	Phone string `json:"phone" api:"required"`
 	// Address type.
 	//
+	//   - `standard`: a normal shipping or billing address.
+	//   - `drop_ship`: an address an order is shipped to directly, typically a third
+	//     party or end customer rather than the account itself.
+	//
 	// Any of "standard", "drop_ship".
 	Type AddressType `json:"type" api:"required"`
 	// Last updated timestamp.
@@ -296,6 +300,10 @@ const (
 )
 
 // Address type.
+//
+//   - `standard`: a normal shipping or billing address.
+//   - `drop_ship`: an address an order is shipped to directly, typically a third
+//     party or end customer rather than the account itself.
 type AddressType string
 
 const (
@@ -309,9 +317,13 @@ type APIKey struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Expiration timestamp.
+	// When the key expires and stops authenticating.
+	//
+	// `null` if the key never expires.
 	ExpiresAt time.Time `json:"expires_at" api:"required" format:"date-time"`
-	// Last used timestamp.
+	// When the key was last used to authenticate a request.
+	//
+	// `null` if it has never been used.
 	LastUsedAt time.Time `json:"last_used_at" api:"required" format:"date-time"`
 	// Human-readable name for the API key.
 	Name string `json:"name" api:"required"`
@@ -321,7 +333,9 @@ type APIKey struct {
 	Object APIKeyObject `json:"object" api:"required"`
 	// Redacted key value safe for display.
 	RedactedValue string `json:"redacted_value" api:"required"`
-	// Revocation timestamp.
+	// When the key was revoked.
+	//
+	// `null` if the key has not been revoked.
 	RevokedAt time.Time `json:"revoked_at" api:"required" format:"date-time"`
 	// Role resource.
 	Role Role `json:"role" api:"required"`
@@ -382,7 +396,9 @@ func (r *CreateAPIKeyRequestParam) UnmarshalJSON(data []byte) error {
 type CreatedAPIKey struct {
 	// API key resource.
 	APIKeyInfo APIKey `json:"api_key_info" api:"required"`
-	// Full secret value. Returned once and cannot be retrieved later. Learn more about
+	// Full secret value.
+	//
+	// Returned once and cannot be retrieved later. Learn more about
 	// [managing your API keys](https://docs.augno.com/api/managing-api-keys).
 	APIKeySecret string `json:"api_key_secret" api:"required"`
 	// Resource type identifier.
@@ -501,8 +517,12 @@ type Owner struct {
 	//
 	// Any of "owner".
 	Object OwnerObject `json:"object" api:"required"`
-	// The owner type: "system" for platform defaults, "account" for account-owned
-	// resources.
+	// Owner type, identifying where the resource came from.
+	//
+	//   - `system`: a platform-provided default shared across all accounts; not
+	//     editable.
+	//   - `account`: created and owned by a specific account; the `account` field
+	//     identifies which.
 	//
 	// Any of "system", "account".
 	Type OwnerType `json:"type" api:"required"`
@@ -529,8 +549,12 @@ const (
 	OwnerObjectOwner OwnerObject = "owner"
 )
 
-// The owner type: "system" for platform defaults, "account" for account-owned
-// resources.
+// Owner type, identifying where the resource came from.
+//
+//   - `system`: a platform-provided default shared across all accounts; not
+//     editable.
+//   - `account`: created and owned by a specific account; the `account` field
+//     identifies which.
 type OwnerType string
 
 const (
@@ -587,6 +611,13 @@ type Role struct {
 	// to restrict some actions to only certain types of roles. For example, only roles
 	// with the type `admin` can create and manage API keys.
 	//
+	//   - `admin`: full administrative access, including managing API keys.
+	//   - `user`: a custom role tailored to a specific need (its permissions are defined
+	//     explicitly).
+	//   - `scanner`: a role for scanning-station operators.
+	//   - `sales_rep`: a role for sales representatives.
+	//   - `agent`: a role assigned to an automated agent rather than a person.
+	//
 	// Any of "admin", "user", "scanner", "sales_rep", "agent".
 	Type RoleType `json:"type" api:"required"`
 	// Last updated timestamp.
@@ -624,6 +655,13 @@ const (
 // The role's type is sometimes used to gate special behaviors in the frontend and
 // to restrict some actions to only certain types of roles. For example, only roles
 // with the type `admin` can create and manage API keys.
+//
+//   - `admin`: full administrative access, including managing API keys.
+//   - `user`: a custom role tailored to a specific need (its permissions are defined
+//     explicitly).
+//   - `scanner`: a role for scanning-station operators.
+//   - `sales_rep`: a role for sales representatives.
+//   - `agent`: a role assigned to an automated agent rather than a person.
 type RoleType string
 
 const (

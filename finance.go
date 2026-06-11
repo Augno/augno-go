@@ -69,7 +69,15 @@ func (r *FinanceService) GetTransactionTypes(ctx context.Context, query FinanceG
 type AdjustmentType struct {
 	// Adjustment ID.
 	ID string `json:"id" api:"required"`
-	// Machine-readable code.
+	// Machine-readable code identifying what kind of adjustment this is.
+	//
+	//   - `discount`: a price reduction applied to an order.
+	//   - `shipping_discrepancy`: corrects a difference between quoted and actual
+	//     freight.
+	//   - `short_payment`: reconciles an invoice paid for less than the amount due.
+	//   - `write_off`: cancels an uncollectible balance.
+	//   - `fee`: an additional charge added to an order.
+	//   - `refund`: returns money to the customer.
 	//
 	// Any of "discount", "shipping_discrepancy", "short_payment", "write_off", "fee",
 	// "refund".
@@ -106,7 +114,15 @@ func (r *AdjustmentType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Machine-readable code.
+// Machine-readable code identifying what kind of adjustment this is.
+//
+//   - `discount`: a price reduction applied to an order.
+//   - `shipping_discrepancy`: corrects a difference between quoted and actual
+//     freight.
+//   - `short_payment`: reconciles an invoice paid for less than the amount due.
+//   - `write_off`: cancels an uncollectible balance.
+//   - `fee`: an additional charge added to an order.
+//   - `refund`: returns money to the customer.
 type AdjustmentTypeCode string
 
 const (
@@ -228,7 +244,13 @@ const (
 type TransactionMethod struct {
 	// Transaction method ID.
 	ID string `json:"id" api:"required"`
-	// Machine-readable code.
+	// Machine-readable code identifying how the transaction was made.
+	//
+	// - `cash`
+	// - `check`
+	// - `credit_card`
+	// - `gift_card`
+	// - `ach`
 	//
 	// Any of "cash", "check", "credit_card", "gift_card", "ach".
 	Code TransactionMethodCode `json:"code" api:"required"`
@@ -255,7 +277,13 @@ func (r *TransactionMethod) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Machine-readable code.
+// Machine-readable code identifying how the transaction was made.
+//
+// - `cash`
+// - `check`
+// - `credit_card`
+// - `gift_card`
+// - `ach`
 type TransactionMethodCode string
 
 const (
@@ -277,7 +305,12 @@ const (
 type TransactionType struct {
 	// Transaction ID.
 	ID string `json:"id" api:"required"`
-	// Machine-readable code.
+	// Machine-readable code identifying the kind of transaction.
+	//
+	// - `payment`: money received from the customer.
+	// - `credit_memo`: a credit issued to the customer.
+	// - `adjustment`: a manual correction (see the transaction's `adjustment_type`).
+	// - `rebate`: a rebate granted to the customer.
 	//
 	// Any of "payment", "credit_memo", "adjustment", "rebate".
 	Code TransactionTypeCode `json:"code" api:"required"`
@@ -304,7 +337,12 @@ func (r *TransactionType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Machine-readable code.
+// Machine-readable code identifying the kind of transaction.
+//
+// - `payment`: money received from the customer.
+// - `credit_memo`: a credit issued to the customer.
+// - `adjustment`: a manual correction (see the transaction's `adjustment_type`).
+// - `rebate`: a rebate granted to the customer.
 type TransactionTypeCode string
 
 const (

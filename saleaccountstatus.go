@@ -67,6 +67,12 @@ type AccountStatus struct {
 	ID string `json:"id" api:"required"`
 	// Machine-readable status code.
 	//
+	//   - `normal`: standard account with no restrictions.
+	//   - `preferred`: account flagged as preferred (e.g. for prioritized handling).
+	//   - `hold_shipment`: shipments to this account are held; orders may still be
+	//     placed.
+	//   - `hold_all`: all activity for this account is held.
+	//
 	// Any of "normal", "preferred", "hold_shipment", "hold_all".
 	Code AccountStatusCode `json:"code" api:"required"`
 	// Creation timestamp.
@@ -102,6 +108,12 @@ func (r *AccountStatus) UnmarshalJSON(data []byte) error {
 }
 
 // Machine-readable status code.
+//
+//   - `normal`: standard account with no restrictions.
+//   - `preferred`: account flagged as preferred (e.g. for prioritized handling).
+//   - `hold_shipment`: shipments to this account are held; orders may still be
+//     placed.
+//   - `hold_all`: all activity for this account is held.
 type AccountStatusCode string
 
 const (

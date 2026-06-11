@@ -68,12 +68,19 @@ func (r *CoreAuditEventService) GetResourceTypes(ctx context.Context, opts ...op
 	return res, err
 }
 
-// Immutable audit event record. Captures the actor, changed resource, and
-// timestamp.
+// Immutable audit event record.
+//
+// Captures the actor, changed resource, and timestamp.
 type AuditEvent struct {
 	// Audit event ID.
 	ID string `json:"id" api:"required"`
 	// Mutation type.
+	//
+	// - `create`: the resource was created.
+	// - `update`: one or more fields were changed.
+	// - `delete`: the resource was deleted.
+	// - `restore`: a previously deleted resource was restored.
+	// - `archive`: the resource was archived.
 	//
 	// Any of "create", "update", "delete", "restore", "archive".
 	Action AuditEventAction `json:"action" api:"required"`
@@ -188,6 +195,12 @@ func (r *AuditEvent) UnmarshalJSON(data []byte) error {
 }
 
 // Mutation type.
+//
+// - `create`: the resource was created.
+// - `update`: one or more fields were changed.
+// - `delete`: the resource was deleted.
+// - `restore`: a previously deleted resource was restored.
+// - `archive`: the resource was archived.
 type AuditEventAction string
 
 const (
@@ -420,16 +433,19 @@ const (
 type AuditFieldChange struct {
 	// Name of the changed field.
 	Field string `json:"field" api:"required"`
-	// New value as a JSON fragment. Null for deletion events. Encoded as a JSON value
-	// (object, array, string, number, boolean, or null), not a JSON-encoded string.
+	// New value as a JSON fragment.
+	//
+	// Null for deletion events. Encoded as a JSON value (object, array, string,
+	// number, boolean, or null), not a JSON-encoded string.
 	NewValue any `json:"new_value" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "audit_field_change".
 	Object AuditFieldChangeObject `json:"object" api:"required"`
-	// Previous value as a JSON fragment. Null for creation events. Encoded as a JSON
-	// value (object, array, string, number, boolean, or null), not a JSON-encoded
-	// string.
+	// Previous value as a JSON fragment.
+	//
+	// Null for creation events. Encoded as a JSON value (object, array, string,
+	// number, boolean, or null), not a JSON-encoded string.
 	OldValue any `json:"old_value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

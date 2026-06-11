@@ -80,6 +80,10 @@ type Actor struct {
 	Role Role `json:"role" api:"required"`
 	// Actor type.
 	//
+	// - `user`: a human user account.
+	// - `api_key`: a programmatic caller authenticating with an API key.
+	// - `agent`: an automated agent acting on the account's behalf.
+	//
 	// Any of "user", "api_key", "agent".
 	Type ActorType `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -109,6 +113,10 @@ const (
 )
 
 // Actor type.
+//
+// - `user`: a human user account.
+// - `api_key`: a programmatic caller authenticating with an API key.
+// - `agent`: an automated agent acting on the account's behalf.
 type ActorType string
 
 const (
@@ -164,11 +172,17 @@ type RequestLog struct {
 	ClientIP string `json:"client_ip" api:"required"`
 	// When the log entry was created.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// API error code.
+	// Machine-readable API error code.
+	//
+	// Populated only for failed requests; `null` on success.
 	ErrorCode string `json:"error_code" api:"required"`
-	// Error message.
+	// Human-readable error message.
+	//
+	// Populated only for failed requests; `null` on success.
 	ErrorMessage string `json:"error_message" api:"required"`
-	// Request host. Usually `api.augno.com`.
+	// Request host.
+	//
+	// Usually `api.augno.com`.
 	Host string `json:"host" api:"required"`
 	// User-provided idempotency key.
 	IdempotencyKey string `json:"idempotency_key" api:"required"`
@@ -176,8 +190,10 @@ type RequestLog struct {
 	LatencyUs int64 `json:"latency_us" api:"required"`
 	// HTTP method.
 	Method string `json:"method" api:"required"`
-	// _Normalized_ route template. For example `PATCH /v1/sales/customers/{id}` is the
-	// normalized route for a request route `PUT /v1/sales/customers/ac_...`.
+	// _Normalized_ route template.
+	//
+	// For example `PATCH /v1/sales/customers/{id}` is the normalized route for a
+	// request route `PUT /v1/sales/customers/ac_...`.
 	NormalizedRoute string `json:"normalized_route" api:"required"`
 	// Resource type identifier.
 	//
@@ -198,9 +214,11 @@ type RequestLog struct {
 	// Response body. Encoded as a JSON value (object, array, string, number, boolean,
 	// or null), not a JSON-encoded string.
 	ResponseBody any `json:"response_body" api:"required"`
-	// HTTP status code. Exception to the `status` naming convention: this is a numeric
-	// HTTP response code (200/404/…), not a domain lifecycle status enum, so the
-	// `_code` suffix is meaningful.
+	// HTTP status code.
+	//
+	// Exception to the `status` naming convention: this is a numeric HTTP response
+	// code (200/404/…), not a domain lifecycle status enum, so the `_code` suffix is
+	// meaningful.
 	StatusCode int64 `json:"status_code" api:"required"`
 	// User agent.
 	UserAgent string `json:"user_agent" api:"required"`

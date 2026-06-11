@@ -184,8 +184,9 @@ type Unit struct {
 	Abbreviation string `json:"abbreviation" api:"required"`
 	// When this unit was created.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Whether this is the base unit for its dimension. Conversion ratios are relative
-	// to this unit.
+	// Whether this is the base unit for its dimension.
+	//
+	// Conversion ratios are relative to this unit.
 	IsBaseUnit bool `json:"is_base_unit" api:"required"`
 	// Display name of the unit (e.g. "Gram", "Kilogram").
 	Name string `json:"name" api:"required"`
@@ -193,19 +194,34 @@ type Unit struct {
 	//
 	// Any of "unit".
 	Object UnitObject `json:"object" api:"required"`
-	// Conversion offset denominator. Typically 1. Cannot be zero.
+	// Conversion offset denominator.
+	//
+	// Typically 1. Cannot be zero.
 	OffsetDenominator string `json:"offset_denominator" api:"required" format:"decimal"`
-	// Conversion offset numerator, used for temperature-like conversions. Zero for
-	// most unit types.
+	// Conversion offset numerator, used for temperature-like conversions.
+	//
+	// Zero for most unit types.
 	OffsetNumerator string `json:"offset_numerator" api:"required" format:"decimal"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
 	// Conversion ratio denominator relative to the base unit in the same dimension.
+	//
 	// Cannot be zero.
 	RatioDenominator string `json:"ratio_denominator" api:"required" format:"decimal"`
 	// Conversion ratio numerator relative to the base unit in the same dimension.
 	RatioNumerator string `json:"ratio_numerator" api:"required" format:"decimal"`
 	// Unit dimension.
+	//
+	// Units can only be converted to other units sharing the same dimension.
+	//
+	// - `currency`: monetary units such as dollars or euros.
+	// - `quantity`: discrete countable units.
+	// - `time`: time-based units such as hours or minutes.
+	// - `mass`: weight-based units such as kilograms or pounds.
+	// - `volume`: volumetric units such as liters or gallons.
+	// - `length`: distance-based units such as meters or feet.
+	// - `temperature`: temperature units such as Celsius or Fahrenheit.
+	// - `area`: area-based units such as square meters or acres.
 	//
 	// Any of "currency", "quantity", "time", "mass", "volume", "length",
 	// "temperature", "area".
@@ -246,6 +262,17 @@ const (
 )
 
 // Unit dimension.
+//
+// Units can only be converted to other units sharing the same dimension.
+//
+// - `currency`: monetary units such as dollars or euros.
+// - `quantity`: discrete countable units.
+// - `time`: time-based units such as hours or minutes.
+// - `mass`: weight-based units such as kilograms or pounds.
+// - `volume`: volumetric units such as liters or gallons.
+// - `length`: distance-based units such as meters or feet.
+// - `temperature`: temperature units such as Celsius or Fahrenheit.
+// - `area`: area-based units such as square meters or acres.
 type UnitType string
 
 const (

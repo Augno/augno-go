@@ -115,7 +115,11 @@ type Item struct {
 	Object ItemObject `json:"object" api:"required"`
 	// Stock keeping unit code.
 	SKU string `json:"sku" api:"required"`
-	// Item type code.
+	// What kind of item this is.
+	//
+	// - `product`: a finished product.
+	// - `material`: a raw material or component consumed in production.
+	// - `part`: a part used in production.
 	//
 	// Any of "product", "material", "part".
 	Type ItemType `json:"type" api:"required"`
@@ -158,7 +162,11 @@ const (
 	ItemObjectItem ItemObject = "item"
 )
 
-// Item type code.
+// What kind of item this is.
+//
+// - `product`: a finished product.
+// - `material`: a raw material or component consumed in production.
+// - `part`: a part used in production.
 type ItemType string
 
 const (
@@ -185,7 +193,10 @@ type ItemCategory struct {
 	Owner Owner `json:"owner" api:"required"`
 	// List represents a paginated list of resources.
 	Properties ListProperty `json:"properties" api:"required"`
-	// Item category type.
+	// What kind of items this category groups.
+	//
+	// - `material_category`: groups raw materials or components.
+	// - `product_category`: groups finished products.
 	//
 	// Any of "material_category", "product_category".
 	Type ItemCategoryType `json:"type" api:"required"`
@@ -223,7 +234,10 @@ const (
 	ItemCategoryObjectItemCategory ItemCategoryObject = "item_category"
 )
 
-// Item category type.
+// What kind of items this category groups.
+//
+// - `material_category`: groups raw materials or components.
+// - `product_category`: groups finished products.
 type ItemCategoryType string
 
 const (
@@ -315,7 +329,10 @@ type Quantity struct {
 	Object QuantityObject `json:"object" api:"required"`
 	// Unit of measurement used for conversions and product quantities.
 	Unit Unit `json:"unit" api:"required"`
-	// Decimal value.
+	// Raw decimal value of the quantity, as a string to preserve precision.
+	//
+	// This is the unformatted machine value; see `display_value` for the
+	// human-readable rendering with unit and thousands separators.
 	Value string `json:"value" api:"required" format:"decimal"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

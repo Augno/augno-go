@@ -85,6 +85,10 @@ type SalesOrderStatus struct {
 	ID string `json:"id" api:"required"`
 	// Machine-readable status code.
 	//
+	// - `estimate`: a draft quote that has not yet been committed.
+	// - `issued`: the order has been issued and is being fulfilled.
+	// - `fulfilled`: the order has been completed and closed.
+	//
 	// Any of "estimate", "issued", "fulfilled".
 	Code SalesOrderStatusCode `json:"code" api:"required"`
 	// Creation timestamp.
@@ -120,6 +124,10 @@ func (r *SalesOrderStatus) UnmarshalJSON(data []byte) error {
 }
 
 // Machine-readable status code.
+//
+// - `estimate`: a draft quote that has not yet been committed.
+// - `issued`: the order has been issued and is being fulfilled.
+// - `fulfilled`: the order has been completed and closed.
 type SalesOrderStatusCode string
 
 const (

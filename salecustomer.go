@@ -99,8 +99,10 @@ func (r *SaleCustomerService) Delete(ctx context.Context, id string, opts ...opt
 	return res, err
 }
 
-// Account user with role and department. Profile fields (name, email, username,
-// image URL) live on the expandable user sub-resource.
+// Account user with role and department.
+//
+// Profile fields (name, email, username, image URL) live on the expandable user
+// sub-resource.
 type AccountUser struct {
 	// Account user ID.
 	ID string `json:"id" api:"required"`
@@ -117,6 +119,10 @@ type AccountUser struct {
 	// Role resource.
 	Role Role `json:"role" api:"required"`
 	// Account user status.
+	//
+	// - `active`: the user can access the account.
+	// - `disabled`: the user is locked out of the account.
+	// - `removed`: the user has been removed (soft-deleted) from the account.
 	//
 	// Any of "active", "disabled", "removed".
 	Status AccountUserStatus `json:"status" api:"required"`
@@ -154,6 +160,10 @@ const (
 )
 
 // Account user status.
+//
+// - `active`: the user can access the account.
+// - `disabled`: the user is locked out of the account.
+// - `removed`: the user has been removed (soft-deleted) from the account.
 type AccountUserStatus string
 
 const (
@@ -166,16 +176,28 @@ const (
 type Carrier struct {
 	// Carrier ID.
 	ID string `json:"id" api:"required"`
-	// Account number.
+	// Your account number with this carrier, used for rating and billing.
 	AccountNumber string `json:"account_number" api:"required"`
-	// Carrier code.
+	// Well-known carrier identifier.
+	//
+	// Null for custom carriers without a recognized code.
+	//
+	//   - `fedex`, `ups`, `usps`: integrated carriers managed through Shippo (live
+	//     rating and labels).
+	//   - `will_call`: customer picks the order up; no carrier shipment.
+	//   - `delivery`: delivered by your own vehicles/drivers.
+	//   - `ltl`, `ltl1`: less-than-truckload freight carriers.
+	//   - `freight_collect`: freight billed to and arranged by the receiver.
 	//
 	// Any of "fedex", "ups", "usps", "will_call", "delivery", "ltl", "ltl1",
 	// "freight_collect".
 	Code CarrierCode `json:"code" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Customer portal visibility.
+	// Whether this carrier is shown to customers in the customer portal.
+	//
+	// - `visible`: customers can see and select this carrier.
+	// - `hidden`: the carrier is concealed from the customer portal.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility CarrierCustomerPortalVisibility `json:"customer_portal_visibility" api:"required"`
@@ -217,7 +239,16 @@ func (r *Carrier) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Carrier code.
+// Well-known carrier identifier.
+//
+// Null for custom carriers without a recognized code.
+//
+//   - `fedex`, `ups`, `usps`: integrated carriers managed through Shippo (live
+//     rating and labels).
+//   - `will_call`: customer picks the order up; no carrier shipment.
+//   - `delivery`: delivered by your own vehicles/drivers.
+//   - `ltl`, `ltl1`: less-than-truckload freight carriers.
+//   - `freight_collect`: freight billed to and arranged by the receiver.
 type CarrierCode string
 
 const (
@@ -231,7 +262,10 @@ const (
 	CarrierCodeFreightCollect CarrierCode = "freight_collect"
 )
 
-// Customer portal visibility.
+// Whether this carrier is shown to customers in the customer portal.
+//
+// - `visible`: customers can see and select this carrier.
+// - `hidden`: the carrier is concealed from the customer portal.
 type CarrierCustomerPortalVisibility string
 
 const (
@@ -428,7 +462,10 @@ type Customer struct {
 	BillToAddress Address `json:"bill_to_address" api:"required"`
 	// List represents a paginated list of resources.
 	ChildAccounts *ListCustomer `json:"child_accounts" api:"required"`
-	// Commission policy.
+	// Commission policy applied to this customer's orders.
+	//
+	// - `commission_applied`: commission applies to orders.
+	// - `commission_exempt`: no commission applies.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy CustomerCommissionPolicy `json:"commission_policy" api:"required"`
@@ -440,7 +477,10 @@ type Customer struct {
 	CreditLimit Quantity `json:"credit_limit" api:"required"`
 	// Customer default configuration.
 	Defaults CustomerDefaults `json:"defaults" api:"required"`
-	// EDI status.
+	// Whether EDI (Electronic Data Interchange) is enabled for this customer.
+	//
+	// - `enabled`: EDI is enabled.
+	// - `disabled`: EDI is disabled.
 	//
 	// Any of "enabled", "disabled".
 	EdiStatus CustomerEdiStatus `json:"edi_status" api:"required"`
@@ -452,7 +492,8 @@ type Customer struct {
 	Note string `json:"note" api:"required"`
 	// Customer notification settings.
 	NotificationPreferences CustomerNotificationPreferences `json:"notification_preferences" api:"required"`
-	// Customer number.
+	// Human-readable customer number used to identify the account, distinct from the
+	// `id`.
 	Number string `json:"number" api:"required"`
 	// Resource type identifier.
 	//
@@ -462,13 +503,22 @@ type Customer struct {
 	ParentAccount *Customer `json:"parent_account" api:"required"`
 	// List represents a paginated list of resources.
 	PriceGroups ListAccountGroup `json:"price_groups" api:"required"`
-	// Customer relationship type.
+	// The customer's position in the account hierarchy.
+	//
+	// - `standalone`: no parent or child accounts.
+	// - `parent`: has one or more child accounts (see `child_accounts`).
+	// - `child`: belongs to a parent account (see `parent_account`).
 	//
 	// Any of "standalone", "parent", "child".
 	RelationshipType CustomerRelationshipType `json:"relationship_type" api:"required"`
 	// Address with associated geolocation.
 	ShipToAddress Address `json:"ship_to_address" api:"required"`
-	// Account status code.
+	// Account status code, controlling whether the customer can transact.
+	//
+	// - `normal`: standard active account with no restrictions.
+	// - `preferred`: active account flagged as preferred.
+	// - `hold_shipment`: orders can be placed, but shipments are held.
+	// - `hold_all`: all activity is on hold.
 	//
 	// Any of "normal", "preferred", "hold_shipment", "hold_all".
 	Status CustomerStatus `json:"status" api:"required"`
@@ -511,7 +561,10 @@ func (r *Customer) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Commission policy.
+// Commission policy applied to this customer's orders.
+//
+// - `commission_applied`: commission applies to orders.
+// - `commission_exempt`: no commission applies.
 type CustomerCommissionPolicy string
 
 const (
@@ -519,7 +572,10 @@ const (
 	CustomerCommissionPolicyCommissionExempt  CustomerCommissionPolicy = "commission_exempt"
 )
 
-// EDI status.
+// Whether EDI (Electronic Data Interchange) is enabled for this customer.
+//
+// - `enabled`: EDI is enabled.
+// - `disabled`: EDI is disabled.
 type CustomerEdiStatus string
 
 const (
@@ -534,7 +590,11 @@ const (
 	CustomerObjectCustomer CustomerObject = "customer"
 )
 
-// Customer relationship type.
+// The customer's position in the account hierarchy.
+//
+// - `standalone`: no parent or child accounts.
+// - `parent`: has one or more child accounts (see `child_accounts`).
+// - `child`: belongs to a parent account (see `parent_account`).
 type CustomerRelationshipType string
 
 const (
@@ -543,7 +603,12 @@ const (
 	CustomerRelationshipTypeChild      CustomerRelationshipType = "child"
 )
 
-// Account status code.
+// Account status code, controlling whether the customer can transact.
+//
+// - `normal`: standard active account with no restrictions.
+// - `preferred`: active account flagged as preferred.
+// - `hold_shipment`: orders can be placed, but shipments are held.
+// - `hold_all`: all activity is on hold.
 type CustomerStatus string
 
 const (
@@ -599,8 +664,10 @@ type CustomerDefaults struct {
 	PaymentTerm PaymentTerm `json:"payment_term" api:"required"`
 	// Priority level used by sales orders and picks.
 	Priority Priority `json:"priority" api:"required"`
-	// Account user with role and department. Profile fields (name, email, username,
-	// image URL) live on the expandable user sub-resource.
+	// Account user with role and department.
+	//
+	// Profile fields (name, email, username, image URL) live on the expandable user
+	// sub-resource.
 	SalesRep AccountUser `json:"sales_rep" api:"required"`
 	// ShippingTerm resource.
 	ShippingTerm ShippingTerm `json:"shipping_term" api:"required"`
@@ -631,9 +698,12 @@ const (
 
 // Customer freight and carrier settings.
 type CustomerFreightPreferences struct {
-	// Carrier billing account number.
+	// Carrier billing account number charged when `billing_type` is `third_party`.
 	BillingAccount string `json:"billing_account" api:"required"`
-	// Carrier billing type.
+	// Who pays the carrier for shipments.
+	//
+	// - `sender`: the shipper (you) pays the carrier.
+	// - `third_party`: a third party is billed, using `billing_account`.
 	//
 	// Any of "sender", "third_party".
 	BillingType CustomerFreightPreferencesBillingType `json:"billing_type" api:"required"`
@@ -645,7 +715,11 @@ type CustomerFreightPreferences struct {
 	Object CustomerFreightPreferencesObject `json:"object" api:"required"`
 	// Shipping service level for a carrier.
 	ServiceLevel ServiceLevel `json:"service_level" api:"required"`
-	// Freight policy.
+	// Freight policy applied to this customer's orders.
+	//
+	//   - `free_freight`: the customer is not billed for freight.
+	//   - `billed_freight`: freight is billed to the customer, unless overridden
+	//     elsewhere.
 	//
 	// Any of "free_freight", "billed_freight".
 	Status CustomerFreightPreferencesStatus `json:"status" api:"required"`
@@ -668,7 +742,10 @@ func (r *CustomerFreightPreferences) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Carrier billing type.
+// Who pays the carrier for shipments.
+//
+// - `sender`: the shipper (you) pays the carrier.
+// - `third_party`: a third party is billed, using `billing_account`.
 type CustomerFreightPreferencesBillingType string
 
 const (
@@ -683,7 +760,11 @@ const (
 	CustomerFreightPreferencesObjectCustomerFreightPreferences CustomerFreightPreferencesObject = "customer_freight_preferences"
 )
 
-// Freight policy.
+// Freight policy applied to this customer's orders.
+//
+//   - `free_freight`: the customer is not billed for freight.
+//   - `billed_freight`: freight is billed to the customer, unless overridden
+//     elsewhere.
 type CustomerFreightPreferencesStatus string
 
 const (
@@ -1019,7 +1100,14 @@ type Location struct {
 	Object LocationObject `json:"object" api:"required"`
 	// Location resource.
 	Parent *Location `json:"parent" api:"required"`
-	// Location type code.
+	// Location type code, identifying this location's level in the storage hierarchy.
+	//
+	// - `building`: a building-level location.
+	// - `section`: a section within a building.
+	// - `aisle`: an aisle within a section.
+	// - `rack`: a rack within an aisle.
+	// - `shelf`: a shelf within a rack.
+	// - `bin`: a bin within a shelf.
 	//
 	// Any of "building", "section", "aisle", "rack", "shelf", "bin".
 	Type LocationTypeCode `json:"type" api:"required"`
@@ -1128,6 +1216,10 @@ type PaymentTerm struct {
 	Owner Owner `json:"owner" api:"required"`
 	// Payment term status.
 	//
+	//   - `active`: the term is available for assignment to customers and invoices.
+	//   - `inactive`: the term is retained for historical records but cannot be
+	//     assigned.
+	//
 	// Any of "active", "inactive".
 	Status PaymentTermStatus `json:"status" api:"required"`
 	// Last-updated timestamp.
@@ -1160,6 +1252,10 @@ const (
 )
 
 // Payment term status.
+//
+//   - `active`: the term is available for assignment to customers and invoices.
+//   - `inactive`: the term is retained for historical records but cannot be
+//     assigned.
 type PaymentTermStatus string
 
 const (
@@ -1315,11 +1411,23 @@ type ScanningStation struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Department resource.
 	Department *Department `json:"department" api:"required"`
-	// Label size code.
+	// Label size printed at this station.
+	//
+	// `null` when no label size is configured.
+	//
+	// - `1x1`: 1x1 inch label.
+	// - `1x3`: 1x3 inch label.
+	// - `1x4`: 1x4 inch label.
+	// - `2x4`: 2x4 inch label.
 	//
 	// Any of "1x1", "1x3", "1x4", "2x4".
 	LabelSize ScanningStationLabelSize `json:"label_size" api:"required"`
-	// Label type code.
+	// Label type printed at this station.
+	//
+	// `null` when no label type is configured.
+	//
+	// - `tag`: a tag label.
+	// - `traveler`: a traveler label that accompanies the batch through production.
 	//
 	// Any of "tag", "traveler".
 	LabelType ScanningStationLabelType `json:"label_type" api:"required"`
@@ -1333,11 +1441,20 @@ type ScanningStation struct {
 	Object ScanningStationObject `json:"object" api:"required"`
 	// Operator requirement behavior for this station.
 	//
+	//   - `none`: no operator action is required to complete a scan.
+	//   - `material_check`: the operator must perform a material check before the scan
+	//     is accepted.
+	//
 	// Any of "none", "material_check".
 	OperatorRequirement ScanningStationOperatorRequirement `json:"operator_requirement" api:"required"`
 	// List represents a paginated list of resources.
 	ProductionSteps *ListProductionStep `json:"production_steps" api:"required"`
-	// Scanning station type.
+	// Scanning station type, determining which batch operation the station performs.
+	//
+	// - `init_batch`: initializes a new batch.
+	// - `merge_batch`: merges multiple batches into one.
+	// - `move_batch`: moves a batch to another location or step.
+	// - `split_batch`: splits a batch into multiple batches.
 	//
 	// Any of "init_batch", "merge_batch", "move_batch", "split_batch".
 	Type ScanningStationType `json:"type" api:"required"`
@@ -1368,7 +1485,14 @@ func (r *ScanningStation) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Label size code.
+// Label size printed at this station.
+//
+// `null` when no label size is configured.
+//
+// - `1x1`: 1x1 inch label.
+// - `1x3`: 1x3 inch label.
+// - `1x4`: 1x4 inch label.
+// - `2x4`: 2x4 inch label.
 type ScanningStationLabelSize string
 
 const (
@@ -1378,7 +1502,12 @@ const (
 	ScanningStationLabelSize2x4 ScanningStationLabelSize = "2x4"
 )
 
-// Label type code.
+// Label type printed at this station.
+//
+// `null` when no label type is configured.
+//
+// - `tag`: a tag label.
+// - `traveler`: a traveler label that accompanies the batch through production.
 type ScanningStationLabelType string
 
 const (
@@ -1394,6 +1523,10 @@ const (
 )
 
 // Operator requirement behavior for this station.
+//
+//   - `none`: no operator action is required to complete a scan.
+//   - `material_check`: the operator must perform a material check before the scan
+//     is accepted.
 type ScanningStationOperatorRequirement string
 
 const (
@@ -1401,7 +1534,12 @@ const (
 	ScanningStationOperatorRequirementMaterialCheck ScanningStationOperatorRequirement = "material_check"
 )
 
-// Scanning station type.
+// Scanning station type, determining which batch operation the station performs.
+//
+// - `init_batch`: initializes a new batch.
+// - `merge_batch`: merges multiple batches into one.
+// - `move_batch`: moves a batch to another location or step.
+// - `split_batch`: splits a batch into multiple batches.
 type ScanningStationType string
 
 const (
@@ -1417,11 +1555,15 @@ type ServiceLevel struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Customer portal visibility.
+	// Whether this service level is shown to customers in the customer portal.
+	//
+	// - `visible`: customers can see and select this service level.
+	// - `hidden`: the service level is concealed from the customer portal.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility ServiceLevelCustomerPortalVisibility `json:"customer_portal_visibility" api:"required"`
-	// Default service level for the carrier.
+	// Whether this is the carrier's default service level, pre-selected when the
+	// carrier is chosen.
 	IsDefault bool `json:"is_default" api:"required"`
 	// Display name.
 	Name string `json:"name" api:"required"`
@@ -1431,7 +1573,10 @@ type ServiceLevel struct {
 	Object ServiceLevelObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// Service level token.
+	// Carrier-specific code identifying this service level (e.g. `fedex_ground`,
+	// `ups_next_day_air`).
+	//
+	// Values are carrier-defined, so any non-empty string is accepted.
 	ServiceLevelToken string `json:"service_level_token" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -1457,7 +1602,10 @@ func (r *ServiceLevel) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Customer portal visibility.
+// Whether this service level is shown to customers in the customer portal.
+//
+// - `visible`: customers can see and select this service level.
+// - `hidden`: the service level is concealed from the customer portal.
 type ServiceLevelCustomerPortalVisibility string
 
 const (
@@ -1492,7 +1640,13 @@ type ShippingTerm struct {
 	Object ShippingTermObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// Shipping term type.
+	// Freight pricing model applied by this shipping term.
+	//
+	//   - `free_freight`: no shipping cost to the buyer.
+	//   - `flat_rate_freight`: a fixed shipping cost regardless of order details (see
+	//     `flat_rate`).
+	//   - `carrier_rate_freight`: shipping cost is determined by the carrier's quoted
+	//     rate.
 	//
 	// Any of "free_freight", "flat_rate_freight", "carrier_rate_freight".
 	Type ShippingTermType `json:"type" api:"required"`
@@ -1528,7 +1682,13 @@ const (
 	ShippingTermObjectShippingTerm ShippingTermObject = "shipping_term"
 )
 
-// Shipping term type.
+// Freight pricing model applied by this shipping term.
+//
+//   - `free_freight`: no shipping cost to the buyer.
+//   - `flat_rate_freight`: a fixed shipping cost regardless of order details (see
+//     `flat_rate`).
+//   - `carrier_rate_freight`: shipping cost is determined by the carrier's quoted
+//     rate.
 type ShippingTermType string
 
 const (
@@ -1667,12 +1827,20 @@ type User struct {
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Email address.
+	//
+	// `null` if the user has no email on record.
 	Email string `json:"email" api:"required"`
-	// Email verified timestamp, null if unverified.
+	// When the user verified their email address.
+	//
+	// `null` if the email is unverified.
 	EmailVerifiedAt time.Time `json:"email_verified_at" api:"required" format:"date-time"`
-	// Profile image URL.
+	// URL of the user's profile image.
+	//
+	// `null` if no image has been uploaded.
 	ImageURL string `json:"image_url" api:"required"`
-	// Display name.
+	// User's full display name.
+	//
+	// `null` if not set.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -1681,6 +1849,8 @@ type User struct {
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Username.
+	//
+	// `null` if the user has no username.
 	Username string `json:"username" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

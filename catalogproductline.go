@@ -178,7 +178,11 @@ const (
 type ProductLine struct {
 	// Product line ID.
 	ID string `json:"id" api:"required"`
-	// Commission policy of products in this product line.
+	// Default commission policy for products in this product line.
+	//
+	//   - `commission_exempt`: no commission applies to these products.
+	//   - `commission_applied`: commission applies to these products, unless overridden
+	//     elsewhere.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy ProductLineCommissionPolicy `json:"commission_policy" api:"required"`
@@ -186,7 +190,11 @@ type ProductLine struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Description.
 	Description string `json:"description" api:"required"`
-	// Freight policy for all items in this product line.
+	// Default freight policy for products in this product line.
+	//
+	//   - `free_freight`: these products do not incur a freight charge.
+	//   - `billed_freight`: freight is billed for these products, unless overridden
+	//     elsewhere.
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy ProductLineFreightPolicy `json:"freight_policy" api:"required"`
@@ -228,7 +236,11 @@ func (r *ProductLine) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Commission policy of products in this product line.
+// Default commission policy for products in this product line.
+//
+//   - `commission_exempt`: no commission applies to these products.
+//   - `commission_applied`: commission applies to these products, unless overridden
+//     elsewhere.
 type ProductLineCommissionPolicy string
 
 const (
@@ -236,7 +248,11 @@ const (
 	ProductLineCommissionPolicyCommissionExempt  ProductLineCommissionPolicy = "commission_exempt"
 )
 
-// Freight policy for all items in this product line.
+// Default freight policy for products in this product line.
+//
+//   - `free_freight`: these products do not incur a freight charge.
+//   - `billed_freight`: freight is billed for these products, unless overridden
+//     elsewhere.
 type ProductLineFreightPolicy string
 
 const (

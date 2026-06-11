@@ -62,6 +62,9 @@ func (r *SaleAccountGroupService) Get(ctx context.Context, id string, opts ...op
 }
 
 // Partially updates an account group.
+//
+// Only the provided fields are changed. The account group's `type` cannot be
+// changed after creation.
 func (r *SaleAccountGroupService) Update(ctx context.Context, id string, body SaleAccountGroupUpdateParams, opts ...option.RequestOption) (res *AccountGroup, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -108,7 +111,9 @@ type AccountGroup struct {
 	CommissionPolicy AccountGroupCommissionPolicy `json:"commission_policy" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Description.
+	// Free-form description of the account group.
+	//
+	// Optional; `null` when not set.
 	Description string `json:"description" api:"required"`
 	// Freight policy.
 	//
@@ -321,11 +326,13 @@ const (
 
 // Request to partially update an account group.
 type UpdateAccountGroupRequestParam struct {
-	// Description.
+	// Free-form description of the account group.
 	Description param.Opt[string] `json:"description,omitzero"`
-	// Display name.
+	// Display name of the account group.
+	//
+	// Must be unique within your account; maximum 255 characters.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Commission policy.
+	// How sales commission applies to accounts in this group.
 	//
 	//   - `commission_exempt`: no commission applies.
 	//   - `commission_applied`: commission applies; if the account group is within a
@@ -333,7 +340,7 @@ type UpdateAccountGroupRequestParam struct {
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy UpdateAccountGroupRequestCommissionPolicy `json:"commission_policy,omitzero"`
-	// Freight policy.
+	// How freight charges apply to orders from accounts in this group.
 	//
 	//   - `free_freight`: customers within this group will not have to pay for freight.
 	//   - `billed_freight`: freight will be applied to any order within this account
@@ -352,7 +359,7 @@ func (r *UpdateAccountGroupRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Commission policy.
+// How sales commission applies to accounts in this group.
 //
 //   - `commission_exempt`: no commission applies.
 //   - `commission_applied`: commission applies; if the account group is within a
@@ -364,7 +371,7 @@ const (
 	UpdateAccountGroupRequestCommissionPolicyCommissionExempt  UpdateAccountGroupRequestCommissionPolicy = "commission_exempt"
 )
 
-// Freight policy.
+// How freight charges apply to orders from accounts in this group.
 //
 //   - `free_freight`: customers within this group will not have to pay for freight.
 //   - `billed_freight`: freight will be applied to any order within this account

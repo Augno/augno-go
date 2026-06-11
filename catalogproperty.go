@@ -100,7 +100,10 @@ func (r *CatalogPropertyService) Delete(ctx context.Context, id string, opts ...
 type Attribute struct {
 	// Attribute ID.
 	ID string `json:"id" api:"required"`
-	// Color code.
+	// Swatch color used to display this attribute in the UI.
+	//
+	// One of `blue`, `brown`, `gray`, `green`, `orange`, `pink`, `purple`, `red`,
+	// `yellow`, or `default` (a neutral fallback color).
 	//
 	// Any of "blue", "brown", "default", "gray", "green", "orange", "pink", "purple",
 	// "red", "yellow".
@@ -113,11 +116,15 @@ type Attribute struct {
 	Object AttributeObject `json:"object" api:"required"`
 	// Property that groups attributes.
 	Property *Property `json:"property" api:"required"`
-	// Display order.
+	// Position of this attribute relative to its siblings within the property,
+	// ascending.
+	//
+	// Lower values sort first.
 	SortOrder int64 `json:"sort_order" api:"required"`
 	// Last update timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// Attribute value.
+	// The selectable value this attribute represents, such as `Red` for a `Color`
+	// property or `Large` for a `Size` property.
 	Value string `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -140,7 +147,10 @@ func (r *Attribute) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Color code.
+// Swatch color used to display this attribute in the UI.
+//
+// One of `blue`, `brown`, `gray`, `green`, `orange`, `pink`, `purple`, `red`,
+// `yellow`, or `default` (a neutral fallback color).
 type AttributeColor string
 
 const (
@@ -254,7 +264,7 @@ type Property struct {
 	Attributes *ListAttribute `json:"attributes" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name.
+	// Display name of the property, such as `Color` or `Size`.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//

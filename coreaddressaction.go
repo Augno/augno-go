@@ -124,7 +124,10 @@ func (r *ValidateAddressRequestParam) UnmarshalJSON(data []byte) error {
 type ValidatedAddress struct {
 	// Parsed address components.
 	Components AddressComponents `json:"components" api:"required"`
-	// Formatted address from the validation service.
+	// Formatted, single-line address as standardized by the validation service.
+	//
+	// `null` when the service did not return a formatted address (this can occur
+	// regardless of `status`).
 	FormattedAddress string `json:"formatted_address" api:"required"`
 	// Resource type identifier.
 	//
@@ -132,9 +135,15 @@ type ValidatedAddress struct {
 	Object ValidatedAddressObject `json:"object" api:"required"`
 	// Address validation status.
 	//
+	//   - `valid`: the address was validated successfully.
+	//   - `invalid`: the address could not be validated; see `validation_messages` for
+	//     the issues found.
+	//
 	// Any of "valid", "invalid".
 	Status ValidatedAddressStatus `json:"status" api:"required"`
-	// Validation messages for issues found.
+	// Human-readable messages describing issues found during validation.
+	//
+	// Empty when no issues were reported.
 	ValidationMessages []string `json:"validation_messages" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -162,6 +171,10 @@ const (
 )
 
 // Address validation status.
+//
+//   - `valid`: the address was validated successfully.
+//   - `invalid`: the address could not be validated; see `validation_messages` for
+//     the issues found.
 type ValidatedAddressStatus string
 
 const (
