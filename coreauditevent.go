@@ -77,6 +77,8 @@ func (r *CoreAuditEventService) GetResourceTypes(ctx context.Context, opts ...op
 type AuditEvent struct {
 	// Audit event ID.
 	ID string `json:"id" api:"required"`
+	// A customer account, including its branding and customer portal sub-resources.
+	Account Account `json:"account" api:"required"`
 	// Mutation type.
 	//
 	// - `create`: the resource was created.
@@ -174,6 +176,7 @@ type AuditEvent struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID             respjson.Field
+		Account        respjson.Field
 		Action         respjson.Field
 		Actor          respjson.Field
 		Changes        respjson.Field
@@ -635,7 +638,7 @@ type CoreAuditEventGetParams struct {
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
-	// Any of "actor", "changes", "metadata", "request".
+	// Any of "account", "actor", "changes", "metadata", "request".
 	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
@@ -666,6 +669,11 @@ type CoreAuditEventListParams struct {
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Restricts results to audit events on or after this timestamp.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
+	// Filter by the target account the mutation was performed against.
+	//
+	// Narrows results to audit events whose `account` is one of the given account IDs
+	// — for example a specific customer's or supplier's account.
+	AccountIDs []string `query:"account_ids,omitzero" json:"-"`
 	// Filter by the mutation type recorded on the event.
 	//
 	// Any of "create", "update", "delete", "restore", "archive".
@@ -678,7 +686,7 @@ type CoreAuditEventListParams struct {
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
-	// Any of "actor", "changes", "metadata", "request".
+	// Any of "account", "actor", "changes", "metadata", "request".
 	Include []string `query:"include,omitzero" json:"-"`
 	// Filter by the audited resource IDs.
 	ResourceIDs []string `query:"resource_ids,omitzero" json:"-"`

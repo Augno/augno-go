@@ -588,11 +588,11 @@ type PageInfo struct {
 	HasPrevPage bool `json:"has_prev_page" api:"required"`
 	// Relative URL that fetches the next page of results.
 	//
-	// Absent once the last page has been reached.
+	// `null` when the last page has been reached.
 	NextPageURL string `json:"next_page_url" api:"required"`
 	// Relative URL that fetches the previous page of results.
 	//
-	// Absent while on the first page.
+	// `null` while on the first page.
 	PreviousPageURL string `json:"previous_page_url" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
