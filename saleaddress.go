@@ -40,7 +40,7 @@ func NewSaleAddressService(opts ...option.RequestOption) (r SaleAddressService) 
 	return
 }
 
-// Creates an address for the targeted account.
+// Creates an address.
 func (r *SaleAddressService) New(ctx context.Context, body SaleAddressNewParams, opts ...option.RequestOption) (res *Address, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/addresses"
@@ -61,6 +61,9 @@ func (r *SaleAddressService) Get(ctx context.Context, id string, opts ...option.
 }
 
 // Partially updates an address.
+//
+// Changing a street, locality, state, postal code, or country field may replace
+// the address's geolocation, so the geolocation `id` in the response can change.
 func (r *SaleAddressService) Update(ctx context.Context, id string, body SaleAddressUpdateParams, opts ...option.RequestOption) (res *Address, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -80,8 +83,10 @@ func (r *SaleAddressService) List(ctx context.Context, query SaleAddressListPara
 	return res, err
 }
 
-// Deletes an address. Fails if the address is in use as a billing or shipping
-// address on a sales order, invoice, or shipment, or as a default account address.
+// Deletes an address.
+//
+// Deletion fails if the address is in use as a billing or shipping address on a
+// sales order, invoice, or shipment, or as a default account address.
 func (r *SaleAddressService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *SaleAddressDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -93,7 +98,8 @@ func (r *SaleAddressService) Delete(ctx context.Context, id string, opts ...opti
 	return res, err
 }
 
-// Request to create an address.
+// Address details used to create an address, either directly or inline on another
+// resource.
 //
 // The properties Country, Name are required.
 type AddressInputParam struct {
@@ -117,6 +123,10 @@ type AddressInputParam struct {
 	StreetLine2 param.Opt[string] `json:"street_line_2,omitzero"`
 	// Address type.
 	//
+	//   - `standard`: a normal shipping or billing address.
+	//   - `drop_ship`: an address an order is shipped to directly, typically a third
+	//     party or end customer rather than the account itself.
+	//
 	// Any of "standard", "drop_ship".
 	Type AddressInputType `json:"type,omitzero"`
 	paramObj
@@ -131,6 +141,10 @@ func (r *AddressInputParam) UnmarshalJSON(data []byte) error {
 }
 
 // Address type.
+//
+//   - `standard`: a normal shipping or billing address.
+//   - `drop_ship`: an address an order is shipped to directly, typically a third
+//     party or end customer rather than the account itself.
 type AddressInputType string
 
 const (
@@ -172,12 +186,20 @@ const (
 )
 
 // Request to partially update an address.
+//
+// Omitted fields are left unchanged.
 type UpdateAddressRequestParam struct {
 	// Email address associated with the address.
+	//
+	// Send `null` to clear.
 	Email param.Opt[string] `json:"email,omitzero"`
 	// Phone number associated with the address.
+	//
+	// Send `null` to clear.
 	Phone param.Opt[string] `json:"phone,omitzero"`
 	// Second line of the street address.
+	//
+	// Send `null` to clear.
 	StreetLine2 param.Opt[string] `json:"street_line_2,omitzero"`
 	// Two-letter country code.
 	Country param.Opt[string] `json:"country,omitzero"`
@@ -193,6 +215,10 @@ type UpdateAddressRequestParam struct {
 	StreetLine1 param.Opt[string] `json:"street_line_1,omitzero"`
 	// Address type.
 	//
+	//   - `standard`: a normal shipping or billing address.
+	//   - `drop_ship`: an address an order is shipped to directly, typically a third
+	//     party or end customer rather than the account itself.
+	//
 	// Any of "standard", "drop_ship".
 	Type UpdateAddressRequestType `json:"type,omitzero"`
 	paramObj
@@ -207,6 +233,10 @@ func (r *UpdateAddressRequestParam) UnmarshalJSON(data []byte) error {
 }
 
 // Address type.
+//
+//   - `standard`: a normal shipping or billing address.
+//   - `drop_ship`: an address an order is shipped to directly, typically a third
+//     party or end customer rather than the account itself.
 type UpdateAddressRequestType string
 
 const (
@@ -229,7 +259,8 @@ func (r *SaleAddressDeleteResponse) UnmarshalJSON(data []byte) error {
 }
 
 type SaleAddressNewParams struct {
-	// Request to create an address.
+	// Address details used to create an address, either directly or inline on another
+	// resource.
 	AddressInput AddressInputParam
 	paramObj
 }
@@ -243,6 +274,8 @@ func (r *SaleAddressNewParams) UnmarshalJSON(data []byte) error {
 
 type SaleAddressUpdateParams struct {
 	// Request to partially update an address.
+	//
+	// Omitted fields are left unchanged.
 	UpdateAddressRequest UpdateAddressRequestParam
 	paramObj
 }
@@ -255,13 +288,19 @@ func (r *SaleAddressUpdateParams) UnmarshalJSON(data []byte) error {
 }
 
 type SaleAddressListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
-	// Filter by address type.
+	// Filter results to a single address type (`standard` or `drop_ship`).
 	//
 	// Any of "standard", "drop_ship".
 	Type SaleAddressListParamsType `query:"type,omitzero" json:"-"`
@@ -276,7 +315,7 @@ func (r SaleAddressListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Filter by address type.
+// Filter results to a single address type (`standard` or `drop_ship`).
 type SaleAddressListParamsType string
 
 const (

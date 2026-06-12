@@ -40,7 +40,8 @@ func NewIdentityRoleService(opts ...option.RequestOption) (r IdentityRoleService
 	return
 }
 
-// Creates a new role with the specified permissions.
+// Creates a custom role with the specified permissions. Roles created through the
+// API always have type `user`.
 func (r *IdentityRoleService) New(ctx context.Context, params IdentityRoleNewParams, opts ...option.RequestOption) (res *Role, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/identity/roles"
@@ -48,7 +49,7 @@ func (r *IdentityRoleService) New(ctx context.Context, params IdentityRoleNewPar
 	return res, err
 }
 
-// Returns a role by ID, including its structured permissions.
+// Returns a role by ID, including its permissions.
 func (r *IdentityRoleService) Get(ctx context.Context, id string, query IdentityRoleGetParams, opts ...option.RequestOption) (res *Role, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -82,7 +83,8 @@ func (r *IdentityRoleService) List(ctx context.Context, query IdentityRoleListPa
 	return res, err
 }
 
-// Deletes a role and its associated permissions. Global roles cannot be deleted.
+// Deletes a role and its associated permissions. Global roles and roles currently
+// assigned to one or more users cannot be deleted.
 func (r *IdentityRoleService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *IdentityRoleDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -98,9 +100,12 @@ func (r *IdentityRoleService) Delete(ctx context.Context, id string, opts ...opt
 //
 // The properties Name, Permissions are required.
 type CreateRoleRequestParam struct {
-	// Display name.
+	// Display name for the role, unique within the account.
 	Name string `json:"name" api:"required"`
-	// Permissions to attach in `<domain>:<action>` format.
+	// Permissions to grant, in `{domain}:{action}` format, such as `customers:read`.
+	//
+	// The action must be one of `create`, `read`, `update`, or `delete`. Omit to
+	// create a role with no permissions.
 	Permissions []string `json:"permissions,omitzero" api:"required"`
 	paramObj
 }
@@ -148,10 +153,14 @@ const (
 
 // UpdateRoleRequest is a request to update a role.
 type UpdateRoleRequestParam struct {
-	// Display name.
+	// New display name for the role, unique within the account. Omit to leave
+	// unchanged.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Permissions in `<domain>:<action>` format. Replaces all existing permissions;
-	// omit to leave unchanged.
+	// Full replacement set of permissions, in `{domain}:{action}` format, such as
+	// `customers:read`.
+	//
+	// Replaces all existing permissions on the role. Pass an empty array to remove all
+	// permissions, or omit to leave them unchanged.
 	Permissions []string `json:"permissions,omitzero"`
 	paramObj
 }
@@ -249,18 +258,24 @@ func (r IdentityRoleUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type IdentityRoleListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
 	// Any of "owner", "owner.account", "permissions".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Filter by role types.
+	// Filter results to roles whose type matches any of the given values.
 	//
 	// Any of "admin", "user", "scanner", "sales_rep", "agent".
 	Types []string `query:"types,omitzero" json:"-"`

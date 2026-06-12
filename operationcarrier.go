@@ -43,9 +43,11 @@ func NewOperationCarrierService(opts ...option.RequestOption) (r OperationCarrie
 	return
 }
 
-// Creates a carrier. If a Shippo-supported carrier code is provided, the carrier
-// will be registered with Shippo and service levels will be auto-synced as
-// options.
+// Creates a carrier.
+//
+// If a Shippo-supported code (`fedex`, `ups`, `usps`) is provided, the carrier is
+// connected through Shippo and its service levels are auto-synced, initially
+// hidden from the customer portal. Sandbox accounts skip the Shippo connection.
 func (r *OperationCarrierService) New(ctx context.Context, params OperationCarrierNewParams, opts ...option.RequestOption) (res *Carrier, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/carriers"
@@ -85,8 +87,10 @@ func (r *OperationCarrierService) List(ctx context.Context, query OperationCarri
 	return res, err
 }
 
-// Deletes a carrier and cascades to remove all options. If the carrier is managed
-// by Shippo, the Shippo account is deactivated.
+// Deletes a carrier and all of its service levels.
+//
+// If the carrier is connected through Shippo, its Shippo carrier account is
+// deactivated. System-owned carriers cannot be deleted.
 func (r *OperationCarrierService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *OperationCarrierDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -102,20 +106,27 @@ func (r *OperationCarrierService) Delete(ctx context.Context, id string, opts ..
 //
 // The property Name is required.
 type CreateCarrierRequestParam struct {
-	// Display name.
+	// Human-readable name for the carrier.
+	//
+	// Must be unique among your account's carriers.
 	Name string `json:"name" api:"required"`
-	// Carrier account number. Required for UPS and USPS carriers.
+	// Your account number with this carrier.
+	//
+	// Required when `code` is `ups` or `usps`, which connect to Shippo using this
+	// number; FedEx connects via OAuth instead.
 	AccountNumber param.Opt[string] `json:"account_number,omitzero"`
-	// Carrier code.
+	// Well-known carrier code.
+	//
+	// Omit for a custom carrier. Providing a Shippo-supported code (`fedex`, `ups`,
+	// `usps`) connects the carrier through Shippo and auto-syncs its service levels.
 	//
 	// Any of "fedex", "ups", "usps", "will_call", "delivery", "ltl", "ltl1",
 	// "freight_collect".
 	Code CreateCarrierRequestCode `json:"code,omitzero"`
 	// Carrier visibility in the customer portal.
 	//
-	// If `visible`, this carrier will be available for your customers to utilize when
-	// they go to checkout. If `hidden`, this carrier will not be an option on
-	// checkout.
+	// A `visible` carrier can be selected by your customers at checkout; a `hidden`
+	// carrier is not offered there. New carriers are visible unless set to `hidden`.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility CreateCarrierRequestCustomerPortalVisibility `json:"customer_portal_visibility,omitzero"`
@@ -130,7 +141,10 @@ func (r *CreateCarrierRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Carrier code.
+// Well-known carrier code.
+//
+// Omit for a custom carrier. Providing a Shippo-supported code (`fedex`, `ups`,
+// `usps`) connects the carrier through Shippo and auto-syncs its service levels.
 type CreateCarrierRequestCode string
 
 const (
@@ -146,9 +160,8 @@ const (
 
 // Carrier visibility in the customer portal.
 //
-// If `visible`, this carrier will be available for your customers to utilize when
-// they go to checkout. If `hidden`, this carrier will not be an option on
-// checkout.
+// A `visible` carrier can be selected by your customers at checkout; a `hidden`
+// carrier is not offered there. New carriers are visible unless set to `hidden`.
 type CreateCarrierRequestCustomerPortalVisibility string
 
 const (
@@ -191,7 +204,7 @@ const (
 
 // Request to update a carrier.
 type UpdateCarrierRequestParam struct {
-	// Display name.
+	// Human-readable name for the carrier, unique among your account's carriers.
 	Name param.Opt[string] `json:"name,omitzero"`
 	// Carrier visibility in the customer portal.
 	//
@@ -311,11 +324,17 @@ func (r OperationCarrierUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type OperationCarrierListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

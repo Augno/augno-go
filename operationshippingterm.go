@@ -60,8 +60,9 @@ func (r *OperationShippingTermService) Get(ctx context.Context, id string, query
 	return res, err
 }
 
-// Partially updates an account-owned shipping term. Default shipping terms cannot
-// be updated.
+// Partially updates an account-owned shipping term.
+//
+// System-provided default shipping terms cannot be updated.
 func (r *OperationShippingTermService) Update(ctx context.Context, id string, params OperationShippingTermUpdateParams, opts ...option.RequestOption) (res *ShippingTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -82,8 +83,9 @@ func (r *OperationShippingTermService) List(ctx context.Context, query Operation
 	return res, err
 }
 
-// Deletes an account-owned shipping term. Default shipping terms cannot be
-// deleted.
+// Deletes an account-owned shipping term.
+//
+// System-provided default shipping terms cannot be deleted.
 func (r *OperationShippingTermService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *OperationShippingTermDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -99,19 +101,25 @@ func (r *OperationShippingTermService) Delete(ctx context.Context, id string, op
 //
 // The properties Name, Type are required.
 type CreateShippingTermRequestParam struct {
-	// Display name.
+	// Human-readable name for the shipping term, used to identify it when assigning
+	// shipping terms to customers and orders.
 	Name string `json:"name" api:"required"`
-	// Shipping term type.
+	// Freight pricing model applied by this shipping term.
+	//
+	//   - `free_freight`: no shipping cost to the buyer.
+	//   - `flat_rate_freight`: a fixed shipping cost regardless of order details (see
+	//     `flat_rate`).
+	//   - `carrier_rate_freight`: shipping cost is determined by the carrier's quoted
+	//     rate.
 	//
 	// Any of "free_freight", "flat_rate_freight", "carrier_rate_freight".
 	Type CreateShippingTermRequestType `json:"type,omitzero" api:"required"`
-	// QuantityInput represents a value with an associated unit for create/update
-	// requests.
+	// A value with an associated unit, used in create and update requests.
 	FlatRate QuantityInputParam `json:"flat_rate,omitzero"`
-	// Service level IDs that qualify for free shipping.
+	// IDs of service levels that ship for free under this term (typically once
+	// `minimum_order_value` is met).
 	FreeShippingServiceLevelIDs []string `json:"free_shipping_service_level_ids,omitzero"`
-	// QuantityInput represents a value with an associated unit for create/update
-	// requests.
+	// A value with an associated unit, used in create and update requests.
 	MinimumOrderValue QuantityInputParam `json:"minimum_order_value,omitzero"`
 	paramObj
 }
@@ -124,7 +132,13 @@ func (r *CreateShippingTermRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Shipping term type.
+// Freight pricing model applied by this shipping term.
+//
+//   - `free_freight`: no shipping cost to the buyer.
+//   - `flat_rate_freight`: a fixed shipping cost regardless of order details (see
+//     `flat_rate`).
+//   - `carrier_rate_freight`: shipping cost is determined by the carrier's quoted
+//     rate.
 type CreateShippingTermRequestType string
 
 const (
@@ -166,22 +180,31 @@ const (
 	ListShippingTermObjectList ListShippingTermObject = "list"
 )
 
-// Request to partially update a shipping term. All fields are optional. Absent
-// fields are left unchanged. Send an explicit JSON null for flat_rate,
-// minimum_order_value, or free_shipping_service_level_ids to clear the existing
-// value.
+// Request to partially update a shipping term.
+//
+// All fields are optional and absent fields are left unchanged. Send an explicit
+// JSON `null` for `flat_rate`, `minimum_order_value`, or
+// `free_shipping_service_level_ids` to clear the existing value.
 type UpdateShippingTermRequestParam struct {
-	// Display name.
+	// Human-readable name for the shipping term, used to identify it when assigning
+	// shipping terms to customers and orders.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Service level IDs that qualify for free shipping. Send null to clear.
+	// IDs of service levels that ship for free under this term (typically once
+	// `minimum_order_value` is met).
+	//
+	// Replaces the existing list. Send `null` to clear.
 	FreeShippingServiceLevelIDs []string `json:"free_shipping_service_level_ids,omitzero"`
-	// QuantityInput represents a value with an associated unit for create/update
-	// requests.
+	// A value with an associated unit, used in create and update requests.
 	FlatRate QuantityInputParam `json:"flat_rate,omitzero"`
-	// QuantityInput represents a value with an associated unit for create/update
-	// requests.
+	// A value with an associated unit, used in create and update requests.
 	MinimumOrderValue QuantityInputParam `json:"minimum_order_value,omitzero"`
-	// Shipping term type.
+	// Freight pricing model applied by this shipping term.
+	//
+	//   - `free_freight`: no shipping cost to the buyer.
+	//   - `flat_rate_freight`: a fixed shipping cost regardless of order details (see
+	//     `flat_rate`).
+	//   - `carrier_rate_freight`: shipping cost is determined by the carrier's quoted
+	//     rate.
 	//
 	// Any of "free_freight", "flat_rate_freight", "carrier_rate_freight".
 	Type UpdateShippingTermRequestType `json:"type,omitzero"`
@@ -196,7 +219,13 @@ func (r *UpdateShippingTermRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Shipping term type.
+// Freight pricing model applied by this shipping term.
+//
+//   - `free_freight`: no shipping cost to the buyer.
+//   - `flat_rate_freight`: a fixed shipping cost regardless of order details (see
+//     `flat_rate`).
+//   - `carrier_rate_freight`: shipping cost is determined by the carrier's quoted
+//     rate.
 type UpdateShippingTermRequestType string
 
 const (
@@ -273,10 +302,11 @@ type OperationShippingTermUpdateParams struct {
 	// Any of "owner", "owner.account", "flat_rate.unit", "minimum_order_value.unit",
 	// "free_shipping_service_levels".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Request to partially update a shipping term. All fields are optional. Absent
-	// fields are left unchanged. Send an explicit JSON null for flat_rate,
-	// minimum_order_value, or free_shipping_service_level_ids to clear the existing
-	// value.
+	// Request to partially update a shipping term.
+	//
+	// All fields are optional and absent fields are left unchanged. Send an explicit
+	// JSON `null` for `flat_rate`, `minimum_order_value`, or
+	// `free_shipping_service_level_ids` to clear the existing value.
 	UpdateShippingTermRequest UpdateShippingTermRequestParam
 	paramObj
 }
@@ -298,11 +328,17 @@ func (r OperationShippingTermUpdateParams) URLQuery() (v url.Values, err error) 
 }
 
 type OperationShippingTermListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

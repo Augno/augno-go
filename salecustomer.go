@@ -44,8 +44,11 @@ func NewSaleCustomerService(opts ...option.RequestOption) (r SaleCustomerService
 	return
 }
 
-// Creates a customer account. Auto-generates a customer number if one is not
-// provided.
+// Creates a customer account with its default addresses, fulfillment settings, and
+// order policies.
+//
+// If `number` is omitted, the next sequential customer number is assigned
+// automatically.
 func (r *SaleCustomerService) New(ctx context.Context, params SaleCustomerNewParams, opts ...option.RequestOption) (res *Customer, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/customers"
@@ -65,8 +68,10 @@ func (r *SaleCustomerService) Get(ctx context.Context, id string, query SaleCust
 	return res, err
 }
 
-// Partially updates a customer account. When a Stripe integration is active,
-// customer changes are synced to Stripe.
+// Partially updates a customer account.
+//
+// Only the fields provided in the request are changed. Nullable fields can be set
+// to `null` to clear their current value.
 func (r *SaleCustomerService) Update(ctx context.Context, id string, params SaleCustomerUpdateParams, opts ...option.RequestOption) (res *Customer, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -86,8 +91,10 @@ func (r *SaleCustomerService) List(ctx context.Context, query SaleCustomerListPa
 	return res, err
 }
 
-// Deletes a customer and associated account relations, addresses, and account
-// users.
+// Deletes a customer.
+//
+// Fails with a conflict error if any sales orders still reference the customer;
+// delete or reassign those orders, or merge the customer into another first.
 func (r *SaleCustomerService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *SaleCustomerDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -99,24 +106,27 @@ func (r *SaleCustomerService) Delete(ctx context.Context, id string, opts ...opt
 	return res, err
 }
 
-// Account user with role and department.
+// A user's membership in an account, carrying the account-specific status, role,
+// and department.
 //
-// Profile fields (name, email, username, image URL) live on the expandable user
-// sub-resource.
+// Profile fields (name, email, username, image URL) live on the expandable `user`
+// sub-resource, which is shared across every account the user belongs to.
 type AccountUser struct {
 	// Account user ID.
 	ID string `json:"id" api:"required"`
 	// When the account user was created.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Department resource.
+	// A functional area of a production operation, such as fabrication or packaging,
+	// that groups scanning stations and machines.
 	Department Department `json:"department" api:"required"`
-	// When the user last used this account.
+	// When the user last accessed this account.
 	LastUsedAt time.Time `json:"last_used_at" api:"required" format:"date-time"`
 	// Resource type identifier.
 	//
 	// Any of "account_user".
 	Object AccountUserObject `json:"object" api:"required"`
-	// Role resource.
+	// A named set of permissions that can be assigned to users to control what they
+	// can access.
 	Role Role `json:"role" api:"required"`
 	// Account user status.
 	//
@@ -128,7 +138,10 @@ type AccountUser struct {
 	Status AccountUserStatus `json:"status" api:"required"`
 	// When the account user was last updated.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// User resource.
+	// A user's global profile, shared across every account they belong to.
+	//
+	// Account-specific settings (status, role, department) live on the account user
+	// resource that links the user to each account.
 	User User `json:"user" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -172,15 +185,18 @@ const (
 	AccountUserStatusRemoved  AccountUserStatus = "removed"
 )
 
-// Carrier resource.
+// A shipping carrier configured for fulfilling orders.
+//
+// Carriers with a Shippo-supported `code` (`fedex`, `ups`, `usps`) are connected
+// through Shippo for live rating and label purchase; other carriers represent
+// self-managed shipping methods such as will call or local delivery.
 type Carrier struct {
 	// Carrier ID.
 	ID string `json:"id" api:"required"`
-	// Your account number with this carrier, used for rating and billing.
+	// Your account number with this carrier, used to connect UPS and USPS accounts.
 	AccountNumber string `json:"account_number" api:"required"`
-	// Well-known carrier identifier.
-	//
-	// Null for custom carriers without a recognized code.
+	// Well-known carrier identifier, set only for recognized carriers and absent for
+	// custom ones.
 	//
 	//   - `fedex`, `ups`, `usps`: integrated carriers managed through Shippo (live
 	//     rating and labels).
@@ -194,16 +210,14 @@ type Carrier struct {
 	Code CarrierCode `json:"code" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Whether this carrier is shown to customers in the customer portal.
-	//
-	// - `visible`: customers can see and select this carrier.
-	// - `hidden`: the carrier is concealed from the customer portal.
+	// Whether customers can see and select this carrier at checkout in the customer
+	// portal.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility CarrierCustomerPortalVisibility `json:"customer_portal_visibility" api:"required"`
 	// Soft-delete timestamp.
 	DeletedAt time.Time `json:"deleted_at" api:"required" format:"date-time"`
-	// Display name.
+	// Human-readable name for the carrier, unique among your account's carriers.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -239,9 +253,8 @@ func (r *Carrier) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Well-known carrier identifier.
-//
-// Null for custom carriers without a recognized code.
+// Well-known carrier identifier, set only for recognized carriers and absent for
+// custom ones.
 //
 //   - `fedex`, `ups`, `usps`: integrated carriers managed through Shippo (live
 //     rating and labels).
@@ -262,10 +275,8 @@ const (
 	CarrierCodeFreightCollect CarrierCode = "freight_collect"
 )
 
-// Whether this carrier is shown to customers in the customer portal.
-//
-// - `visible`: customers can see and select this carrier.
-// - `hidden`: the carrier is concealed from the customer portal.
+// Whether customers can see and select this carrier at checkout in the customer
+// portal.
 type CarrierCustomerPortalVisibility string
 
 const (
@@ -281,6 +292,10 @@ const (
 )
 
 // Material consumed by a production step.
+//
+// Each consumption records one input item and how much of it the step uses.
+// Consumptions also determine the production flow: when another step produces the
+// consumed item, the two steps are linked upstream/downstream automatically.
 type Consumption struct {
 	// Consumption ID.
 	ID string `json:"id" api:"required"`
@@ -333,62 +348,87 @@ const (
 // The properties BillToAddress, CustomerTypeGroupID, DefaultCarrierID,
 // DefaultPaymentTermID, DefaultShippingTermID, Name, ShipToAddress are required.
 type CreateCustomerRequestParam struct {
-	// Request to create an address.
+	// Address details used to create an address, either directly or inline on another
+	// resource.
 	BillToAddress AddressInputParam `json:"bill_to_address,omitzero" api:"required"`
-	// Customer type group ID.
+	// ID of the account group of type `type_group` that categorizes this customer (for
+	// example "Distributors").
 	CustomerTypeGroupID string `json:"customer_type_group_id" api:"required"`
-	// Default carrier ID.
+	// ID of the default carrier for this customer's shipments.
 	DefaultCarrierID string `json:"default_carrier_id" api:"required"`
 	// Default payment term ID.
 	DefaultPaymentTermID string `json:"default_payment_term_id" api:"required"`
 	// Default shipping term ID.
 	DefaultShippingTermID string `json:"default_shipping_term_id" api:"required"`
-	// Display name.
+	// The customer's business name, as shown throughout the app and on documents.
 	Name string `json:"name" api:"required"`
-	// Request to create an address.
+	// Address details used to create an address, either directly or inline on another
+	// resource.
 	ShipToAddress AddressInputParam `json:"ship_to_address,omitzero" api:"required"`
-	// Carrier billing account number.
+	// Carrier billing account number charged when `carrier_billing_type` is
+	// `third_party`.
 	CarrierBillingAccount param.Opt[string] `json:"carrier_billing_account,omitzero"`
 	// The ID of the account user to assign as the default sales rep.
 	DefaultSalesRepID param.Opt[string] `json:"default_sales_rep_id,omitzero"`
-	// Default service level ID.
+	// ID of the default carrier service level.
 	DefaultServiceLevelID param.Opt[string] `json:"default_service_level_id,omitzero"`
 	// Email address.
 	Email param.Opt[string] `json:"email,omitzero"`
-	// Note.
+	// Free-form note about the customer.
 	Note param.Opt[string] `json:"note,omitzero"`
-	// Customer number. Auto-generated if omitted.
+	// Human-readable customer number used to identify the account, distinct from the
+	// `id`.
+	//
+	// Must be unique within your account. If omitted, the next sequential number is
+	// assigned automatically.
 	Number param.Opt[string] `json:"number,omitzero"`
 	// Phone number.
 	Phone param.Opt[string] `json:"phone,omitzero"`
 	// Website URL.
 	URL param.Opt[string] `json:"url,omitzero"`
-	// Carrier billing type.
+	// Who pays the carrier for shipments.
+	//
+	// - `sender`: the shipper (you) pays the carrier.
+	// - `third_party`: a third party is billed, using `carrier_billing_account`.
 	//
 	// Any of "sender", "third_party".
 	CarrierBillingType CreateCustomerRequestCarrierBillingType `json:"carrier_billing_type,omitzero"`
-	// Commission policy.
+	// How sales commission applies to this customer's orders.
+	//
+	//   - `commission_exempt`: this customer's orders are exempt from sales commission.
+	//   - `commission_applied`: sales commission is calculated on this customer's
+	//     orders.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy CreateCustomerRequestCommissionPolicy `json:"commission_policy,omitzero"`
-	// QuantityInput represents a value with an associated unit for create/update
-	// requests.
+	// A value with an associated unit, used in create and update requests.
 	CreditLimit QuantityInputParam `json:"credit_limit,omitzero"`
-	// Price group IDs.
+	// IDs of the account groups of type `pricing_group` to assign to this customer,
+	// used to apply pricing rules.
 	CustomerPriceGroupIDs []string `json:"customer_price_group_ids,omitzero"`
-	// Default priority code.
+	// Priority applied to new orders for this customer.
 	//
 	// Any of "low", "normal", "high".
 	DefaultPriority CreateCustomerRequestDefaultPriority `json:"default_priority,omitzero"`
-	// EDI status.
+	// Whether EDI (Electronic Data Interchange) is enabled for exchanging orders and
+	// documents with this customer.
 	//
 	// Any of "enabled", "disabled".
 	EdiStatus CreateCustomerRequestEdiStatus `json:"edi_status,omitzero"`
-	// Freight policy.
+	// Whether this customer is billed for freight on their orders.
+	//
+	//   - `free_freight`: the customer is not billed for freight.
+	//   - `billed_freight`: freight is billed to the customer, unless overridden on the
+	//     order.
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy CreateCustomerRequestFreightPolicy `json:"freight_policy,omitzero"`
-	// Account status code.
+	// Account status code, controlling whether the customer can transact.
+	//
+	// - `normal`: standard active account with no restrictions.
+	// - `preferred`: active account flagged as preferred.
+	// - `hold_shipment`: orders can be placed, but shipments are held.
+	// - `hold_all`: all activity is on hold.
 	//
 	// Any of "normal", "preferred", "hold_shipment", "hold_all".
 	Status CreateCustomerRequestStatus `json:"status,omitzero"`
@@ -403,7 +443,10 @@ func (r *CreateCustomerRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Carrier billing type.
+// Who pays the carrier for shipments.
+//
+// - `sender`: the shipper (you) pays the carrier.
+// - `third_party`: a third party is billed, using `carrier_billing_account`.
 type CreateCustomerRequestCarrierBillingType string
 
 const (
@@ -411,7 +454,11 @@ const (
 	CreateCustomerRequestCarrierBillingTypeThirdParty CreateCustomerRequestCarrierBillingType = "third_party"
 )
 
-// Commission policy.
+// How sales commission applies to this customer's orders.
+//
+//   - `commission_exempt`: this customer's orders are exempt from sales commission.
+//   - `commission_applied`: sales commission is calculated on this customer's
+//     orders.
 type CreateCustomerRequestCommissionPolicy string
 
 const (
@@ -419,7 +466,7 @@ const (
 	CreateCustomerRequestCommissionPolicyCommissionExempt  CreateCustomerRequestCommissionPolicy = "commission_exempt"
 )
 
-// Default priority code.
+// Priority applied to new orders for this customer.
 type CreateCustomerRequestDefaultPriority string
 
 const (
@@ -428,7 +475,8 @@ const (
 	CreateCustomerRequestDefaultPriorityHigh   CreateCustomerRequestDefaultPriority = "high"
 )
 
-// EDI status.
+// Whether EDI (Electronic Data Interchange) is enabled for exchanging orders and
+// documents with this customer.
 type CreateCustomerRequestEdiStatus string
 
 const (
@@ -436,7 +484,11 @@ const (
 	CreateCustomerRequestEdiStatusDisabled CreateCustomerRequestEdiStatus = "disabled"
 )
 
-// Freight policy.
+// Whether this customer is billed for freight on their orders.
+//
+//   - `free_freight`: the customer is not billed for freight.
+//   - `billed_freight`: freight is billed to the customer, unless overridden on the
+//     order.
 type CreateCustomerRequestFreightPolicy string
 
 const (
@@ -444,7 +496,12 @@ const (
 	CreateCustomerRequestFreightPolicyBilledFreight CreateCustomerRequestFreightPolicy = "billed_freight"
 )
 
-// Account status code.
+// Account status code, controlling whether the customer can transact.
+//
+// - `normal`: standard active account with no restrictions.
+// - `preferred`: active account flagged as preferred.
+// - `hold_shipment`: orders can be placed, but shipments are held.
+// - `hold_all`: all activity is on hold.
 type CreateCustomerRequestStatus string
 
 const (
@@ -454,18 +511,21 @@ const (
 	CreateCustomerRequestStatusHoldAll      CreateCustomerRequestStatus = "hold_all"
 )
 
-// Customer account.
+// A business you sell to, with its contact details, default fulfillment settings,
+// and order policies.
 type Customer struct {
 	// Customer ID.
 	ID string `json:"id" api:"required"`
-	// Address with associated geolocation.
+	// A saved address that can be used for billing and shipping on sales orders,
+	// invoices, and shipments.
 	BillToAddress Address `json:"bill_to_address" api:"required"`
 	// List represents a paginated list of resources.
 	ChildAccounts *ListCustomer `json:"child_accounts" api:"required"`
-	// Commission policy applied to this customer's orders.
+	// How sales commission applies to this customer's orders.
 	//
-	// - `commission_applied`: commission applies to orders.
-	// - `commission_exempt`: no commission applies.
+	//   - `commission_exempt`: this customer's orders are exempt from sales commission.
+	//   - `commission_applied`: sales commission is calculated on this customer's
+	//     orders.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy CustomerCommissionPolicy `json:"commission_policy" api:"required"`
@@ -477,18 +537,16 @@ type Customer struct {
 	CreditLimit Quantity `json:"credit_limit" api:"required"`
 	// Customer default configuration.
 	Defaults CustomerDefaults `json:"defaults" api:"required"`
-	// Whether EDI (Electronic Data Interchange) is enabled for this customer.
-	//
-	// - `enabled`: EDI is enabled.
-	// - `disabled`: EDI is disabled.
+	// Whether EDI (Electronic Data Interchange) is enabled for exchanging orders and
+	// documents with this customer.
 	//
 	// Any of "enabled", "disabled".
 	EdiStatus CustomerEdiStatus `json:"edi_status" api:"required"`
 	// Customer freight and carrier settings.
 	FreightPreferences CustomerFreightPreferences `json:"freight_preferences" api:"required"`
-	// Display name.
+	// The customer's business name, as shown throughout the app and on documents.
 	Name string `json:"name" api:"required"`
-	// Note.
+	// Free-form note about the customer.
 	Note string `json:"note" api:"required"`
 	// Customer notification settings.
 	NotificationPreferences CustomerNotificationPreferences `json:"notification_preferences" api:"required"`
@@ -499,7 +557,8 @@ type Customer struct {
 	//
 	// Any of "customer".
 	Object CustomerObject `json:"object" api:"required"`
-	// Customer account.
+	// A business you sell to, with its contact details, default fulfillment settings,
+	// and order policies.
 	ParentAccount *Customer `json:"parent_account" api:"required"`
 	// List represents a paginated list of resources.
 	PriceGroups ListAccountGroup `json:"price_groups" api:"required"`
@@ -511,7 +570,8 @@ type Customer struct {
 	//
 	// Any of "standalone", "parent", "child".
 	RelationshipType CustomerRelationshipType `json:"relationship_type" api:"required"`
-	// Address with associated geolocation.
+	// A saved address that can be used for billing and shipping on sales orders,
+	// invoices, and shipments.
 	ShipToAddress Address `json:"ship_to_address" api:"required"`
 	// Account status code, controlling whether the customer can transact.
 	//
@@ -522,7 +582,8 @@ type Customer struct {
 	//
 	// Any of "normal", "preferred", "hold_shipment", "hold_all".
 	Status CustomerStatus `json:"status" api:"required"`
-	// Account group resource.
+	// A named grouping of customer accounts, used for pricing rules or to categorize
+	// accounts.
 	Type AccountGroup `json:"type" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -561,10 +622,11 @@ func (r *Customer) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Commission policy applied to this customer's orders.
+// How sales commission applies to this customer's orders.
 //
-// - `commission_applied`: commission applies to orders.
-// - `commission_exempt`: no commission applies.
+//   - `commission_exempt`: this customer's orders are exempt from sales commission.
+//   - `commission_applied`: sales commission is calculated on this customer's
+//     orders.
 type CustomerCommissionPolicy string
 
 const (
@@ -572,10 +634,8 @@ const (
 	CustomerCommissionPolicyCommissionExempt  CustomerCommissionPolicy = "commission_exempt"
 )
 
-// Whether EDI (Electronic Data Interchange) is enabled for this customer.
-//
-// - `enabled`: EDI is enabled.
-// - `disabled`: EDI is disabled.
+// Whether EDI (Electronic Data Interchange) is enabled for exchanging orders and
+// documents with this customer.
 type CustomerEdiStatus string
 
 const (
@@ -660,16 +720,18 @@ type CustomerDefaults struct {
 	//
 	// Any of "customer_defaults".
 	Object CustomerDefaultsObject `json:"object" api:"required"`
-	// Payment term resource.
+	// A payment term describing when payment is due (e.g. `Net 30`), assignable to
+	// customers, sales orders, purchase orders, and invoices.
 	PaymentTerm PaymentTerm `json:"payment_term" api:"required"`
-	// Priority level used by sales orders and picks.
+	// Priority level used to order work on sales orders, purchase orders, and picks.
 	Priority Priority `json:"priority" api:"required"`
-	// Account user with role and department.
+	// A user's membership in an account, carrying the account-specific status, role,
+	// and department.
 	//
-	// Profile fields (name, email, username, image URL) live on the expandable user
-	// sub-resource.
+	// Profile fields (name, email, username, image URL) live on the expandable `user`
+	// sub-resource, which is shared across every account the user belongs to.
 	SalesRep AccountUser `json:"sales_rep" api:"required"`
-	// ShippingTerm resource.
+	// A shipping term defining how freight charges are calculated for an order.
 	ShippingTerm ShippingTerm `json:"shipping_term" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -707,7 +769,11 @@ type CustomerFreightPreferences struct {
 	//
 	// Any of "sender", "third_party".
 	BillingType CustomerFreightPreferencesBillingType `json:"billing_type" api:"required"`
-	// Carrier resource.
+	// A shipping carrier configured for fulfilling orders.
+	//
+	// Carriers with a Shippo-supported `code` (`fedex`, `ups`, `usps`) are connected
+	// through Shippo for live rating and label purchase; other carriers represent
+	// self-managed shipping methods such as will call or local delivery.
 	Carrier Carrier `json:"carrier" api:"required"`
 	// Resource type identifier.
 	//
@@ -802,19 +868,23 @@ const (
 	CustomerNotificationPreferencesObjectCustomerNotificationPreferences CustomerNotificationPreferencesObject = "customer_notification_preferences"
 )
 
-// Department resource.
+// A functional area of a production operation, such as fabrication or packaging,
+// that groups scanning stations and machines.
 type Department struct {
 	// Department ID.
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Location resource.
+	// A physical storage location, such as a warehouse, aisle, or bin, arranged in a
+	// parent-child hierarchy.
 	Location Location `json:"location" api:"required"`
 	// List represents a paginated list of resources.
 	Machines *ListMachine `json:"machines" api:"required"`
-	// Display name.
+	// Display name of the department.
+	//
+	// Unique within the account.
 	Name string `json:"name" api:"required"`
-	// Notes about the department.
+	// Free-form notes about the department.
 	Notes string `json:"notes" api:"required"`
 	// Resource type identifier.
 	//
@@ -1084,7 +1154,8 @@ const (
 	ListServiceLevelObjectList ListServiceLevelObject = "list"
 )
 
-// Location resource.
+// A physical storage location, such as a warehouse, aisle, or bin, arranged in a
+// parent-child hierarchy.
 type Location struct {
 	// Location ID.
 	ID string `json:"id" api:"required"`
@@ -1092,13 +1163,14 @@ type Location struct {
 	Children *ListLocation `json:"children" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name.
+	// Display name of the location.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "location".
 	Object LocationObject `json:"object" api:"required"`
-	// Location resource.
+	// A physical storage location, such as a warehouse, aisle, or bin, arranged in a
+	// parent-child hierarchy.
 	Parent *Location `json:"parent" api:"required"`
 	// Location type code, identifying this location's level in the storage hierarchy.
 	//
@@ -1152,23 +1224,27 @@ const (
 	LocationTypeCodeBin      LocationTypeCode = "bin"
 )
 
-// Machine within an account.
+// A piece of production equipment, such as a CNC router or press, assigned to a
+// department.
 type Machine struct {
 	// Machine ID.
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Department resource.
+	// A functional area of a production operation, such as fabrication or packaging,
+	// that groups scanning stations and machines.
 	Department *Department `json:"department" api:"required"`
-	// Display name.
+	// Display name of the machine.
+	//
+	// Unique within the account.
 	Name string `json:"name" api:"required"`
-	// Notes.
+	// Free-form notes about the machine.
 	Notes string `json:"notes" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "machine".
 	Object MachineObject `json:"object" api:"required"`
-	// Serial number.
+	// Serial number of the machine.
 	SerialNumber string `json:"serial_number" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -1200,13 +1276,14 @@ const (
 	MachineObjectMachine MachineObject = "machine"
 )
 
-// Payment term resource.
+// A payment term describing when payment is due (e.g. `Net 30`), assignable to
+// customers, sales orders, purchase orders, and invoices.
 type PaymentTerm struct {
 	// Payment term ID.
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name.
+	// Display name (e.g. `Net 30`).
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -1214,11 +1291,7 @@ type PaymentTerm struct {
 	Object PaymentTermObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// Payment term status.
-	//
-	//   - `active`: the term is available for assignment to customers and invoices.
-	//   - `inactive`: the term is retained for historical records but cannot be
-	//     assigned.
+	// Lifecycle status of the payment term.
 	//
 	// Any of "active", "inactive".
 	Status PaymentTermStatus `json:"status" api:"required"`
@@ -1251,11 +1324,7 @@ const (
 	PaymentTermObjectPaymentTerm PaymentTermObject = "payment_term"
 )
 
-// Payment term status.
-//
-//   - `active`: the term is available for assignment to customers and invoices.
-//   - `inactive`: the term is retained for historical records but cannot be
-//     assigned.
+// Lifecycle status of the payment term.
 type PaymentTermStatus string
 
 const (
@@ -1263,7 +1332,7 @@ const (
 	PaymentTermStatusInactive PaymentTermStatus = "inactive"
 )
 
-// Production output of a production step.
+// The output of a production step: the item it produces and the quantity produced.
 type ProductionOutput struct {
 	// Production ID.
 	ID string `json:"id" api:"required"`
@@ -1305,31 +1374,43 @@ const (
 	ProductionOutputObjectProduction ProductionOutputObject = "production"
 )
 
-// Production step with all nested data.
+// A single stage of work in an item's production flow, with its output, material
+// inputs, cost rates, and graph connections.
 type ProductionStep struct {
 	// Production step ID.
 	ID string `json:"id" api:"required"`
-	// Allowances as a decimal string.
+	// Allowance correction factor applied to labor time in cost calculations, as a
+	// decimal string.
+	//
+	// Effective labor time per unit is
+	// `labor_time × (1 + leveling_factor) × (1 + allowances)`.
 	Allowances string `json:"allowances" api:"required" format:"decimal"`
 	// List represents a paginated list of resources.
 	Consumptions ListConsumption `json:"consumptions" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Department resource.
+	// A functional area of a production operation, such as fabrication or packaging,
+	// that groups scanning stations and machines.
 	Department *Department `json:"department" api:"required"`
 	// List represents a paginated list of resources.
 	InSteps *ListProductionStep `json:"in_steps" api:"required"`
-	// Rate resource.
+	// Value expressed as a ratio of two units, such as a price per kilogram or a
+	// throughput per hour.
 	LaborRate Rate `json:"labor_rate" api:"required"`
-	// Rate resource.
+	// Value expressed as a ratio of two units, such as a price per kilogram or a
+	// throughput per hour.
 	LaborTime Rate `json:"labor_time" api:"required"`
-	// Leveling factor as a decimal string.
+	// Leveling correction factor applied to labor time in cost calculations, as a
+	// decimal string.
+	//
+	// Effective labor time per unit is
+	// `labor_time × (1 + leveling_factor) × (1 + allowances)`.
 	LevelingFactor string `json:"leveling_factor" api:"required" format:"decimal"`
 	// List represents a paginated list of resources.
 	Machines *ListMachine `json:"machines" api:"required"`
-	// Display name.
+	// Display name of the step.
 	Name string `json:"name" api:"required"`
-	// Notes.
+	// Free-form notes about the step.
 	Notes string `json:"notes" api:"required"`
 	// Resource type identifier.
 	//
@@ -1337,11 +1418,13 @@ type ProductionStep struct {
 	Object ProductionStepObject `json:"object" api:"required"`
 	// List represents a paginated list of resources.
 	OutSteps *ListProductionStep `json:"out_steps" api:"required"`
-	// Rate resource.
+	// Value expressed as a ratio of two units, such as a price per kilogram or a
+	// throughput per hour.
 	OverheadRate Rate `json:"overhead_rate" api:"required"`
-	// Production output of a production step.
+	// The output of a production step: the item it produces and the quantity produced.
 	Production ProductionOutput `json:"production" api:"required"`
-	// Scanning station resource.
+	// A station on the production floor where operators scan batches to perform a
+	// batch operation, such as initializing or moving a batch.
 	ScanningStation *ScanningStation `json:"scanning_station" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -1383,14 +1466,13 @@ const (
 	ProductionStepObjectProductionStep ProductionStepObject = "production_step"
 )
 
-// QuantityInput represents a value with an associated unit for create/update
-// requests.
+// A value with an associated unit, used in create and update requests.
 //
 // The properties UnitID, Value are required.
 type QuantityInputParam struct {
-	// The unit ID for the value.
+	// ID of the unit of measure for the value.
 	UnitID string `json:"unit_id" api:"required"`
-	// The decimal value.
+	// Decimal value, as a string to preserve precision.
 	Value string `json:"value" api:"required" format:"decimal"`
 	paramObj
 }
@@ -1403,47 +1485,43 @@ func (r *QuantityInputParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Scanning station resource.
+// A station on the production floor where operators scan batches to perform a
+// batch operation, such as initializing or moving a batch.
 type ScanningStation struct {
 	// Scanning station ID.
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Department resource.
+	// A functional area of a production operation, such as fabrication or packaging,
+	// that groups scanning stations and machines.
 	Department *Department `json:"department" api:"required"`
-	// Label size printed at this station.
-	//
-	// `null` when no label size is configured.
-	//
-	// - `1x1`: 1x1 inch label.
-	// - `1x3`: 1x3 inch label.
-	// - `1x4`: 1x4 inch label.
-	// - `2x4`: 2x4 inch label.
+	// Size of the labels printed at this station, given as width-by-height (for
+	// example, `1x1`).
 	//
 	// Any of "1x1", "1x3", "1x4", "2x4".
 	LabelSize ScanningStationLabelSize `json:"label_size" api:"required"`
-	// Label type printed at this station.
+	// Type of label printed at this station.
 	//
-	// `null` when no label type is configured.
-	//
-	// - `tag`: a tag label.
-	// - `traveler`: a traveler label that accompanies the batch through production.
+	//   - `tag`: a label attached to the physical product.
+	//   - `traveler`: a routing sheet that accompanies the batch through every
+	//     production step.
 	//
 	// Any of "tag", "traveler".
 	LabelType ScanningStationLabelType `json:"label_type" api:"required"`
-	// Display name.
+	// Display name of the scanning station.
+	//
+	// Unique within the account.
 	Name string `json:"name" api:"required"`
-	// Notes.
+	// Free-form notes about the scanning station.
 	Notes string `json:"notes" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "scanning_station".
 	Object ScanningStationObject `json:"object" api:"required"`
-	// Operator requirement behavior for this station.
+	// Whether operators must perform a material check at this station.
 	//
-	//   - `none`: no operator action is required to complete a scan.
-	//   - `material_check`: the operator must perform a material check before the scan
-	//     is accepted.
+	// - `none`: no additional operator check is required.
+	// - `material_check`: a material check is expected before the operation.
 	//
 	// Any of "none", "material_check".
 	OperatorRequirement ScanningStationOperatorRequirement `json:"operator_requirement" api:"required"`
@@ -1485,14 +1563,8 @@ func (r *ScanningStation) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Label size printed at this station.
-//
-// `null` when no label size is configured.
-//
-// - `1x1`: 1x1 inch label.
-// - `1x3`: 1x3 inch label.
-// - `1x4`: 1x4 inch label.
-// - `2x4`: 2x4 inch label.
+// Size of the labels printed at this station, given as width-by-height (for
+// example, `1x1`).
 type ScanningStationLabelSize string
 
 const (
@@ -1502,12 +1574,11 @@ const (
 	ScanningStationLabelSize2x4 ScanningStationLabelSize = "2x4"
 )
 
-// Label type printed at this station.
+// Type of label printed at this station.
 //
-// `null` when no label type is configured.
-//
-// - `tag`: a tag label.
-// - `traveler`: a traveler label that accompanies the batch through production.
+//   - `tag`: a label attached to the physical product.
+//   - `traveler`: a routing sheet that accompanies the batch through every
+//     production step.
 type ScanningStationLabelType string
 
 const (
@@ -1522,11 +1593,10 @@ const (
 	ScanningStationObjectScanningStation ScanningStationObject = "scanning_station"
 )
 
-// Operator requirement behavior for this station.
+// Whether operators must perform a material check at this station.
 //
-//   - `none`: no operator action is required to complete a scan.
-//   - `material_check`: the operator must perform a material check before the scan
-//     is accepted.
+// - `none`: no additional operator check is required.
+// - `material_check`: a material check is expected before the operation.
 type ScanningStationOperatorRequirement string
 
 const (
@@ -1555,17 +1625,19 @@ type ServiceLevel struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Whether this service level is shown to customers in the customer portal.
-	//
-	// - `visible`: customers can see and select this service level.
-	// - `hidden`: the service level is concealed from the customer portal.
+	// Whether customers can see and select this service level at checkout in the
+	// customer portal.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility ServiceLevelCustomerPortalVisibility `json:"customer_portal_visibility" api:"required"`
 	// Whether this is the carrier's default service level, pre-selected when the
 	// carrier is chosen.
+	//
+	// Each carrier has at most one default; setting a new default clears the previous
+	// one.
 	IsDefault bool `json:"is_default" api:"required"`
-	// Display name.
+	// Human-readable name for the service level, shown to customers at checkout when
+	// the service level is visible.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -1602,10 +1674,8 @@ func (r *ServiceLevel) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Whether this service level is shown to customers in the customer portal.
-//
-// - `visible`: customers can see and select this service level.
-// - `hidden`: the service level is concealed from the customer portal.
+// Whether customers can see and select this service level at checkout in the
+// customer portal.
 type ServiceLevelCustomerPortalVisibility string
 
 const (
@@ -1620,7 +1690,7 @@ const (
 	ServiceLevelObjectServiceLevel ServiceLevelObject = "service_level"
 )
 
-// ShippingTerm resource.
+// A shipping term defining how freight charges are calculated for an order.
 type ShippingTerm struct {
 	// Shipping term ID.
 	ID string `json:"id" api:"required"`
@@ -1632,7 +1702,8 @@ type ShippingTerm struct {
 	FreeShippingServiceLevels ListServiceLevel `json:"free_shipping_service_levels" api:"required"`
 	// Value with an associated unit.
 	MinimumOrderValue Quantity `json:"minimum_order_value" api:"required"`
-	// Display name.
+	// Human-readable name for the shipping term, used to identify it when assigning
+	// shipping terms to customers and orders.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -1699,62 +1770,86 @@ const (
 
 // Request to partially update a customer.
 type UpdateCustomerRequestParam struct {
-	// Bill-to address ID.
+	// ID of an existing address to use as the default billing address.
 	BillToAddressID param.Opt[string] `json:"bill_to_address_id,omitzero"`
-	// Carrier billing account number.
+	// Carrier billing account number charged when `carrier_billing_type` is
+	// `third_party`.
 	CarrierBillingAccount param.Opt[string] `json:"carrier_billing_account,omitzero"`
 	// The ID of the account user to assign as the default sales rep.
 	DefaultSalesRepID param.Opt[string] `json:"default_sales_rep_id,omitzero"`
-	// Default service level ID.
+	// ID of the default carrier service level.
 	DefaultServiceLevelID param.Opt[string] `json:"default_service_level_id,omitzero"`
-	// Email address. Send null to clear.
+	// Email address.
 	Email param.Opt[string] `json:"email,omitzero"`
-	// Note.
+	// Free-form note about the customer.
 	Note param.Opt[string] `json:"note,omitzero"`
-	// Phone number. Send null to clear.
+	// Phone number.
 	Phone param.Opt[string] `json:"phone,omitzero"`
-	// Ship-to address ID.
+	// ID of an existing address to use as the default shipping address.
 	ShipToAddressID param.Opt[string] `json:"ship_to_address_id,omitzero"`
-	// Website URL. Send null to clear.
+	// Website URL.
 	URL param.Opt[string] `json:"url,omitzero"`
-	// Customer type group ID.
+	// ID of the account group of type `type_group` that categorizes this customer (for
+	// example "Distributors").
 	CustomerTypeGroupID param.Opt[string] `json:"customer_type_group_id,omitzero"`
-	// Default carrier ID.
+	// ID of the default carrier for this customer's shipments.
 	DefaultCarrierID param.Opt[string] `json:"default_carrier_id,omitzero"`
 	// Default payment term ID.
 	DefaultPaymentTermID param.Opt[string] `json:"default_payment_term_id,omitzero"`
 	// Default shipping term ID.
 	DefaultShippingTermID param.Opt[string] `json:"default_shipping_term_id,omitzero"`
-	// Customer name.
+	// The customer's business name, as shown throughout the app and on documents.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Customer number.
+	// Human-readable customer number used to identify the account, distinct from the
+	// `id`.
+	//
+	// Must be unique within your account.
 	Number param.Opt[string] `json:"number,omitzero"`
-	// Carrier billing type.
+	// Who pays the carrier for shipments.
+	//
+	// - `sender`: the shipper (you) pays the carrier.
+	// - `third_party`: a third party is billed, using `carrier_billing_account`.
 	//
 	// Any of "sender", "third_party".
 	CarrierBillingType UpdateCustomerRequestCarrierBillingType `json:"carrier_billing_type,omitzero"`
-	// Commission policy.
+	// How sales commission applies to this customer's orders.
+	//
+	//   - `commission_exempt`: this customer's orders are exempt from sales commission.
+	//   - `commission_applied`: sales commission is calculated on this customer's
+	//     orders.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy UpdateCustomerRequestCommissionPolicy `json:"commission_policy,omitzero"`
-	// QuantityInput represents a value with an associated unit for create/update
-	// requests.
+	// A value with an associated unit, used in create and update requests.
 	CreditLimit QuantityInputParam `json:"credit_limit,omitzero"`
-	// Price group IDs. Replaces all existing price groups when provided.
+	// IDs of the account groups of type `pricing_group` to assign to this customer,
+	// used to apply pricing rules.
+	//
+	// When provided, replaces the customer's full set of existing price groups.
 	CustomerPriceGroupIDs []string `json:"customer_price_group_ids,omitzero"`
-	// Default priority code.
+	// Priority applied to new orders for this customer.
 	//
 	// Any of "low", "normal", "high".
 	DefaultPriority UpdateCustomerRequestDefaultPriority `json:"default_priority,omitzero"`
-	// EDI status.
+	// Whether EDI (Electronic Data Interchange) is enabled for exchanging orders and
+	// documents with this customer.
 	//
 	// Any of "enabled", "disabled".
 	EdiStatus UpdateCustomerRequestEdiStatus `json:"edi_status,omitzero"`
-	// Freight policy.
+	// Whether this customer is billed for freight on their orders.
+	//
+	//   - `free_freight`: the customer is not billed for freight.
+	//   - `billed_freight`: freight is billed to the customer, unless overridden on the
+	//     order.
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy UpdateCustomerRequestFreightPolicy `json:"freight_policy,omitzero"`
-	// Account status code.
+	// Account status code, controlling whether the customer can transact.
+	//
+	// - `normal`: standard active account with no restrictions.
+	// - `preferred`: active account flagged as preferred.
+	// - `hold_shipment`: orders can be placed, but shipments are held.
+	// - `hold_all`: all activity is on hold.
 	//
 	// Any of "normal", "preferred", "hold_shipment", "hold_all".
 	Status UpdateCustomerRequestStatus `json:"status,omitzero"`
@@ -1769,7 +1864,10 @@ func (r *UpdateCustomerRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Carrier billing type.
+// Who pays the carrier for shipments.
+//
+// - `sender`: the shipper (you) pays the carrier.
+// - `third_party`: a third party is billed, using `carrier_billing_account`.
 type UpdateCustomerRequestCarrierBillingType string
 
 const (
@@ -1777,7 +1875,11 @@ const (
 	UpdateCustomerRequestCarrierBillingTypeThirdParty UpdateCustomerRequestCarrierBillingType = "third_party"
 )
 
-// Commission policy.
+// How sales commission applies to this customer's orders.
+//
+//   - `commission_exempt`: this customer's orders are exempt from sales commission.
+//   - `commission_applied`: sales commission is calculated on this customer's
+//     orders.
 type UpdateCustomerRequestCommissionPolicy string
 
 const (
@@ -1785,7 +1887,7 @@ const (
 	UpdateCustomerRequestCommissionPolicyCommissionExempt  UpdateCustomerRequestCommissionPolicy = "commission_exempt"
 )
 
-// Default priority code.
+// Priority applied to new orders for this customer.
 type UpdateCustomerRequestDefaultPriority string
 
 const (
@@ -1794,7 +1896,8 @@ const (
 	UpdateCustomerRequestDefaultPriorityHigh   UpdateCustomerRequestDefaultPriority = "high"
 )
 
-// EDI status.
+// Whether EDI (Electronic Data Interchange) is enabled for exchanging orders and
+// documents with this customer.
 type UpdateCustomerRequestEdiStatus string
 
 const (
@@ -1802,7 +1905,11 @@ const (
 	UpdateCustomerRequestEdiStatusDisabled UpdateCustomerRequestEdiStatus = "disabled"
 )
 
-// Freight policy.
+// Whether this customer is billed for freight on their orders.
+//
+//   - `free_freight`: the customer is not billed for freight.
+//   - `billed_freight`: freight is billed to the customer, unless overridden on the
+//     order.
 type UpdateCustomerRequestFreightPolicy string
 
 const (
@@ -1810,7 +1917,12 @@ const (
 	UpdateCustomerRequestFreightPolicyBilledFreight UpdateCustomerRequestFreightPolicy = "billed_freight"
 )
 
-// Account status code.
+// Account status code, controlling whether the customer can transact.
+//
+// - `normal`: standard active account with no restrictions.
+// - `preferred`: active account flagged as preferred.
+// - `hold_shipment`: orders can be placed, but shipments are held.
+// - `hold_all`: all activity is on hold.
 type UpdateCustomerRequestStatus string
 
 const (
@@ -1820,27 +1932,22 @@ const (
 	UpdateCustomerRequestStatusHoldAll      UpdateCustomerRequestStatus = "hold_all"
 )
 
-// User resource.
+// A user's global profile, shared across every account they belong to.
+//
+// Account-specific settings (status, role, department) live on the account user
+// resource that links the user to each account.
 type User struct {
 	// User ID.
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Email address.
-	//
-	// `null` if the user has no email on record.
 	Email string `json:"email" api:"required"`
 	// When the user verified their email address.
-	//
-	// `null` if the email is unverified.
 	EmailVerifiedAt time.Time `json:"email_verified_at" api:"required" format:"date-time"`
 	// URL of the user's profile image.
-	//
-	// `null` if no image has been uploaded.
 	ImageURL string `json:"image_url" api:"required"`
 	// User's full display name.
-	//
-	// `null` if not set.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -1849,8 +1956,6 @@ type User struct {
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Username.
-	//
-	// `null` if the user has no username.
 	Username string `json:"username" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -1981,31 +2086,41 @@ func (r SaleCustomerUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type SaleCustomerListParams struct {
-	// Filter by city.
+	// Filter to customers with any address in this city (exact match).
+	//
+	// When combined with `state` or `postal_code`, a single address must match all
+	// provided values.
 	City param.Opt[string] `query:"city,omitzero" json:"-"`
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Filter by end date (created before).
+	// Filter to customers created at or before this timestamp (inclusive).
 	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Filter by postal code.
+	// Filter to customers with any address in this postal code (exact match).
 	PostalCode param.Opt[string] `query:"postal_code,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
-	// Filter by start date (created after).
+	// Filter to customers created at or after this timestamp (inclusive).
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
-	// Filter by state.
+	// Filter to customers with any address in this state (exact match).
 	State param.Opt[string] `query:"state,omitzero" json:"-"`
-	// Filter by carrier IDs.
+	// Filter by default carrier IDs.
 	CarrierIDs []string `query:"carrier_ids,omitzero" json:"-"`
-	// Filter by commission status codes.
+	// Filter by commission policy.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionStatusCodes []string `query:"commission_status_codes,omitzero" json:"-"`
-	// Filter by customer group IDs.
+	// Filter by customer type group IDs (the account group of type `type_group`
+	// returned in the customer's `type` field).
 	CustomerGroupIDs []string `query:"customer_group_ids,omitzero" json:"-"`
-	// Filter by freight status codes.
+	// Filter by freight policy.
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightStatusCodes []string `query:"freight_status_codes,omitzero" json:"-"`
@@ -2023,17 +2138,17 @@ type SaleCustomerListParams struct {
 	//
 	// Any of "parent", "non_parent".
 	ParentAccountStatus SaleCustomerListParamsParentAccountStatus `query:"parent_account_status,omitzero" json:"-"`
-	// Filter by payment term IDs.
+	// Filter by default payment term IDs.
 	PaymentTermIDs []string `query:"payment_term_ids,omitzero" json:"-"`
-	// Filter by pricing group IDs.
+	// Filter to customers that belong to any of these pricing groups.
 	PricingGroupIDs []string `query:"pricing_group_ids,omitzero" json:"-"`
-	// Filter by sales rep IDs.
+	// Filter by default sales rep IDs.
 	SalesRepIDs []string `query:"sales_rep_ids,omitzero" json:"-"`
-	// Filter by service level IDs.
+	// Filter by default service level IDs.
 	ServiceLevelIDs []string `query:"service_level_ids,omitzero" json:"-"`
-	// Filter by shipping term IDs.
+	// Filter by default shipping term IDs.
 	ShippingTermIDs []string `query:"shipping_term_ids,omitzero" json:"-"`
-	// Filter by status codes.
+	// Filter by account status codes.
 	//
 	// Any of "normal", "preferred", "hold_shipment", "hold_all".
 	StatusCodes []string `query:"status_codes,omitzero" json:"-"`

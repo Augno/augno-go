@@ -101,7 +101,7 @@ type ValidateAddressRequestParam struct {
 	AddressLine1 string `json:"address_line_1" api:"required"`
 	// City or locality.
 	City string `json:"city" api:"required"`
-	// Country name or code.
+	// Country name or two-letter country code (for example `United States` or `US`).
 	Country string `json:"country" api:"required"`
 	// Postal or ZIP code.
 	PostalCode string `json:"postal_code" api:"required"`
@@ -126,24 +126,22 @@ type ValidatedAddress struct {
 	Components AddressComponents `json:"components" api:"required"`
 	// Formatted, single-line address as standardized by the validation service.
 	//
-	// `null` when the service did not return a formatted address (this can occur
-	// regardless of `status`).
+	// The validation service may omit this regardless of `status`, so it can be absent
+	// even for a `valid` address.
 	FormattedAddress string `json:"formatted_address" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "validated_address".
 	Object ValidatedAddressObject `json:"object" api:"required"`
-	// Address validation status.
-	//
-	//   - `valid`: the address was validated successfully.
-	//   - `invalid`: the address could not be validated; see `validation_messages` for
-	//     the issues found.
+	// Whether the address could be validated.
 	//
 	// Any of "valid", "invalid".
 	Status ValidatedAddressStatus `json:"status" api:"required"`
 	// Human-readable messages describing issues found during validation.
 	//
-	// Empty when no issues were reported.
+	// May be non-empty even when `status` is `valid`, for example when components were
+	// inferred or replaced with standardized values. Empty when no issues were
+	// reported.
 	ValidationMessages []string `json:"validation_messages" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -170,11 +168,7 @@ const (
 	ValidatedAddressObjectValidatedAddress ValidatedAddressObject = "validated_address"
 )
 
-// Address validation status.
-//
-//   - `valid`: the address was validated successfully.
-//   - `invalid`: the address could not be validated; see `validation_messages` for
-//     the issues found.
+// Whether the address could be validated.
 type ValidatedAddressStatus string
 
 const (

@@ -97,6 +97,9 @@ func (r *CatalogPropertyAttributeService) List(ctx context.Context, propertyID s
 }
 
 // Deletes an attribute from a property.
+//
+// Remaining attributes in the property are shifted so their sort orders stay
+// contiguous.
 func (r *CatalogPropertyAttributeService) Delete(ctx context.Context, id string, body CatalogPropertyAttributeDeleteParams, opts ...option.RequestOption) (res *CatalogPropertyAttributeDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if body.PropertyID == "" {
@@ -116,11 +119,22 @@ func (r *CatalogPropertyAttributeService) Delete(ctx context.Context, id string,
 //
 // The property Value is required.
 type CreateAttributeRequestParam struct {
-	// Attribute value.
+	// The selectable value this attribute represents, such as `Red`.
+	//
+	// Must be unique across all attributes in the account, not just within the
+	// property. Leading and trailing whitespace is trimmed.
 	Value string `json:"value" api:"required"`
-	// Display order. Defaults to last position if not provided.
+	// Position of the new attribute relative to its siblings within the property,
+	// starting at `1`.
+	//
+	// Must be at most the property's current attribute count plus one; siblings at or
+	// after this position are shifted one position later. Defaults to the last
+	// position if not provided.
 	SortOrder param.Opt[int64] `json:"sort_order,omitzero"`
-	// Color code. Randomly assigned if not provided.
+	// Swatch color used to display this attribute in the UI.
+	//
+	// When omitted, one of the nine named colors (everything except `default`) is
+	// assigned at random.
 	//
 	// Any of "blue", "brown", "default", "gray", "green", "orange", "pink", "purple",
 	// "red", "yellow".
@@ -136,7 +150,10 @@ func (r *CreateAttributeRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Color code. Randomly assigned if not provided.
+// Swatch color used to display this attribute in the UI.
+//
+// When omitted, one of the nine named colors (everything except `default`) is
+// assigned at random.
 type CreateAttributeRequestColor string
 
 const (
@@ -154,11 +171,18 @@ const (
 
 // Request to update an attribute.
 type UpdateAttributeRequestParam struct {
-	// Display order. Must be a positive integer.
+	// New position of this attribute relative to its siblings within the property,
+	// starting at `1`.
+	//
+	// Must be at most the property's current attribute count; the attributes between
+	// the old and new positions shift to make room.
 	SortOrder param.Opt[int64] `json:"sort_order,omitzero"`
-	// Attribute value.
+	// The selectable value this attribute represents, such as `Red`.
+	//
+	// Must be non-blank and unique across all attributes in the account, not just
+	// within the property.
 	Value param.Opt[string] `json:"value,omitzero"`
-	// Color code.
+	// Swatch color used to display this attribute in the UI.
 	//
 	// Any of "blue", "brown", "default", "gray", "green", "orange", "pink", "purple",
 	// "red", "yellow".
@@ -174,7 +198,7 @@ func (r *UpdateAttributeRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Color code.
+// Swatch color used to display this attribute in the UI.
 type UpdateAttributeRequestColor string
 
 const (
@@ -237,11 +261,17 @@ func (r *CatalogPropertyAttributeUpdateParams) UnmarshalJSON(data []byte) error 
 }
 
 type CatalogPropertyAttributeListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	paramObj
 }

@@ -121,9 +121,12 @@ const (
 )
 
 type CoreAddressGetSuggestionsParams struct {
-	// Autocomplete input text.
+	// Partial address text to generate suggestions for.
 	Input string `query:"input" api:"required" json:"-"`
-	// Session token for grouping autocomplete requests.
+	// Opaque token that groups a series of related autocomplete requests into a single
+	// session.
+	//
+	// Reuse the same token for each keystroke of one address entry.
 	SessionToken param.Opt[string] `query:"session_token,omitzero" json:"-"`
 	paramObj
 }

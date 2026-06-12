@@ -63,8 +63,11 @@ func (r *CatalogItemService) List(ctx context.Context, query CatalogItemListPara
 	return res, err
 }
 
-// Changes the category of an item. When the category changes, the item's rate
-// units are updated to the new category's base unit.
+// Moves an item to a different category.
+//
+// The item's rate units (unit value, unit cost, burn rate) and any related
+// order-point, consumption, and production quantity units are updated to the new
+// category's base unit. Re-assigning the item's current category is a no-op.
 func (r *CatalogItemService) ChangeCategory(ctx context.Context, categoryID string, params CatalogItemChangeCategoryParams, opts ...option.RequestOption) (res *Item, err error) {
 	opts = slices.Concat(r.options, opts)
 	if params.ID == "" {
@@ -99,21 +102,23 @@ type Item struct {
 	ID string `json:"id" api:"required"`
 	// List represents a paginated list of resources.
 	Attributes ListAttribute `json:"attributes" api:"required"`
-	// Rate resource.
+	// Value expressed as a ratio of two units, such as a price per kilogram or a
+	// throughput per hour.
 	BurnRate Rate `json:"burn_rate" api:"required"`
-	// ItemCategory resource.
+	// A grouping of related catalog items that defines the unit group and properties
+	// available to the items within it.
 	Category ItemCategory `json:"category" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Item description.
 	Description string `json:"description" api:"required"`
-	// Notes.
+	// Free-form notes about the item.
 	Notes string `json:"notes" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "item".
 	Object ItemObject `json:"object" api:"required"`
-	// Stock keeping unit code.
+	// Stock keeping unit code, unique within the account.
 	SKU string `json:"sku" api:"required"`
 	// What kind of item this is.
 	//
@@ -123,9 +128,11 @@ type Item struct {
 	//
 	// Any of "product", "material", "part".
 	Type ItemType `json:"type" api:"required"`
-	// Rate resource.
+	// Value expressed as a ratio of two units, such as a price per kilogram or a
+	// throughput per hour.
 	UnitCost Rate `json:"unit_cost" api:"required"`
-	// Rate resource.
+	// Value expressed as a ratio of two units, such as a price per kilogram or a
+	// throughput per hour.
 	UnitValue Rate `json:"unit_value" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -175,15 +182,16 @@ const (
 	ItemTypePart     ItemType = "part"
 )
 
-// ItemCategory resource.
+// A grouping of related catalog items that defines the unit group and properties
+// available to the items within it.
 type ItemCategory struct {
 	// Item category ID.
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name.
+	// Display name of the item category.
 	Name string `json:"name" api:"required"`
-	// Notes.
+	// Free-form notes about the item category.
 	Notes string `json:"notes" api:"required"`
 	// Resource type identifier.
 	//
@@ -195,12 +203,17 @@ type ItemCategory struct {
 	Properties ListProperty `json:"properties" api:"required"`
 	// What kind of items this category groups.
 	//
-	// - `material_category`: groups raw materials or components.
-	// - `product_category`: groups finished products.
+	// An item can only be assigned to a category whose type matches the item's `type`.
+	//
+	//   - `material_category`: groups raw materials and components (items of type
+	//     `material`).
+	//   - `product_category`: groups finished products and parts (items of type
+	//     `product` or `part`).
 	//
 	// Any of "material_category", "product_category".
 	Type ItemCategoryType `json:"type" api:"required"`
-	// UnitGroup is a unit group resource.
+	// Named collection of units sharing one dimension, defining which units products
+	// can be ordered in along with per-unit discounts and customer portal visibility.
 	UnitGroup UnitGroup `json:"unit_group" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -236,8 +249,12 @@ const (
 
 // What kind of items this category groups.
 //
-// - `material_category`: groups raw materials or components.
-// - `product_category`: groups finished products.
+// An item can only be assigned to a category whose type matches the item's `type`.
+//
+//   - `material_category`: groups raw materials and components (items of type
+//     `material`).
+//   - `product_category`: groups finished products and parts (items of type
+//     `product` or `part`).
 type ItemCategoryType string
 
 const (
@@ -359,7 +376,8 @@ const (
 	QuantityObjectQuantity QuantityObject = "quantity"
 )
 
-// Rate resource.
+// Value expressed as a ratio of two units, such as a price per kilogram or a
+// throughput per hour.
 type Rate struct {
 	// Rate ID.
 	ID string `json:"id" api:"required"`
@@ -377,7 +395,9 @@ type Rate struct {
 	Object RateObject `json:"object" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// Rate value as a decimal string.
+	// Decimal value of the rate, as a string to preserve precision.
+	//
+	// Expressed as the amount of the numerator unit per one denominator unit.
 	Value string `json:"value" api:"required" format:"decimal"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -428,13 +448,19 @@ func (r CatalogItemGetParams) URLQuery() (v url.Values, err error) {
 }
 
 type CatalogItemListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Filter items created on or before this date.
 	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Filter items created on or after this date.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
@@ -458,11 +484,15 @@ type CatalogItemListParams struct {
 	// Filter by product line IDs (only items whose product belongs to one of these
 	// lines).
 	ProductLineIDs []string `query:"product_line_ids,omitzero" json:"-"`
-	// Which subassemblies to include when listing (default: all).
+	// Restricts results based on where the item is produced in its production flow.
+	//
+	//   - `all`: no restriction.
+	//   - `initial_only`: only items produced by an initial production step, i.e. a step
+	//     with no upstream steps feeding into it.
 	//
 	// Any of "all", "initial_only".
 	SubassemblyFilter CatalogItemListParamsSubassemblyFilter `query:"subassembly_filter,omitzero" json:"-"`
-	// Filter by item type codes.
+	// Filter to items of these types (`product`, `material`, `part`).
 	Types []string `query:"types,omitzero" json:"-"`
 	paramObj
 }
@@ -475,7 +505,11 @@ func (r CatalogItemListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Which subassemblies to include when listing (default: all).
+// Restricts results based on where the item is produced in its production flow.
+//
+//   - `all`: no restriction.
+//   - `initial_only`: only items produced by an initial production step, i.e. a step
+//     with no upstream steps feeding into it.
 type CatalogItemListParamsSubassemblyFilter string
 
 const (

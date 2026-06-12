@@ -97,20 +97,24 @@ func (r *CatalogUnitGroupService) Delete(ctx context.Context, id string, opts ..
 	return res, err
 }
 
-// CreateUnitGroupRequest is a request to create a unit group.
+// Request to create a unit group.
 //
 // The properties BaseUnitID, Name, Type are required.
 type CreateUnitGroupRequestParam struct {
-	// Base unit ID.
+	// ID of the unit to designate as the group's reference unit.
 	BaseUnitID string `json:"base_unit_id" api:"required"`
-	// Display name.
+	// Display name of the unit group.
+	//
+	// Must be unique within the account.
 	Name string `json:"name" api:"required"`
-	// Unit type.
+	// Dimension shared by every unit in this group (e.g. `mass`, `volume`).
+	//
+	// All associated units must be of this dimension.
 	//
 	// Any of "currency", "quantity", "time", "mass", "volume", "length",
 	// "temperature", "area".
 	Type CreateUnitGroupRequestType `json:"type,omitzero" api:"required"`
-	// Notes.
+	// Free-form notes about the unit group.
 	Notes param.Opt[string] `json:"notes,omitzero"`
 	// Associated units to create with the group.
 	AssociatedUnits []CreateUnitGroupUnitParam `json:"associated_units,omitzero"`
@@ -125,7 +129,9 @@ func (r *CreateUnitGroupRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Unit type.
+// Dimension shared by every unit in this group (e.g. `mass`, `volume`).
+//
+// All associated units must be of this dimension.
 type CreateUnitGroupRequestType string
 
 const (
@@ -139,17 +145,21 @@ const (
 	CreateUnitGroupRequestTypeArea        CreateUnitGroupRequestType = "area"
 )
 
-// CreateUnitGroupUnitParam contains parameters for an associated unit.
+// Parameters for associating a unit with a unit group.
 //
 // The property UnitID is required.
 type CreateUnitGroupUnitParam struct {
-	// Unit ID.
+	// ID of the unit to associate with the group.
+	//
+	// The unit's dimension must match the group's `type`.
 	UnitID string `json:"unit_id" api:"required"`
-	// Fixed discount amount.
+	// Flat amount subtracted from the unit's price when an order is placed in this
+	// unit.
 	DiscountFixed param.Opt[float64] `json:"discount_fixed,omitzero"`
-	// Discount percentage.
+	// Percentage discount applied to the unit's price when an order is placed in this
+	// unit (e.g. `10` is a 10% discount).
 	DiscountPercentage param.Opt[float64] `json:"discount_percentage,omitzero"`
-	// Customer portal visibility.
+	// Whether the unit is shown to customers in the customer portal.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility CreateUnitGroupUnitParamCustomerPortalVisibility `json:"customer_portal_visibility,omitzero"`
@@ -164,7 +174,7 @@ func (r *CreateUnitGroupUnitParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Customer portal visibility.
+// Whether the unit is shown to customers in the customer portal.
 type CreateUnitGroupUnitParamCustomerPortalVisibility string
 
 const (
@@ -238,7 +248,8 @@ const (
 	ListUnitGroupUnitObjectList ListUnitGroupUnitObject = "list"
 )
 
-// UnitGroup is a unit group resource.
+// Named collection of units sharing one dimension, defining which units products
+// can be ordered in along with per-unit discounts and customer portal visibility.
 type UnitGroup struct {
 	// Unit group ID.
 	ID string `json:"id" api:"required"`
@@ -250,7 +261,7 @@ type UnitGroup struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Display name.
 	Name string `json:"name" api:"required"`
-	// Notes.
+	// Free-form notes about the unit group.
 	Notes string `json:"notes" api:"required"`
 	// Resource type identifier.
 	//
@@ -258,18 +269,10 @@ type UnitGroup struct {
 	Object UnitGroupObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// Dimension shared by every unit in this group.
+	// Physical dimension shared by every unit in this group, such as mass, volume, or
+	// currency.
 	//
 	// Only units of this dimension can belong to the group.
-	//
-	// - `currency`: monetary units such as dollars or euros.
-	// - `quantity`: discrete countable units.
-	// - `time`: time-based units such as hours or minutes.
-	// - `mass`: weight-based units such as kilograms or pounds.
-	// - `volume`: volumetric units such as liters or gallons.
-	// - `length`: distance-based units such as meters or feet.
-	// - `temperature`: temperature units such as Celsius or Fahrenheit.
-	// - `area`: area-based units such as square meters or acres.
 	//
 	// Any of "currency", "quantity", "time", "mass", "volume", "length",
 	// "temperature", "area".
@@ -306,18 +309,10 @@ const (
 	UnitGroupObjectUnitGroup UnitGroupObject = "unit_group"
 )
 
-// Dimension shared by every unit in this group.
+// Physical dimension shared by every unit in this group, such as mass, volume, or
+// currency.
 //
 // Only units of this dimension can belong to the group.
-//
-// - `currency`: monetary units such as dollars or euros.
-// - `quantity`: discrete countable units.
-// - `time`: time-based units such as hours or minutes.
-// - `mass`: weight-based units such as kilograms or pounds.
-// - `volume`: volumetric units such as liters or gallons.
-// - `length`: distance-based units such as meters or feet.
-// - `temperature`: temperature units such as Celsius or Fahrenheit.
-// - `area`: area-based units such as square meters or acres.
 type UnitGroupType string
 
 const (
@@ -331,7 +326,8 @@ const (
 	UnitGroupTypeArea        UnitGroupType = "area"
 )
 
-// UnitGroupUnit is an associated unit within a unit group.
+// Membership of a unit in a unit group, carrying the discount and customer portal
+// visibility settings applied when ordering in that unit.
 type UnitGroupUnit struct {
 	// Unit group unit ID.
 	ID string `json:"id" api:"required"`
@@ -339,20 +335,13 @@ type UnitGroupUnit struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Whether this unit is shown to customers in the customer portal.
 	//
-	// - `visible`: the unit is selectable in the customer portal.
-	// - `hidden`: the unit is hidden from the customer portal.
-	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility UnitGroupUnitCustomerPortalVisibility `json:"customer_portal_visibility" api:"required"`
-	// Fixed per-unit discount amount applied when ordering in this unit, in the
-	// account's currency.
-	//
-	// Defaults to `0`.
+	// Flat amount subtracted from the unit's price when an order is placed in this
+	// unit.
 	DiscountFixed float64 `json:"discount_fixed" api:"required"`
-	// Percentage discount applied when ordering in this unit, as a number out of 100
-	// (e.g. `1` means 1%).
-	//
-	// Defaults to `1`.
+	// Percentage discount applied to the unit's price when an order is placed in this
+	// unit (e.g. `10` is a 10% discount).
 	DiscountPercentage float64 `json:"discount_percentage" api:"required"`
 	// Resource type identifier.
 	//
@@ -384,9 +373,6 @@ func (r *UnitGroupUnit) UnmarshalJSON(data []byte) error {
 }
 
 // Whether this unit is shown to customers in the customer portal.
-//
-// - `visible`: the unit is selectable in the customer portal.
-// - `hidden`: the unit is hidden from the customer portal.
 type UnitGroupUnitCustomerPortalVisibility string
 
 const (
@@ -401,16 +387,22 @@ const (
 	UnitGroupUnitObjectUnitGroupUnit UnitGroupUnitObject = "unit_group_unit"
 )
 
-// UpdateUnitGroupRequest is a request to partially update a unit group.
+// Request to partially update a unit group.
 type UpdateUnitGroupRequestParam struct {
-	// Notes. Set to null to clear.
+	// Free-form notes about the unit group.
+	//
+	// Set to `null` to clear.
 	Notes param.Opt[string] `json:"notes,omitzero"`
-	// Base unit ID.
+	// ID of the group's base unit.
 	BaseUnitID param.Opt[string] `json:"base_unit_id,omitzero"`
-	// Display name.
+	// Display name of the unit group.
+	//
+	// Must be unique within the account.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Upserts associated units when provided. Existing units not in the list are
-	// preserved.
+	// Associated units to add or update in the group.
+	//
+	// Upserted by unit: a listed unit already in the group has its association
+	// updated, otherwise it is added. Existing units not in the list are preserved.
 	AssociatedUnits []CreateUnitGroupUnitParam `json:"associated_units,omitzero"`
 	paramObj
 }
@@ -438,7 +430,7 @@ func (r *CatalogUnitGroupDeleteResponse) UnmarshalJSON(data []byte) error {
 }
 
 type CatalogUnitGroupNewParams struct {
-	// CreateUnitGroupRequest is a request to create a unit group.
+	// Request to create a unit group.
 	CreateUnitGroupRequest CreateUnitGroupRequestParam
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -488,7 +480,7 @@ type CatalogUnitGroupUpdateParams struct {
 	//
 	// Any of "owner", "owner.account", "base_unit", "associated_units".
 	Include []string `query:"include,omitzero" json:"-"`
-	// UpdateUnitGroupRequest is a request to partially update a unit group.
+	// Request to partially update a unit group.
 	UpdateUnitGroupRequest UpdateUnitGroupRequestParam
 	paramObj
 }
@@ -510,18 +502,24 @@ func (r CatalogUnitGroupUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type CatalogUnitGroupListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
 	// Any of "owner", "owner.account", "base_unit", "associated_units".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Filter by the unit type.
+	// Filter by unit dimension (e.g. `mass`).
 	//
 	// Any of "currency", "quantity", "time", "mass", "volume", "length",
 	// "temperature", "area".
@@ -538,7 +536,7 @@ func (r CatalogUnitGroupListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Filter by the unit type.
+// Filter by unit dimension (e.g. `mass`).
 type CatalogUnitGroupListParamsType string
 
 const (

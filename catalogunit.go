@@ -101,8 +101,12 @@ func (r *CatalogUnitService) Delete(ctx context.Context, id string, opts ...opti
 // RatioDenominator, RatioNumerator, Type are required.
 type CreateUnitRequestParam struct {
 	// Short abbreviation for the unit (e.g. "g").
+	//
+	// Must be unique within the account.
 	Abbreviation string `json:"abbreviation" api:"required"`
 	// Display name of the unit (e.g. "Gram").
+	//
+	// Must be unique within the account.
 	Name string `json:"name" api:"required"`
 	// Conversion offset denominator, as a decimal string. Must not be zero.
 	OffsetDenominator string `json:"offset_denominator" api:"required" format:"decimal"`
@@ -113,7 +117,9 @@ type CreateUnitRequestParam struct {
 	RatioDenominator string `json:"ratio_denominator" api:"required" format:"decimal"`
 	// Conversion ratio numerator relative to the base unit, as a decimal string.
 	RatioNumerator string `json:"ratio_numerator" api:"required" format:"decimal"`
-	// Unit dimension code.
+	// Unit dimension (e.g. `mass`, `volume`, `currency`).
+	//
+	// Units can only be converted to other units of the same dimension.
 	//
 	// Any of "currency", "quantity", "time", "mass", "volume", "length",
 	// "temperature", "area".
@@ -129,7 +135,9 @@ func (r *CreateUnitRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Unit dimension code.
+// Unit dimension (e.g. `mass`, `volume`, `currency`).
+//
+// Units can only be converted to other units of the same dimension.
 type CreateUnitRequestType string
 
 const (
@@ -186,7 +194,8 @@ type Unit struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Whether this is the base unit for its dimension.
 	//
-	// Conversion ratios are relative to this unit.
+	// Conversion ratios are relative to this unit. Base units are platform-defined;
+	// account-created units always have this set to `false`.
 	IsBaseUnit bool `json:"is_base_unit" api:"required"`
 	// Display name of the unit (e.g. "Gram", "Kilogram").
 	Name string `json:"name" api:"required"`
@@ -210,18 +219,11 @@ type Unit struct {
 	RatioDenominator string `json:"ratio_denominator" api:"required" format:"decimal"`
 	// Conversion ratio numerator relative to the base unit in the same dimension.
 	RatioNumerator string `json:"ratio_numerator" api:"required" format:"decimal"`
-	// Unit dimension.
+	// Physical dimension the unit measures, such as mass, volume, or currency.
 	//
-	// Units can only be converted to other units sharing the same dimension.
-	//
-	// - `currency`: monetary units such as dollars or euros.
-	// - `quantity`: discrete countable units.
-	// - `time`: time-based units such as hours or minutes.
-	// - `mass`: weight-based units such as kilograms or pounds.
-	// - `volume`: volumetric units such as liters or gallons.
-	// - `length`: distance-based units such as meters or feet.
-	// - `temperature`: temperature units such as Celsius or Fahrenheit.
-	// - `area`: area-based units such as square meters or acres.
+	// A unit can only be converted to another unit of the same dimension. The
+	// `quantity` dimension is for discrete countable items rather than a physical
+	// measure.
 	//
 	// Any of "currency", "quantity", "time", "mass", "volume", "length",
 	// "temperature", "area".
@@ -261,18 +263,11 @@ const (
 	UnitObjectUnit UnitObject = "unit"
 )
 
-// Unit dimension.
+// Physical dimension the unit measures, such as mass, volume, or currency.
 //
-// Units can only be converted to other units sharing the same dimension.
-//
-// - `currency`: monetary units such as dollars or euros.
-// - `quantity`: discrete countable units.
-// - `time`: time-based units such as hours or minutes.
-// - `mass`: weight-based units such as kilograms or pounds.
-// - `volume`: volumetric units such as liters or gallons.
-// - `length`: distance-based units such as meters or feet.
-// - `temperature`: temperature units such as Celsius or Fahrenheit.
-// - `area`: area-based units such as square meters or acres.
+// A unit can only be converted to another unit of the same dimension. The
+// `quantity` dimension is for discrete countable items rather than a physical
+// measure.
 type UnitType string
 
 const (
@@ -289,8 +284,12 @@ const (
 // Request to partially update a unit.
 type UpdateUnitRequestParam struct {
 	// Short abbreviation for the unit.
+	//
+	// Must be unique within the account.
 	Abbreviation param.Opt[string] `json:"abbreviation,omitzero"`
 	// Display name of the unit.
+	//
+	// Must be unique within the account.
 	Name param.Opt[string] `json:"name,omitzero"`
 	// Conversion offset denominator, as a decimal string. Must not be zero.
 	OffsetDenominator param.Opt[string] `json:"offset_denominator,omitzero" format:"decimal"`
@@ -396,23 +395,29 @@ func (r CatalogUnitUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type CatalogUnitListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
 	// Any of "owner", "owner.account".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Filter by unit dimension code.
+	// Filter by unit dimension (e.g. `mass`).
 	//
 	// Any of "currency", "quantity", "time", "mass", "volume", "length",
 	// "temperature", "area".
 	Type CatalogUnitListParamsType `query:"type,omitzero" json:"-"`
-	// Filter by unit group membership.
+	// Return only units that belong to at least one of the given unit groups.
 	UnitGroupIDs []string `query:"unit_group_ids,omitzero" json:"-"`
 	paramObj
 }
@@ -425,7 +430,7 @@ func (r CatalogUnitListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Filter by unit dimension code.
+// Filter by unit dimension (e.g. `mass`).
 type CatalogUnitListParamsType string
 
 const (

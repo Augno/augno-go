@@ -41,7 +41,10 @@ func NewCatalogMaterialService(opts ...option.RequestOption) (r CatalogMaterialS
 	return
 }
 
-// Creates a material.
+// Creates a material with the specified SKU and category.
+//
+// Inventory tracking for the new material starts at a zero on-hand quantity in the
+// category's base unit.
 func (r *CatalogMaterialService) New(ctx context.Context, params CatalogMaterialNewParams, opts ...option.RequestOption) (res *Material, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/materials"
@@ -62,6 +65,8 @@ func (r *CatalogMaterialService) Get(ctx context.Context, id string, query Catal
 }
 
 // Partially updates a material.
+//
+// Fields not provided retain their current values.
 func (r *CatalogMaterialService) Update(ctx context.Context, id string, params CatalogMaterialUpdateParams, opts ...option.RequestOption) (res *Material, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -81,7 +86,11 @@ func (r *CatalogMaterialService) List(ctx context.Context, query CatalogMaterial
 	return res, err
 }
 
-// Deletes a material by ID.
+// Deletes a material.
+//
+// This is a soft delete: the material is marked deleted and no longer returned by
+// other endpoints, but the record is retained. Deleting an already-deleted
+// material returns an error.
 func (r *CatalogMaterialService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *Material, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -97,23 +106,31 @@ func (r *CatalogMaterialService) Delete(ctx context.Context, id string, opts ...
 //
 // The properties CategoryID, SKU are required.
 type CreateMaterialRequestParam struct {
-	// Category ID.
+	// ID of the item category to place the material in.
+	//
+	// The category's unit group determines the base unit used for the material's rates
+	// (`unit_value`, `unit_cost`, `burn_rate`).
 	CategoryID string `json:"category_id" api:"required"`
-	// SKU code.
+	// Stock keeping unit code for the material.
+	//
+	// Must be unique within the account; creating a material with a SKU already used
+	// by another item fails with a conflict error.
 	SKU string `json:"sku" api:"required"`
-	// Description.
+	// Free-form description of the material.
 	Description param.Opt[string] `json:"description,omitzero"`
-	// Notes.
+	// Free-form notes about the material.
 	Notes param.Opt[string] `json:"notes,omitzero"`
-	// Attribute IDs to connect to the material at creation time.
+	// IDs of existing attributes to link to the material at creation time.
 	AttributeIDs []string `json:"attribute_ids,omitzero"`
 	// QuantityInputRequest is a quantity value and unit.
 	LeadTime QuantityInputRequestParam `json:"lead_time,omitzero"`
 	// QuantityInputRequest is a quantity value and unit.
 	OrderPoint QuantityInputRequestParam `json:"order_point,omitzero"`
-	// RateInput represents the input for creating or updating a rate.
+	// A rate value with its numerator and denominator units, used in create and update
+	// requests.
 	UnitCost RateInputParam `json:"unit_cost,omitzero"`
-	// RateInput represents the input for creating or updating a rate.
+	// A rate value with its numerator and denominator units, used in create and update
+	// requests.
 	UnitPrice RateInputParam `json:"unit_price,omitzero"`
 	paramObj
 }
@@ -159,7 +176,12 @@ const (
 	ListMaterialObjectList ListMaterialObject = "list"
 )
 
-// Material with order point and lead time.
+// A material in the account's catalog: a raw material or component consumed in
+// production.
+//
+// Material-level data such as the SKU, description, category, pricing, and
+// attributes lives on the underlying `item`; the material record adds the
+// reordering fields `order_point` and `lead_time`.
 type Material struct {
 	// Material ID.
 	ID string `json:"id" api:"required"`
@@ -208,9 +230,9 @@ const (
 //
 // The properties UnitID, Value are required.
 type QuantityInputRequestParam struct {
-	// Unit ID.
+	// ID of the unit the value is expressed in.
 	UnitID string `json:"unit_id" api:"required"`
-	// Quantity value.
+	// Decimal value of the quantity.
 	Value string `json:"value" api:"required"`
 	paramObj
 }
@@ -223,15 +245,17 @@ func (r *QuantityInputRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// RateInput represents the input for creating or updating a rate.
+// A rate value with its numerator and denominator units, used in create and update
+// requests.
 //
 // The properties DenominatorUnitID, NumeratorUnitID, Value are required.
 type RateInputParam struct {
-	// Denominator unit ID.
+	// ID of the unit for the rate's denominator (the per-unit basis).
 	DenominatorUnitID string `json:"denominator_unit_id" api:"required"`
-	// Numerator unit ID.
+	// ID of the unit for the rate's numerator (e.g. the currency of a price).
 	NumeratorUnitID string `json:"numerator_unit_id" api:"required"`
-	// Decimal value of the rate.
+	// Decimal value of the rate, expressed as the amount of the numerator unit per one
+	// denominator unit.
 	Value string `json:"value" api:"required" format:"decimal"`
 	paramObj
 }
@@ -246,17 +270,21 @@ func (r *RateInputParam) UnmarshalJSON(data []byte) error {
 
 // Request to update a material.
 type UpdateMaterialRequestParam struct {
-	// Description.
+	// New description for the material.
 	Description param.Opt[string] `json:"description,omitzero"`
-	// Notes.
+	// New notes for the material.
 	Notes param.Opt[string] `json:"notes,omitzero"`
-	// SKU code.
+	// New stock keeping unit code for the material.
+	//
+	// Must remain unique within the account; a conflict error is returned if another
+	// item already uses it.
 	SKU param.Opt[string] `json:"sku,omitzero"`
 	// QuantityInputRequest is a quantity value and unit.
 	LeadTime QuantityInputRequestParam `json:"lead_time,omitzero"`
 	// QuantityInputRequest is a quantity value and unit.
 	OrderPoint QuantityInputRequestParam `json:"order_point,omitzero"`
-	// RateInput represents the input for creating or updating a rate.
+	// A rate value with its numerator and denominator units, used in create and update
+	// requests.
 	UnitCost RateInputParam `json:"unit_cost,omitzero"`
 	paramObj
 }
@@ -348,13 +376,19 @@ func (r CatalogMaterialUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type CatalogMaterialListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Filter to materials created on or before this date.
 	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Filter to materials created on or after this date.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`

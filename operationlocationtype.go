@@ -93,9 +93,9 @@ const (
 	ListLocationTypeObjectList ListLocationTypeObject = "list"
 )
 
-// LocationType resource.
+// A level in the storage location hierarchy, such as a building or a bin.
 type LocationType struct {
-	// Location ID.
+	// Location type ID.
 	ID string `json:"id" api:"required"`
 	// Location type code, identifying the level of the storage hierarchy this type
 	// represents.
@@ -111,7 +111,7 @@ type LocationType struct {
 	Code LocationTypeCode `json:"code" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name.
+	// Display name of the location type.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -146,11 +146,17 @@ const (
 )
 
 type OperationLocationTypeListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	paramObj
 }

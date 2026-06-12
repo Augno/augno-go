@@ -42,6 +42,8 @@ func NewSaleAccountGroupService(opts ...option.RequestOption) (r SaleAccountGrou
 }
 
 // Creates an account group.
+//
+// Returns a conflict error if an account group with the same name already exists.
 func (r *SaleAccountGroupService) New(ctx context.Context, body SaleAccountGroupNewParams, opts ...option.RequestOption) (res *AccountGroup, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/account-groups"
@@ -84,8 +86,11 @@ func (r *SaleAccountGroupService) List(ctx context.Context, query SaleAccountGro
 	return res, err
 }
 
-// Deletes an account group. Fails if the account group is actively used in
-// production.
+// Deletes an account group.
+//
+// Deletion fails with a validation error while the account group is still in use —
+// for example by customer records, product line access, volume discounts, pricing
+// assignments, or an active registration flow.
 func (r *SaleAccountGroupService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *SaleAccountGroupDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -97,25 +102,25 @@ func (r *SaleAccountGroupService) Delete(ctx context.Context, id string, opts ..
 	return res, err
 }
 
-// Account group resource.
+// A named grouping of customer accounts, used for pricing rules or to categorize
+// accounts.
 type AccountGroup struct {
 	// Account group ID.
 	ID string `json:"id" api:"required"`
-	// Commission policy.
+	// How sales commission applies to accounts in this group.
 	//
-	//   - `commission_exempt`: no commission applies.
-	//   - `commission_applied`: commission applies; if the account group is within a
-	//     sales rep's territory, it will be assigned to that rep unless overridden.
+	//   - `commission_applied`: sales commission is calculated on orders from accounts
+	//     in this group.
+	//   - `commission_exempt`: orders from accounts in this group are exempt from
+	//     commission.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy AccountGroupCommissionPolicy `json:"commission_policy" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Free-form description of the account group.
-	//
-	// Optional; `null` when not set.
 	Description string `json:"description" api:"required"`
-	// Freight policy.
+	// How freight charges apply to orders from accounts in this group.
 	//
 	//   - `free_freight`: customers within this group will not have to pay for freight.
 	//   - `billed_freight`: freight will be applied to any order within this account
@@ -123,13 +128,15 @@ type AccountGroup struct {
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy AccountGroupFreightPolicy `json:"freight_policy" api:"required"`
-	// Display name.
+	// Display name of the account group.
+	//
+	// Unique within the account.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "account_group".
 	Object AccountGroupObject `json:"object" api:"required"`
-	// Account group type.
+	// How this account group is used.
 	//
 	//   - `pricing_group`: used for pricing rules, such as a "Preferred" group that
 	//     receives a special discount.
@@ -162,11 +169,12 @@ func (r *AccountGroup) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Commission policy.
+// How sales commission applies to accounts in this group.
 //
-//   - `commission_exempt`: no commission applies.
-//   - `commission_applied`: commission applies; if the account group is within a
-//     sales rep's territory, it will be assigned to that rep unless overridden.
+//   - `commission_applied`: sales commission is calculated on orders from accounts
+//     in this group.
+//   - `commission_exempt`: orders from accounts in this group are exempt from
+//     commission.
 type AccountGroupCommissionPolicy string
 
 const (
@@ -174,7 +182,7 @@ const (
 	AccountGroupCommissionPolicyCommissionExempt  AccountGroupCommissionPolicy = "commission_exempt"
 )
 
-// Freight policy.
+// How freight charges apply to orders from accounts in this group.
 //
 //   - `free_freight`: customers within this group will not have to pay for freight.
 //   - `billed_freight`: freight will be applied to any order within this account
@@ -193,7 +201,7 @@ const (
 	AccountGroupObjectAccountGroup AccountGroupObject = "account_group"
 )
 
-// Account group type.
+// How this account group is used.
 //
 //   - `pricing_group`: used for pricing rules, such as a "Preferred" group that
 //     receives a special discount.
@@ -210,30 +218,33 @@ const (
 //
 // The properties Name, Type are required.
 type CreateAccountGroupRequestParam struct {
-	// Display name.
-	Name string `json:"name" api:"required"`
-	// Account group type.
+	// Display name of the account group.
 	//
-	// Cannot be changed after creation.
+	// Must be unique within your account; maximum 255 characters.
+	Name string `json:"name" api:"required"`
+	// How this account group will be used.
 	//
 	//   - `pricing_group`: used for pricing rules, such as a "Preferred" group that
 	//     receives a special discount.
 	//   - `type_group`: used to categorize accounts, such as "Consumers" or
 	//     "Distributors".
 	//
+	// The type cannot be changed after creation.
+	//
 	// Any of "pricing_group", "type_group".
 	Type CreateAccountGroupRequestType `json:"type,omitzero" api:"required"`
-	// Description.
+	// Free-form description of the account group.
 	Description param.Opt[string] `json:"description,omitzero"`
-	// Commission policy. Defaults to `commission_exempt`.
+	// How sales commission applies to accounts in this group.
 	//
-	//   - `commission_exempt`: no commission applies.
-	//   - `commission_applied`: commission applies; if the account group is within a
-	//     sales rep's territory, it will be assigned to that rep unless overridden.
+	//   - `commission_applied`: sales commission is calculated on orders from accounts
+	//     in this group.
+	//   - `commission_exempt`: orders from accounts in this group are exempt from
+	//     commission.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy CreateAccountGroupRequestCommissionPolicy `json:"commission_policy,omitzero"`
-	// Freight policy. Defaults to `billed_freight`.
+	// How freight charges apply to orders from accounts in this group.
 	//
 	//   - `free_freight`: customers within this group will not have to pay for freight.
 	//   - `billed_freight`: freight will be applied to any order within this account
@@ -252,14 +263,14 @@ func (r *CreateAccountGroupRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Account group type.
-//
-// Cannot be changed after creation.
+// How this account group will be used.
 //
 //   - `pricing_group`: used for pricing rules, such as a "Preferred" group that
 //     receives a special discount.
 //   - `type_group`: used to categorize accounts, such as "Consumers" or
 //     "Distributors".
+//
+// The type cannot be changed after creation.
 type CreateAccountGroupRequestType string
 
 const (
@@ -267,11 +278,12 @@ const (
 	CreateAccountGroupRequestTypeTypeGroup    CreateAccountGroupRequestType = "type_group"
 )
 
-// Commission policy. Defaults to `commission_exempt`.
+// How sales commission applies to accounts in this group.
 //
-//   - `commission_exempt`: no commission applies.
-//   - `commission_applied`: commission applies; if the account group is within a
-//     sales rep's territory, it will be assigned to that rep unless overridden.
+//   - `commission_applied`: sales commission is calculated on orders from accounts
+//     in this group.
+//   - `commission_exempt`: orders from accounts in this group are exempt from
+//     commission.
 type CreateAccountGroupRequestCommissionPolicy string
 
 const (
@@ -279,7 +291,7 @@ const (
 	CreateAccountGroupRequestCommissionPolicyCommissionExempt  CreateAccountGroupRequestCommissionPolicy = "commission_exempt"
 )
 
-// Freight policy. Defaults to `billed_freight`.
+// How freight charges apply to orders from accounts in this group.
 //
 //   - `free_freight`: customers within this group will not have to pay for freight.
 //   - `billed_freight`: freight will be applied to any order within this account
@@ -334,9 +346,10 @@ type UpdateAccountGroupRequestParam struct {
 	Name param.Opt[string] `json:"name,omitzero"`
 	// How sales commission applies to accounts in this group.
 	//
-	//   - `commission_exempt`: no commission applies.
-	//   - `commission_applied`: commission applies; if the account group is within a
-	//     sales rep's territory, it will be assigned to that rep unless overridden.
+	//   - `commission_applied`: sales commission is calculated on orders from accounts
+	//     in this group.
+	//   - `commission_exempt`: orders from accounts in this group are exempt from
+	//     commission.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy UpdateAccountGroupRequestCommissionPolicy `json:"commission_policy,omitzero"`
@@ -361,9 +374,10 @@ func (r *UpdateAccountGroupRequestParam) UnmarshalJSON(data []byte) error {
 
 // How sales commission applies to accounts in this group.
 //
-//   - `commission_exempt`: no commission applies.
-//   - `commission_applied`: commission applies; if the account group is within a
-//     sales rep's territory, it will be assigned to that rep unless overridden.
+//   - `commission_applied`: sales commission is calculated on orders from accounts
+//     in this group.
+//   - `commission_exempt`: orders from accounts in this group are exempt from
+//     commission.
 type UpdateAccountGroupRequestCommissionPolicy string
 
 const (
@@ -424,13 +438,19 @@ func (r *SaleAccountGroupUpdateParams) UnmarshalJSON(data []byte) error {
 }
 
 type SaleAccountGroupListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
-	// Account group type filter.
+	// Filters results to account groups of the given type.
 	//
 	// Any of "pricing_group", "type_group".
 	Type SaleAccountGroupListParamsType `query:"type,omitzero" json:"-"`
@@ -446,7 +466,7 @@ func (r SaleAccountGroupListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Account group type filter.
+// Filters results to account groups of the given type.
 type SaleAccountGroupListParamsType string
 
 const (

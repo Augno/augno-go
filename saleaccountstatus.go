@@ -52,8 +52,11 @@ func (r *SaleAccountStatusService) Get(ctx context.Context, id string, query Sal
 	return res, err
 }
 
-// Returns a paginated list of account statuses. Global lookup values for setting
-// account relationship statuses.
+// Returns a paginated list of account statuses.
+//
+// Account statuses are system-provided lookup values shared across all accounts,
+// used to set a customer's status (for example, placing a customer on shipment
+// hold).
 func (r *SaleAccountStatusService) List(ctx context.Context, query SaleAccountStatusListParams, opts ...option.RequestOption) (res *ListAccountStatus, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/account-statuses"
@@ -61,11 +64,14 @@ func (r *SaleAccountStatusService) List(ctx context.Context, query SaleAccountSt
 	return res, err
 }
 
-// AccountStatus is an account status lookup value.
+// AccountStatus is a lookup value describing the standing of a customer account,
+// such as whether shipments or all activity should be held.
 type AccountStatus struct {
 	// Account status ID.
 	ID string `json:"id" api:"required"`
 	// Machine-readable status code.
+	//
+	// This is the value used as a customer's `status`.
 	//
 	//   - `normal`: standard account with no restrictions.
 	//   - `preferred`: account flagged as preferred (e.g. for prioritized handling).
@@ -108,6 +114,8 @@ func (r *AccountStatus) UnmarshalJSON(data []byte) error {
 }
 
 // Machine-readable status code.
+//
+// This is the value used as a customer's `status`.
 //
 //   - `normal`: standard account with no restrictions.
 //   - `preferred`: account flagged as preferred (e.g. for prioritized handling).
@@ -182,11 +190,17 @@ func (r SaleAccountStatusGetParams) URLQuery() (v url.Values, err error) {
 }
 
 type SaleAccountStatusListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

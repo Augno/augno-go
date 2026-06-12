@@ -40,7 +40,7 @@ func NewOperationLocationService(opts ...option.RequestOption) (r OperationLocat
 	return
 }
 
-// Creates a location for the caller's account.
+// Creates a storage location, optionally placing it in the location hierarchy.
 func (r *OperationLocationService) New(ctx context.Context, params OperationLocationNewParams, opts ...option.RequestOption) (res *Location, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/locations"
@@ -72,7 +72,7 @@ func (r *OperationLocationService) Update(ctx context.Context, id string, params
 	return res, err
 }
 
-// Returns a paginated list of locations for the caller's account.
+// Returns a paginated list of locations in your account.
 func (r *OperationLocationService) List(ctx context.Context, query OperationLocationListParams, opts ...option.RequestOption) (res *ListLocation, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/locations"
@@ -80,7 +80,10 @@ func (r *OperationLocationService) List(ctx context.Context, query OperationLoca
 	return res, err
 }
 
-// Deletes a location. Fails if the location has child locations.
+// Deletes a location.
+//
+// Fails if the location has child locations; remove or reassign the children
+// first.
 func (r *OperationLocationService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *OperationLocationDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -96,15 +99,28 @@ func (r *OperationLocationService) Delete(ctx context.Context, id string, opts .
 //
 // The properties Name, Type are required.
 type CreateLocationRequestParam struct {
-	// Display name.
+	// Display name of the location.
+	//
+	// Maximum 255 characters.
 	Name string `json:"name" api:"required"`
-	// Location type code.
+	// Location type code, identifying this location's level in the storage hierarchy.
+	//
+	// - `building`: a building-level location.
+	// - `section`: a section within a building.
+	// - `aisle`: an aisle within a section.
+	// - `rack`: a rack within an aisle.
+	// - `shelf`: a shelf within a rack.
+	// - `bin`: a bin within a shelf.
 	//
 	// Any of "building", "section", "aisle", "rack", "shelf", "bin".
 	Type LocationTypeCode `json:"type,omitzero" api:"required"`
-	// Parent location ID. Null for top-level locations.
+	// ID of the parent location.
+	//
+	// Omit for top-level locations.
 	ParentID param.Opt[string] `json:"parent_id,omitzero"`
-	// IDs of child locations to attach.
+	// IDs of existing locations to attach as children of the new location.
+	//
+	// Listed locations are moved from their current parent, if any.
 	ChildIDs []string `json:"child_ids,omitzero"`
 	paramObj
 }
@@ -119,14 +135,28 @@ func (r *CreateLocationRequestParam) UnmarshalJSON(data []byte) error {
 
 // Request to partially update a location.
 type UpdateLocationRequestParam struct {
-	// Parent location ID. Send null to clear.
+	// ID of the parent location.
+	//
+	// Send `null` to clear the parent and make this a top-level location.
 	ParentID param.Opt[string] `json:"parent_id,omitzero"`
-	// Display name.
+	// Display name of the location.
+	//
+	// Maximum 255 characters.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Child location IDs. Replaces all current children when provided. Send null to
-	// clear.
+	// IDs of locations to set as this location's children.
+	//
+	// When provided, replaces the full set of children: current children not listed
+	// are detached, and listed locations are moved from their current parent. Send
+	// `null` to detach all children.
 	ChildIDs []string `json:"child_ids,omitzero"`
-	// Location type code.
+	// Location type code, identifying this location's level in the storage hierarchy.
+	//
+	// - `building`: a building-level location.
+	// - `section`: a section within a building.
+	// - `aisle`: an aisle within a section.
+	// - `rack`: a rack within an aisle.
+	// - `shelf`: a shelf within a rack.
+	// - `bin`: a bin within a shelf.
 	//
 	// Any of "building", "section", "aisle", "rack", "shelf", "bin".
 	Type LocationTypeCode `json:"type,omitzero"`
@@ -228,11 +258,17 @@ func (r OperationLocationUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type OperationLocationListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

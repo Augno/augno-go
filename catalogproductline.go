@@ -62,8 +62,10 @@ func (r *CatalogProductLineService) Get(ctx context.Context, id string, query Ca
 	return res, err
 }
 
-// Partially updates an account-owned product line. Default system product lines
-// cannot be updated.
+// Partially updates an account-owned product line.
+//
+// Only the provided fields are changed. The reserved default product lines
+// (shipping, service, credit, tax) cannot be updated.
 func (r *CatalogProductLineService) Update(ctx context.Context, id string, params CatalogProductLineUpdateParams, opts ...option.RequestOption) (res *ProductLine, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -84,7 +86,9 @@ func (r *CatalogProductLineService) List(ctx context.Context, query CatalogProdu
 	return res, err
 }
 
-// Deletes an account-owned product line. Default system product lines cannot be
+// Permanently deletes an account-owned product line.
+//
+// The reserved default product lines (shipping, service, credit, tax) cannot be
 // deleted.
 func (r *CatalogProductLineService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CatalogProductLineDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -101,18 +105,31 @@ func (r *CatalogProductLineService) Delete(ctx context.Context, id string, opts 
 //
 // The properties CommissionPolicy, FreightPolicy, Name, UnitGroupID are required.
 type CreateProductLineRequestParam struct {
-	// Commission policy of products in this product line.
+	// Default commission policy for products in this product line.
+	//
+	//   - `commission_exempt`: no commission applies to these products.
+	//   - `commission_applied`: commission applies to these products, unless overridden
+	//     elsewhere.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy CreateProductLineRequestCommissionPolicy `json:"commission_policy,omitzero" api:"required"`
-	// Freight policy for all items in this product line.
+	// Default freight policy for products in this product line.
+	//
+	//   - `free_freight`: these products do not incur a freight charge.
+	//   - `billed_freight`: freight is billed for these products, unless overridden
+	//     elsewhere.
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy CreateProductLineRequestFreightPolicy `json:"freight_policy,omitzero" api:"required"`
 	// Display name.
+	//
+	// Must be unique among the account's product lines; a duplicate name returns a
+	// conflict error.
 	Name string `json:"name" api:"required"`
-	// Unit group ID associated with this product line. This unit group dictates the
-	// units that products in this product line may be purchased in.
+	// ID of the unit group to associate with this product line.
+	//
+	// The unit group determines the set of units available to products in this product
+	// line.
 	UnitGroupID string `json:"unit_group_id" api:"required"`
 	paramObj
 }
@@ -125,7 +142,11 @@ func (r *CreateProductLineRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Commission policy of products in this product line.
+// Default commission policy for products in this product line.
+//
+//   - `commission_exempt`: no commission applies to these products.
+//   - `commission_applied`: commission applies to these products, unless overridden
+//     elsewhere.
 type CreateProductLineRequestCommissionPolicy string
 
 const (
@@ -133,7 +154,11 @@ const (
 	CreateProductLineRequestCommissionPolicyCommissionExempt  CreateProductLineRequestCommissionPolicy = "commission_exempt"
 )
 
-// Freight policy for all items in this product line.
+// Default freight policy for products in this product line.
+//
+//   - `free_freight`: these products do not incur a freight charge.
+//   - `billed_freight`: freight is billed for these products, unless overridden
+//     elsewhere.
 type CreateProductLineRequestFreightPolicy string
 
 const (
@@ -175,6 +200,9 @@ const (
 )
 
 // Product line resource.
+//
+// A product line groups related products in your catalog and carries the default
+// commission policy, freight policy, and unit group for those products.
 type ProductLine struct {
 	// Product line ID.
 	ID string `json:"id" api:"required"`
@@ -188,7 +216,7 @@ type ProductLine struct {
 	CommissionPolicy ProductLineCommissionPolicy `json:"commission_policy" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Description.
+	// Free-form description of the product line.
 	Description string `json:"description" api:"required"`
 	// Default freight policy for products in this product line.
 	//
@@ -198,9 +226,9 @@ type ProductLine struct {
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy ProductLineFreightPolicy `json:"freight_policy" api:"required"`
-	// Display name.
+	// Display name of the product line.
 	Name string `json:"name" api:"required"`
-	// Notes.
+	// Free-form notes about the product line.
 	Notes string `json:"notes" api:"required"`
 	// Resource type identifier.
 	//
@@ -208,7 +236,8 @@ type ProductLine struct {
 	Object ProductLineObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// UnitGroup is a unit group resource.
+	// Named collection of units sharing one dimension, defining which units products
+	// can be ordered in along with per-unit discounts and customer portal visibility.
 	UnitGroup UnitGroup `json:"unit_group" api:"required"`
 	// Last-updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -270,15 +299,28 @@ const (
 // Request to partially update a product line.
 type UpdateProductLineRequestParam struct {
 	// Display name.
+	//
+	// Must be unique among the account's product lines; a duplicate name returns a
+	// conflict error.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Unit group ID associated with this product line. This unit group dictates the
-	// units that products in this product line may be purchased in.
+	// ID of the unit group to associate with this product line.
+	//
+	// The unit group determines the set of units available to products in this product
+	// line.
 	UnitGroupID param.Opt[string] `json:"unit_group_id,omitzero"`
-	// Commission policy of products in this product line.
+	// Default commission policy for products in this product line.
+	//
+	//   - `commission_exempt`: no commission applies to these products.
+	//   - `commission_applied`: commission applies to these products, unless overridden
+	//     elsewhere.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy UpdateProductLineRequestCommissionPolicy `json:"commission_policy,omitzero"`
-	// Freight policy for all items in this product line.
+	// Default freight policy for products in this product line.
+	//
+	//   - `free_freight`: these products do not incur a freight charge.
+	//   - `billed_freight`: freight is billed for these products, unless overridden
+	//     elsewhere.
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy UpdateProductLineRequestFreightPolicy `json:"freight_policy,omitzero"`
@@ -293,7 +335,11 @@ func (r *UpdateProductLineRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Commission policy of products in this product line.
+// Default commission policy for products in this product line.
+//
+//   - `commission_exempt`: no commission applies to these products.
+//   - `commission_applied`: commission applies to these products, unless overridden
+//     elsewhere.
 type UpdateProductLineRequestCommissionPolicy string
 
 const (
@@ -301,7 +347,11 @@ const (
 	UpdateProductLineRequestCommissionPolicyCommissionExempt  UpdateProductLineRequestCommissionPolicy = "commission_exempt"
 )
 
-// Freight policy for all items in this product line.
+// Default freight policy for products in this product line.
+//
+//   - `free_freight`: these products do not incur a freight charge.
+//   - `billed_freight`: freight is billed for these products, unless overridden
+//     elsewhere.
 type UpdateProductLineRequestFreightPolicy string
 
 const (
@@ -396,11 +446,17 @@ func (r CatalogProductLineUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type CatalogProductLineListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

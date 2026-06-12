@@ -41,7 +41,11 @@ func NewCoreSandboxService(opts ...option.RequestOption) (r CoreSandboxService) 
 	return
 }
 
-// Creates a sandbox account.
+// Creates a sandbox account owned by your production account.
+//
+// When `mode` is `seeded`, sample data is populated asynchronously and may not be
+// available immediately after the sandbox is created. Sandboxes cannot be created
+// while acting in a sandbox.
 func (r *CoreSandboxService) New(ctx context.Context, params CoreSandboxNewParams, opts ...option.RequestOption) (res *Sandbox, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/core/sandboxes"
@@ -69,7 +73,10 @@ func (r *CoreSandboxService) List(ctx context.Context, query CoreSandboxListPara
 	return res, err
 }
 
-// Deletes a sandbox account. Account-scoped data is purged asynchronously.
+// Deletes a sandbox account.
+//
+// The sandbox's data is purged asynchronously, so it may persist briefly after
+// this call returns.
 func (r *CoreSandboxService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CoreSandboxDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -87,7 +94,11 @@ func (r *CoreSandboxService) Delete(ctx context.Context, id string, opts ...opti
 type CreateSandboxRequestParam struct {
 	// Display name.
 	Name string `json:"name" api:"required"`
-	// Controls whether the sandbox is blank or seeded with sample data.
+	// Controls how the sandbox is initialized.
+	//
+	//   - `blank`: starts empty, with no pre-populated data.
+	//   - `seeded`: starts with sample data, populated asynchronously after the sandbox
+	//     is created.
 	//
 	// Any of "blank", "seeded".
 	Mode CreateSandboxRequestMode `json:"mode,omitzero"`
@@ -102,7 +113,11 @@ func (r *CreateSandboxRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Controls whether the sandbox is blank or seeded with sample data.
+// Controls how the sandbox is initialized.
+//
+//   - `blank`: starts empty, with no pre-populated data.
+//   - `seeded`: starts with sample data, populated asynchronously after the sandbox
+//     is created.
 type CreateSandboxRequestMode string
 
 const (
@@ -155,7 +170,7 @@ type Sandbox struct {
 	//
 	// Any of "sandbox".
 	Object SandboxObject `json:"object" api:"required"`
-	// Account with optional branding and portal sub-resources.
+	// A customer account, including its branding and customer portal sub-resources.
 	OwnerAccount Account `json:"owner_account" api:"required"`
 	// When this sandbox was last updated.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -243,11 +258,17 @@ func (r CoreSandboxGetParams) URLQuery() (v url.Values, err error) {
 }
 
 type CoreSandboxListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

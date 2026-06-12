@@ -41,6 +41,8 @@ func NewFinancePaymentTermService(opts ...option.RequestOption) (r FinancePaymen
 }
 
 // Creates a payment term.
+//
+// The new term is owned by your account and starts with status `active`.
 func (r *FinancePaymentTermService) New(ctx context.Context, params FinancePaymentTermNewParams, opts ...option.RequestOption) (res *PaymentTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/finance/payment-terms"
@@ -60,7 +62,10 @@ func (r *FinancePaymentTermService) Get(ctx context.Context, id string, query Fi
 	return res, err
 }
 
-// Partially updates a payment term. Default payment terms cannot be updated.
+// Partially updates a payment term.
+//
+// Only payment terms created by your account can be updated; system-owned default
+// terms cannot be.
 func (r *FinancePaymentTermService) Update(ctx context.Context, id string, params FinancePaymentTermUpdateParams, opts ...option.RequestOption) (res *PaymentTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -72,8 +77,10 @@ func (r *FinancePaymentTermService) Update(ctx context.Context, id string, param
 	return res, err
 }
 
-// Returns a paginated list of payment terms. Includes both account-specific and
-// system default payment terms.
+// Returns a paginated list of payment terms.
+//
+// The list includes both payment terms created by your account and Augno-provided
+// system defaults.
 func (r *FinancePaymentTermService) List(ctx context.Context, query FinancePaymentTermListParams, opts ...option.RequestOption) (res *ListPaymentTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/finance/payment-terms"
@@ -81,7 +88,10 @@ func (r *FinancePaymentTermService) List(ctx context.Context, query FinancePayme
 	return res, err
 }
 
-// Deletes a payment term. Default payment terms cannot be deleted.
+// Deletes a payment term.
+//
+// Only payment terms created by your account can be deleted; system-owned default
+// terms cannot be.
 func (r *FinancePaymentTermService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *FinancePaymentTermDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -97,7 +107,10 @@ func (r *FinancePaymentTermService) Delete(ctx context.Context, id string, opts 
 //
 // The property Name is required.
 type CreatePaymentTermRequestParam struct {
-	// Display name (e.g. "Net 30").
+	// Display name (e.g. `Net 30`).
+	//
+	// Must be unique among the payment terms visible to your account, including system
+	// defaults.
 	Name string `json:"name" api:"required"`
 	paramObj
 }
@@ -145,7 +158,10 @@ const (
 
 // Request to partially update a payment term.
 type UpdatePaymentTermRequestParam struct {
-	// Display name.
+	// New display name for the payment term.
+	//
+	// Must be unique among the payment terms visible to your account, including system
+	// defaults.
 	Name param.Opt[string] `json:"name,omitzero"`
 	paramObj
 }
@@ -245,11 +261,17 @@ func (r FinancePaymentTermUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type FinancePaymentTermListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

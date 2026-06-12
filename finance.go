@@ -65,18 +65,21 @@ func (r *FinanceService) GetTransactionTypes(ctx context.Context, query FinanceG
 	return res, err
 }
 
-// Adjustment type resource.
+// A category of financial adjustment, such as a discount, fee, or write-off.
+//
+// Adjustment types classify adjustment transactions recorded against customer
+// invoices.
 type AdjustmentType struct {
-	// Adjustment ID.
+	// Adjustment type ID.
 	ID string `json:"id" api:"required"`
 	// Machine-readable code identifying what kind of adjustment this is.
 	//
-	//   - `discount`: a price reduction applied to an order.
+	//   - `discount`: a price reduction.
 	//   - `shipping_discrepancy`: corrects a difference between quoted and actual
 	//     freight.
 	//   - `short_payment`: reconciles an invoice paid for less than the amount due.
 	//   - `write_off`: cancels an uncollectible balance.
-	//   - `fee`: an additional charge added to an order.
+	//   - `fee`: an additional charge.
 	//   - `refund`: returns money to the customer.
 	//
 	// Any of "discount", "shipping_discrepancy", "short_payment", "write_off", "fee",
@@ -84,7 +87,7 @@ type AdjustmentType struct {
 	Code AdjustmentTypeCode `json:"code" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name.
+	// Human-readable name of the adjustment type (e.g. "Discount").
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -116,12 +119,12 @@ func (r *AdjustmentType) UnmarshalJSON(data []byte) error {
 
 // Machine-readable code identifying what kind of adjustment this is.
 //
-//   - `discount`: a price reduction applied to an order.
+//   - `discount`: a price reduction.
 //   - `shipping_discrepancy`: corrects a difference between quoted and actual
 //     freight.
 //   - `short_payment`: reconciles an invoice paid for less than the amount due.
 //   - `write_off`: cancels an uncollectible balance.
-//   - `fee`: an additional charge added to an order.
+//   - `fee`: an additional charge.
 //   - `refund`: returns money to the customer.
 type AdjustmentTypeCode string
 
@@ -240,17 +243,11 @@ const (
 	ListTransactionTypeObjectList ListTransactionTypeObject = "list"
 )
 
-// Transaction method resource.
+// The payment method used to make a transaction, such as cash or check.
 type TransactionMethod struct {
 	// Transaction method ID.
 	ID string `json:"id" api:"required"`
 	// Machine-readable code identifying how the transaction was made.
-	//
-	// - `cash`
-	// - `check`
-	// - `credit_card`
-	// - `gift_card`
-	// - `ach`
 	//
 	// Any of "cash", "check", "credit_card", "gift_card", "ach".
 	Code TransactionMethodCode `json:"code" api:"required"`
@@ -278,12 +275,6 @@ func (r *TransactionMethod) UnmarshalJSON(data []byte) error {
 }
 
 // Machine-readable code identifying how the transaction was made.
-//
-// - `cash`
-// - `check`
-// - `credit_card`
-// - `gift_card`
-// - `ach`
 type TransactionMethodCode string
 
 const (
@@ -301,9 +292,9 @@ const (
 	TransactionMethodObjectTransactionMethod TransactionMethodObject = "transaction_method"
 )
 
-// Transaction type resource.
+// The category of a financial transaction, such as a payment or credit memo.
 type TransactionType struct {
-	// Transaction ID.
+	// Transaction type ID.
 	ID string `json:"id" api:"required"`
 	// Machine-readable code identifying the kind of transaction.
 	//
@@ -360,11 +351,17 @@ const (
 )
 
 type FinanceGetAdjustmentTypesParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -384,11 +381,17 @@ func (r FinanceGetAdjustmentTypesParams) URLQuery() (v url.Values, err error) {
 }
 
 type FinanceGetTransactionMethodsParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	paramObj
 }
@@ -403,11 +406,17 @@ func (r FinanceGetTransactionMethodsParams) URLQuery() (v url.Values, err error)
 }
 
 type FinanceGetTransactionTypesParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	paramObj
 }

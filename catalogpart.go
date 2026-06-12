@@ -42,6 +42,9 @@ func NewCatalogPartService(opts ...option.RequestOption) (r CatalogPartService) 
 }
 
 // Creates a part with the specified SKU and category.
+//
+// Inventory tracking for the new part starts at a zero on-hand quantity in the
+// category's base unit.
 func (r *CatalogPartService) New(ctx context.Context, params CatalogPartNewParams, opts ...option.RequestOption) (res *Part, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/parts"
@@ -61,7 +64,9 @@ func (r *CatalogPartService) Get(ctx context.Context, id string, query CatalogPa
 	return res, err
 }
 
-// Partially updates a part. Fields not provided retain their current values.
+// Partially updates a part.
+//
+// Fields not provided retain their current values.
 func (r *CatalogPartService) Update(ctx context.Context, id string, params CatalogPartUpdateParams, opts ...option.RequestOption) (res *Part, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -81,7 +86,11 @@ func (r *CatalogPartService) List(ctx context.Context, query CatalogPartListPara
 	return res, err
 }
 
-// Deletes a part. Sets the deleted_at timestamp rather than removing the record.
+// Deletes a part.
+//
+// This is a soft delete: the part is marked deleted and no longer returned by
+// other endpoints, but the record is retained. Deleting an already-deleted part
+// returns an error.
 func (r *CatalogPartService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *Part, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -97,19 +106,27 @@ func (r *CatalogPartService) Delete(ctx context.Context, id string, opts ...opti
 //
 // The properties CategoryID, SKU are required.
 type CreatePartRequestParam struct {
-	// Category ID.
+	// ID of the item category to place the part in.
+	//
+	// The category's unit group determines the base unit used for the part's rates
+	// (`unit_value`, `unit_cost`, `burn_rate`).
 	CategoryID string `json:"category_id" api:"required"`
-	// SKU.
+	// Stock keeping unit code for the part.
+	//
+	// Must be unique within the account; creating a part with a SKU already used by
+	// another item fails with a conflict error.
 	SKU string `json:"sku" api:"required"`
-	// Description.
+	// Free-form description of the part.
 	Description param.Opt[string] `json:"description,omitzero"`
-	// Notes.
+	// Free-form notes about the part.
 	Notes param.Opt[string] `json:"notes,omitzero"`
-	// Attribute IDs to connect to the part at creation time.
+	// IDs of existing attributes to link to the part at creation time.
 	AttributeIDs []string `json:"attribute_ids,omitzero"`
-	// RateInput represents the input for creating or updating a rate.
+	// A rate value with its numerator and denominator units, used in create and update
+	// requests.
 	UnitCost RateInputParam `json:"unit_cost,omitzero"`
-	// RateInput represents the input for creating or updating a rate.
+	// A rate value with its numerator and denominator units, used in create and update
+	// requests.
 	UnitPrice RateInputParam `json:"unit_price,omitzero"`
 	paramObj
 }
@@ -155,7 +172,10 @@ const (
 	ListPartObjectList ListPartObject = "list"
 )
 
-// Part resource.
+// A part in the account's catalog: a component used in production.
+//
+// Part-level data such as the SKU, description, category, pricing, and attributes
+// lives on the underlying `item`.
 type Part struct {
 	// Part ID.
 	ID string `json:"id" api:"required"`
@@ -196,11 +216,18 @@ const (
 
 // Request to partially update a part.
 type UpdatePartRequestParam struct {
-	// Description.
+	// New description for the part.
+	//
+	// Set to a string to replace the current description, or `null` to clear it.
 	Description param.Opt[string] `json:"description,omitzero"`
-	// Notes.
+	// New notes for the part.
+	//
+	// Set to a string to replace the current notes, or `null` to clear them.
 	Notes param.Opt[string] `json:"notes,omitzero"`
-	// SKU.
+	// New stock keeping unit code for the part.
+	//
+	// Must remain unique within the account; a conflict error is returned if another
+	// item already uses it.
 	SKU param.Opt[string] `json:"sku,omitzero"`
 	paramObj
 }
@@ -288,13 +315,19 @@ func (r CatalogPartUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type CatalogPartListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Filter parts created on or before this date.
 	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Filter parts created on or after this date.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`

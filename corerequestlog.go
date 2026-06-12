@@ -52,7 +52,7 @@ func (r *CoreRequestLogService) Get(ctx context.Context, id string, query CoreRe
 	return res, err
 }
 
-// Returns a paginated list of request logs.
+// Returns a paginated list of request logs for the current account.
 func (r *CoreRequestLogService) List(ctx context.Context, query CoreRequestLogListParams, opts ...option.RequestOption) (res *ListRequestLog, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/core/request-logs"
@@ -64,19 +64,21 @@ func (r *CoreRequestLogService) List(ctx context.Context, query CoreRequestLogLi
 type Actor struct {
 	// Actor ID.
 	ID string `json:"id" api:"required"`
-	// Human-readable handle.
+	// Human-readable handle identifying the actor.
 	//
-	// - `email` for users
-	// - `redacted_value` for API keys
-	// - `slug` for agents
+	// - For `user` actors: the user's email address.
+	// - For `api_key` actors: the redacted key value.
+	//
+	// Agent actors carry no handle.
 	Handle string `json:"handle" api:"required"`
-	// Display name.
+	// The actor's display name.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "actor".
 	Object ActorObject `json:"object" api:"required"`
-	// Role resource.
+	// A named set of permissions that can be assigned to users to control what they
+	// can access.
 	Role Role `json:"role" api:"required"`
 	// Actor type.
 	//
@@ -158,11 +160,11 @@ const (
 	ListRequestLogObjectList ListRequestLogObject = "list"
 )
 
-// RequestLog is an API request log entry.
+// A log of a single API request, capturing its route, outcome, latency, and actor.
 type RequestLog struct {
 	// Request log ID.
 	ID string `json:"id" api:"required"`
-	// Account with optional branding and portal sub-resources.
+	// A customer account, including its branding and customer portal sub-resources.
 	Account Account `json:"account" api:"required"`
 	// Reference to an actor (user, API key, or agent).
 	Actor Actor `json:"actor" api:"required"`
@@ -174,11 +176,11 @@ type RequestLog struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Machine-readable API error code.
 	//
-	// Populated only for failed requests; `null` on success.
+	// Populated only for failed requests.
 	ErrorCode string `json:"error_code" api:"required"`
 	// Human-readable error message.
 	//
-	// Populated only for failed requests; `null` on success.
+	// Populated only for failed requests.
 	ErrorMessage string `json:"error_message" api:"required"`
 	// Request host.
 	//
@@ -190,10 +192,12 @@ type RequestLog struct {
 	LatencyUs int64 `json:"latency_us" api:"required"`
 	// HTTP method.
 	Method string `json:"method" api:"required"`
-	// _Normalized_ route template.
+	// The route template the request matched, with path parameters left as
+	// placeholders.
 	//
-	// For example `PATCH /v1/sales/customers/{id}` is the normalized route for a
-	// request route `PUT /v1/sales/customers/ac_...`.
+	// For example `/v1/sales/customers/{id}` is the normalized route for the request
+	// path `/v1/sales/customers/ac_...`. Falls back to the raw path when the request
+	// did not match a registered route.
 	NormalizedRoute string `json:"normalized_route" api:"required"`
 	// Resource type identifier.
 	//
@@ -214,11 +218,7 @@ type RequestLog struct {
 	// Response body. Encoded as a JSON value (object, array, string, number, boolean,
 	// or null), not a JSON-encoded string.
 	ResponseBody any `json:"response_body" api:"required"`
-	// HTTP status code.
-	//
-	// Exception to the `status` naming convention: this is a numeric HTTP response
-	// code (200/404/…), not a domain lifecycle status enum, so the `_code` suffix is
-	// meaningful.
+	// HTTP response status code (e.g. `200`, `404`).
 	StatusCode int64 `json:"status_code" api:"required"`
 	// User agent.
 	UserAgent string `json:"user_agent" api:"required"`
@@ -284,17 +284,23 @@ func (r CoreRequestLogGetParams) URLQuery() (v url.Values, err error) {
 }
 
 type CoreRequestLogListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Restricts results to request logs on or before this timestamp.
 	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
 	// Filter by the user-provided idempotency key.
 	IdempotencyKey param.Opt[string] `query:"idempotency_key,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Filter by the minimum latency in microseconds.
+	// Restricts results to requests that took at least this many microseconds.
 	MinLatencyUs param.Opt[int64] `query:"min_latency_us,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Restricts results to request logs on or after this timestamp.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
@@ -309,8 +315,8 @@ type CoreRequestLogListParams struct {
 	AccountIDs []string `query:"account_ids,omitzero" json:"-"`
 	// Filter by the actor identifier.
 	//
-	// This is the `user.id` when `identity_type`=`user` and an `api_key.id` when
-	// `identity_type`=`api_key`.
+	// Matches the log's `actor.id`: a user ID for `user` actors or an API key ID for
+	// `api_key` actors.
 	ActorIDs []string `query:"actor_ids,omitzero" json:"-"`
 	// Filter by the actor type.
 	//
@@ -329,7 +335,9 @@ type CoreRequestLogListParams struct {
 	// "request_timeout", "client_closed_request", "api_version_required",
 	// "api_version_invalid", "api_version_too_old".
 	ErrorCodes []string `query:"error_codes,omitzero" json:"-"`
-	// Filter by the request host. Typically, `api.augno.com`.
+	// Filter by the request host.
+	//
+	// Typically `api.augno.com`.
 	Hosts []string `query:"hosts,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -342,12 +350,15 @@ type CoreRequestLogListParams struct {
 	Methods []string `query:"methods,omitzero" json:"-"`
 	// Filter by the _normalized_ route template.
 	//
-	// For example `PATCH /v1/sales/customers/{id}` is the normalized route for a
-	// request route `PUT /v1/sales/customers/ac_...`.
+	// For example `/v1/sales/customers/{id}` matches every request to that route
+	// regardless of the specific customer ID. Parameter names inside `{}` are ignored
+	// when matching, so `{customer_id}` and `{id}` are equivalent.
 	NormalizedRoutes []string `query:"normalized_routes,omitzero" json:"-"`
-	// Filter by the HTTP status class: 1–5 for 1xx–5xx. Combined with `status_codes`
-	// using OR — e.g. status_codes=401 and status_code_classes=5 matches 401 and any
-	// 5xx.
+	// Filter by the HTTP status class, expressed as the leading digit: `1`–`5` for
+	// 1xx–5xx.
+	//
+	// Combined with `status_codes` using OR — e.g. `status_codes=401` and
+	// `status_code_classes=5` matches 401 responses and any 5xx response.
 	StatusCodeClasses []int64 `query:"status_code_classes,omitzero" json:"-"`
 	// Filter by the HTTP status code.
 	StatusCodes []int64 `query:"status_codes,omitzero" json:"-"`

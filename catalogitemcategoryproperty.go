@@ -37,8 +37,12 @@ func NewCatalogItemCategoryPropertyService(opts ...option.RequestOption) (r Cata
 	return
 }
 
-// Adds a property to an item category. Default system categories cannot be
-// modified.
+// Adds a property to an item category, making the property available to items in
+// that category.
+//
+// Each property name can appear only once per category; adding a property whose
+// name duplicates one already in the category returns a conflict error. Default
+// system categories cannot be modified.
 func (r *CatalogItemCategoryPropertyService) Update(ctx context.Context, propertyID string, body CatalogItemCategoryPropertyUpdateParams, opts ...option.RequestOption) (res *CatalogItemCategoryPropertyUpdateResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if body.ID == "" {
@@ -54,8 +58,9 @@ func (r *CatalogItemCategoryPropertyService) Update(ctx context.Context, propert
 	return res, err
 }
 
-// Removes a property from an item category. Default system categories cannot be
-// modified.
+// Removes a property from an item category.
+//
+// Default system categories cannot be modified.
 func (r *CatalogItemCategoryPropertyService) Delete(ctx context.Context, propertyID string, body CatalogItemCategoryPropertyDeleteParams, opts ...option.RequestOption) (res *CatalogItemCategoryPropertyDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if body.ID == "" {

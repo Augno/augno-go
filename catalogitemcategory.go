@@ -51,8 +51,9 @@ func (r *CatalogItemCategoryService) New(ctx context.Context, params CatalogItem
 	return res, err
 }
 
-// Returns an item category by ID. Includes account-specific and global system
-// categories.
+// Returns an item category by ID.
+//
+// Both account-owned categories and global system categories can be retrieved.
 func (r *CatalogItemCategoryService) Get(ctx context.Context, id string, query CatalogItemCategoryGetParams, opts ...option.RequestOption) (res *ItemCategory, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -64,8 +65,10 @@ func (r *CatalogItemCategoryService) Get(ctx context.Context, id string, query C
 	return res, err
 }
 
-// Partially updates an account-owned item category. Default system categories
-// cannot be updated.
+// Partially updates an account-owned item category.
+//
+// Only the fields provided in the request body are changed. Default system
+// categories cannot be updated.
 func (r *CatalogItemCategoryService) Update(ctx context.Context, id string, params CatalogItemCategoryUpdateParams, opts ...option.RequestOption) (res *ItemCategory, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -86,8 +89,9 @@ func (r *CatalogItemCategoryService) List(ctx context.Context, query CatalogItem
 	return res, err
 }
 
-// Deletes an account-owned item category. Default system categories cannot be
-// deleted.
+// Deletes an account-owned item category.
+//
+// Default system categories cannot be deleted.
 func (r *CatalogItemCategoryService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CatalogItemCategoryDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -99,8 +103,11 @@ func (r *CatalogItemCategoryService) Delete(ctx context.Context, id string, opts
 	return res, err
 }
 
-// Changes the unit group associated with an item category. All items in the
-// category are updated to use the new base unit asynchronously.
+// Changes the unit group associated with an item category.
+//
+// The new unit group must have the same unit type as the current one — for
+// example, a category measured in `mass` units can only switch to another `mass`
+// unit group. Default system categories cannot be modified.
 func (r *CatalogItemCategoryService) ChangeUnitGroup(ctx context.Context, unitGroupID string, body CatalogItemCategoryChangeUnitGroupParams, opts ...option.RequestOption) (res *CatalogItemCategoryChangeUnitGroupResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if body.ID == "" {
@@ -120,14 +127,22 @@ func (r *CatalogItemCategoryService) ChangeUnitGroup(ctx context.Context, unitGr
 //
 // The properties Name, Type, UnitGroupID are required.
 type CreateItemCategoryRequestParam struct {
-	// Display name.
+	// Display name of the item category.
 	Name string `json:"name" api:"required"`
-	// Item category type. Material categories are used to group materials, while
-	// product categories are used to group products and parts.
+	// What kind of items this category groups.
+	//
+	//   - `material_category`: groups raw materials and components (items of type
+	//     `material`).
+	//   - `product_category`: groups finished products and parts (items of type
+	//     `product` or `part`).
 	//
 	// Any of "material_category", "product_category".
 	Type CreateItemCategoryRequestType `json:"type,omitzero" api:"required"`
-	// Unit group ID.
+	// ID of the unit group that determines the units of measure available to items in
+	// this category.
+	//
+	// After creation, the unit group can only be replaced by another unit group of the
+	// same unit type via the Change Item Category Unit Group endpoint.
 	UnitGroupID string `json:"unit_group_id" api:"required"`
 	paramObj
 }
@@ -140,8 +155,12 @@ func (r *CreateItemCategoryRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Item category type. Material categories are used to group materials, while
-// product categories are used to group products and parts.
+// What kind of items this category groups.
+//
+//   - `material_category`: groups raw materials and components (items of type
+//     `material`).
+//   - `product_category`: groups finished products and parts (items of type
+//     `product` or `part`).
 type CreateItemCategoryRequestType string
 
 const (
@@ -184,9 +203,9 @@ const (
 
 // Request to partially update an item category.
 type UpdateItemCategoryRequestParam struct {
-	// Display name.
+	// Display name of the item category.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Notes.
+	// Free-form notes about the item category.
 	Notes param.Opt[string] `json:"notes,omitzero"`
 	paramObj
 }
@@ -306,11 +325,17 @@ func (r CatalogItemCategoryUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type CatalogItemCategoryListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

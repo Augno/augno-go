@@ -40,7 +40,8 @@ func NewCatalogUnitGroupUnitService(opts ...option.RequestOption) (r CatalogUnit
 	return
 }
 
-// Creates an associated unit within a unit group.
+// Adds a unit to a unit group. If the unit is already in the group, its existing
+// association is updated with the provided settings instead.
 func (r *CatalogUnitGroupUnitService) New(ctx context.Context, unitGroupID string, params CatalogUnitGroupUnitNewParams, opts ...option.RequestOption) (res *UnitGroupUnit, err error) {
 	opts = slices.Concat(r.options, opts)
 	if unitGroupID == "" {
@@ -96,7 +97,7 @@ func (r *CatalogUnitGroupUnitService) List(ctx context.Context, unitGroupID stri
 	return res, err
 }
 
-// Deletes an associated unit from a unit group.
+// Removes a unit from a unit group. The unit itself is not deleted.
 func (r *CatalogUnitGroupUnitService) Delete(ctx context.Context, id string, body CatalogUnitGroupUnitDeleteParams, opts ...option.RequestOption) (res *CatalogUnitGroupUnitDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if body.UnitGroupID == "" {
@@ -112,18 +113,21 @@ func (r *CatalogUnitGroupUnitService) Delete(ctx context.Context, id string, bod
 	return res, err
 }
 
-// CreateUnitGroupUnitRequest is a request to create an associated unit within a
-// unit group.
+// Request to add a unit to a unit group.
 //
 // The property UnitID is required.
 type CreateUnitGroupUnitRequestParam struct {
-	// Unit ID.
+	// ID of the unit to associate with the group.
+	//
+	// The unit's dimension must match the group's `type`.
 	UnitID string `json:"unit_id" api:"required"`
-	// Fixed discount amount.
+	// Flat amount subtracted from the unit's price when an order is placed in this
+	// unit.
 	DiscountFixed param.Opt[float64] `json:"discount_fixed,omitzero"`
-	// Discount percentage.
+	// Percentage discount applied to the unit's price when an order is placed in this
+	// unit (e.g. `10` is a 10% discount).
 	DiscountPercentage param.Opt[float64] `json:"discount_percentage,omitzero"`
-	// Customer portal visibility.
+	// Whether the unit is shown to customers in the customer portal.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility CreateUnitGroupUnitRequestCustomerPortalVisibility `json:"customer_portal_visibility,omitzero"`
@@ -138,7 +142,7 @@ func (r *CreateUnitGroupUnitRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Customer portal visibility.
+// Whether the unit is shown to customers in the customer portal.
 type CreateUnitGroupUnitRequestCustomerPortalVisibility string
 
 const (
@@ -146,15 +150,19 @@ const (
 	CreateUnitGroupUnitRequestCustomerPortalVisibilityHidden  CreateUnitGroupUnitRequestCustomerPortalVisibility = "hidden"
 )
 
-// UpdateUnitGroupUnitRequest is a request to update an associated unit.
+// Request to partially update an associated unit within a unit group.
 type UpdateUnitGroupUnitRequestParam struct {
-	// Fixed discount amount.
+	// Flat amount subtracted from the unit's price when an order is placed in this
+	// unit.
 	DiscountFixed param.Opt[float64] `json:"discount_fixed,omitzero"`
-	// Discount percentage.
+	// Percentage discount applied to the unit's price when an order is placed in this
+	// unit (e.g. `10` is a 10% discount).
 	DiscountPercentage param.Opt[float64] `json:"discount_percentage,omitzero"`
-	// Unit ID.
+	// ID of the unit this association refers to.
+	//
+	// The unit's dimension must match the group's `type`.
 	UnitID param.Opt[string] `json:"unit_id,omitzero"`
-	// Customer portal visibility.
+	// Whether the unit is shown to customers in the customer portal.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility UpdateUnitGroupUnitRequestCustomerPortalVisibility `json:"customer_portal_visibility,omitzero"`
@@ -169,7 +177,7 @@ func (r *UpdateUnitGroupUnitRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Customer portal visibility.
+// Whether the unit is shown to customers in the customer portal.
 type UpdateUnitGroupUnitRequestCustomerPortalVisibility string
 
 const (
@@ -192,8 +200,7 @@ func (r *CatalogUnitGroupUnitDeleteResponse) UnmarshalJSON(data []byte) error {
 }
 
 type CatalogUnitGroupUnitNewParams struct {
-	// CreateUnitGroupUnitRequest is a request to create an associated unit within a
-	// unit group.
+	// Request to add a unit to a unit group.
 	CreateUnitGroupUnitRequest CreateUnitGroupUnitRequestParam
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -245,7 +252,7 @@ type CatalogUnitGroupUnitUpdateParams struct {
 	//
 	// Any of "unit".
 	Include []string `query:"include,omitzero" json:"-"`
-	// UpdateUnitGroupUnitRequest is a request to update an associated unit.
+	// Request to partially update an associated unit within a unit group.
 	UpdateUnitGroupUnitRequest UpdateUnitGroupUnitRequestParam
 	paramObj
 }

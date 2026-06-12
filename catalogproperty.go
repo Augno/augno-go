@@ -96,14 +96,16 @@ func (r *CatalogPropertyService) Delete(ctx context.Context, id string, opts ...
 	return res, err
 }
 
-// Value option within a property.
+// A selectable value within a property, such as `Red` for a `Color` property.
+//
+// Attributes are assigned to items to classify them.
 type Attribute struct {
 	// Attribute ID.
 	ID string `json:"id" api:"required"`
 	// Swatch color used to display this attribute in the UI.
 	//
-	// One of `blue`, `brown`, `gray`, `green`, `orange`, `pink`, `purple`, `red`,
-	// `yellow`, or `default` (a neutral fallback color).
+	// The named colors are arbitrary display choices; `default` is a neutral fallback
+	// used when no specific swatch applies.
 	//
 	// Any of "blue", "brown", "default", "gray", "green", "orange", "pink", "purple",
 	// "red", "yellow".
@@ -114,12 +116,16 @@ type Attribute struct {
 	//
 	// Any of "attribute".
 	Object AttributeObject `json:"object" api:"required"`
-	// Property that groups attributes.
+	// A named characteristic used to classify items, such as `Color` or `Size`.
+	//
+	// Each property defines a set of attributes — the selectable values (e.g. `Red`,
+	// `Blue`) that can be assigned to items.
 	Property *Property `json:"property" api:"required"`
 	// Position of this attribute relative to its siblings within the property,
-	// ascending.
+	// starting at `1`.
 	//
-	// Lower values sort first.
+	// Positions are kept contiguous: creating, reordering, or deleting an attribute
+	// automatically shifts its siblings.
 	SortOrder int64 `json:"sort_order" api:"required"`
 	// Last update timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -149,8 +155,8 @@ func (r *Attribute) UnmarshalJSON(data []byte) error {
 
 // Swatch color used to display this attribute in the UI.
 //
-// One of `blue`, `brown`, `gray`, `green`, `orange`, `pink`, `purple`, `red`,
-// `yellow`, or `default` (a neutral fallback color).
+// The named colors are arbitrary display choices; `default` is a neutral fallback
+// used when no specific swatch applies.
 type AttributeColor string
 
 const (
@@ -177,7 +183,7 @@ const (
 //
 // The property Name is required.
 type CreatePropertyRequestParam struct {
-	// Name.
+	// Display name of the property, such as `Color` or `Size`.
 	Name string `json:"name" api:"required"`
 	paramObj
 }
@@ -256,7 +262,10 @@ const (
 	ListPropertyObjectList ListPropertyObject = "list"
 )
 
-// Property that groups attributes.
+// A named characteristic used to classify items, such as `Color` or `Size`.
+//
+// Each property defines a set of attributes — the selectable values (e.g. `Red`,
+// `Blue`) that can be assigned to items.
 type Property struct {
 	// Property ID.
 	ID string `json:"id" api:"required"`
@@ -300,7 +309,7 @@ const (
 
 // Request to update a property.
 type UpdatePropertyRequestParam struct {
-	// Name.
+	// Display name of the property, such as `Color` or `Size`.
 	Name param.Opt[string] `json:"name,omitzero"`
 	paramObj
 }
@@ -400,11 +409,17 @@ func (r CatalogPropertyUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type CatalogPropertyListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

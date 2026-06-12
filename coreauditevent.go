@@ -61,6 +61,9 @@ func (r *CoreAuditEventService) List(ctx context.Context, query CoreAuditEventLi
 }
 
 // Returns the full set of resource types that may appear on audit events.
+//
+// Values are plain strings, suitable for the `resource_types` filter when listing
+// audit events.
 func (r *CoreAuditEventService) GetResourceTypes(ctx context.Context, opts ...option.RequestOption) (res *ListObjectType, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/core/audit-events/resource-types"
@@ -102,7 +105,7 @@ type AuditEvent struct {
 	Object AuditEventObject `json:"object" api:"required"`
 	// When the audited mutation occurred.
 	OccurredAt time.Time `json:"occurred_at" api:"required" format:"date-time"`
-	// RequestLog is an API request log entry.
+	// A log of a single API request, capturing its route, outcome, latency, and actor.
 	Request RequestLog `json:"request" api:"required"`
 	// Audited resource ID.
 	ResourceID string `json:"resource_id" api:"required"`
@@ -435,7 +438,7 @@ type AuditFieldChange struct {
 	Field string `json:"field" api:"required"`
 	// New value as a JSON fragment.
 	//
-	// Null for deletion events. Encoded as a JSON value (object, array, string,
+	// `null` for deletion events. Encoded as a JSON value (object, array, string,
 	// number, boolean, or null), not a JSON-encoded string.
 	NewValue any `json:"new_value" api:"required"`
 	// Resource type identifier.
@@ -444,7 +447,7 @@ type AuditFieldChange struct {
 	Object AuditFieldChangeObject `json:"object" api:"required"`
 	// Previous value as a JSON fragment.
 	//
-	// Null for creation events. Encoded as a JSON value (object, array, string,
+	// `null` for creation events. Encoded as a JSON value (object, array, string,
 	// number, boolean, or null), not a JSON-encoded string.
 	OldValue any `json:"old_value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -647,24 +650,30 @@ func (r CoreAuditEventGetParams) URLQuery() (v url.Values, err error) {
 }
 
 type CoreAuditEventListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Restricts results to audit events on or before this timestamp.
 	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Restricts results to audit events on or after this timestamp.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
-	// Filter by the audit actions.
+	// Filter by the mutation type recorded on the event.
 	//
 	// Any of "create", "update", "delete", "restore", "archive".
 	Actions []string `query:"actions,omitzero" json:"-"`
 	// Filter by the actor identifier.
 	//
-	// Will be `user.id` when `identity_type`=`user` or an `api_key.id` when
-	// `identity_type`=`api_key`.
+	// Matches the event's `actor.id`: a user ID for `user` actors or an API key ID for
+	// `api_key` actors.
 	ActorIDs []string `query:"actor_ids,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -674,6 +683,9 @@ type CoreAuditEventListParams struct {
 	// Filter by the audited resource IDs.
 	ResourceIDs []string `query:"resource_ids,omitzero" json:"-"`
 	// Filter by the resource type of the audited entity.
+	//
+	// The full set of valid values is available from the List Audit Event Resource
+	// Types endpoint.
 	//
 	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
 	// "sales_order_related", "user", "address", "api_key", "created_api_key",

@@ -36,8 +36,9 @@ func NewCatalogItemAttributeService(opts ...option.RequestOption) (r CatalogItem
 	return
 }
 
-// Adds an attribute to an item. If the attribute is already associated with the
-// item, this is a no-op.
+// Adds an attribute to an item and returns the updated item.
+//
+// If the attribute is already associated with the item, this is a no-op.
 func (r *CatalogItemAttributeService) Update(ctx context.Context, attributeID string, params CatalogItemAttributeUpdateParams, opts ...option.RequestOption) (res *Item, err error) {
 	opts = slices.Concat(r.options, opts)
 	if params.ID == "" {

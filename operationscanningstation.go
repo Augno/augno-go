@@ -40,7 +40,10 @@ func NewOperationScanningStationService(opts ...option.RequestOption) (r Operati
 	return
 }
 
-// Creates a scanning station associated with a department.
+// Creates a scanning station and assigns it to a department.
+//
+// Returns a conflict error if a scanning station with the same name already
+// exists.
 func (r *OperationScanningStationService) New(ctx context.Context, params OperationScanningStationNewParams, opts ...option.RequestOption) (res *ScanningStation, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/scanning-stations"
@@ -61,6 +64,9 @@ func (r *OperationScanningStationService) Get(ctx context.Context, id string, qu
 }
 
 // Partially updates a scanning station.
+//
+// Only the fields provided in the request are changed. Returns a conflict error if
+// the new name is already in use by another scanning station.
 func (r *OperationScanningStationService) Update(ctx context.Context, id string, params OperationScanningStationUpdateParams, opts ...option.RequestOption) (res *ScanningStation, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -72,7 +78,7 @@ func (r *OperationScanningStationService) Update(ctx context.Context, id string,
 	return res, err
 }
 
-// Returns a paginated list of scanning stations for the current account.
+// Returns a paginated list of scanning stations in your account.
 func (r *OperationScanningStationService) List(ctx context.Context, query OperationScanningStationListParams, opts ...option.RequestOption) (res *ListScanningStation, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/scanning-stations"
@@ -96,25 +102,42 @@ func (r *OperationScanningStationService) Delete(ctx context.Context, id string,
 //
 // The properties DepartmentID, Name, OperatorRequirement, Type are required.
 type CreateScanningStationRequestParam struct {
-	// Department ID.
+	// ID of the department this station belongs to.
 	DepartmentID string `json:"department_id" api:"required"`
-	// Display name.
+	// Display name of the scanning station.
+	//
+	// Must be unique within your account; maximum 255 characters.
 	Name string `json:"name" api:"required"`
-	// Operator requirement behavior for this station.
+	// Whether operators must perform a material check at this station.
+	//
+	// - `none`: no additional operator check is required.
+	// - `material_check`: a material check is expected before the operation.
 	//
 	// Any of "none", "material_check".
 	OperatorRequirement CreateScanningStationRequestOperatorRequirement `json:"operator_requirement,omitzero" api:"required"`
-	// Scanning station type.
+	// Scanning station type, determining which batch operation the station performs.
+	//
+	// - `init_batch`: initializes a new batch.
+	// - `merge_batch`: merges multiple batches into one.
+	// - `move_batch`: moves a batch to another location or step.
+	// - `split_batch`: splits a batch into multiple batches.
+	//
+	// The type cannot be changed after creation.
 	//
 	// Any of "init_batch", "merge_batch", "move_batch", "split_batch".
 	Type CreateScanningStationRequestType `json:"type,omitzero" api:"required"`
-	// Notes.
+	// Free-form notes about the scanning station.
 	Notes param.Opt[string] `json:"notes,omitzero"`
-	// Label size code.
+	// Size of the labels printed at this station, given as width-by-height (for
+	// example, `1x1`).
 	//
 	// Any of "1x1", "1x3", "1x4", "2x4".
 	LabelSize CreateScanningStationRequestLabelSize `json:"label_size,omitzero"`
-	// Label type code.
+	// Type of label printed at this station.
+	//
+	//   - `tag`: a label attached to the physical product.
+	//   - `traveler`: a routing sheet that accompanies the batch through every
+	//     production step.
 	//
 	// Any of "tag", "traveler".
 	LabelType CreateScanningStationRequestLabelType `json:"label_type,omitzero"`
@@ -129,7 +152,10 @@ func (r *CreateScanningStationRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Operator requirement behavior for this station.
+// Whether operators must perform a material check at this station.
+//
+// - `none`: no additional operator check is required.
+// - `material_check`: a material check is expected before the operation.
 type CreateScanningStationRequestOperatorRequirement string
 
 const (
@@ -137,7 +163,14 @@ const (
 	CreateScanningStationRequestOperatorRequirementMaterialCheck CreateScanningStationRequestOperatorRequirement = "material_check"
 )
 
-// Scanning station type.
+// Scanning station type, determining which batch operation the station performs.
+//
+// - `init_batch`: initializes a new batch.
+// - `merge_batch`: merges multiple batches into one.
+// - `move_batch`: moves a batch to another location or step.
+// - `split_batch`: splits a batch into multiple batches.
+//
+// The type cannot be changed after creation.
 type CreateScanningStationRequestType string
 
 const (
@@ -147,7 +180,8 @@ const (
 	CreateScanningStationRequestTypeSplitBatch CreateScanningStationRequestType = "split_batch"
 )
 
-// Label size code.
+// Size of the labels printed at this station, given as width-by-height (for
+// example, `1x1`).
 type CreateScanningStationRequestLabelSize string
 
 const (
@@ -157,7 +191,11 @@ const (
 	CreateScanningStationRequestLabelSize2x4 CreateScanningStationRequestLabelSize = "2x4"
 )
 
-// Label type code.
+// Type of label printed at this station.
+//
+//   - `tag`: a label attached to the physical product.
+//   - `traveler`: a routing sheet that accompanies the batch through every
+//     production step.
 type CreateScanningStationRequestLabelType string
 
 const (
@@ -167,19 +205,31 @@ const (
 
 // Request to partially update a scanning station.
 type UpdateScanningStationRequestParam struct {
-	// Notes.
+	// Free-form notes about the scanning station.
+	//
+	// Send `null` to clear.
 	Notes param.Opt[string] `json:"notes,omitzero"`
-	// Display name.
+	// Display name of the scanning station.
+	//
+	// Must be unique within your account; maximum 255 characters.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Label size code.
+	// Size of the labels printed at this station, given as width-by-height (for
+	// example, `1x1`).
 	//
 	// Any of "1x1", "1x3", "1x4", "2x4".
 	LabelSize UpdateScanningStationRequestLabelSize `json:"label_size,omitzero"`
-	// Label type code.
+	// Type of label printed at this station.
+	//
+	//   - `tag`: a label attached to the physical product.
+	//   - `traveler`: a routing sheet that accompanies the batch through every
+	//     production step.
 	//
 	// Any of "tag", "traveler".
 	LabelType UpdateScanningStationRequestLabelType `json:"label_type,omitzero"`
-	// Operator requirement behavior for this station.
+	// Whether operators must perform a material check at this station.
+	//
+	// - `none`: no additional operator check is required.
+	// - `material_check`: a material check is expected before the operation.
 	//
 	// Any of "none", "material_check".
 	OperatorRequirement UpdateScanningStationRequestOperatorRequirement `json:"operator_requirement,omitzero"`
@@ -194,7 +244,8 @@ func (r *UpdateScanningStationRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Label size code.
+// Size of the labels printed at this station, given as width-by-height (for
+// example, `1x1`).
 type UpdateScanningStationRequestLabelSize string
 
 const (
@@ -204,7 +255,11 @@ const (
 	UpdateScanningStationRequestLabelSize2x4 UpdateScanningStationRequestLabelSize = "2x4"
 )
 
-// Label type code.
+// Type of label printed at this station.
+//
+//   - `tag`: a label attached to the physical product.
+//   - `traveler`: a routing sheet that accompanies the batch through every
+//     production step.
 type UpdateScanningStationRequestLabelType string
 
 const (
@@ -212,7 +267,10 @@ const (
 	UpdateScanningStationRequestLabelTypeTraveler UpdateScanningStationRequestLabelType = "traveler"
 )
 
-// Operator requirement behavior for this station.
+// Whether operators must perform a material check at this station.
+//
+// - `none`: no additional operator check is required.
+// - `material_check`: a material check is expected before the operation.
 type UpdateScanningStationRequestOperatorRequirement string
 
 const (
@@ -307,11 +365,17 @@ func (r OperationScanningStationUpdateParams) URLQuery() (v url.Values, err erro
 }
 
 type OperationScanningStationListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

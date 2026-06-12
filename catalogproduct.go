@@ -41,7 +41,11 @@ func NewCatalogProductService(opts ...option.RequestOption) (r CatalogProductSer
 	return
 }
 
-// Creates a product.
+// Creates a product and its backing inventory item.
+//
+// The new item starts with zero on-hand inventory, and its pricing defaults to
+// zero rates in the category's base unit unless `unit_price` or `unit_cost` is
+// provided.
 func (r *CatalogProductService) New(ctx context.Context, params CatalogProductNewParams, opts ...option.RequestOption) (res *Product, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/products"
@@ -113,11 +117,25 @@ func (r *CatalogProductService) ChangeProductLine(ctx context.Context, productLi
 //
 // The properties CategoryID, SKU, Type are required.
 type CreateProductRequestParam struct {
-	// Category ID.
+	// ID of the item category for the product's item.
+	//
+	// The category's unit group determines the default units used for the product's
+	// pricing rates and inventory tracking.
 	CategoryID string `json:"category_id" api:"required"`
-	// SKU.
+	// Stock keeping unit code for the product's item.
+	//
+	// Must be unique within the account; creation fails with a conflict error if
+	// another item already uses it.
 	SKU string `json:"sku" api:"required"`
-	// Product type code.
+	// Product type code, which determines how the product behaves on orders and
+	// invoices.
+	//
+	// - `sale`: a standard sellable product.
+	// - `service`: a non-physical service line, such as labor or installation.
+	// - `shipping`: a shipping charge applied to an order.
+	// - `credit`: a credit applied against an order or invoice.
+	// - `return`: a returned product (RMA).
+	// - `tax`: a tax line.
 	//
 	// Any of "sale", "service", "shipping", "credit", "return", "tax".
 	Type CreateProductRequestType `json:"type,omitzero" api:"required"`
@@ -125,17 +143,26 @@ type CreateProductRequestParam struct {
 	Description param.Opt[string] `json:"description,omitzero"`
 	// Notes.
 	Notes param.Opt[string] `json:"notes,omitzero"`
-	// Product line ID.
+	// ID of the product line to assign the product to.
 	ProductLineID param.Opt[string] `json:"product_line_id,omitzero"`
 	// Attribute IDs to connect to the product at creation time.
 	AttributeIDs []string `json:"attribute_ids,omitzero"`
-	// Whether visible in the customer portal.
+	// Whether the product is shown to buyers in the customer portal.
+	//
+	//   - `visible`: buyers can see and order the product in the portal.
+	//   - `hidden`: the product is concealed from the portal but remains usable
+	//     internally.
+	//
+	// When omitted, the product is created hidden, so it must be set to `visible`
+	// before buyers can see it.
 	//
 	// Any of "visible", "hidden".
 	PortalVisibility CreateProductRequestPortalVisibility `json:"portal_visibility,omitzero"`
-	// RateInput represents the input for creating or updating a rate.
+	// A rate value with its numerator and denominator units, used in create and update
+	// requests.
 	UnitCost RateInputParam `json:"unit_cost,omitzero"`
-	// RateInput represents the input for creating or updating a rate.
+	// A rate value with its numerator and denominator units, used in create and update
+	// requests.
 	UnitPrice RateInputParam `json:"unit_price,omitzero"`
 	paramObj
 }
@@ -148,7 +175,15 @@ func (r *CreateProductRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Product type code.
+// Product type code, which determines how the product behaves on orders and
+// invoices.
+//
+// - `sale`: a standard sellable product.
+// - `service`: a non-physical service line, such as labor or installation.
+// - `shipping`: a shipping charge applied to an order.
+// - `credit`: a credit applied against an order or invoice.
+// - `return`: a returned product (RMA).
+// - `tax`: a tax line.
 type CreateProductRequestType string
 
 const (
@@ -160,7 +195,14 @@ const (
 	CreateProductRequestTypeTax      CreateProductRequestType = "tax"
 )
 
-// Whether visible in the customer portal.
+// Whether the product is shown to buyers in the customer portal.
+//
+//   - `visible`: buyers can see and order the product in the portal.
+//   - `hidden`: the product is concealed from the portal but remains usable
+//     internally.
+//
+// When omitted, the product is created hidden, so it must be set to `visible`
+// before buyers can see it.
 type CreateProductRequestPortalVisibility string
 
 const (
@@ -201,7 +243,8 @@ const (
 	ListProductObjectList ListProductObject = "list"
 )
 
-// Product with expandable item, product line, and product type.
+// Product pairs an inventory item with how it is sold: its product type, optional
+// product line, and customer portal visibility.
 type Product struct {
 	// Product ID.
 	ID string `json:"id" api:"required"`
@@ -222,6 +265,9 @@ type Product struct {
 	// Any of "visible", "hidden".
 	PortalVisibility ProductPortalVisibility `json:"portal_visibility" api:"required"`
 	// Product line resource.
+	//
+	// A product line groups related products in your catalog and carries the default
+	// commission policy, freight policy, and unit group for those products.
 	ProductLine ProductLine `json:"product_line" api:"required"`
 	// Product type code, which determines how the product behaves on orders and
 	// invoices.
@@ -300,16 +346,28 @@ const (
 // UpdateProductRequest is the request to partially update a product.
 type UpdateProductRequestParam struct {
 	// Description.
+	//
+	// Send `null` to clear.
 	Description param.Opt[string] `json:"description,omitzero"`
 	// Notes.
+	//
+	// Send `null` to clear.
 	Notes param.Opt[string] `json:"notes,omitzero"`
-	// SKU.
+	// New stock keeping unit code for the product's item.
+	//
+	// Must be unique within the account; the update fails with a conflict error if
+	// another item already uses it.
 	SKU param.Opt[string] `json:"sku,omitzero"`
-	// Whether visible in the customer portal.
+	// Whether the product is shown to buyers in the customer portal.
+	//
+	//   - `visible`: buyers can see and order the product in the portal.
+	//   - `hidden`: the product is concealed from the portal but remains usable
+	//     internally.
 	//
 	// Any of "visible", "hidden".
 	PortalVisibility UpdateProductRequestPortalVisibility `json:"portal_visibility,omitzero"`
-	// RateInput represents the input for creating or updating a rate.
+	// A rate value with its numerator and denominator units, used in create and update
+	// requests.
 	UnitPrice RateInputParam `json:"unit_price,omitzero"`
 	paramObj
 }
@@ -322,7 +380,11 @@ func (r *UpdateProductRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Whether visible in the customer portal.
+// Whether the product is shown to buyers in the customer portal.
+//
+//   - `visible`: buyers can see and order the product in the portal.
+//   - `hidden`: the product is concealed from the portal but remains usable
+//     internally.
 type UpdateProductRequestPortalVisibility string
 
 const (
@@ -424,13 +486,19 @@ func (r CatalogProductUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type CatalogProductListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// End of creation date range.
 	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Start of creation date range.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`

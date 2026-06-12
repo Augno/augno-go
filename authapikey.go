@@ -80,7 +80,9 @@ func (r *AuthAPIKeyService) List(ctx context.Context, query AuthAPIKeyListParams
 
 // Revokes an [API key](https://docs.augno.com/api/api-keys).
 //
-// Revoked API keys will be unable to be used to authenticate requests.
+// Revocation takes effect immediately and cannot be undone; revoked keys can no
+// longer be used to authenticate requests. To replace a key without losing access,
+// use Rotate API Key instead.
 func (r *AuthAPIKeyService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *AuthAPIKeyDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -92,7 +94,7 @@ func (r *AuthAPIKeyService) Delete(ctx context.Context, id string, opts ...optio
 	return res, err
 }
 
-// Account with optional branding and portal sub-resources.
+// A customer account, including its branding and customer portal sub-resources.
 type Account struct {
 	// Account ID.
 	ID string `json:"id" api:"required"`
@@ -100,9 +102,11 @@ type Account struct {
 	Branding AccountBranding `json:"branding" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Address with associated geolocation.
+	// A saved address that can be used for billing and shipping on sales orders,
+	// invoices, and shipments.
 	DefaultBillingAddress Address `json:"default_billing_address" api:"required"`
-	// Address with associated geolocation.
+	// A saved address that can be used for billing and shipping on sales orders,
+	// invoices, and shipments.
 	DefaultShippingAddress Address `json:"default_shipping_address" api:"required"`
 	// Display name.
 	Name string `json:"name" api:"required"`
@@ -213,7 +217,9 @@ type AccountPortal struct {
 	//
 	// Any of "account_portal".
 	Object AccountPortalObject `json:"object" api:"required"`
-	// Portal slug.
+	// URL slug that identifies the account's customer portal.
+	//
+	// Unique across all accounts.
 	Slug string `json:"slug" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -242,7 +248,8 @@ const (
 	AccountPortalObjectAccountPortal AccountPortalObject = "account_portal"
 )
 
-// Address with associated geolocation.
+// A saved address that can be used for billing and shipping on sales orders,
+// invoices, and shipments.
 type Address struct {
 	// Address ID.
 	ID string `json:"id" api:"required"`
@@ -250,7 +257,7 @@ type Address struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Email address associated with the address.
 	Email string `json:"email" api:"required"`
-	// Geolocation sub-resource.
+	// The street-level location details of an address.
 	Geolocation Geolocation `json:"geolocation" api:"required"`
 	// Display name of the address.
 	Name string `json:"name" api:"required"`
@@ -311,7 +318,7 @@ const (
 	AddressTypeDropShip AddressType = "drop_ship"
 )
 
-// API key resource.
+// An API key used to authenticate requests to the Augno API.
 type APIKey struct {
 	// API key ID.
 	ID string `json:"id" api:"required"`
@@ -323,7 +330,8 @@ type APIKey struct {
 	ExpiresAt time.Time `json:"expires_at" api:"required" format:"date-time"`
 	// When the key was last used to authenticate a request.
 	//
-	// `null` if it has never been used.
+	// Updated at most once every 24 hours, so it may lag the key's most recent use.
+	// `null` if the key has never been used.
 	LastUsedAt time.Time `json:"last_used_at" api:"required" format:"date-time"`
 	// Human-readable name for the API key.
 	Name string `json:"name" api:"required"`
@@ -332,12 +340,18 @@ type APIKey struct {
 	// Any of "api_key".
 	Object APIKeyObject `json:"object" api:"required"`
 	// Redacted key value safe for display.
-	RedactedValue string `json:"redacted_value" api:"required"`
-	// When the key was revoked.
 	//
-	// `null` if the key has not been revoked.
+	// The key's prefix followed by its last four characters, e.g.
+	// `aug_sk_prod_****hjt4`.
+	RedactedValue string `json:"redacted_value" api:"required"`
+	// When the key's revocation takes effect.
+	//
+	// A future timestamp means revocation was scheduled (for example, during rotation)
+	// and the key continues to authenticate requests until that time. `null` if the
+	// key has not been revoked.
 	RevokedAt time.Time `json:"revoked_at" api:"required" format:"date-time"`
-	// Role resource.
+	// A named set of permissions that can be assigned to users to control what they
+	// can access.
 	Role Role `json:"role" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -377,9 +391,13 @@ const (
 type CreateAPIKeyRequestParam struct {
 	// Human-readable name for the API key.
 	Name string `json:"name" api:"required"`
-	// Role ID assigned to the API key.
+	// ID of the role to assign to the API key.
+	//
+	// The role determines the permissions of requests authenticated with the key.
 	RoleID string `json:"role_id" api:"required"`
-	// Expiration timestamp. If not set, the key does not expire.
+	// When the key expires and stops authenticating requests.
+	//
+	// If omitted, the key never expires.
 	ExpiresAt param.Opt[time.Time] `json:"expires_at,omitzero" format:"date-time"`
 	paramObj
 }
@@ -394,7 +412,7 @@ func (r *CreateAPIKeyRequestParam) UnmarshalJSON(data []byte) error {
 
 // Result of creating an API key, with the full secret value.
 type CreatedAPIKey struct {
-	// API key resource.
+	// An API key used to authenticate requests to the Augno API.
 	APIKeyInfo APIKey `json:"api_key_info" api:"required"`
 	// Full secret value.
 	//
@@ -428,7 +446,7 @@ const (
 	CreatedAPIKeyObjectCreatedAPIKey CreatedAPIKeyObject = "created_api_key"
 )
 
-// Geolocation sub-resource.
+// The street-level location details of an address.
 type Geolocation struct {
 	// Geolocation ID.
 	ID string `json:"id" api:"required"`
@@ -511,7 +529,7 @@ const (
 
 // Owner describes the provenance of a resource.
 type Owner struct {
-	// Account with optional branding and portal sub-resources.
+	// A customer account, including its branding and customer portal sub-resources.
 	Account Account `json:"account" api:"required"`
 	// Resource type identifier.
 	//
@@ -568,9 +586,13 @@ type PageInfo struct {
 	HasNextPage bool `json:"has_next_page" api:"required"`
 	// Whether results exist before this page.
 	HasPrevPage bool `json:"has_prev_page" api:"required"`
-	// URL to fetch the next page, `null` if no more pages.
+	// Relative URL that fetches the next page of results.
+	//
+	// Absent once the last page has been reached.
 	NextPageURL string `json:"next_page_url" api:"required"`
-	// URL to fetch the previous page, `null` if on the first page.
+	// Relative URL that fetches the previous page of results.
+	//
+	// Absent while on the first page.
 	PreviousPageURL string `json:"previous_page_url" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -589,13 +611,14 @@ func (r *PageInfo) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Role resource.
+// A named set of permissions that can be assigned to users to control what they
+// can access.
 type Role struct {
 	// Role ID.
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name.
+	// Display name, unique within the account.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -603,17 +626,18 @@ type Role struct {
 	Object RoleObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// Permissions in `{domain}:{action}` format.
+	// Permissions granted by this role, in `{domain}:{action}` format, such as
+	// `customers:read`.
 	Permissions []string `json:"permissions" api:"required"`
-	// Role type code.
+	// The kind of role.
 	//
-	// The role's type is sometimes used to gate special behaviors in the frontend and
-	// to restrict some actions to only certain types of roles. For example, only roles
-	// with the type `admin` can create and manage API keys.
+	// The role's type is sometimes used to gate special behaviors and to restrict some
+	// actions to only certain types of roles. For example, only roles with the type
+	// `admin` can create and manage API keys.
 	//
 	//   - `admin`: full administrative access, including managing API keys.
 	//   - `user`: a custom role tailored to a specific need (its permissions are defined
-	//     explicitly).
+	//     explicitly). Roles created through the API always have this type.
 	//   - `scanner`: a role for scanning-station operators.
 	//   - `sales_rep`: a role for sales representatives.
 	//   - `agent`: a role assigned to an automated agent rather than a person.
@@ -650,15 +674,15 @@ const (
 	RoleObjectRole RoleObject = "role"
 )
 
-// Role type code.
+// The kind of role.
 //
-// The role's type is sometimes used to gate special behaviors in the frontend and
-// to restrict some actions to only certain types of roles. For example, only roles
-// with the type `admin` can create and manage API keys.
+// The role's type is sometimes used to gate special behaviors and to restrict some
+// actions to only certain types of roles. For example, only roles with the type
+// `admin` can create and manage API keys.
 //
 //   - `admin`: full administrative access, including managing API keys.
 //   - `user`: a custom role tailored to a specific need (its permissions are defined
-//     explicitly).
+//     explicitly). Roles created through the API always have this type.
 //   - `scanner`: a role for scanning-station operators.
 //   - `sales_rep`: a role for sales representatives.
 //   - `agent`: a role assigned to an automated agent rather than a person.
@@ -730,11 +754,17 @@ func (r AuthAPIKeyGetParams) URLQuery() (v url.Values, err error) {
 }
 
 type AuthAPIKeyListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -742,6 +772,13 @@ type AuthAPIKeyListParams struct {
 	// Any of "role", "role.permissions".
 	Include []string `query:"include,omitzero" json:"-"`
 	// API key statuses to filter by.
+	//
+	//   - `active`: the key can be used to authenticate requests.
+	//   - `expired`: the key passed its expiration time and can no longer authenticate
+	//     requests.
+	//   - `revoked`: the key was revoked and can no longer authenticate requests.
+	//
+	// When omitted, keys of every status are returned.
 	//
 	// Any of "active", "expired", "revoked".
 	Statuses []string `query:"statuses,omitzero" json:"-"`

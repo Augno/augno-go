@@ -60,13 +60,14 @@ func (r *CoreEmailLogService) List(ctx context.Context, query CoreEmailLogListPa
 	return res, err
 }
 
-// Email log entry.
+// A record of an email sent on the account's behalf, such as an invoice or a user
+// invitation.
 type EmailLog struct {
 	// Email log ID.
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Filename of any attachment.
+	// Filename of the attached document.
 	Filename string `json:"filename" api:"required"`
 	// Resource type identifier.
 	//
@@ -178,11 +179,17 @@ func (r CoreEmailLogGetParams) URLQuery() (v url.Values, err error) {
 }
 
 type CoreEmailLogListParams struct {
-	// Cursor token used to retrieve the next or previous page of results.
+	// Opaque cursor token identifying where the page of results starts.
+	//
+	// Use the `cursor` value embedded in a previous response's `next_page_url` or
+	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
+	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Maximum number of results per page (default: 100, max: 1000).
+	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Search query used to filter results.
+	// Free-text search term used to filter results.
+	//
+	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

@@ -37,7 +37,11 @@ func NewIdentityAccountUserActionService(opts ...option.RequestOption) (r Identi
 	return
 }
 
-// Activates a disabled or removed account user.
+// Activates a disabled or removed account user, restoring their access to the
+// target account.
+//
+// Reactivation consumes a seat, so the request fails if the account is at its seat
+// limit. Activating an already-active user is a no-op.
 func (r *IdentityAccountUserActionService) Activate(ctx context.Context, id string, opts ...option.RequestOption) (res *IdentityAccountUserActionActivateResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -49,8 +53,11 @@ func (r *IdentityAccountUserActionService) Activate(ctx context.Context, id stri
 	return res, err
 }
 
-// Disables an account user. Disabled users will not be able to access the target
-// account.
+// Disables (locks) an account user.
+//
+// Disabled users cannot access the target account and their active sessions are
+// revoked. Admin users cannot be disabled, you cannot disable yourself, and
+// removed users must be activated before they can be disabled.
 func (r *IdentityAccountUserActionService) Disable(ctx context.Context, id string, opts ...option.RequestOption) (res *IdentityAccountUserActionDisableResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -63,6 +70,9 @@ func (r *IdentityAccountUserActionService) Disable(ctx context.Context, id strin
 }
 
 // Removes a user from the target account.
+//
+// Removal is a soft delete: removed users are excluded from listings unless
+// requested via `removed_scope`, and can be restored with the activate action.
 func (r *IdentityAccountUserActionService) Remove(ctx context.Context, id string, opts ...option.RequestOption) (res *IdentityAccountUserActionRemoveResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
