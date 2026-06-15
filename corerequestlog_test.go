@@ -55,7 +55,7 @@ func TestCoreRequestLogListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Core.RequestLogs.List(context.TODO(), augno.CoreRequestLogListParams{
-		AccountIDs:        []string{"string"},
+		ActorAccountIDs:   []string{"string"},
 		ActorIDs:          []string{"string"},
 		ActorTypes:        []string{"user"},
 		Cursor:            augno.String("cursor"),
@@ -72,6 +72,7 @@ func TestCoreRequestLogListWithOptionalParams(t *testing.T) {
 		StartDate:         augno.Time(time.Now()),
 		StatusCodeClasses: []int64{0},
 		StatusCodes:       []int64{0},
+		TargetAccountIDs:  []string{"string"},
 	})
 	if err != nil {
 		var apierr *augno.Error

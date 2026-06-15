@@ -55,17 +55,18 @@ func TestCoreAuditEventListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Core.AuditEvents.List(context.TODO(), augno.CoreAuditEventListParams{
-		AccountIDs:    []string{"string"},
-		Actions:       []string{"create"},
-		ActorIDs:      []string{"string"},
-		Cursor:        augno.String("cursor"),
-		EndDate:       augno.Time(time.Now()),
-		Include:       []string{"account"},
-		Limit:         augno.Int(0),
-		Q:             augno.String("q"),
-		ResourceIDs:   []string{"string"},
-		ResourceTypes: []string{"account"},
-		StartDate:     augno.Time(time.Now()),
+		Actions:          []string{"create"},
+		ActorAccountIDs:  []string{"string"},
+		ActorIDs:         []string{"string"},
+		Cursor:           augno.String("cursor"),
+		EndDate:          augno.Time(time.Now()),
+		Include:          []string{"account"},
+		Limit:            augno.Int(0),
+		Q:                augno.String("q"),
+		ResourceIDs:      []string{"string"},
+		ResourceTypes:    []string{"account"},
+		StartDate:        augno.Time(time.Now()),
+		TargetAccountIDs: []string{"string"},
 	})
 	if err != nil {
 		var apierr *augno.Error

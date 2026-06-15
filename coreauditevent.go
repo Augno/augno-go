@@ -669,15 +669,17 @@ type CoreAuditEventListParams struct {
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Restricts results to audit events on or after this timestamp.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
-	// Filter by the target account the mutation was performed against.
-	//
-	// Narrows results to audit events whose `account` is one of the given account IDs
-	// — for example a specific customer's or supplier's account.
-	AccountIDs []string `query:"account_ids,omitzero" json:"-"`
 	// Filter by the mutation type recorded on the event.
 	//
 	// Any of "create", "update", "delete", "restore", "archive".
 	Actions []string `query:"actions,omitzero" json:"-"`
+	// Filter by the _acting_ account: the account that performed the mutation.
+	//
+	// Results are always scoped to events where your account is either the acting
+	// account or the target account; this narrows that set to specific acting accounts
+	// — for example a specific customer's account that mutated a resource on your
+	// account.
+	ActorAccountIDs []string `query:"actor_account_ids,omitzero" json:"-"`
 	// Filter by the actor identifier.
 	//
 	// Matches the event's `actor.id`: a user ID for `user` actors or an API key ID for
@@ -753,6 +755,13 @@ type CoreAuditEventListParams struct {
 	// "invoice_allocation_entry", "allocation_customer",
 	// "checkout_sales_order_response", "create_production_run_response".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
+	// Filter by the _target_ account the mutation was performed against (the event's
+	// `account`).
+	//
+	// Results are always scoped to events where your account is either the acting
+	// account or the target account; this narrows that set to specific target accounts
+	// — for example a specific customer's or supplier's account.
+	TargetAccountIDs []string `query:"target_account_ids,omitzero" json:"-"`
 	paramObj
 }
 
