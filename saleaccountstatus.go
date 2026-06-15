@@ -55,7 +55,7 @@ func (r *SaleAccountStatusService) Get(ctx context.Context, id string, query Sal
 // Returns a paginated list of account statuses.
 //
 // Account statuses are system-provided lookup values shared across all accounts,
-// used to set a customer's status (for example, placing a customer on shipment
+// used to set a customer's status (for example, placing a customer on a credit
 // hold).
 func (r *SaleAccountStatusService) List(ctx context.Context, query SaleAccountStatusListParams, opts ...option.RequestOption) (res *ListAccountStatus, err error) {
 	opts = slices.Concat(r.options, opts)
