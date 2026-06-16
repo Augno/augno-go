@@ -165,9 +165,10 @@ type AuditEvent struct {
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
-	// "message", "account_photo_upload_result", "user_photo_upload_result",
-	// "user_photo_url", "batch_lot", "check_duplicate_result", "item_trend_point",
-	// "pack_pick_response", "pick_shipments_response", "tenancy_pending_registration",
+	// "created_by", "message", "account_photo_upload_result",
+	// "user_photo_upload_result", "user_photo_url", "batch_lot",
+	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
+	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer",
 	// "checkout_sales_order_response", "create_production_run_response".
 	ResourceType AuditEventResourceType `json:"resource_type" api:"required"`
@@ -419,6 +420,7 @@ const (
 	AuditEventResourceTypeRateShopOption                    AuditEventResourceType = "rate_shop_option"
 	AuditEventResourceTypeRateShopResult                    AuditEventResourceType = "rate_shop_result"
 	AuditEventResourceTypeOwner                             AuditEventResourceType = "owner"
+	AuditEventResourceTypeCreatedBy                         AuditEventResourceType = "created_by"
 	AuditEventResourceTypeMessage                           AuditEventResourceType = "message"
 	AuditEventResourceTypeAccountPhotoUploadResult          AuditEventResourceType = "account_photo_upload_result"
 	AuditEventResourceTypeUserPhotoUploadResult             AuditEventResourceType = "user_photo_upload_result"
@@ -599,9 +601,10 @@ type ListObjectType struct {
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
-	// "message", "account_photo_upload_result", "user_photo_upload_result",
-	// "user_photo_url", "batch_lot", "check_duplicate_result", "item_trend_point",
-	// "pack_pick_response", "pick_shipments_response", "tenancy_pending_registration",
+	// "created_by", "message", "account_photo_upload_result",
+	// "user_photo_upload_result", "user_photo_url", "batch_lot",
+	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
+	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer",
 	// "checkout_sales_order_response", "create_production_run_response".
 	Data []string `json:"data" api:"required"`
@@ -749,9 +752,10 @@ type CoreAuditEventListParams struct {
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
-	// "message", "account_photo_upload_result", "user_photo_upload_result",
-	// "user_photo_url", "batch_lot", "check_duplicate_result", "item_trend_point",
-	// "pack_pick_response", "pick_shipments_response", "tenancy_pending_registration",
+	// "created_by", "message", "account_photo_upload_result",
+	// "user_photo_upload_result", "user_photo_url", "batch_lot",
+	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
+	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer",
 	// "checkout_sales_order_response", "create_production_run_response".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
