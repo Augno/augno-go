@@ -170,7 +170,8 @@ type AuditEvent struct {
 	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer",
-	// "checkout_sales_order_response", "create_production_run_response".
+	// "checkout_sales_order_response", "create_production_run_response",
+	// "sales_order_price_quote".
 	ResourceType AuditEventResourceType `json:"resource_type" api:"required"`
 	// Originating client IP address.
 	SourceIP string `json:"source_ip" api:"required"`
@@ -435,6 +436,7 @@ const (
 	AuditEventResourceTypeAllocationCustomer                AuditEventResourceType = "allocation_customer"
 	AuditEventResourceTypeCheckoutSalesOrderResponse        AuditEventResourceType = "checkout_sales_order_response"
 	AuditEventResourceTypeCreateProductionRunResponse       AuditEventResourceType = "create_production_run_response"
+	AuditEventResourceTypeSalesOrderPriceQuote              AuditEventResourceType = "sales_order_price_quote"
 )
 
 // Field-level before/after transition recorded during a mutation.
@@ -606,7 +608,8 @@ type ListObjectType struct {
 	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer",
-	// "checkout_sales_order_response", "create_production_run_response".
+	// "checkout_sales_order_response", "create_production_run_response",
+	// "sales_order_price_quote".
 	Data []string `json:"data" api:"required"`
 	// Resource type identifier.
 	//
@@ -757,7 +760,8 @@ type CoreAuditEventListParams struct {
 	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer",
-	// "checkout_sales_order_response", "create_production_run_response".
+	// "checkout_sales_order_response", "create_production_run_response",
+	// "sales_order_price_quote".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
 	// Filter by the _target_ account the mutation was performed against (the event's
 	// `account`).
