@@ -22,21 +22,21 @@ import (
 
 // List and manage third-party account integrations.
 //
-// IdentityIntegrationService contains methods and other services that help with
+// SettingIntegrationService contains methods and other services that help with
 // interacting with the augno API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
-// the [NewIdentityIntegrationService] method instead.
-type IdentityIntegrationService struct {
+// the [NewSettingIntegrationService] method instead.
+type SettingIntegrationService struct {
 	options []option.RequestOption
 }
 
-// NewIdentityIntegrationService generates a new service that applies the given
+// NewSettingIntegrationService generates a new service that applies the given
 // options to each request. These options are applied after the parent client's
 // options (if there is one), and before any request-specific options.
-func NewIdentityIntegrationService(opts ...option.RequestOption) (r IdentityIntegrationService) {
-	r = IdentityIntegrationService{}
+func NewSettingIntegrationService(opts ...option.RequestOption) (r SettingIntegrationService) {
+	r = SettingIntegrationService{}
 	r.options = opts
 	return
 }
@@ -47,9 +47,9 @@ func NewIdentityIntegrationService(opts ...option.RequestOption) (r IdentityInte
 // Credentials are validated for the provider, encrypted at rest, and never
 // returned in API responses. An account can have at most one integration per
 // integration code.
-func (r *IdentityIntegrationService) New(ctx context.Context, body IdentityIntegrationNewParams, opts ...option.RequestOption) (res *AccountIntegration, err error) {
+func (r *SettingIntegrationService) New(ctx context.Context, body SettingIntegrationNewParams, opts ...option.RequestOption) (res *AccountIntegration, err error) {
 	opts = slices.Concat(r.options, opts)
-	path := "v1/identity/integrations"
+	path := "v1/settings/integrations"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return res, err
 }
@@ -59,33 +59,33 @@ func (r *IdentityIntegrationService) New(ctx context.Context, body IdentityInteg
 // Omitted fields are left unchanged. Credentials cannot be changed with this
 // endpoint; to rotate credentials, call Create Account Integration again with the
 // same integration code.
-func (r *IdentityIntegrationService) Update(ctx context.Context, id string, body IdentityIntegrationUpdateParams, opts ...option.RequestOption) (res *AccountIntegration, err error) {
+func (r *SettingIntegrationService) Update(ctx context.Context, id string, body SettingIntegrationUpdateParams, opts ...option.RequestOption) (res *AccountIntegration, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/identity/integrations/%s", url.PathEscape(id))
+	path := fmt.Sprintf("v1/settings/integrations/%s", url.PathEscape(id))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
 	return res, err
 }
 
 // Returns a paginated list of account integrations for the target account.
-func (r *IdentityIntegrationService) List(ctx context.Context, query IdentityIntegrationListParams, opts ...option.RequestOption) (res *ListAccountIntegration, err error) {
+func (r *SettingIntegrationService) List(ctx context.Context, query SettingIntegrationListParams, opts ...option.RequestOption) (res *ListAccountIntegration, err error) {
 	opts = slices.Concat(r.options, opts)
-	path := "v1/identity/integrations"
+	path := "v1/settings/integrations"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
 // Deletes an account integration and returns the deleted resource.
-func (r *IdentityIntegrationService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *AccountIntegration, err error) {
+func (r *SettingIntegrationService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *AccountIntegration, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/identity/integrations/%s", url.PathEscape(id))
+	path := fmt.Sprintf("v1/settings/integrations/%s", url.PathEscape(id))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
 	return res, err
 }
@@ -288,33 +288,33 @@ const (
 	UpdateAccountIntegrationRequestStatusInactive UpdateAccountIntegrationRequestStatus = "inactive"
 )
 
-type IdentityIntegrationNewParams struct {
+type SettingIntegrationNewParams struct {
 	// Request to create or upsert an account integration.
 	CreateAccountIntegrationRequest CreateAccountIntegrationRequestParam
 	paramObj
 }
 
-func (r IdentityIntegrationNewParams) MarshalJSON() (data []byte, err error) {
+func (r SettingIntegrationNewParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.CreateAccountIntegrationRequest)
 }
-func (r *IdentityIntegrationNewParams) UnmarshalJSON(data []byte) error {
+func (r *SettingIntegrationNewParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type IdentityIntegrationUpdateParams struct {
+type SettingIntegrationUpdateParams struct {
 	// Request to update an account integration.
 	UpdateAccountIntegrationRequest UpdateAccountIntegrationRequestParam
 	paramObj
 }
 
-func (r IdentityIntegrationUpdateParams) MarshalJSON() (data []byte, err error) {
+func (r SettingIntegrationUpdateParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.UpdateAccountIntegrationRequest)
 }
-func (r *IdentityIntegrationUpdateParams) UnmarshalJSON(data []byte) error {
+func (r *SettingIntegrationUpdateParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type IdentityIntegrationListParams struct {
+type SettingIntegrationListParams struct {
 	// Opaque cursor token identifying where the page of results starts.
 	//
 	// Use the `cursor` value embedded in a previous response's `next_page_url` or
@@ -330,9 +330,9 @@ type IdentityIntegrationListParams struct {
 	paramObj
 }
 
-// URLQuery serializes [IdentityIntegrationListParams]'s query parameters as
+// URLQuery serializes [SettingIntegrationListParams]'s query parameters as
 // `url.Values`.
-func (r IdentityIntegrationListParams) URLQuery() (v url.Values, err error) {
+func (r SettingIntegrationListParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

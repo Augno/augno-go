@@ -26,6 +26,7 @@ type Client struct {
 	Finance    FinanceService
 	Operations OperationService
 	Identity   IdentityService
+	Settings   SettingService
 }
 
 // DefaultClientOptions read from the environment (AUGNO_API_KEY, AUGNO_BASE_URL).
@@ -65,6 +66,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Finance = NewFinanceService(opts...)
 	r.Operations = NewOperationService(opts...)
 	r.Identity = NewIdentityService(opts...)
+	r.Settings = NewSettingService(opts...)
 
 	return
 }
