@@ -23,8 +23,7 @@ type SaleService struct {
 	// List and retrieve priorities.
 	Priorities SalePriorityService
 	// Manage customer accounts.
-	Customers SaleCustomerService
-	// List sales order statuses.
+	Customers   SaleCustomerService
 	SalesOrders SaleSalesOrderService
 }
 
