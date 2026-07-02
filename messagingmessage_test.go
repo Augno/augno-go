@@ -31,7 +31,7 @@ func TestMessagingMessageUpdateWithOptionalParams(t *testing.T) {
 		augno.MessagingMessageUpdateParams{
 			UpdateDraftRequest: augno.UpdateDraftRequestParam{
 				Body:    "Hi Joe — good news, your order ships tomorrow.",
-				Subject: augno.String("subject"),
+				Subject: augno.String("Re: Order #1042"),
 			},
 			Include: []string{"sender"},
 		},

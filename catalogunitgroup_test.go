@@ -36,7 +36,7 @@ func TestCatalogUnitGroupNewWithOptionalParams(t *testing.T) {
 				DiscountFixed:            augno.Float(0),
 				DiscountPercentage:       augno.Float(1),
 			}},
-			Notes: augno.String("notes"),
+			Notes: augno.String("Used for raw-material weight tracking across the warehouse."),
 		},
 		Include: []string{"owner"},
 	})
@@ -96,14 +96,14 @@ func TestCatalogUnitGroupUpdateWithOptionalParams(t *testing.T) {
 			Include: []string{"owner"},
 			UpdateUnitGroupRequest: augno.UpdateUnitGroupRequestParam{
 				AssociatedUnits: []augno.CreateUnitGroupUnitParam{{
-					UnitID:                   "unit_id",
+					UnitID:                   "un_01966263f74a5a0cae356000a1",
 					CustomerPortalVisibility: augno.CreateUnitGroupUnitParamCustomerPortalVisibilityVisible,
 					DiscountFixed:            augno.Float(0),
-					DiscountPercentage:       augno.Float(0),
+					DiscountPercentage:       augno.Float(1),
 				}},
 				BaseUnitID: augno.String("un_01966263f74a5a0cae356000a1"),
 				Name:       augno.String("Weight Units (Updated)"),
-				Notes:      augno.String("notes"),
+				Notes:      augno.String("Added kilogram association for metric orders."),
 			},
 		},
 	)

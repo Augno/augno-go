@@ -28,15 +28,15 @@ func TestOperationShippingTermNewWithOptionalParams(t *testing.T) {
 	_, err := client.Operations.ShippingTerms.New(context.TODO(), augno.OperationShippingTermNewParams{
 		CreateShippingTermRequest: augno.CreateShippingTermRequestParam{
 			Name: "Prepaid",
-			Type: augno.CreateShippingTermRequestTypeCarrierRateFreight,
+			Type: augno.CreateShippingTermRequestTypeFlatRateFreight,
 			FlatRate: augno.QuantityInputParam{
-				UnitID: "unit_id",
-				Value:  "value",
+				UnitID: "un_01966263f74a5a0cae356000a1",
+				Value:  "15.00",
 			},
-			FreeShippingServiceLevelIDs: []string{"string"},
+			FreeShippingServiceLevelIDs: []string{"crop_01cfaf03f104e90ef9680e2a30"},
 			MinimumOrderValue: augno.QuantityInputParam{
-				UnitID: "unit_id",
-				Value:  "value",
+				UnitID: "un_01966263f74a5a0cae356000a1",
+				Value:  "500.00",
 			},
 		},
 		Include: []string{"owner"},
@@ -97,16 +97,16 @@ func TestOperationShippingTermUpdateWithOptionalParams(t *testing.T) {
 			Include: []string{"owner"},
 			UpdateShippingTermRequest: augno.UpdateShippingTermRequestParam{
 				FlatRate: augno.QuantityInputParam{
-					UnitID: "unit_id",
-					Value:  "value",
+					UnitID: "un_01966263f74a5a0cae356000a1",
+					Value:  "15.00",
 				},
-				FreeShippingServiceLevelIDs: []string{"string"},
+				FreeShippingServiceLevelIDs: []string{"crop_01cfaf03f104e90ef9680e2a30"},
 				MinimumOrderValue: augno.QuantityInputParam{
-					UnitID: "unit_id",
-					Value:  "value",
+					UnitID: "un_01966263f74a5a0cae356000a1",
+					Value:  "500.00",
 				},
 				Name: augno.String("Collect"),
-				Type: augno.UpdateShippingTermRequestTypeFreeFreight,
+				Type: augno.UpdateShippingTermRequestTypeFlatRateFreight,
 			},
 		},
 	)

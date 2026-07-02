@@ -94,10 +94,10 @@ func TestCatalogUnitUpdateWithOptionalParams(t *testing.T) {
 			UpdateUnitRequest: augno.UpdateUnitRequestParam{
 				Abbreviation:      augno.String("kg"),
 				Name:              augno.String("Kilogram"),
-				OffsetDenominator: augno.String("offset_denominator"),
-				OffsetNumerator:   augno.String("offset_numerator"),
-				RatioDenominator:  augno.String("ratio_denominator"),
-				RatioNumerator:    augno.String("ratio_numerator"),
+				OffsetDenominator: augno.String("1"),
+				OffsetNumerator:   augno.String("0"),
+				RatioDenominator:  augno.String("1"),
+				RatioNumerator:    augno.String("1000"),
 			},
 		},
 	)

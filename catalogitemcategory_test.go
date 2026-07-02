@@ -89,7 +89,7 @@ func TestCatalogItemCategoryUpdateWithOptionalParams(t *testing.T) {
 			Include: []string{"owner"},
 			UpdateItemCategoryRequest: augno.UpdateItemCategoryRequestParam{
 				Name:  augno.String("Electronic Components"),
-				Notes: augno.String("notes"),
+				Notes: augno.String("Covers passive and active components; excludes assemblies."),
 			},
 		},
 	)

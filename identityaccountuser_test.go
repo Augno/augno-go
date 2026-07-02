@@ -28,7 +28,7 @@ func TestIdentityAccountUserNewWithOptionalParams(t *testing.T) {
 	_, err := client.Identity.AccountUsers.New(context.TODO(), augno.IdentityAccountUserNewParams{
 		Include: []string{"user"},
 		CreateAccountUserRequest: augno.CreateAccountUserRequestParam{
-			DepartmentID: augno.String("department_id"),
+			DepartmentID: augno.String("dp_01791c25ab59da4704cba61874"),
 			Email:        augno.String("jdoe@augno.com"),
 			Name:         augno.String("John Doe"),
 			Password:     augno.String("QgS7Z8Hhj3&1"),
@@ -96,14 +96,14 @@ func TestIdentityAccountUserUpdateWithOptionalParams(t *testing.T) {
 			Include: []string{"user"},
 			UpdateAccountUserRequest: augno.UpdateAccountUserRequestParam{
 				DepartmentID: augno.String("dp_01791c25ab59da4704cba61874"),
-				Email:        augno.String("email"),
+				Email:        augno.String("jdoe@augno.com"),
 				Name:         augno.String("John Doe"),
 				Preferences: []augno.NotificationPreferenceItemParam{{
 					Enabled:          true,
-					NotificationType: augno.NotificationPreferenceItemNotificationTypeInvoice,
+					NotificationType: augno.NotificationPreferenceItemNotificationTypeOrderAcknowledgement,
 				}},
 				RoleID:   augno.String("rl_01c16d2eb637c0d1f3a372937c"),
-				Username: augno.String("username"),
+				Username: augno.String("jdoe"),
 			},
 		},
 	)

@@ -90,9 +90,9 @@ func TestCatalogProductLineUpdateWithOptionalParams(t *testing.T) {
 			Include: []string{"owner"},
 			UpdateProductLineRequest: augno.UpdateProductLineRequestParam{
 				CommissionPolicy: augno.UpdateProductLineRequestCommissionPolicyCommissionApplied,
-				FreightPolicy:    augno.UpdateProductLineRequestFreightPolicyFreeFreight,
+				FreightPolicy:    augno.UpdateProductLineRequestFreightPolicyBilledFreight,
 				Name:             augno.String("Updated Product Line"),
-				UnitGroupID:      augno.String("unit_group_id"),
+				UnitGroupID:      augno.String("ug_01aad07abb8e41fd392d2d7013"),
 			},
 		},
 	)

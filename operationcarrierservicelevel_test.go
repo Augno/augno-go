@@ -95,7 +95,7 @@ func TestOperationCarrierServiceLevelUpdateWithOptionalParams(t *testing.T) {
 			CarrierID: "cr_01784fd54c9ba197bb4e42f0e6",
 			Include:   []string{"owner"},
 			UpdateServiceLevelRequest: augno.UpdateServiceLevelRequestParam{
-				Code:                     augno.String("code"),
+				Code:                     augno.String("express"),
 				CustomerPortalVisibility: augno.UpdateServiceLevelRequestCustomerPortalVisibilityVisible,
 				IsDefault:                augno.Bool(false),
 				Name:                     augno.String("Express Shipping"),

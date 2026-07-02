@@ -33,10 +33,10 @@ func TestMessagingNotificationNewWithOptionalParams(t *testing.T) {
 				Type: augno.NotificationTargetInputTypeAccountUser,
 			},
 			Title:            "Order updated",
-			Body:             augno.String("body"),
-			LinkResourceID:   augno.String("link_resource_id"),
-			LinkResourceType: augno.SendNotificationRequestLinkResourceTypeAccount,
-			Priority:         augno.SendNotificationRequestPriorityLow,
+			Body:             augno.String("Order #1042 was updated."),
+			LinkResourceID:   augno.String("or_01d5034136c3ccc048abecc312"),
+			LinkResourceType: augno.SendNotificationRequestLinkResourceTypeSalesOrder,
+			Priority:         augno.SendNotificationRequestPriorityHigh,
 		},
 	})
 	if err != nil {

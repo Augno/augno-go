@@ -92,7 +92,7 @@ func TestCatalogPropertyAttributeUpdateWithOptionalParams(t *testing.T) {
 			PropertyID: "pp_01e21344878064372f69e67093",
 			UpdateAttributeRequest: augno.UpdateAttributeRequestParam{
 				Color:     augno.UpdateAttributeRequestColorBlue,
-				SortOrder: augno.Int(0),
+				SortOrder: augno.Int(2),
 				Value:     augno.String("Blue"),
 			},
 		},

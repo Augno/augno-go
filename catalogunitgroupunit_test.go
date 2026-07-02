@@ -96,7 +96,7 @@ func TestCatalogUnitGroupUnitUpdateWithOptionalParams(t *testing.T) {
 			Include:     []string{"unit"},
 			UpdateUnitGroupUnitRequest: augno.UpdateUnitGroupUnitRequestParam{
 				CustomerPortalVisibility: augno.UpdateUnitGroupUnitRequestCustomerPortalVisibilityVisible,
-				DiscountFixed:            augno.Float(0),
+				DiscountFixed:            augno.Float(2.5),
 				DiscountPercentage:       augno.Float(0.9),
 				UnitID:                   augno.String("un_01966263f74a5a0cae356000a1"),
 			},

@@ -29,10 +29,10 @@ func TestMessagingEmailInboxNewWithOptionalParams(t *testing.T) {
 		CreateEmailInboxRequest: augno.CreateEmailInboxRequestParam{
 			Address:              "support@acme.com",
 			EmailDomainID:        "emdom_018e88072d1320808dc9aaa01",
-			AgentConfigID:        augno.String("agent_config_id"),
-			AgentTriggerKeywords: []string{"string"},
-			AgentTriggerPolicy:   augno.String("agent_trigger_policy"),
-			FromName:             augno.String("from_name"),
+			AgentConfigID:        augno.String("agdf_01b9ef28feb99e6954201aca63"),
+			AgentTriggerKeywords: []string{"invoice", "refund"},
+			AgentTriggerPolicy:   augno.String("keyword"),
+			FromName:             augno.String("Acme Support"),
 		},
 		Include: []string{"email_domain"},
 	})
@@ -91,10 +91,10 @@ func TestMessagingEmailInboxUpdateWithOptionalParams(t *testing.T) {
 		augno.MessagingEmailInboxUpdateParams{
 			UpdateEmailInboxRequest: augno.UpdateEmailInboxRequestParam{
 				Status:               "active",
-				AgentConfigID:        augno.String("agent_config_id"),
-				AgentTriggerKeywords: []string{"string"},
-				AgentTriggerPolicy:   augno.String("agent_trigger_policy"),
-				FromName:             augno.String("from_name"),
+				AgentConfigID:        augno.String("agdf_01b9ef28feb99e6954201aca63"),
+				AgentTriggerKeywords: []string{"invoice", "refund"},
+				AgentTriggerPolicy:   augno.String("keyword"),
+				FromName:             augno.String("Acme Support"),
 			},
 			Include: []string{"email_domain"},
 		},

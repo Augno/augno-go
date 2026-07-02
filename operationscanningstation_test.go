@@ -33,7 +33,7 @@ func TestOperationScanningStationNewWithOptionalParams(t *testing.T) {
 			Type:                augno.CreateScanningStationRequestTypeInitBatch,
 			LabelSize:           augno.CreateScanningStationRequestLabelSize1x1,
 			LabelType:           augno.CreateScanningStationRequestLabelTypeTag,
-			Notes:               augno.String("notes"),
+			Notes:               augno.String("Primary intake station on the receiving dock."),
 		},
 		Include: []string{"department"},
 	})
@@ -95,8 +95,8 @@ func TestOperationScanningStationUpdateWithOptionalParams(t *testing.T) {
 				LabelSize:           augno.UpdateScanningStationRequestLabelSize1x1,
 				LabelType:           augno.UpdateScanningStationRequestLabelTypeTag,
 				Name:                augno.String("Station B"),
-				Notes:               augno.String("notes"),
-				OperatorRequirement: augno.UpdateScanningStationRequestOperatorRequirementNone,
+				Notes:               augno.String("Relocated to the finishing area."),
+				OperatorRequirement: augno.UpdateScanningStationRequestOperatorRequirementMaterialCheck,
 			},
 		},
 	)

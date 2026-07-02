@@ -32,7 +32,7 @@ func TestMessagingGroupMemberNewWithOptionalParams(t *testing.T) {
 			AddMessagingGroupMemberRequest: augno.AddMessagingGroupMemberRequestParam{
 				MemberType:    augno.AddMessagingGroupMemberRequestMemberTypeUser,
 				AccountUserID: augno.String("acus_01ea9983ddb41dacc44ecf997c"),
-				AgentConfigID: augno.String("agent_config_id"),
+				AgentConfigID: augno.String("agdf_01b9ef28feb99e6954201aca63"),
 			},
 		},
 	)

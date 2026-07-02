@@ -29,7 +29,7 @@ func TestMessagingGroupNewWithOptionalParams(t *testing.T) {
 		CreateMessagingGroupRequest: augno.CreateMessagingGroupRequestParam{
 			Name:                 "Operations Team",
 			MemberAccountUserIDs: []string{"acus_01ea9983ddb41dacc44ecf997c"},
-			MemberAgentConfigIDs: []string{"string"},
+			MemberAgentConfigIDs: []string{"agdf_01b9ef28feb99e6954201aca63"},
 		},
 	})
 	if err != nil {

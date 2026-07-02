@@ -32,7 +32,7 @@ func TestCoreAddressActionValidateWithOptionalParams(t *testing.T) {
 			Country:      "US",
 			PostalCode:   "62701",
 			State:        "IL",
-			AddressLine2: augno.String("address_line_2"),
+			AddressLine2: augno.String("Suite 400"),
 		},
 	})
 	if err != nil {

@@ -29,8 +29,8 @@ func TestOperationLocationNewWithOptionalParams(t *testing.T) {
 		CreateLocationRequest: augno.CreateLocationRequestParam{
 			Name:     "Warehouse A",
 			Type:     augno.LocationTypeCodeBuilding,
-			ChildIDs: []string{"string"},
-			ParentID: augno.String("parent_id"),
+			ChildIDs: []string{"lc_014d187d99b31926f0c74af9d8"},
+			ParentID: augno.String("lc_014d187d99b31926f0c74af9d8"),
 		},
 		Include: []string{"parent"},
 	})
@@ -89,10 +89,10 @@ func TestOperationLocationUpdateWithOptionalParams(t *testing.T) {
 		augno.OperationLocationUpdateParams{
 			Include: []string{"parent"},
 			UpdateLocationRequest: augno.UpdateLocationRequestParam{
-				ChildIDs: []string{"string"},
+				ChildIDs: []string{"lc_014d187d99b31926f0c74af9d8"},
 				Name:     augno.String("Warehouse B"),
-				ParentID: augno.String("parent_id"),
-				Type:     augno.LocationTypeCodeBuilding,
+				ParentID: augno.String("lc_014d187d99b31926f0c74af9d8"),
+				Type:     augno.LocationTypeCodeSection,
 			},
 		},
 	)

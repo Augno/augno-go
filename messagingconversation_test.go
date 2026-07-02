@@ -27,12 +27,12 @@ func TestMessagingConversationNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.New(context.TODO(), augno.MessagingConversationNewParams{
 		CreateConversationRequest: augno.CreateConversationRequestParam{
-			Type:                      augno.CreateConversationRequestTypeDirectMessage,
-			GroupID:                   augno.String("group_id"),
+			Type:                      augno.CreateConversationRequestTypeGroup,
+			GroupID:                   augno.String("cvgp_018e88072d1320808dc97abc"),
 			ParticipantAccountUserIDs: []string{"acus_01ea9983ddb41dacc44ecf997c"},
-			Title:                     augno.String("title"),
-			TopicResourceID:           augno.String("topic_resource_id"),
-			TopicResourceType:         augno.CreateConversationRequestTopicResourceTypeAccount,
+			Title:                     augno.String("Order #1042 — shipping question"),
+			TopicResourceID:           augno.String("or_01d5034136c3ccc048abecc312"),
+			TopicResourceType:         augno.CreateConversationRequestTopicResourceTypeSalesOrder,
 		},
 		Include: []string{"assignee"},
 	})
