@@ -42,6 +42,8 @@ func NewSaleSalesOrderService(opts ...option.RequestOption) (r SaleSalesOrderSer
 // The order number is assigned automatically, and a sales rep is auto-assigned
 // when none is provided. A shipping line is always added to the order, plus a
 // discount line when an order discount is supplied.
+//
+// This endpoint requires the permission: `sales_orders:create`.
 func (r *SaleSalesOrderService) New(ctx context.Context, params SaleSalesOrderNewParams, opts ...option.RequestOption) (res *SalesOrder, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/sales-orders"
@@ -50,6 +52,9 @@ func (r *SaleSalesOrderService) New(ctx context.Context, params SaleSalesOrderNe
 }
 
 // Returns a paginated list of sales orders for the current account.
+//
+// This endpoint requires the permissions: `sales_orders:read`, `customers:read`,
+// `suppliers:read`.
 func (r *SaleSalesOrderService) List(ctx context.Context, query SaleSalesOrderListParams, opts ...option.RequestOption) (res *ListSalesOrder, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/sales-orders"
@@ -77,12 +82,13 @@ type CreateSalesOrderLineInputParam struct {
 	ProductID string `json:"product_id" api:"required"`
 	// A value with an associated unit, used in create and update requests.
 	Quantity QuantityInputParam `json:"quantity,omitzero" api:"required"`
-	// EDI line item ID.
-	EdiLineItemID param.Opt[string] `json:"edi_line_item_id,omitzero"`
-	// Description recorded on the line. Defaults to the product's description when
-	// omitted.
+	// Description recorded on the line.
+	//
+	// Defaults to the product's description when omitted.
 	ProductDescription param.Opt[string] `json:"product_description,omitzero"`
-	// SKU recorded on the line. Defaults to the product's SKU when omitted.
+	// SKU recorded on the line.
+	//
+	// Defaults to the product's SKU when omitted.
 	ProductSKU param.Opt[string] `json:"product_sku,omitzero"`
 	// A rate value with its numerator and denominator units, used in create and update
 	// requests.
@@ -103,8 +109,9 @@ func (r *CreateSalesOrderLineInputParam) UnmarshalJSON(data []byte) error {
 // The properties BillToAddressID, BuyerAccountID, Lines, PriorityCode,
 // ShipToAddressID are required.
 type CreateSalesOrderRequestParam struct {
-	// Bill-to address ID. Must reference an existing address on the order's owner or
-	// buyer account.
+	// Bill-to address ID.
+	//
+	// Must reference an existing address on the order's owner or buyer account.
 	BillToAddressID string `json:"bill_to_address_id" api:"required"`
 	// ID of the customer account the order is for.
 	BuyerAccountID string `json:"buyer_account_id" api:"required"`
@@ -112,8 +119,9 @@ type CreateSalesOrderRequestParam struct {
 	Lines []CreateSalesOrderLineInputParam `json:"lines,omitzero" api:"required"`
 	// Fulfillment priority used to rank the order on the shop floor.
 	PriorityCode string `json:"priority_code" api:"required"`
-	// Ship-to address ID. Must reference an existing address on the order's owner or
-	// buyer account.
+	// Ship-to address ID.
+	//
+	// Must reference an existing address on the order's owner or buyer account.
 	ShipToAddressID string `json:"ship_to_address_id" api:"required"`
 	// Carrier billing account number.
 	CarrierBillingAccountNumber param.Opt[string] `json:"carrier_billing_account_number,omitzero"`
@@ -179,10 +187,12 @@ const (
 )
 
 // CreatedBy describes who created a resource and their relationship to the account
-// that owns it. Resolved from the resource's create audit event when the
-// `created_by` field is included.
+// that owns it.
+//
+// It is resolved from the resource's create audit event.
 type CreatedBy struct {
-	// Reference to an actor (user, API key, or agent).
+	// Reference to an actor — the user, API key, agent, or group identity associated
+	// with an action.
 	Actor Actor `json:"actor" api:"required"`
 	// Resource type identifier.
 	//
@@ -235,10 +245,8 @@ const (
 // Freight describes the carrier selection and freight billing for a record.
 //
 // It is a generic, reusable sub-resource shared by anything that carries shipping
-// configuration — e.g. a sales order's chosen freight, or a customer's default
-// freight preferences. It is itself expanded via its parent (e.g.
-// include[]=freight); when present, the full carrier and service level are
-// included.
+// configuration — for example a sales order's chosen freight, or a customer's
+// default freight preferences.
 type Freight struct {
 	// Carrier account number to bill, used when `billing_type` is `third_party`.
 	BillingAccountNumber string `json:"billing_account_number" api:"required"`
@@ -259,9 +267,10 @@ type Freight struct {
 	//
 	// Any of "freight".
 	Object FreightObject `json:"object" api:"required"`
-	// Freight policy (who arranges and pays for freight).
+	// How freight is arranged and billed for the record.
 	//
-	// Populated where a policy applies, such as customer defaults; null otherwise.
+	// Populated where a freight policy applies, such as a customer's default
+	// preferences.
 	//
 	// - `free_freight`: no shipping cost to the buyer.
 	// - `billed_freight`: freight is billed to the buyer.
@@ -307,9 +316,10 @@ const (
 	FreightObjectFreight FreightObject = "freight"
 )
 
-// Freight policy (who arranges and pays for freight).
+// How freight is arranged and billed for the record.
 //
-// Populated where a policy applies, such as customer defaults; null otherwise.
+// Populated where a freight policy applies, such as a customer's default
+// preferences.
 //
 // - `free_freight`: no shipping cost to the buyer.
 // - `billed_freight`: freight is billed to the buyer.
@@ -510,7 +520,7 @@ type OrderDiscount struct {
 	//
 	// Any of "percentage", "amount".
 	DiscountType OrderDiscountDiscountType `json:"discount_type" api:"required"`
-	// Display name.
+	// Display name of the discount.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -574,7 +584,7 @@ const (
 // metadata fields hold type-specific detail that varies by the kind of record
 // referenced.
 type Record struct {
-	// Record ID.
+	// Unique identifier for the record.
 	ID string `json:"id" api:"required"`
 	// Type-specific metadata.
 	//
@@ -681,8 +691,9 @@ type SalesOrder struct {
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// CreatedBy describes who created a resource and their relationship to the account
-	// that owns it. Resolved from the resource's create audit event when the
-	// `created_by` field is included.
+	// that owns it.
+	//
+	// It is resolved from the resource's create audit event.
 	CreatedBy CreatedBy `json:"created_by" api:"required"`
 	// A business you sell to, with its contact details, default fulfillment settings,
 	// and order policies.
@@ -698,10 +709,8 @@ type SalesOrder struct {
 	// Freight describes the carrier selection and freight billing for a record.
 	//
 	// It is a generic, reusable sub-resource shared by anything that carries shipping
-	// configuration — e.g. a sales order's chosen freight, or a customer's default
-	// freight preferences. It is itself expanded via its parent (e.g.
-	// include[]=freight); when present, the full carrier and service level are
-	// included.
+	// configuration — for example a sales order's chosen freight, or a customer's
+	// default freight preferences.
 	Freight Freight `json:"freight" api:"required"`
 	// When the order was issued (moved out of `estimate`).
 	IssuedAt time.Time `json:"issued_at" api:"required" format:"date-time"`
@@ -745,7 +754,8 @@ type SalesOrder struct {
 	// The members are individually expandable (e.g. include[]=related.pick). The group
 	// is null unless at least one of its members is expanded.
 	Related SalesOrderRelated `json:"related" api:"required"`
-	// Reference to an actor (user, API key, or agent).
+	// Reference to an actor — the user, API key, agent, or group identity associated
+	// with an action.
 	SalesRep Actor `json:"sales_rep" api:"required"`
 	// A saved address that can be used for billing and shipping on sales orders,
 	// invoices, and shipments.
@@ -1076,11 +1086,6 @@ type SaleSalesOrderListParams struct {
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Latest order creation date to include, in `YYYY-MM-DD` format (inclusive).
 	EndDate param.Opt[string] `query:"end_date,omitzero" json:"-"`
-	// Whether to exclude internal orders.
-	//
-	// When `true`, omits orders the account placed with itself (the buyer is the same
-	// account that owns the order).
-	ExcludeInternalOrders param.Opt[bool] `query:"exclude_internal_orders,omitzero" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Free-text search term used to filter results.

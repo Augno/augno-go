@@ -1,0 +1,564 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+package augno
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"net/url"
+	"slices"
+	"time"
+
+	"github.com/augno/augno-go/internal/apijson"
+	"github.com/augno/augno-go/internal/apiquery"
+	shimjson "github.com/augno/augno-go/internal/encoding/json"
+	"github.com/augno/augno-go/internal/requestconfig"
+	"github.com/augno/augno-go/option"
+	"github.com/augno/augno-go/packages/param"
+	"github.com/augno/augno-go/packages/respjson"
+)
+
+// Create conversations, send and read messages (1:1 direct messages).
+//
+// MessagingConversationLinkService contains methods and other services that help
+// with interacting with the augno API.
+//
+// Note, unlike clients, this service does not read variables from the environment
+// automatically. You should not instantiate this service directly, and instead use
+// the [NewMessagingConversationLinkService] method instead.
+type MessagingConversationLinkService struct {
+	options []option.RequestOption
+}
+
+// NewMessagingConversationLinkService generates a new service that applies the
+// given options to each request. These options are applied after the parent
+// client's options (if there is one), and before any request-specific options.
+func NewMessagingConversationLinkService(opts ...option.RequestOption) (r MessagingConversationLinkService) {
+	r = MessagingConversationLinkService{}
+	r.options = opts
+	return
+}
+
+// Links a business record to a conversation.
+//
+// This endpoint requires the permission: `messaging:update`.
+func (r *MessagingConversationLinkService) New(ctx context.Context, id string, params MessagingConversationLinkNewParams, opts ...option.RequestOption) (res *ConversationLink, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/messaging/conversations/%s/links", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
+// Returns the business records linked to a conversation.
+//
+// This endpoint requires the permission: `messaging:read`.
+func (r *MessagingConversationLinkService) List(ctx context.Context, id string, query MessagingConversationLinkListParams, opts ...option.RequestOption) (res *ListConversationLink, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/messaging/conversations/%s/links", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
+// Removes a business-record link from a conversation.
+//
+// This endpoint requires the permission: `messaging:update`.
+func (r *MessagingConversationLinkService) Delete(ctx context.Context, linkID string, body MessagingConversationLinkDeleteParams, opts ...option.RequestOption) (res *MessagingConversationLinkDeleteResponse, err error) {
+	opts = slices.Concat(r.options, opts)
+	if body.ID == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	if linkID == "" {
+		err = errors.New("missing required link_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/messaging/conversations/%s/links/%s", url.PathEscape(body.ID), url.PathEscape(linkID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return res, err
+}
+
+// Request to link a business record to a conversation.
+//
+// The properties ResourceID, ResourceType are required.
+type AddConversationLinkRequestParam struct {
+	// The id of the business record to link.
+	ResourceID string `json:"resource_id" api:"required"`
+	// The kind of business record to link.
+	//
+	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
+	// "sales_order_related", "order_contact", "user", "address", "api_key",
+	// "created_api_key", "refresh_token", "list", "sandbox", "registration_session",
+	// "pricing_plan", "account_plan", "plan_change", "enterprise_inquiry",
+	// "request_log", "audit_event", "audit_field_change", "role", "unit",
+	// "account_affiliation", "agent_definition", "available_tool",
+	// "agent_definition_tool", "agent_account_status", "agent_run", "agent_action",
+	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
+	// "notification_unread_count", "notification_send_result",
+	// "notification_unread_summary", "announcement", "conversation",
+	// "conversation_participant", "chat_message",
+	// "notification_unread_summary_account", "messaging_block",
+	// "notification_preference", "message_attachment", "attachment_upload_target",
+	// "scheduled_message", "messaging_contact", "message_report", "tool_group",
+	// "model", "payment_term", "shipping_term", "quantity", "account_group",
+	// "support_route", "support_availability", "account_status", "geolocation",
+	// "account_user", "department", "account_integration", "account_price",
+	// "product_line", "item_category", "attribute", "rate",
+	// "account_group_product_line_access", "sales_target", "adjustment_type",
+	// "account_branding", "account_portal", "account_logo_url", "public_account",
+	// "property", "carrier", "service_level", "item", "item_inventory", "product",
+	// "batch", "batch_flow_node", "scanning_consumption", "open_batch_summary",
+	// "scanning_production_step_info", "scanning_station", "production_step",
+	// "production_run", "machine", "child_account", "unit_group", "unit_group_unit",
+	// "consumption", "customer_product_line_access", "customer",
+	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "inventory_change_log", "invoice", "invoice_summary",
+	// "invoice_line", "invoice_allocation", "invoice_for_payment", "shipment",
+	// "shipment_summary", "shipment_line", "shipping_case", "shipping_case_label_url",
+	// "settlement", "settlement_summary", "role_permission", "registration_flow",
+	// "registration_flow_option", "transaction", "transaction_summary",
+	// "transaction_method", "transaction_type", "transaction_allocation",
+	// "usage_item", "account_usage_response", "subscription_info",
+	// "billing_portal_session_response", "switch_plan_response",
+	// "ensure_billing_customer_response", "spending_cap_response", "agent_spend_info",
+	// "webhook_response", "address_suggestion", "address_components",
+	// "address_details_result", "validated_address", "plan_limit",
+	// "plan_change_proration", "plan_change_line_item", "setup_billing_response",
+	// "confirm_payment_response", "oauth_response", "oauth_status_response",
+	// "stripe_publishable_key", "stripe_status", "healthcheck",
+	// "agent_definition_config", "trigger_config", "customer_contact_info",
+	// "customer_freight_preferences", "customer_defaults",
+	// "customer_notification_preferences", "order_discount", "sales_order_line",
+	// "sales_order_type", "sales_order_status", "material", "supplier_material",
+	// "part", "permission_group", "permission", "pick", "pick_line", "product_type",
+	// "production", "production_flow", "map", "purchase_order", "purchase_order_line",
+	// "supplier", "supplier_summary", "receivable_entry", "receiving_order",
+	// "receiving_order_line", "email_contact", "allocation_entry",
+	// "open_credit_entry", "volume_discount", "volume_discount_tier",
+	// "analyze_deliveries_response", "analyze_manufacturing_response",
+	// "analyze_manufacturing_batch_response", "analyze_quarterly_orders_response",
+	// "analyze_new_customers_response", "analyze_oee_response",
+	// "catalog_product_line", "catalog_category", "catalog_product",
+	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
+	// "inventory_item", "analyze_weeks_of_sales_response",
+	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
+	// "sys_property_value", "territory", "tenancy", "checkout_session",
+	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
+	// "created_by", "message", "account_photo_upload_result",
+	// "user_photo_upload_result", "user_photo_url", "batch_lot",
+	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
+	// "pick_shipments_response", "tenancy_pending_registration",
+	// "invoice_allocation_entry", "allocation_customer",
+	// "checkout_sales_order_response", "create_production_run_response",
+	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
+	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
+	ResourceType AddConversationLinkRequestResourceType `json:"resource_type,omitzero" api:"required"`
+	paramObj
+}
+
+func (r AddConversationLinkRequestParam) MarshalJSON() (data []byte, err error) {
+	type shadow AddConversationLinkRequestParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AddConversationLinkRequestParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The kind of business record to link.
+type AddConversationLinkRequestResourceType string
+
+const (
+	AddConversationLinkRequestResourceTypeAccount                           AddConversationLinkRequestResourceType = "account"
+	AddConversationLinkRequestResourceTypeActor                             AddConversationLinkRequestResourceType = "actor"
+	AddConversationLinkRequestResourceTypeEntity                            AddConversationLinkRequestResourceType = "entity"
+	AddConversationLinkRequestResourceTypeRecord                            AddConversationLinkRequestResourceType = "record"
+	AddConversationLinkRequestResourceTypeFreight                           AddConversationLinkRequestResourceType = "freight"
+	AddConversationLinkRequestResourceTypeSalesOrderTotals                  AddConversationLinkRequestResourceType = "sales_order_totals"
+	AddConversationLinkRequestResourceTypeSalesOrderRelated                 AddConversationLinkRequestResourceType = "sales_order_related"
+	AddConversationLinkRequestResourceTypeOrderContact                      AddConversationLinkRequestResourceType = "order_contact"
+	AddConversationLinkRequestResourceTypeUser                              AddConversationLinkRequestResourceType = "user"
+	AddConversationLinkRequestResourceTypeAddress                           AddConversationLinkRequestResourceType = "address"
+	AddConversationLinkRequestResourceTypeAPIKey                            AddConversationLinkRequestResourceType = "api_key"
+	AddConversationLinkRequestResourceTypeCreatedAPIKey                     AddConversationLinkRequestResourceType = "created_api_key"
+	AddConversationLinkRequestResourceTypeRefreshToken                      AddConversationLinkRequestResourceType = "refresh_token"
+	AddConversationLinkRequestResourceTypeList                              AddConversationLinkRequestResourceType = "list"
+	AddConversationLinkRequestResourceTypeSandbox                           AddConversationLinkRequestResourceType = "sandbox"
+	AddConversationLinkRequestResourceTypeRegistrationSession               AddConversationLinkRequestResourceType = "registration_session"
+	AddConversationLinkRequestResourceTypePricingPlan                       AddConversationLinkRequestResourceType = "pricing_plan"
+	AddConversationLinkRequestResourceTypeAccountPlan                       AddConversationLinkRequestResourceType = "account_plan"
+	AddConversationLinkRequestResourceTypePlanChange                        AddConversationLinkRequestResourceType = "plan_change"
+	AddConversationLinkRequestResourceTypeEnterpriseInquiry                 AddConversationLinkRequestResourceType = "enterprise_inquiry"
+	AddConversationLinkRequestResourceTypeRequestLog                        AddConversationLinkRequestResourceType = "request_log"
+	AddConversationLinkRequestResourceTypeAuditEvent                        AddConversationLinkRequestResourceType = "audit_event"
+	AddConversationLinkRequestResourceTypeAuditFieldChange                  AddConversationLinkRequestResourceType = "audit_field_change"
+	AddConversationLinkRequestResourceTypeRole                              AddConversationLinkRequestResourceType = "role"
+	AddConversationLinkRequestResourceTypeUnit                              AddConversationLinkRequestResourceType = "unit"
+	AddConversationLinkRequestResourceTypeAccountAffiliation                AddConversationLinkRequestResourceType = "account_affiliation"
+	AddConversationLinkRequestResourceTypeAgentDefinition                   AddConversationLinkRequestResourceType = "agent_definition"
+	AddConversationLinkRequestResourceTypeAvailableTool                     AddConversationLinkRequestResourceType = "available_tool"
+	AddConversationLinkRequestResourceTypeAgentDefinitionTool               AddConversationLinkRequestResourceType = "agent_definition_tool"
+	AddConversationLinkRequestResourceTypeAgentAccountStatus                AddConversationLinkRequestResourceType = "agent_account_status"
+	AddConversationLinkRequestResourceTypeAgentRun                          AddConversationLinkRequestResourceType = "agent_run"
+	AddConversationLinkRequestResourceTypeAgentAction                       AddConversationLinkRequestResourceType = "agent_action"
+	AddConversationLinkRequestResourceTypeAgentRunStep                      AddConversationLinkRequestResourceType = "agent_run_step"
+	AddConversationLinkRequestResourceTypeAgentTokenUsage                   AddConversationLinkRequestResourceType = "agent_token_usage"
+	AddConversationLinkRequestResourceTypeAgentMemory                       AddConversationLinkRequestResourceType = "agent_memory"
+	AddConversationLinkRequestResourceTypeNotification                      AddConversationLinkRequestResourceType = "notification"
+	AddConversationLinkRequestResourceTypeNotificationUnreadCount           AddConversationLinkRequestResourceType = "notification_unread_count"
+	AddConversationLinkRequestResourceTypeNotificationSendResult            AddConversationLinkRequestResourceType = "notification_send_result"
+	AddConversationLinkRequestResourceTypeNotificationUnreadSummary         AddConversationLinkRequestResourceType = "notification_unread_summary"
+	AddConversationLinkRequestResourceTypeAnnouncement                      AddConversationLinkRequestResourceType = "announcement"
+	AddConversationLinkRequestResourceTypeConversation                      AddConversationLinkRequestResourceType = "conversation"
+	AddConversationLinkRequestResourceTypeConversationParticipant           AddConversationLinkRequestResourceType = "conversation_participant"
+	AddConversationLinkRequestResourceTypeChatMessage                       AddConversationLinkRequestResourceType = "chat_message"
+	AddConversationLinkRequestResourceTypeNotificationUnreadSummaryAccount  AddConversationLinkRequestResourceType = "notification_unread_summary_account"
+	AddConversationLinkRequestResourceTypeMessagingBlock                    AddConversationLinkRequestResourceType = "messaging_block"
+	AddConversationLinkRequestResourceTypeNotificationPreference            AddConversationLinkRequestResourceType = "notification_preference"
+	AddConversationLinkRequestResourceTypeMessageAttachment                 AddConversationLinkRequestResourceType = "message_attachment"
+	AddConversationLinkRequestResourceTypeAttachmentUploadTarget            AddConversationLinkRequestResourceType = "attachment_upload_target"
+	AddConversationLinkRequestResourceTypeScheduledMessage                  AddConversationLinkRequestResourceType = "scheduled_message"
+	AddConversationLinkRequestResourceTypeMessagingContact                  AddConversationLinkRequestResourceType = "messaging_contact"
+	AddConversationLinkRequestResourceTypeMessageReport                     AddConversationLinkRequestResourceType = "message_report"
+	AddConversationLinkRequestResourceTypeToolGroup                         AddConversationLinkRequestResourceType = "tool_group"
+	AddConversationLinkRequestResourceTypeModel                             AddConversationLinkRequestResourceType = "model"
+	AddConversationLinkRequestResourceTypePaymentTerm                       AddConversationLinkRequestResourceType = "payment_term"
+	AddConversationLinkRequestResourceTypeShippingTerm                      AddConversationLinkRequestResourceType = "shipping_term"
+	AddConversationLinkRequestResourceTypeQuantity                          AddConversationLinkRequestResourceType = "quantity"
+	AddConversationLinkRequestResourceTypeAccountGroup                      AddConversationLinkRequestResourceType = "account_group"
+	AddConversationLinkRequestResourceTypeSupportRoute                      AddConversationLinkRequestResourceType = "support_route"
+	AddConversationLinkRequestResourceTypeSupportAvailability               AddConversationLinkRequestResourceType = "support_availability"
+	AddConversationLinkRequestResourceTypeAccountStatus                     AddConversationLinkRequestResourceType = "account_status"
+	AddConversationLinkRequestResourceTypeGeolocation                       AddConversationLinkRequestResourceType = "geolocation"
+	AddConversationLinkRequestResourceTypeAccountUser                       AddConversationLinkRequestResourceType = "account_user"
+	AddConversationLinkRequestResourceTypeDepartment                        AddConversationLinkRequestResourceType = "department"
+	AddConversationLinkRequestResourceTypeAccountIntegration                AddConversationLinkRequestResourceType = "account_integration"
+	AddConversationLinkRequestResourceTypeAccountPrice                      AddConversationLinkRequestResourceType = "account_price"
+	AddConversationLinkRequestResourceTypeProductLine                       AddConversationLinkRequestResourceType = "product_line"
+	AddConversationLinkRequestResourceTypeItemCategory                      AddConversationLinkRequestResourceType = "item_category"
+	AddConversationLinkRequestResourceTypeAttribute                         AddConversationLinkRequestResourceType = "attribute"
+	AddConversationLinkRequestResourceTypeRate                              AddConversationLinkRequestResourceType = "rate"
+	AddConversationLinkRequestResourceTypeAccountGroupProductLineAccess     AddConversationLinkRequestResourceType = "account_group_product_line_access"
+	AddConversationLinkRequestResourceTypeSalesTarget                       AddConversationLinkRequestResourceType = "sales_target"
+	AddConversationLinkRequestResourceTypeAdjustmentType                    AddConversationLinkRequestResourceType = "adjustment_type"
+	AddConversationLinkRequestResourceTypeAccountBranding                   AddConversationLinkRequestResourceType = "account_branding"
+	AddConversationLinkRequestResourceTypeAccountPortal                     AddConversationLinkRequestResourceType = "account_portal"
+	AddConversationLinkRequestResourceTypeAccountLogoURL                    AddConversationLinkRequestResourceType = "account_logo_url"
+	AddConversationLinkRequestResourceTypePublicAccount                     AddConversationLinkRequestResourceType = "public_account"
+	AddConversationLinkRequestResourceTypeProperty                          AddConversationLinkRequestResourceType = "property"
+	AddConversationLinkRequestResourceTypeCarrier                           AddConversationLinkRequestResourceType = "carrier"
+	AddConversationLinkRequestResourceTypeServiceLevel                      AddConversationLinkRequestResourceType = "service_level"
+	AddConversationLinkRequestResourceTypeItem                              AddConversationLinkRequestResourceType = "item"
+	AddConversationLinkRequestResourceTypeItemInventory                     AddConversationLinkRequestResourceType = "item_inventory"
+	AddConversationLinkRequestResourceTypeProduct                           AddConversationLinkRequestResourceType = "product"
+	AddConversationLinkRequestResourceTypeBatch                             AddConversationLinkRequestResourceType = "batch"
+	AddConversationLinkRequestResourceTypeBatchFlowNode                     AddConversationLinkRequestResourceType = "batch_flow_node"
+	AddConversationLinkRequestResourceTypeScanningConsumption               AddConversationLinkRequestResourceType = "scanning_consumption"
+	AddConversationLinkRequestResourceTypeOpenBatchSummary                  AddConversationLinkRequestResourceType = "open_batch_summary"
+	AddConversationLinkRequestResourceTypeScanningProductionStepInfo        AddConversationLinkRequestResourceType = "scanning_production_step_info"
+	AddConversationLinkRequestResourceTypeScanningStation                   AddConversationLinkRequestResourceType = "scanning_station"
+	AddConversationLinkRequestResourceTypeProductionStep                    AddConversationLinkRequestResourceType = "production_step"
+	AddConversationLinkRequestResourceTypeProductionRun                     AddConversationLinkRequestResourceType = "production_run"
+	AddConversationLinkRequestResourceTypeMachine                           AddConversationLinkRequestResourceType = "machine"
+	AddConversationLinkRequestResourceTypeChildAccount                      AddConversationLinkRequestResourceType = "child_account"
+	AddConversationLinkRequestResourceTypeUnitGroup                         AddConversationLinkRequestResourceType = "unit_group"
+	AddConversationLinkRequestResourceTypeUnitGroupUnit                     AddConversationLinkRequestResourceType = "unit_group_unit"
+	AddConversationLinkRequestResourceTypeConsumption                       AddConversationLinkRequestResourceType = "consumption"
+	AddConversationLinkRequestResourceTypeCustomerProductLineAccess         AddConversationLinkRequestResourceType = "customer_product_line_access"
+	AddConversationLinkRequestResourceTypeCustomer                          AddConversationLinkRequestResourceType = "customer"
+	AddConversationLinkRequestResourceTypeFrequentlyOrderedProduct          AddConversationLinkRequestResourceType = "frequently_ordered_product"
+	AddConversationLinkRequestResourceTypePriority                          AddConversationLinkRequestResourceType = "priority"
+	AddConversationLinkRequestResourceTypeDelivery                          AddConversationLinkRequestResourceType = "delivery"
+	AddConversationLinkRequestResourceTypeDeliveryLine                      AddConversationLinkRequestResourceType = "delivery_line"
+	AddConversationLinkRequestResourceTypeSalesOrder                        AddConversationLinkRequestResourceType = "sales_order"
+	AddConversationLinkRequestResourceTypeLocation                          AddConversationLinkRequestResourceType = "location"
+	AddConversationLinkRequestResourceTypeLocationType                      AddConversationLinkRequestResourceType = "location_type"
+	AddConversationLinkRequestResourceTypeLot                               AddConversationLinkRequestResourceType = "lot"
+	AddConversationLinkRequestResourceTypeEmailLog                          AddConversationLinkRequestResourceType = "email_log"
+	AddConversationLinkRequestResourceTypeEmailDomain                       AddConversationLinkRequestResourceType = "email_domain"
+	AddConversationLinkRequestResourceTypeEmailInbox                        AddConversationLinkRequestResourceType = "email_inbox"
+	AddConversationLinkRequestResourceTypeInventoryChangeLog                AddConversationLinkRequestResourceType = "inventory_change_log"
+	AddConversationLinkRequestResourceTypeInvoice                           AddConversationLinkRequestResourceType = "invoice"
+	AddConversationLinkRequestResourceTypeInvoiceSummary                    AddConversationLinkRequestResourceType = "invoice_summary"
+	AddConversationLinkRequestResourceTypeInvoiceLine                       AddConversationLinkRequestResourceType = "invoice_line"
+	AddConversationLinkRequestResourceTypeInvoiceAllocation                 AddConversationLinkRequestResourceType = "invoice_allocation"
+	AddConversationLinkRequestResourceTypeInvoiceForPayment                 AddConversationLinkRequestResourceType = "invoice_for_payment"
+	AddConversationLinkRequestResourceTypeShipment                          AddConversationLinkRequestResourceType = "shipment"
+	AddConversationLinkRequestResourceTypeShipmentSummary                   AddConversationLinkRequestResourceType = "shipment_summary"
+	AddConversationLinkRequestResourceTypeShipmentLine                      AddConversationLinkRequestResourceType = "shipment_line"
+	AddConversationLinkRequestResourceTypeShippingCase                      AddConversationLinkRequestResourceType = "shipping_case"
+	AddConversationLinkRequestResourceTypeShippingCaseLabelURL              AddConversationLinkRequestResourceType = "shipping_case_label_url"
+	AddConversationLinkRequestResourceTypeSettlement                        AddConversationLinkRequestResourceType = "settlement"
+	AddConversationLinkRequestResourceTypeSettlementSummary                 AddConversationLinkRequestResourceType = "settlement_summary"
+	AddConversationLinkRequestResourceTypeRolePermission                    AddConversationLinkRequestResourceType = "role_permission"
+	AddConversationLinkRequestResourceTypeRegistrationFlow                  AddConversationLinkRequestResourceType = "registration_flow"
+	AddConversationLinkRequestResourceTypeRegistrationFlowOption            AddConversationLinkRequestResourceType = "registration_flow_option"
+	AddConversationLinkRequestResourceTypeTransaction                       AddConversationLinkRequestResourceType = "transaction"
+	AddConversationLinkRequestResourceTypeTransactionSummary                AddConversationLinkRequestResourceType = "transaction_summary"
+	AddConversationLinkRequestResourceTypeTransactionMethod                 AddConversationLinkRequestResourceType = "transaction_method"
+	AddConversationLinkRequestResourceTypeTransactionType                   AddConversationLinkRequestResourceType = "transaction_type"
+	AddConversationLinkRequestResourceTypeTransactionAllocation             AddConversationLinkRequestResourceType = "transaction_allocation"
+	AddConversationLinkRequestResourceTypeUsageItem                         AddConversationLinkRequestResourceType = "usage_item"
+	AddConversationLinkRequestResourceTypeAccountUsageResponse              AddConversationLinkRequestResourceType = "account_usage_response"
+	AddConversationLinkRequestResourceTypeSubscriptionInfo                  AddConversationLinkRequestResourceType = "subscription_info"
+	AddConversationLinkRequestResourceTypeBillingPortalSessionResponse      AddConversationLinkRequestResourceType = "billing_portal_session_response"
+	AddConversationLinkRequestResourceTypeSwitchPlanResponse                AddConversationLinkRequestResourceType = "switch_plan_response"
+	AddConversationLinkRequestResourceTypeEnsureBillingCustomerResponse     AddConversationLinkRequestResourceType = "ensure_billing_customer_response"
+	AddConversationLinkRequestResourceTypeSpendingCapResponse               AddConversationLinkRequestResourceType = "spending_cap_response"
+	AddConversationLinkRequestResourceTypeAgentSpendInfo                    AddConversationLinkRequestResourceType = "agent_spend_info"
+	AddConversationLinkRequestResourceTypeWebhookResponse                   AddConversationLinkRequestResourceType = "webhook_response"
+	AddConversationLinkRequestResourceTypeAddressSuggestion                 AddConversationLinkRequestResourceType = "address_suggestion"
+	AddConversationLinkRequestResourceTypeAddressComponents                 AddConversationLinkRequestResourceType = "address_components"
+	AddConversationLinkRequestResourceTypeAddressDetailsResult              AddConversationLinkRequestResourceType = "address_details_result"
+	AddConversationLinkRequestResourceTypeValidatedAddress                  AddConversationLinkRequestResourceType = "validated_address"
+	AddConversationLinkRequestResourceTypePlanLimit                         AddConversationLinkRequestResourceType = "plan_limit"
+	AddConversationLinkRequestResourceTypePlanChangeProration               AddConversationLinkRequestResourceType = "plan_change_proration"
+	AddConversationLinkRequestResourceTypePlanChangeLineItem                AddConversationLinkRequestResourceType = "plan_change_line_item"
+	AddConversationLinkRequestResourceTypeSetupBillingResponse              AddConversationLinkRequestResourceType = "setup_billing_response"
+	AddConversationLinkRequestResourceTypeConfirmPaymentResponse            AddConversationLinkRequestResourceType = "confirm_payment_response"
+	AddConversationLinkRequestResourceTypeOAuthResponse                     AddConversationLinkRequestResourceType = "oauth_response"
+	AddConversationLinkRequestResourceTypeOAuthStatusResponse               AddConversationLinkRequestResourceType = "oauth_status_response"
+	AddConversationLinkRequestResourceTypeStripePublishableKey              AddConversationLinkRequestResourceType = "stripe_publishable_key"
+	AddConversationLinkRequestResourceTypeStripeStatus                      AddConversationLinkRequestResourceType = "stripe_status"
+	AddConversationLinkRequestResourceTypeHealthcheck                       AddConversationLinkRequestResourceType = "healthcheck"
+	AddConversationLinkRequestResourceTypeAgentDefinitionConfig             AddConversationLinkRequestResourceType = "agent_definition_config"
+	AddConversationLinkRequestResourceTypeTriggerConfig                     AddConversationLinkRequestResourceType = "trigger_config"
+	AddConversationLinkRequestResourceTypeCustomerContactInfo               AddConversationLinkRequestResourceType = "customer_contact_info"
+	AddConversationLinkRequestResourceTypeCustomerFreightPreferences        AddConversationLinkRequestResourceType = "customer_freight_preferences"
+	AddConversationLinkRequestResourceTypeCustomerDefaults                  AddConversationLinkRequestResourceType = "customer_defaults"
+	AddConversationLinkRequestResourceTypeCustomerNotificationPreferences   AddConversationLinkRequestResourceType = "customer_notification_preferences"
+	AddConversationLinkRequestResourceTypeOrderDiscount                     AddConversationLinkRequestResourceType = "order_discount"
+	AddConversationLinkRequestResourceTypeSalesOrderLine                    AddConversationLinkRequestResourceType = "sales_order_line"
+	AddConversationLinkRequestResourceTypeSalesOrderType                    AddConversationLinkRequestResourceType = "sales_order_type"
+	AddConversationLinkRequestResourceTypeSalesOrderStatus                  AddConversationLinkRequestResourceType = "sales_order_status"
+	AddConversationLinkRequestResourceTypeMaterial                          AddConversationLinkRequestResourceType = "material"
+	AddConversationLinkRequestResourceTypeSupplierMaterial                  AddConversationLinkRequestResourceType = "supplier_material"
+	AddConversationLinkRequestResourceTypePart                              AddConversationLinkRequestResourceType = "part"
+	AddConversationLinkRequestResourceTypePermissionGroup                   AddConversationLinkRequestResourceType = "permission_group"
+	AddConversationLinkRequestResourceTypePermission                        AddConversationLinkRequestResourceType = "permission"
+	AddConversationLinkRequestResourceTypePick                              AddConversationLinkRequestResourceType = "pick"
+	AddConversationLinkRequestResourceTypePickLine                          AddConversationLinkRequestResourceType = "pick_line"
+	AddConversationLinkRequestResourceTypeProductType                       AddConversationLinkRequestResourceType = "product_type"
+	AddConversationLinkRequestResourceTypeProduction                        AddConversationLinkRequestResourceType = "production"
+	AddConversationLinkRequestResourceTypeProductionFlow                    AddConversationLinkRequestResourceType = "production_flow"
+	AddConversationLinkRequestResourceTypeMap                               AddConversationLinkRequestResourceType = "map"
+	AddConversationLinkRequestResourceTypePurchaseOrder                     AddConversationLinkRequestResourceType = "purchase_order"
+	AddConversationLinkRequestResourceTypePurchaseOrderLine                 AddConversationLinkRequestResourceType = "purchase_order_line"
+	AddConversationLinkRequestResourceTypeSupplier                          AddConversationLinkRequestResourceType = "supplier"
+	AddConversationLinkRequestResourceTypeSupplierSummary                   AddConversationLinkRequestResourceType = "supplier_summary"
+	AddConversationLinkRequestResourceTypeReceivableEntry                   AddConversationLinkRequestResourceType = "receivable_entry"
+	AddConversationLinkRequestResourceTypeReceivingOrder                    AddConversationLinkRequestResourceType = "receiving_order"
+	AddConversationLinkRequestResourceTypeReceivingOrderLine                AddConversationLinkRequestResourceType = "receiving_order_line"
+	AddConversationLinkRequestResourceTypeEmailContact                      AddConversationLinkRequestResourceType = "email_contact"
+	AddConversationLinkRequestResourceTypeAllocationEntry                   AddConversationLinkRequestResourceType = "allocation_entry"
+	AddConversationLinkRequestResourceTypeOpenCreditEntry                   AddConversationLinkRequestResourceType = "open_credit_entry"
+	AddConversationLinkRequestResourceTypeVolumeDiscount                    AddConversationLinkRequestResourceType = "volume_discount"
+	AddConversationLinkRequestResourceTypeVolumeDiscountTier                AddConversationLinkRequestResourceType = "volume_discount_tier"
+	AddConversationLinkRequestResourceTypeAnalyzeDeliveriesResponse         AddConversationLinkRequestResourceType = "analyze_deliveries_response"
+	AddConversationLinkRequestResourceTypeAnalyzeManufacturingResponse      AddConversationLinkRequestResourceType = "analyze_manufacturing_response"
+	AddConversationLinkRequestResourceTypeAnalyzeManufacturingBatchResponse AddConversationLinkRequestResourceType = "analyze_manufacturing_batch_response"
+	AddConversationLinkRequestResourceTypeAnalyzeQuarterlyOrdersResponse    AddConversationLinkRequestResourceType = "analyze_quarterly_orders_response"
+	AddConversationLinkRequestResourceTypeAnalyzeNewCustomersResponse       AddConversationLinkRequestResourceType = "analyze_new_customers_response"
+	AddConversationLinkRequestResourceTypeAnalyzeOeeResponse                AddConversationLinkRequestResourceType = "analyze_oee_response"
+	AddConversationLinkRequestResourceTypeCatalogProductLine                AddConversationLinkRequestResourceType = "catalog_product_line"
+	AddConversationLinkRequestResourceTypeCatalogCategory                   AddConversationLinkRequestResourceType = "catalog_category"
+	AddConversationLinkRequestResourceTypeCatalogProduct                    AddConversationLinkRequestResourceType = "catalog_product"
+	AddConversationLinkRequestResourceTypeCatalogProperty                   AddConversationLinkRequestResourceType = "catalog_property"
+	AddConversationLinkRequestResourceTypeCatalogAttribute                  AddConversationLinkRequestResourceType = "catalog_attribute"
+	AddConversationLinkRequestResourceTypeDcLocation                        AddConversationLinkRequestResourceType = "dc_location"
+	AddConversationLinkRequestResourceTypeEdiRun                            AddConversationLinkRequestResourceType = "edi_run"
+	AddConversationLinkRequestResourceTypeInventoryItem                     AddConversationLinkRequestResourceType = "inventory_item"
+	AddConversationLinkRequestResourceTypeAnalyzeWeeksOfSalesResponse       AddConversationLinkRequestResourceType = "analyze_weeks_of_sales_response"
+	AddConversationLinkRequestResourceTypeBulkReconcileItemsResponse        AddConversationLinkRequestResourceType = "bulk_reconcile_items_response"
+	AddConversationLinkRequestResourceTypeSysProperty                       AddConversationLinkRequestResourceType = "sys_property"
+	AddConversationLinkRequestResourceTypeSysPropertyType                   AddConversationLinkRequestResourceType = "sys_property_type"
+	AddConversationLinkRequestResourceTypeSysPropertyValue                  AddConversationLinkRequestResourceType = "sys_property_value"
+	AddConversationLinkRequestResourceTypeTerritory                         AddConversationLinkRequestResourceType = "territory"
+	AddConversationLinkRequestResourceTypeTenancy                           AddConversationLinkRequestResourceType = "tenancy"
+	AddConversationLinkRequestResourceTypeCheckoutSession                   AddConversationLinkRequestResourceType = "checkout_session"
+	AddConversationLinkRequestResourceTypeEstimateRateResult                AddConversationLinkRequestResourceType = "estimate_rate_result"
+	AddConversationLinkRequestResourceTypeRateShopOption                    AddConversationLinkRequestResourceType = "rate_shop_option"
+	AddConversationLinkRequestResourceTypeRateShopResult                    AddConversationLinkRequestResourceType = "rate_shop_result"
+	AddConversationLinkRequestResourceTypeOwner                             AddConversationLinkRequestResourceType = "owner"
+	AddConversationLinkRequestResourceTypeCreatedBy                         AddConversationLinkRequestResourceType = "created_by"
+	AddConversationLinkRequestResourceTypeMessage                           AddConversationLinkRequestResourceType = "message"
+	AddConversationLinkRequestResourceTypeAccountPhotoUploadResult          AddConversationLinkRequestResourceType = "account_photo_upload_result"
+	AddConversationLinkRequestResourceTypeUserPhotoUploadResult             AddConversationLinkRequestResourceType = "user_photo_upload_result"
+	AddConversationLinkRequestResourceTypeUserPhotoURL                      AddConversationLinkRequestResourceType = "user_photo_url"
+	AddConversationLinkRequestResourceTypeBatchLot                          AddConversationLinkRequestResourceType = "batch_lot"
+	AddConversationLinkRequestResourceTypeCheckDuplicateResult              AddConversationLinkRequestResourceType = "check_duplicate_result"
+	AddConversationLinkRequestResourceTypeItemTrendPoint                    AddConversationLinkRequestResourceType = "item_trend_point"
+	AddConversationLinkRequestResourceTypePackPickResponse                  AddConversationLinkRequestResourceType = "pack_pick_response"
+	AddConversationLinkRequestResourceTypePickShipmentsResponse             AddConversationLinkRequestResourceType = "pick_shipments_response"
+	AddConversationLinkRequestResourceTypeTenancyPendingRegistration        AddConversationLinkRequestResourceType = "tenancy_pending_registration"
+	AddConversationLinkRequestResourceTypeInvoiceAllocationEntry            AddConversationLinkRequestResourceType = "invoice_allocation_entry"
+	AddConversationLinkRequestResourceTypeAllocationCustomer                AddConversationLinkRequestResourceType = "allocation_customer"
+	AddConversationLinkRequestResourceTypeCheckoutSalesOrderResponse        AddConversationLinkRequestResourceType = "checkout_sales_order_response"
+	AddConversationLinkRequestResourceTypeCreateProductionRunResponse       AddConversationLinkRequestResourceType = "create_production_run_response"
+	AddConversationLinkRequestResourceTypeSalesOrderPriceQuote              AddConversationLinkRequestResourceType = "sales_order_price_quote"
+	AddConversationLinkRequestResourceTypeHubspotSyncJob                    AddConversationLinkRequestResourceType = "hubspot_sync_job"
+	AddConversationLinkRequestResourceTypeHubspotSyncReport                 AddConversationLinkRequestResourceType = "hubspot_sync_report"
+	AddConversationLinkRequestResourceTypeHubspotCompanyReview              AddConversationLinkRequestResourceType = "hubspot_company_review"
+	AddConversationLinkRequestResourceTypeHubspotCompanyCandidate           AddConversationLinkRequestResourceType = "hubspot_company_candidate"
+	AddConversationLinkRequestResourceTypeContactMatch                      AddConversationLinkRequestResourceType = "contact_match"
+	AddConversationLinkRequestResourceTypeReplyDraft                        AddConversationLinkRequestResourceType = "reply_draft"
+	AddConversationLinkRequestResourceTypeConversationLink                  AddConversationLinkRequestResourceType = "conversation_link"
+	AddConversationLinkRequestResourceTypeMessagingGroup                    AddConversationLinkRequestResourceType = "messaging_group"
+	AddConversationLinkRequestResourceTypeMessagingGroupMember              AddConversationLinkRequestResourceType = "messaging_group_member"
+)
+
+// A business-record link on a conversation: the record the conversation is about
+// (an order, invoice, shipment, customer, …), shown prominently and usable as
+// agent context.
+type ConversationLink struct {
+	// Conversation link ID.
+	ID string `json:"id" api:"required"`
+	// A conversation thread the caller participates in.
+	Conversation Conversation `json:"conversation" api:"required"`
+	// Creation timestamp.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Resource type identifier.
+	//
+	// Any of "conversation_link".
+	Object ConversationLinkObject `json:"object" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	Resource Entity `json:"resource" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID           respjson.Field
+		Conversation respjson.Field
+		CreatedAt    respjson.Field
+		Object       respjson.Field
+		Resource     respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConversationLink) RawJSON() string { return r.JSON.raw }
+func (r *ConversationLink) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ConversationLinkObject string
+
+const (
+	ConversationLinkObjectConversationLink ConversationLinkObject = "conversation_link"
+)
+
+// List represents a paginated list of resources.
+type ListConversationLink struct {
+	// Resources in this page.
+	Data []ConversationLink `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListConversationLinkObject `json:"object" api:"required"`
+	// PageInfo contains URL-based pagination metadata.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListConversationLink) RawJSON() string { return r.JSON.raw }
+func (r *ListConversationLink) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListConversationLinkObject string
+
+const (
+	ListConversationLinkObjectList ListConversationLinkObject = "list"
+)
+
+type MessagingConversationLinkDeleteResponse struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r MessagingConversationLinkDeleteResponse) RawJSON() string { return r.JSON.raw }
+func (r *MessagingConversationLinkDeleteResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type MessagingConversationLinkNewParams struct {
+	// Request to link a business record to a conversation.
+	AddConversationLinkRequest AddConversationLinkRequestParam
+	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
+	// `null`.
+	//
+	// Any of "conversation", "conversation.assignee", "conversation.group",
+	// "conversation.participants", "conversation.topic", "conversation.last_message",
+	// "conversation.last_message.sender", "conversation.last_message.author",
+	// "conversation.last_message.resource", "conversation.last_message.attachments",
+	// "conversation.last_message.attachments.resource".
+	Include []string `query:"include,omitzero" json:"-"`
+	paramObj
+}
+
+func (r MessagingConversationLinkNewParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.AddConversationLinkRequest)
+}
+func (r *MessagingConversationLinkNewParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// URLQuery serializes [MessagingConversationLinkNewParams]'s query parameters as
+// `url.Values`.
+func (r MessagingConversationLinkNewParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type MessagingConversationLinkListParams struct {
+	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
+	// `null`.
+	//
+	// Any of "conversation", "conversation.assignee", "conversation.group",
+	// "conversation.participants", "conversation.topic", "conversation.last_message",
+	// "conversation.last_message.sender", "conversation.last_message.author",
+	// "conversation.last_message.resource", "conversation.last_message.attachments",
+	// "conversation.last_message.attachments.resource".
+	Include []string `query:"include,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [MessagingConversationLinkListParams]'s query parameters as
+// `url.Values`.
+func (r MessagingConversationLinkListParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type MessagingConversationLinkDeleteParams struct {
+	ID string `path:"id" api:"required" json:"-"`
+	paramObj
+}

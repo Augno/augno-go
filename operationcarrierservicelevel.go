@@ -41,6 +41,8 @@ func NewOperationCarrierServiceLevelService(opts ...option.RequestOption) (r Ope
 }
 
 // Creates a service level for a carrier.
+//
+// This endpoint requires the permission: `carriers:create`.
 func (r *OperationCarrierServiceLevelService) New(ctx context.Context, carrierID string, params OperationCarrierServiceLevelNewParams, opts ...option.RequestOption) (res *ServiceLevel, err error) {
 	opts = slices.Concat(r.options, opts)
 	if carrierID == "" {
@@ -53,6 +55,9 @@ func (r *OperationCarrierServiceLevelService) New(ctx context.Context, carrierID
 }
 
 // Returns a service level by ID.
+//
+// This endpoint requires the permissions: `carriers:read`, `customers:read`,
+// `suppliers:read`.
 func (r *OperationCarrierServiceLevelService) Get(ctx context.Context, id string, params OperationCarrierServiceLevelGetParams, opts ...option.RequestOption) (res *ServiceLevel, err error) {
 	opts = slices.Concat(r.options, opts)
 	if params.CarrierID == "" {
@@ -71,6 +76,8 @@ func (r *OperationCarrierServiceLevelService) Get(ctx context.Context, id string
 // Partially updates a service level.
 //
 // System-owned service levels cannot be updated.
+//
+// This endpoint requires the permission: `carriers:update`.
 func (r *OperationCarrierServiceLevelService) Update(ctx context.Context, id string, params OperationCarrierServiceLevelUpdateParams, opts ...option.RequestOption) (res *ServiceLevel, err error) {
 	opts = slices.Concat(r.options, opts)
 	if params.CarrierID == "" {
@@ -87,6 +94,9 @@ func (r *OperationCarrierServiceLevelService) Update(ctx context.Context, id str
 }
 
 // Returns a paginated list of service levels for a carrier.
+//
+// This endpoint requires the permissions: `carriers:read`, `customers:read`,
+// `suppliers:read`.
 func (r *OperationCarrierServiceLevelService) List(ctx context.Context, carrierID string, query OperationCarrierServiceLevelListParams, opts ...option.RequestOption) (res *ListServiceLevel, err error) {
 	opts = slices.Concat(r.options, opts)
 	if carrierID == "" {
@@ -102,6 +112,8 @@ func (r *OperationCarrierServiceLevelService) List(ctx context.Context, carrierI
 //
 // System-owned service levels and the carrier's default service level cannot be
 // deleted; unset `is_default` first to delete a default.
+//
+// This endpoint requires the permission: `carriers:delete`.
 func (r *OperationCarrierServiceLevelService) Delete(ctx context.Context, id string, body OperationCarrierServiceLevelDeleteParams, opts ...option.RequestOption) (res *OperationCarrierServiceLevelDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if body.CarrierID == "" {

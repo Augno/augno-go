@@ -45,6 +45,9 @@ func NewCatalogPartService(opts ...option.RequestOption) (r CatalogPartService) 
 //
 // Inventory tracking for the new part starts at a zero on-hand quantity in the
 // category's base unit.
+//
+// This endpoint requires the permissions: `parts:create`, `customers:update`,
+// `suppliers:update`.
 func (r *CatalogPartService) New(ctx context.Context, params CatalogPartNewParams, opts ...option.RequestOption) (res *Part, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/parts"
@@ -53,6 +56,9 @@ func (r *CatalogPartService) New(ctx context.Context, params CatalogPartNewParam
 }
 
 // Returns a part by ID.
+//
+// This endpoint requires the permissions: `parts:read`, `customers:read`,
+// `suppliers:read`.
 func (r *CatalogPartService) Get(ctx context.Context, id string, query CatalogPartGetParams, opts ...option.RequestOption) (res *Part, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -67,6 +73,9 @@ func (r *CatalogPartService) Get(ctx context.Context, id string, query CatalogPa
 // Partially updates a part.
 //
 // Fields not provided retain their current values.
+//
+// This endpoint requires the permissions: `parts:update`, `customers:update`,
+// `suppliers:update`.
 func (r *CatalogPartService) Update(ctx context.Context, id string, params CatalogPartUpdateParams, opts ...option.RequestOption) (res *Part, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -79,6 +88,9 @@ func (r *CatalogPartService) Update(ctx context.Context, id string, params Catal
 }
 
 // Returns a paginated list of parts for the current account.
+//
+// This endpoint requires the permissions: `parts:read`, `customers:read`,
+// `suppliers:read`.
 func (r *CatalogPartService) List(ctx context.Context, query CatalogPartListParams, opts ...option.RequestOption) (res *ListPart, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/parts"
@@ -91,6 +103,9 @@ func (r *CatalogPartService) List(ctx context.Context, query CatalogPartListPara
 // This is a soft delete: the part is marked deleted and no longer returned by
 // other endpoints, but the record is retained. Deleting an already-deleted part
 // returns an error.
+//
+// This endpoint requires the permissions: `parts:delete`, `customers:update`,
+// `suppliers:update`.
 func (r *CatalogPartService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *Part, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

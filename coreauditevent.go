@@ -41,6 +41,8 @@ func NewCoreAuditEventService(opts ...option.RequestOption) (r CoreAuditEventSer
 }
 
 // Returns an audit event by ID.
+//
+// This endpoint requires the permission: `audit_events:read`.
 func (r *CoreAuditEventService) Get(ctx context.Context, id string, query CoreAuditEventGetParams, opts ...option.RequestOption) (res *AuditEvent, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -53,6 +55,8 @@ func (r *CoreAuditEventService) Get(ctx context.Context, id string, query CoreAu
 }
 
 // Returns a paginated list of audit events for the current account.
+//
+// This endpoint requires the permission: `audit_events:read`.
 func (r *CoreAuditEventService) List(ctx context.Context, query CoreAuditEventListParams, opts ...option.RequestOption) (res *ListAuditEvent, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/core/audit-events"
@@ -64,6 +68,8 @@ func (r *CoreAuditEventService) List(ctx context.Context, query CoreAuditEventLi
 //
 // Values are plain strings, suitable for the `resource_types` filter when listing
 // audit events.
+//
+// This endpoint requires the permission: `audit_events:read`.
 func (r *CoreAuditEventService) GetResourceTypes(ctx context.Context, opts ...option.RequestOption) (res *ListObjectType, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/core/audit-events/resource-types"
@@ -79,17 +85,22 @@ type AuditEvent struct {
 	ID string `json:"id" api:"required"`
 	// A customer account, including its branding and customer portal sub-resources.
 	Account Account `json:"account" api:"required"`
-	// Mutation type.
+	// The type of action this event records.
 	//
-	// - `create`: the resource was created.
-	// - `update`: one or more fields were changed.
-	// - `delete`: the resource was deleted.
-	// - `restore`: a previously deleted resource was restored.
-	// - `archive`: the resource was archived.
+	//   - `create`: the resource was created.
+	//   - `update`: one or more fields were changed.
+	//   - `delete`: the resource was deleted.
+	//   - `restore`: a previously deleted resource was restored.
+	//   - `archive`: the resource was archived.
+	//   - `approve`: a human approved a gated action, such as allowing a review-gated
+	//     agent tool to run.
+	//   - `deny`: a human denied a gated action, such as rejecting a review-gated agent
+	//     tool.
 	//
-	// Any of "create", "update", "delete", "restore", "archive".
+	// Any of "create", "update", "delete", "restore", "archive", "approve", "deny".
 	Action AuditEventAction `json:"action" api:"required"`
-	// Reference to an actor (user, API key, or agent).
+	// Reference to an actor — the user, API key, agent, or group identity associated
+	// with an action.
 	Actor Actor `json:"actor" api:"required"`
 	// List represents a paginated list of resources.
 	Changes ListAuditFieldChange `json:"changes" api:"required"`
@@ -120,27 +131,34 @@ type AuditEvent struct {
 	// "request_log", "audit_event", "audit_field_change", "role", "unit",
 	// "account_affiliation", "agent_definition", "available_tool",
 	// "agent_definition_tool", "agent_account_status", "agent_run", "agent_action",
-	// "agent_run_step", "agent_token_usage", "agent_memory", "agent_alert",
-	// "tool_group", "payment_term", "shipping_term", "quantity", "account_group",
-	// "account_status", "geolocation", "account_user", "department",
-	// "account_integration", "account_price", "product_line", "item_category",
-	// "attribute", "rate", "account_group_product_line_access", "sales_target",
-	// "adjustment_type", "account_branding", "account_portal", "account_logo_url",
-	// "public_account", "property", "carrier", "service_level", "item",
-	// "item_inventory", "product", "batch", "batch_flow_node", "scanning_consumption",
-	// "open_batch_summary", "scanning_production_step_info", "scanning_station",
-	// "production_step", "production_run", "machine", "child_account", "unit_group",
-	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
+	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
+	// "notification_unread_count", "notification_send_result",
+	// "notification_unread_summary", "announcement", "conversation",
+	// "conversation_participant", "chat_message",
+	// "notification_unread_summary_account", "messaging_block",
+	// "notification_preference", "message_attachment", "attachment_upload_target",
+	// "scheduled_message", "messaging_contact", "message_report", "tool_group",
+	// "model", "payment_term", "shipping_term", "quantity", "account_group",
+	// "support_route", "support_availability", "account_status", "geolocation",
+	// "account_user", "department", "account_integration", "account_price",
+	// "product_line", "item_category", "attribute", "rate",
+	// "account_group_product_line_access", "sales_target", "adjustment_type",
+	// "account_branding", "account_portal", "account_logo_url", "public_account",
+	// "property", "carrier", "service_level", "item", "item_inventory", "product",
+	// "batch", "batch_flow_node", "scanning_consumption", "open_batch_summary",
+	// "scanning_production_step_info", "scanning_station", "production_step",
+	// "production_run", "machine", "child_account", "unit_group", "unit_group_unit",
+	// "consumption", "customer_product_line_access", "customer",
 	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
-	// "sales_order", "location", "location_type", "lot", "email_log",
-	// "inventory_change_log", "invoice", "invoice_summary", "invoice_line",
-	// "invoice_allocation", "invoice_for_payment", "shipment", "shipment_summary",
-	// "shipment_line", "shipping_case", "shipping_case_label_url", "settlement",
-	// "settlement_summary", "role_permission", "registration_flow",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "inventory_change_log", "invoice", "invoice_summary",
+	// "invoice_line", "invoice_allocation", "invoice_for_payment", "shipment",
+	// "shipment_summary", "shipment_line", "shipping_case", "shipping_case_label_url",
+	// "settlement", "settlement_summary", "role_permission", "registration_flow",
 	// "registration_flow_option", "transaction", "transaction_summary",
 	// "transaction_method", "transaction_type", "transaction_allocation",
-	// "usage_item", "agent_token_detail", "account_usage_response",
-	// "subscription_info", "billing_portal_session_response", "switch_plan_response",
+	// "usage_item", "account_usage_response", "subscription_info",
+	// "billing_portal_session_response", "switch_plan_response",
 	// "ensure_billing_customer_response", "spending_cap_response", "agent_spend_info",
 	// "webhook_response", "address_suggestion", "address_components",
 	// "address_details_result", "validated_address", "plan_limit",
@@ -171,7 +189,9 @@ type AuditEvent struct {
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer",
 	// "checkout_sales_order_response", "create_production_run_response",
-	// "sales_order_price_quote".
+	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
+	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
 	ResourceType AuditEventResourceType `json:"resource_type" api:"required"`
 	// Originating client IP address.
 	SourceIP string `json:"source_ip" api:"required"`
@@ -202,13 +222,17 @@ func (r *AuditEvent) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Mutation type.
+// The type of action this event records.
 //
-// - `create`: the resource was created.
-// - `update`: one or more fields were changed.
-// - `delete`: the resource was deleted.
-// - `restore`: a previously deleted resource was restored.
-// - `archive`: the resource was archived.
+//   - `create`: the resource was created.
+//   - `update`: one or more fields were changed.
+//   - `delete`: the resource was deleted.
+//   - `restore`: a previously deleted resource was restored.
+//   - `archive`: the resource was archived.
+//   - `approve`: a human approved a gated action, such as allowing a review-gated
+//     agent tool to run.
+//   - `deny`: a human denied a gated action, such as rejecting a review-gated agent
+//     tool.
 type AuditEventAction string
 
 const (
@@ -217,6 +241,8 @@ const (
 	AuditEventActionDelete  AuditEventAction = "delete"
 	AuditEventActionRestore AuditEventAction = "restore"
 	AuditEventActionArchive AuditEventAction = "archive"
+	AuditEventActionApprove AuditEventAction = "approve"
+	AuditEventActionDeny    AuditEventAction = "deny"
 )
 
 // Resource type identifier.
@@ -265,12 +291,30 @@ const (
 	AuditEventResourceTypeAgentRunStep                      AuditEventResourceType = "agent_run_step"
 	AuditEventResourceTypeAgentTokenUsage                   AuditEventResourceType = "agent_token_usage"
 	AuditEventResourceTypeAgentMemory                       AuditEventResourceType = "agent_memory"
-	AuditEventResourceTypeAgentAlert                        AuditEventResourceType = "agent_alert"
+	AuditEventResourceTypeNotification                      AuditEventResourceType = "notification"
+	AuditEventResourceTypeNotificationUnreadCount           AuditEventResourceType = "notification_unread_count"
+	AuditEventResourceTypeNotificationSendResult            AuditEventResourceType = "notification_send_result"
+	AuditEventResourceTypeNotificationUnreadSummary         AuditEventResourceType = "notification_unread_summary"
+	AuditEventResourceTypeAnnouncement                      AuditEventResourceType = "announcement"
+	AuditEventResourceTypeConversation                      AuditEventResourceType = "conversation"
+	AuditEventResourceTypeConversationParticipant           AuditEventResourceType = "conversation_participant"
+	AuditEventResourceTypeChatMessage                       AuditEventResourceType = "chat_message"
+	AuditEventResourceTypeNotificationUnreadSummaryAccount  AuditEventResourceType = "notification_unread_summary_account"
+	AuditEventResourceTypeMessagingBlock                    AuditEventResourceType = "messaging_block"
+	AuditEventResourceTypeNotificationPreference            AuditEventResourceType = "notification_preference"
+	AuditEventResourceTypeMessageAttachment                 AuditEventResourceType = "message_attachment"
+	AuditEventResourceTypeAttachmentUploadTarget            AuditEventResourceType = "attachment_upload_target"
+	AuditEventResourceTypeScheduledMessage                  AuditEventResourceType = "scheduled_message"
+	AuditEventResourceTypeMessagingContact                  AuditEventResourceType = "messaging_contact"
+	AuditEventResourceTypeMessageReport                     AuditEventResourceType = "message_report"
 	AuditEventResourceTypeToolGroup                         AuditEventResourceType = "tool_group"
+	AuditEventResourceTypeModel                             AuditEventResourceType = "model"
 	AuditEventResourceTypePaymentTerm                       AuditEventResourceType = "payment_term"
 	AuditEventResourceTypeShippingTerm                      AuditEventResourceType = "shipping_term"
 	AuditEventResourceTypeQuantity                          AuditEventResourceType = "quantity"
 	AuditEventResourceTypeAccountGroup                      AuditEventResourceType = "account_group"
+	AuditEventResourceTypeSupportRoute                      AuditEventResourceType = "support_route"
+	AuditEventResourceTypeSupportAvailability               AuditEventResourceType = "support_availability"
 	AuditEventResourceTypeAccountStatus                     AuditEventResourceType = "account_status"
 	AuditEventResourceTypeGeolocation                       AuditEventResourceType = "geolocation"
 	AuditEventResourceTypeAccountUser                       AuditEventResourceType = "account_user"
@@ -318,6 +362,8 @@ const (
 	AuditEventResourceTypeLocationType                      AuditEventResourceType = "location_type"
 	AuditEventResourceTypeLot                               AuditEventResourceType = "lot"
 	AuditEventResourceTypeEmailLog                          AuditEventResourceType = "email_log"
+	AuditEventResourceTypeEmailDomain                       AuditEventResourceType = "email_domain"
+	AuditEventResourceTypeEmailInbox                        AuditEventResourceType = "email_inbox"
 	AuditEventResourceTypeInventoryChangeLog                AuditEventResourceType = "inventory_change_log"
 	AuditEventResourceTypeInvoice                           AuditEventResourceType = "invoice"
 	AuditEventResourceTypeInvoiceSummary                    AuditEventResourceType = "invoice_summary"
@@ -340,7 +386,6 @@ const (
 	AuditEventResourceTypeTransactionType                   AuditEventResourceType = "transaction_type"
 	AuditEventResourceTypeTransactionAllocation             AuditEventResourceType = "transaction_allocation"
 	AuditEventResourceTypeUsageItem                         AuditEventResourceType = "usage_item"
-	AuditEventResourceTypeAgentTokenDetail                  AuditEventResourceType = "agent_token_detail"
 	AuditEventResourceTypeAccountUsageResponse              AuditEventResourceType = "account_usage_response"
 	AuditEventResourceTypeSubscriptionInfo                  AuditEventResourceType = "subscription_info"
 	AuditEventResourceTypeBillingPortalSessionResponse      AuditEventResourceType = "billing_portal_session_response"
@@ -438,6 +483,15 @@ const (
 	AuditEventResourceTypeCheckoutSalesOrderResponse        AuditEventResourceType = "checkout_sales_order_response"
 	AuditEventResourceTypeCreateProductionRunResponse       AuditEventResourceType = "create_production_run_response"
 	AuditEventResourceTypeSalesOrderPriceQuote              AuditEventResourceType = "sales_order_price_quote"
+	AuditEventResourceTypeHubspotSyncJob                    AuditEventResourceType = "hubspot_sync_job"
+	AuditEventResourceTypeHubspotSyncReport                 AuditEventResourceType = "hubspot_sync_report"
+	AuditEventResourceTypeHubspotCompanyReview              AuditEventResourceType = "hubspot_company_review"
+	AuditEventResourceTypeHubspotCompanyCandidate           AuditEventResourceType = "hubspot_company_candidate"
+	AuditEventResourceTypeContactMatch                      AuditEventResourceType = "contact_match"
+	AuditEventResourceTypeReplyDraft                        AuditEventResourceType = "reply_draft"
+	AuditEventResourceTypeConversationLink                  AuditEventResourceType = "conversation_link"
+	AuditEventResourceTypeMessagingGroup                    AuditEventResourceType = "messaging_group"
+	AuditEventResourceTypeMessagingGroupMember              AuditEventResourceType = "messaging_group_member"
 )
 
 // Field-level before/after transition recorded during a mutation.
@@ -559,27 +613,34 @@ type ListObjectType struct {
 	// "request_log", "audit_event", "audit_field_change", "role", "unit",
 	// "account_affiliation", "agent_definition", "available_tool",
 	// "agent_definition_tool", "agent_account_status", "agent_run", "agent_action",
-	// "agent_run_step", "agent_token_usage", "agent_memory", "agent_alert",
-	// "tool_group", "payment_term", "shipping_term", "quantity", "account_group",
-	// "account_status", "geolocation", "account_user", "department",
-	// "account_integration", "account_price", "product_line", "item_category",
-	// "attribute", "rate", "account_group_product_line_access", "sales_target",
-	// "adjustment_type", "account_branding", "account_portal", "account_logo_url",
-	// "public_account", "property", "carrier", "service_level", "item",
-	// "item_inventory", "product", "batch", "batch_flow_node", "scanning_consumption",
-	// "open_batch_summary", "scanning_production_step_info", "scanning_station",
-	// "production_step", "production_run", "machine", "child_account", "unit_group",
-	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
+	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
+	// "notification_unread_count", "notification_send_result",
+	// "notification_unread_summary", "announcement", "conversation",
+	// "conversation_participant", "chat_message",
+	// "notification_unread_summary_account", "messaging_block",
+	// "notification_preference", "message_attachment", "attachment_upload_target",
+	// "scheduled_message", "messaging_contact", "message_report", "tool_group",
+	// "model", "payment_term", "shipping_term", "quantity", "account_group",
+	// "support_route", "support_availability", "account_status", "geolocation",
+	// "account_user", "department", "account_integration", "account_price",
+	// "product_line", "item_category", "attribute", "rate",
+	// "account_group_product_line_access", "sales_target", "adjustment_type",
+	// "account_branding", "account_portal", "account_logo_url", "public_account",
+	// "property", "carrier", "service_level", "item", "item_inventory", "product",
+	// "batch", "batch_flow_node", "scanning_consumption", "open_batch_summary",
+	// "scanning_production_step_info", "scanning_station", "production_step",
+	// "production_run", "machine", "child_account", "unit_group", "unit_group_unit",
+	// "consumption", "customer_product_line_access", "customer",
 	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
-	// "sales_order", "location", "location_type", "lot", "email_log",
-	// "inventory_change_log", "invoice", "invoice_summary", "invoice_line",
-	// "invoice_allocation", "invoice_for_payment", "shipment", "shipment_summary",
-	// "shipment_line", "shipping_case", "shipping_case_label_url", "settlement",
-	// "settlement_summary", "role_permission", "registration_flow",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "inventory_change_log", "invoice", "invoice_summary",
+	// "invoice_line", "invoice_allocation", "invoice_for_payment", "shipment",
+	// "shipment_summary", "shipment_line", "shipping_case", "shipping_case_label_url",
+	// "settlement", "settlement_summary", "role_permission", "registration_flow",
 	// "registration_flow_option", "transaction", "transaction_summary",
 	// "transaction_method", "transaction_type", "transaction_allocation",
-	// "usage_item", "agent_token_detail", "account_usage_response",
-	// "subscription_info", "billing_portal_session_response", "switch_plan_response",
+	// "usage_item", "account_usage_response", "subscription_info",
+	// "billing_portal_session_response", "switch_plan_response",
 	// "ensure_billing_customer_response", "spending_cap_response", "agent_spend_info",
 	// "webhook_response", "address_suggestion", "address_components",
 	// "address_details_result", "validated_address", "plan_limit",
@@ -610,7 +671,9 @@ type ListObjectType struct {
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer",
 	// "checkout_sales_order_response", "create_production_run_response",
-	// "sales_order_price_quote".
+	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
+	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
 	Data []string `json:"data" api:"required"`
 	// Resource type identifier.
 	//
@@ -678,7 +741,7 @@ type CoreAuditEventListParams struct {
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
 	// Filter by the mutation type recorded on the event.
 	//
-	// Any of "create", "update", "delete", "restore", "archive".
+	// Any of "create", "update", "delete", "restore", "archive", "approve", "deny".
 	Actions []string `query:"actions,omitzero" json:"-"`
 	// Filter by the _acting_ account: the account that performed the mutation.
 	//
@@ -692,6 +755,10 @@ type CoreAuditEventListParams struct {
 	// Matches the event's `actor.id`: a user ID for `user` actors or an API key ID for
 	// `api_key` actors.
 	ActorIDs []string `query:"actor_ids,omitzero" json:"-"`
+	// Filter by the actor type.
+	//
+	// Any of "user", "api_key", "agent", "group".
+	ActorTypes []string `query:"actor_types,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
@@ -711,27 +778,34 @@ type CoreAuditEventListParams struct {
 	// "request_log", "audit_event", "audit_field_change", "role", "unit",
 	// "account_affiliation", "agent_definition", "available_tool",
 	// "agent_definition_tool", "agent_account_status", "agent_run", "agent_action",
-	// "agent_run_step", "agent_token_usage", "agent_memory", "agent_alert",
-	// "tool_group", "payment_term", "shipping_term", "quantity", "account_group",
-	// "account_status", "geolocation", "account_user", "department",
-	// "account_integration", "account_price", "product_line", "item_category",
-	// "attribute", "rate", "account_group_product_line_access", "sales_target",
-	// "adjustment_type", "account_branding", "account_portal", "account_logo_url",
-	// "public_account", "property", "carrier", "service_level", "item",
-	// "item_inventory", "product", "batch", "batch_flow_node", "scanning_consumption",
-	// "open_batch_summary", "scanning_production_step_info", "scanning_station",
-	// "production_step", "production_run", "machine", "child_account", "unit_group",
-	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
+	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
+	// "notification_unread_count", "notification_send_result",
+	// "notification_unread_summary", "announcement", "conversation",
+	// "conversation_participant", "chat_message",
+	// "notification_unread_summary_account", "messaging_block",
+	// "notification_preference", "message_attachment", "attachment_upload_target",
+	// "scheduled_message", "messaging_contact", "message_report", "tool_group",
+	// "model", "payment_term", "shipping_term", "quantity", "account_group",
+	// "support_route", "support_availability", "account_status", "geolocation",
+	// "account_user", "department", "account_integration", "account_price",
+	// "product_line", "item_category", "attribute", "rate",
+	// "account_group_product_line_access", "sales_target", "adjustment_type",
+	// "account_branding", "account_portal", "account_logo_url", "public_account",
+	// "property", "carrier", "service_level", "item", "item_inventory", "product",
+	// "batch", "batch_flow_node", "scanning_consumption", "open_batch_summary",
+	// "scanning_production_step_info", "scanning_station", "production_step",
+	// "production_run", "machine", "child_account", "unit_group", "unit_group_unit",
+	// "consumption", "customer_product_line_access", "customer",
 	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
-	// "sales_order", "location", "location_type", "lot", "email_log",
-	// "inventory_change_log", "invoice", "invoice_summary", "invoice_line",
-	// "invoice_allocation", "invoice_for_payment", "shipment", "shipment_summary",
-	// "shipment_line", "shipping_case", "shipping_case_label_url", "settlement",
-	// "settlement_summary", "role_permission", "registration_flow",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "inventory_change_log", "invoice", "invoice_summary",
+	// "invoice_line", "invoice_allocation", "invoice_for_payment", "shipment",
+	// "shipment_summary", "shipment_line", "shipping_case", "shipping_case_label_url",
+	// "settlement", "settlement_summary", "role_permission", "registration_flow",
 	// "registration_flow_option", "transaction", "transaction_summary",
 	// "transaction_method", "transaction_type", "transaction_allocation",
-	// "usage_item", "agent_token_detail", "account_usage_response",
-	// "subscription_info", "billing_portal_session_response", "switch_plan_response",
+	// "usage_item", "account_usage_response", "subscription_info",
+	// "billing_portal_session_response", "switch_plan_response",
 	// "ensure_billing_customer_response", "spending_cap_response", "agent_spend_info",
 	// "webhook_response", "address_suggestion", "address_components",
 	// "address_details_result", "validated_address", "plan_limit",
@@ -762,7 +836,9 @@ type CoreAuditEventListParams struct {
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer",
 	// "checkout_sales_order_response", "create_production_run_response",
-	// "sales_order_price_quote".
+	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
+	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
 	// Filter by the _target_ account the mutation was performed against (the event's
 	// `account`).

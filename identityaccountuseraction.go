@@ -42,6 +42,9 @@ func NewIdentityAccountUserActionService(opts ...option.RequestOption) (r Identi
 //
 // Reactivation consumes a seat, so the request fails if the account is at its seat
 // limit. Activating an already-active user is a no-op.
+//
+// This endpoint requires the permissions: `team:update`, `customers:update`,
+// `suppliers:update`.
 func (r *IdentityAccountUserActionService) Activate(ctx context.Context, id string, opts ...option.RequestOption) (res *IdentityAccountUserActionActivateResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -58,6 +61,9 @@ func (r *IdentityAccountUserActionService) Activate(ctx context.Context, id stri
 // Disabled users cannot access the target account and their active sessions are
 // revoked. Admin users cannot be disabled, you cannot disable yourself, and
 // removed users must be activated before they can be disabled.
+//
+// This endpoint requires the permissions: `team:update`, `customers:update`,
+// `suppliers:update`.
 func (r *IdentityAccountUserActionService) Disable(ctx context.Context, id string, opts ...option.RequestOption) (res *IdentityAccountUserActionDisableResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -73,6 +79,9 @@ func (r *IdentityAccountUserActionService) Disable(ctx context.Context, id strin
 //
 // Removal is a soft delete: removed users are excluded from listings unless
 // requested via `removed_scope`, and can be restored with the activate action.
+//
+// This endpoint requires the permissions: `team:delete`, `customers:update`,
+// `suppliers:update`.
 func (r *IdentityAccountUserActionService) Remove(ctx context.Context, id string, opts ...option.RequestOption) (res *IdentityAccountUserActionRemoveResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

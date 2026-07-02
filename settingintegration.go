@@ -47,6 +47,8 @@ func NewSettingIntegrationService(opts ...option.RequestOption) (r SettingIntegr
 // Credentials are validated for the provider, encrypted at rest, and never
 // returned in API responses. An account can have at most one integration per
 // integration code.
+//
+// This endpoint requires the `admin` role type.
 func (r *SettingIntegrationService) New(ctx context.Context, body SettingIntegrationNewParams, opts ...option.RequestOption) (res *AccountIntegration, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/settings/integrations"
@@ -59,6 +61,8 @@ func (r *SettingIntegrationService) New(ctx context.Context, body SettingIntegra
 // Omitted fields are left unchanged. Credentials cannot be changed with this
 // endpoint; to rotate credentials, call Create Account Integration again with the
 // same integration code.
+//
+// This endpoint requires the `admin` role type.
 func (r *SettingIntegrationService) Update(ctx context.Context, id string, body SettingIntegrationUpdateParams, opts ...option.RequestOption) (res *AccountIntegration, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -71,6 +75,8 @@ func (r *SettingIntegrationService) Update(ctx context.Context, id string, body 
 }
 
 // Returns a paginated list of account integrations for the target account.
+//
+// This endpoint requires the `admin` role type.
 func (r *SettingIntegrationService) List(ctx context.Context, query SettingIntegrationListParams, opts ...option.RequestOption) (res *ListAccountIntegration, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/settings/integrations"
@@ -79,6 +85,8 @@ func (r *SettingIntegrationService) List(ctx context.Context, query SettingInteg
 }
 
 // Deletes an account integration and returns the deleted resource.
+//
+// This endpoint requires the `admin` role type.
 func (r *SettingIntegrationService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *AccountIntegration, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

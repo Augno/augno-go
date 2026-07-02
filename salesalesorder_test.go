@@ -36,7 +36,6 @@ func TestSaleSalesOrderNewWithOptionalParams(t *testing.T) {
 					UnitID: "un_01966263f74a5a0cae356000a1",
 					Value:  "10",
 				},
-				EdiLineItemID:      augno.String("edi_line_item_id"),
 				ProductDescription: augno.String("product_description"),
 				ProductSKU:         augno.String("product_sku"),
 				UnitPrice: augno.RateInputParam{
@@ -89,19 +88,18 @@ func TestSaleSalesOrderListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.List(context.TODO(), augno.SaleSalesOrderListParams{
-		Cursor:                augno.String("cursor"),
-		CustomerGroupIDs:      []string{"string"},
-		CustomerIDs:           []string{"string"},
-		EndDate:               augno.String("end_date"),
-		ExcludeInternalOrders: augno.Bool(true),
-		Include:               []string{"customer"},
-		ItemIDs:               []string{"string"},
-		Limit:                 augno.Int(0),
-		ProductLineIDs:        []string{"string"},
-		Q:                     augno.String("q"),
-		SalesRepIDs:           []string{"string"},
-		StartDate:             augno.String("start_date"),
-		StatusCodes:           []string{"string"},
+		Cursor:           augno.String("cursor"),
+		CustomerGroupIDs: []string{"string"},
+		CustomerIDs:      []string{"string"},
+		EndDate:          augno.String("end_date"),
+		Include:          []string{"customer"},
+		ItemIDs:          []string{"string"},
+		Limit:            augno.Int(0),
+		ProductLineIDs:   []string{"string"},
+		Q:                augno.String("q"),
+		SalesRepIDs:      []string{"string"},
+		StartDate:        augno.String("start_date"),
+		StatusCodes:      []string{"string"},
 	})
 	if err != nil {
 		var apierr *augno.Error

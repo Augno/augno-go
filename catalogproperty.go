@@ -45,6 +45,8 @@ func NewCatalogPropertyService(opts ...option.RequestOption) (r CatalogPropertyS
 }
 
 // Creates a property.
+//
+// This endpoint requires the permission: `properties:create`.
 func (r *CatalogPropertyService) New(ctx context.Context, params CatalogPropertyNewParams, opts ...option.RequestOption) (res *Property, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/properties"
@@ -53,6 +55,8 @@ func (r *CatalogPropertyService) New(ctx context.Context, params CatalogProperty
 }
 
 // Returns a property by ID.
+//
+// This endpoint requires the permission: `properties:read`.
 func (r *CatalogPropertyService) Get(ctx context.Context, id string, query CatalogPropertyGetParams, opts ...option.RequestOption) (res *Property, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -65,6 +69,8 @@ func (r *CatalogPropertyService) Get(ctx context.Context, id string, query Catal
 }
 
 // Partially updates a property.
+//
+// This endpoint requires the permission: `properties:update`.
 func (r *CatalogPropertyService) Update(ctx context.Context, id string, params CatalogPropertyUpdateParams, opts ...option.RequestOption) (res *Property, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -77,6 +83,8 @@ func (r *CatalogPropertyService) Update(ctx context.Context, id string, params C
 }
 
 // Returns a paginated list of properties for the target account.
+//
+// This endpoint requires the permission: `properties:read`.
 func (r *CatalogPropertyService) List(ctx context.Context, query CatalogPropertyListParams, opts ...option.RequestOption) (res *ListProperty, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/properties"
@@ -85,6 +93,8 @@ func (r *CatalogPropertyService) List(ctx context.Context, query CatalogProperty
 }
 
 // Deletes a property and all associated attributes.
+//
+// This endpoint requires the permission: `properties:delete`.
 func (r *CatalogPropertyService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CatalogPropertyDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

@@ -41,6 +41,9 @@ func NewSaleAddressService(opts ...option.RequestOption) (r SaleAddressService) 
 }
 
 // Creates an address.
+//
+// This endpoint requires the permissions: `addresses:create`, `customers:update`,
+// `suppliers:update`.
 func (r *SaleAddressService) New(ctx context.Context, body SaleAddressNewParams, opts ...option.RequestOption) (res *Address, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/addresses"
@@ -49,6 +52,9 @@ func (r *SaleAddressService) New(ctx context.Context, body SaleAddressNewParams,
 }
 
 // Retrieves an address by ID.
+//
+// This endpoint requires the permissions: `addresses:read`, `customers:read`,
+// `suppliers:read`.
 func (r *SaleAddressService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *Address, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -64,6 +70,9 @@ func (r *SaleAddressService) Get(ctx context.Context, id string, opts ...option.
 //
 // Changing a street, locality, state, postal code, or country field may replace
 // the address's geolocation, so the geolocation `id` in the response can change.
+//
+// This endpoint requires the permissions: `addresses:update`, `customers:update`,
+// `suppliers:update`.
 func (r *SaleAddressService) Update(ctx context.Context, id string, body SaleAddressUpdateParams, opts ...option.RequestOption) (res *Address, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -76,6 +85,9 @@ func (r *SaleAddressService) Update(ctx context.Context, id string, body SaleAdd
 }
 
 // Returns a paginated list of addresses.
+//
+// This endpoint requires the permissions: `addresses:read`, `customers:read`,
+// `suppliers:read`.
 func (r *SaleAddressService) List(ctx context.Context, query SaleAddressListParams, opts ...option.RequestOption) (res *ListAddress, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/addresses"
@@ -87,6 +99,9 @@ func (r *SaleAddressService) List(ctx context.Context, query SaleAddressListPara
 //
 // Deletion fails if the address is in use as a billing or shipping address on a
 // sales order, invoice, or shipment, or as a default account address.
+//
+// This endpoint requires the permissions: `addresses:delete`, `customers:update`,
+// `suppliers:update`.
 func (r *SaleAddressService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *SaleAddressDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -121,7 +136,7 @@ type AddressInputParam struct {
 	StreetLine1 param.Opt[string] `json:"street_line_1,omitzero"`
 	// Second line of the street address.
 	StreetLine2 param.Opt[string] `json:"street_line_2,omitzero"`
-	// Address type.
+	// How the address is used.
 	//
 	//   - `standard`: a normal shipping or billing address.
 	//   - `drop_ship`: an address an order is shipped to directly, typically a third
@@ -140,7 +155,7 @@ func (r *AddressInputParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Address type.
+// How the address is used.
 //
 //   - `standard`: a normal shipping or billing address.
 //   - `drop_ship`: an address an order is shipped to directly, typically a third
@@ -213,7 +228,7 @@ type UpdateAddressRequestParam struct {
 	State param.Opt[string] `json:"state,omitzero"`
 	// First line of the street address.
 	StreetLine1 param.Opt[string] `json:"street_line_1,omitzero"`
-	// Address type.
+	// How the address is used.
 	//
 	//   - `standard`: a normal shipping or billing address.
 	//   - `drop_ship`: an address an order is shipped to directly, typically a third
@@ -232,7 +247,7 @@ func (r *UpdateAddressRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Address type.
+// How the address is used.
 //
 //   - `standard`: a normal shipping or billing address.
 //   - `drop_ship`: an address an order is shipped to directly, typically a third
@@ -300,7 +315,7 @@ type SaleAddressListParams struct {
 	//
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
-	// Filter results to a single address type (`standard` or `drop_ship`).
+	// Filter results to a single address type.
 	//
 	// Any of "standard", "drop_ship".
 	Type SaleAddressListParamsType `query:"type,omitzero" json:"-"`
@@ -315,7 +330,7 @@ func (r SaleAddressListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Filter results to a single address type (`standard` or `drop_ship`).
+// Filter results to a single address type.
 type SaleAddressListParamsType string
 
 const (

@@ -46,6 +46,8 @@ func NewCatalogProductService(opts ...option.RequestOption) (r CatalogProductSer
 // The new item starts with zero on-hand inventory, and its pricing defaults to
 // zero rates in the category's base unit unless `unit_price` or `unit_cost` is
 // provided.
+//
+// This endpoint requires the permission: `items:create`.
 func (r *CatalogProductService) New(ctx context.Context, params CatalogProductNewParams, opts ...option.RequestOption) (res *Product, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/products"
@@ -54,6 +56,9 @@ func (r *CatalogProductService) New(ctx context.Context, params CatalogProductNe
 }
 
 // Returns a product by ID.
+//
+// This endpoint requires the permissions: `items:read`, `customers:read`,
+// `suppliers:read`.
 func (r *CatalogProductService) Get(ctx context.Context, id string, query CatalogProductGetParams, opts ...option.RequestOption) (res *Product, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -66,6 +71,8 @@ func (r *CatalogProductService) Get(ctx context.Context, id string, query Catalo
 }
 
 // Partially updates a product.
+//
+// This endpoint requires the permission: `items:update`.
 func (r *CatalogProductService) Update(ctx context.Context, id string, params CatalogProductUpdateParams, opts ...option.RequestOption) (res *Product, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -78,6 +85,9 @@ func (r *CatalogProductService) Update(ctx context.Context, id string, params Ca
 }
 
 // Returns a paginated list of products for the target account.
+//
+// This endpoint requires the permissions: `items:read`, `customers:read`,
+// `suppliers:read`.
 func (r *CatalogProductService) List(ctx context.Context, query CatalogProductListParams, opts ...option.RequestOption) (res *ListProduct, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/products"
@@ -86,6 +96,8 @@ func (r *CatalogProductService) List(ctx context.Context, query CatalogProductLi
 }
 
 // Soft-deletes a product and returns the deleted product.
+//
+// This endpoint requires the permission: `items:delete`.
 func (r *CatalogProductService) Delete(ctx context.Context, id string, body CatalogProductDeleteParams, opts ...option.RequestOption) (res *Product, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -98,6 +110,8 @@ func (r *CatalogProductService) Delete(ctx context.Context, id string, body Cata
 }
 
 // Changes the product line assignment for a product.
+//
+// This endpoint requires the permission: `items:update`.
 func (r *CatalogProductService) ChangeProductLine(ctx context.Context, productLineID string, params CatalogProductChangeProductLineParams, opts ...option.RequestOption) (res *Product, err error) {
 	opts = slices.Concat(r.options, opts)
 	if params.ID == "" {
@@ -139,9 +153,9 @@ type CreateProductRequestParam struct {
 	//
 	// Any of "sale", "service", "shipping", "credit", "return", "tax".
 	Type CreateProductRequestType `json:"type,omitzero" api:"required"`
-	// Description.
+	// Free-form description of the product.
 	Description param.Opt[string] `json:"description,omitzero"`
-	// Notes.
+	// Free-form notes about the product.
 	Notes param.Opt[string] `json:"notes,omitzero"`
 	// ID of the product line to assign the product to.
 	ProductLineID param.Opt[string] `json:"product_line_id,omitzero"`
@@ -345,11 +359,11 @@ const (
 
 // UpdateProductRequest is the request to partially update a product.
 type UpdateProductRequestParam struct {
-	// Description.
+	// Free-form description of the product.
 	//
 	// Send `null` to clear.
 	Description param.Opt[string] `json:"description,omitzero"`
-	// Notes.
+	// Free-form notes about the product.
 	//
 	// Send `null` to clear.
 	Notes param.Opt[string] `json:"notes,omitzero"`

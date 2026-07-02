@@ -48,6 +48,9 @@ func NewIdentityAccountUserService(opts ...option.RequestOption) (r IdentityAcco
 // If no user with the given email or username exists, a new user is created and
 // sent a welcome email containing a generated password. If a matching user already
 // exists, that user is added to the account instead.
+//
+// This endpoint requires the permissions: `team:create`, `customers:update`,
+// `suppliers:update`.
 func (r *IdentityAccountUserService) New(ctx context.Context, params IdentityAccountUserNewParams, opts ...option.RequestOption) (res *AccountUser, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/identity/account-users"
@@ -56,6 +59,9 @@ func (r *IdentityAccountUserService) New(ctx context.Context, params IdentityAcc
 }
 
 // Returns an account user by ID.
+//
+// This endpoint requires the permissions: `team:read`, `customers:read`,
+// `suppliers:read`.
 func (r *IdentityAccountUserService) Get(ctx context.Context, id string, query IdentityAccountUserGetParams, opts ...option.RequestOption) (res *AccountUser, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -72,6 +78,9 @@ func (r *IdentityAccountUserService) Get(ctx context.Context, id string, query I
 // Omitted fields are left unchanged. Profile fields (`name`, `email`, `username`)
 // update the underlying user, which is shared across every account the user
 // belongs to.
+//
+// This endpoint requires the permissions: `team:update`, `customers:update`,
+// `suppliers:update`.
 func (r *IdentityAccountUserService) Update(ctx context.Context, id string, params IdentityAccountUserUpdateParams, opts ...option.RequestOption) (res *AccountUser, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -84,6 +93,9 @@ func (r *IdentityAccountUserService) Update(ctx context.Context, id string, para
 }
 
 // Returns a paginated list of account users for the current account.
+//
+// This endpoint requires the permissions: `team:read`, `customers:read`,
+// `suppliers:read`.
 func (r *IdentityAccountUserService) List(ctx context.Context, query IdentityAccountUserListParams, opts ...option.RequestOption) (res *ListAccountUser, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/identity/account-users"

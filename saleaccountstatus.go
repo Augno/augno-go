@@ -83,7 +83,7 @@ type AccountStatus struct {
 	Code AccountStatusCode `json:"code" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name.
+	// Human-readable label for the status.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//

@@ -19,9 +19,13 @@ import (
 type Client struct {
 	options []option.RequestOption
 	Auth    AuthService
+	// Unified free-text search across resource types, returning lightweight entity
+	// references.
 	Core    CoreService
 	Catalog CatalogService
-	Sales   SaleService
+	// List messageable contacts (the messaging directory).
+	Messaging MessagingService
+	Sales     SaleService
 	// Create, view, update, and delete transactions.
 	Finance    FinanceService
 	Operations OperationService
@@ -62,6 +66,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Auth = NewAuthService(opts...)
 	r.Core = NewCoreService(opts...)
 	r.Catalog = NewCatalogService(opts...)
+	r.Messaging = NewMessagingService(opts...)
 	r.Sales = NewSaleService(opts...)
 	r.Finance = NewFinanceService(opts...)
 	r.Operations = NewOperationService(opts...)

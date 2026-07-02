@@ -44,6 +44,8 @@ func NewCatalogItemCategoryService(opts ...option.RequestOption) (r CatalogItemC
 }
 
 // Creates an account-owned item category.
+//
+// This endpoint requires the permission: `item_categories:create`.
 func (r *CatalogItemCategoryService) New(ctx context.Context, params CatalogItemCategoryNewParams, opts ...option.RequestOption) (res *ItemCategory, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/item-categories"
@@ -54,6 +56,8 @@ func (r *CatalogItemCategoryService) New(ctx context.Context, params CatalogItem
 // Returns an item category by ID.
 //
 // Both account-owned categories and global system categories can be retrieved.
+//
+// This endpoint requires the permission: `item_categories:read`.
 func (r *CatalogItemCategoryService) Get(ctx context.Context, id string, query CatalogItemCategoryGetParams, opts ...option.RequestOption) (res *ItemCategory, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -69,6 +73,8 @@ func (r *CatalogItemCategoryService) Get(ctx context.Context, id string, query C
 //
 // Only the fields provided in the request body are changed. Default system
 // categories cannot be updated.
+//
+// This endpoint requires the permission: `item_categories:update`.
 func (r *CatalogItemCategoryService) Update(ctx context.Context, id string, params CatalogItemCategoryUpdateParams, opts ...option.RequestOption) (res *ItemCategory, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -82,6 +88,8 @@ func (r *CatalogItemCategoryService) Update(ctx context.Context, id string, para
 
 // Returns a paginated list of item categories for the current account, including
 // account-specific and global system categories.
+//
+// This endpoint requires the permission: `item_categories:read`.
 func (r *CatalogItemCategoryService) List(ctx context.Context, query CatalogItemCategoryListParams, opts ...option.RequestOption) (res *ListItemCategory, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/item-categories"
@@ -92,6 +100,8 @@ func (r *CatalogItemCategoryService) List(ctx context.Context, query CatalogItem
 // Deletes an account-owned item category.
 //
 // Default system categories cannot be deleted.
+//
+// This endpoint requires the permission: `item_categories:delete`.
 func (r *CatalogItemCategoryService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CatalogItemCategoryDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -108,6 +118,8 @@ func (r *CatalogItemCategoryService) Delete(ctx context.Context, id string, opts
 // The new unit group must have the same unit type as the current one — for
 // example, a category measured in `mass` units can only switch to another `mass`
 // unit group. Default system categories cannot be modified.
+//
+// This endpoint requires the permission: `item_categories:update`.
 func (r *CatalogItemCategoryService) ChangeUnitGroup(ctx context.Context, unitGroupID string, body CatalogItemCategoryChangeUnitGroupParams, opts ...option.RequestOption) (res *CatalogItemCategoryChangeUnitGroupResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if body.ID == "" {

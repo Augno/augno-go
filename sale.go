@@ -24,6 +24,7 @@ type SaleService struct {
 	Priorities SalePriorityService
 	// Manage customer accounts.
 	Customers   SaleCustomerService
+	Contacts    SaleContactService
 	SalesOrders SaleSalesOrderService
 }
 
@@ -38,6 +39,7 @@ func NewSaleService(opts ...option.RequestOption) (r SaleService) {
 	r.AccountStatuses = NewSaleAccountStatusService(opts...)
 	r.Priorities = NewSalePriorityService(opts...)
 	r.Customers = NewSaleCustomerService(opts...)
+	r.Contacts = NewSaleContactService(opts...)
 	r.SalesOrders = NewSaleSalesOrderService(opts...)
 	return
 }

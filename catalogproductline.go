@@ -42,6 +42,8 @@ func NewCatalogProductLineService(opts ...option.RequestOption) (r CatalogProduc
 }
 
 // Creates an account-owned product line.
+//
+// This endpoint requires the permission: `product_lines:create`.
 func (r *CatalogProductLineService) New(ctx context.Context, params CatalogProductLineNewParams, opts ...option.RequestOption) (res *ProductLine, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/product-lines"
@@ -51,6 +53,9 @@ func (r *CatalogProductLineService) New(ctx context.Context, params CatalogProdu
 
 // Returns a product line by ID, including system-owned product lines accessible to
 // the account.
+//
+// This endpoint requires the permissions: `product_lines:read`, `customers:read`,
+// `suppliers:read`.
 func (r *CatalogProductLineService) Get(ctx context.Context, id string, query CatalogProductLineGetParams, opts ...option.RequestOption) (res *ProductLine, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -66,6 +71,8 @@ func (r *CatalogProductLineService) Get(ctx context.Context, id string, query Ca
 //
 // Only the provided fields are changed. The reserved default product lines
 // (shipping, service, credit, tax) cannot be updated.
+//
+// This endpoint requires the permission: `product_lines:update`.
 func (r *CatalogProductLineService) Update(ctx context.Context, id string, params CatalogProductLineUpdateParams, opts ...option.RequestOption) (res *ProductLine, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -79,6 +86,9 @@ func (r *CatalogProductLineService) Update(ctx context.Context, id string, param
 
 // Returns a paginated list of product lines, including account-owned and system
 // product lines.
+//
+// This endpoint requires the permissions: `product_lines:read`, `customers:read`,
+// `suppliers:read`.
 func (r *CatalogProductLineService) List(ctx context.Context, query CatalogProductLineListParams, opts ...option.RequestOption) (res *ListProductLine, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/product-lines"
@@ -90,6 +100,8 @@ func (r *CatalogProductLineService) List(ctx context.Context, query CatalogProdu
 //
 // The reserved default product lines (shipping, service, credit, tax) cannot be
 // deleted.
+//
+// This endpoint requires the permission: `product_lines:delete`.
 func (r *CatalogProductLineService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CatalogProductLineDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

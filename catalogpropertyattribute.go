@@ -41,6 +41,8 @@ func NewCatalogPropertyAttributeService(opts ...option.RequestOption) (r Catalog
 }
 
 // Creates an attribute under a property.
+//
+// This endpoint requires the permission: `properties:create`.
 func (r *CatalogPropertyAttributeService) New(ctx context.Context, propertyID string, body CatalogPropertyAttributeNewParams, opts ...option.RequestOption) (res *Attribute, err error) {
 	opts = slices.Concat(r.options, opts)
 	if propertyID == "" {
@@ -53,6 +55,8 @@ func (r *CatalogPropertyAttributeService) New(ctx context.Context, propertyID st
 }
 
 // Returns an attribute by ID within a property.
+//
+// This endpoint requires the permission: `properties:read`.
 func (r *CatalogPropertyAttributeService) Get(ctx context.Context, id string, query CatalogPropertyAttributeGetParams, opts ...option.RequestOption) (res *Attribute, err error) {
 	opts = slices.Concat(r.options, opts)
 	if query.PropertyID == "" {
@@ -69,6 +73,8 @@ func (r *CatalogPropertyAttributeService) Get(ctx context.Context, id string, qu
 }
 
 // Partially updates an attribute.
+//
+// This endpoint requires the permission: `properties:update`.
 func (r *CatalogPropertyAttributeService) Update(ctx context.Context, id string, params CatalogPropertyAttributeUpdateParams, opts ...option.RequestOption) (res *Attribute, err error) {
 	opts = slices.Concat(r.options, opts)
 	if params.PropertyID == "" {
@@ -85,6 +91,8 @@ func (r *CatalogPropertyAttributeService) Update(ctx context.Context, id string,
 }
 
 // Returns a paginated list of attributes for a property.
+//
+// This endpoint requires the permission: `properties:read`.
 func (r *CatalogPropertyAttributeService) List(ctx context.Context, propertyID string, query CatalogPropertyAttributeListParams, opts ...option.RequestOption) (res *ListAttribute, err error) {
 	opts = slices.Concat(r.options, opts)
 	if propertyID == "" {
@@ -100,6 +108,8 @@ func (r *CatalogPropertyAttributeService) List(ctx context.Context, propertyID s
 //
 // Remaining attributes in the property are shifted so their sort orders stay
 // contiguous.
+//
+// This endpoint requires the permission: `properties:delete`.
 func (r *CatalogPropertyAttributeService) Delete(ctx context.Context, id string, body CatalogPropertyAttributeDeleteParams, opts ...option.RequestOption) (res *CatalogPropertyAttributeDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if body.PropertyID == "" {

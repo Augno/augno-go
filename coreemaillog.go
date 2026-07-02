@@ -41,6 +41,8 @@ func NewCoreEmailLogService(opts ...option.RequestOption) (r CoreEmailLogService
 }
 
 // Returns an email log by ID.
+//
+// This endpoint requires the permission: `email_logs:read`.
 func (r *CoreEmailLogService) Get(ctx context.Context, id string, query CoreEmailLogGetParams, opts ...option.RequestOption) (res *EmailLog, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -53,6 +55,8 @@ func (r *CoreEmailLogService) Get(ctx context.Context, id string, query CoreEmai
 }
 
 // Returns a paginated list of email logs for the current account.
+//
+// This endpoint requires the permission: `email_logs:read`.
 func (r *CoreEmailLogService) List(ctx context.Context, query CoreEmailLogListParams, opts ...option.RequestOption) (res *ListEmailLog, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/core/email-logs"
@@ -82,7 +86,8 @@ type EmailLog struct {
 	//
 	// Any of "sent", "pending".
 	SendStatus EmailLogSendStatus `json:"send_status" api:"required"`
-	// Reference to an actor (user, API key, or agent).
+	// Reference to an actor — the user, API key, agent, or group identity associated
+	// with an action.
 	SentBy Actor `json:"sent_by" api:"required"`
 	// Email subject line.
 	Subject string `json:"subject" api:"required"`

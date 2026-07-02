@@ -43,6 +43,8 @@ func NewCatalogItemCategoryPropertyService(opts ...option.RequestOption) (r Cata
 // Each property name can appear only once per category; adding a property whose
 // name duplicates one already in the category returns a conflict error. Default
 // system categories cannot be modified.
+//
+// This endpoint requires the permission: `item_categories:update`.
 func (r *CatalogItemCategoryPropertyService) Update(ctx context.Context, propertyID string, body CatalogItemCategoryPropertyUpdateParams, opts ...option.RequestOption) (res *CatalogItemCategoryPropertyUpdateResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if body.ID == "" {
@@ -61,6 +63,8 @@ func (r *CatalogItemCategoryPropertyService) Update(ctx context.Context, propert
 // Removes a property from an item category.
 //
 // Default system categories cannot be modified.
+//
+// This endpoint requires the permission: `item_categories:update`.
 func (r *CatalogItemCategoryPropertyService) Delete(ctx context.Context, propertyID string, body CatalogItemCategoryPropertyDeleteParams, opts ...option.RequestOption) (res *CatalogItemCategoryPropertyDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if body.ID == "" {

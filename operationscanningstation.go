@@ -44,6 +44,8 @@ func NewOperationScanningStationService(opts ...option.RequestOption) (r Operati
 //
 // Returns a conflict error if a scanning station with the same name already
 // exists.
+//
+// This endpoint requires the permission: `scanners:create`.
 func (r *OperationScanningStationService) New(ctx context.Context, params OperationScanningStationNewParams, opts ...option.RequestOption) (res *ScanningStation, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/scanning-stations"
@@ -52,6 +54,8 @@ func (r *OperationScanningStationService) New(ctx context.Context, params Operat
 }
 
 // Returns a scanning station by ID.
+//
+// This endpoint requires the permission: `scanners:read`.
 func (r *OperationScanningStationService) Get(ctx context.Context, id string, query OperationScanningStationGetParams, opts ...option.RequestOption) (res *ScanningStation, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -67,6 +71,8 @@ func (r *OperationScanningStationService) Get(ctx context.Context, id string, qu
 //
 // Only the fields provided in the request are changed. Returns a conflict error if
 // the new name is already in use by another scanning station.
+//
+// This endpoint requires the permission: `scanners:update`.
 func (r *OperationScanningStationService) Update(ctx context.Context, id string, params OperationScanningStationUpdateParams, opts ...option.RequestOption) (res *ScanningStation, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -79,6 +85,8 @@ func (r *OperationScanningStationService) Update(ctx context.Context, id string,
 }
 
 // Returns a paginated list of scanning stations in your account.
+//
+// This endpoint requires the permission: `scanners:read`.
 func (r *OperationScanningStationService) List(ctx context.Context, query OperationScanningStationListParams, opts ...option.RequestOption) (res *ListScanningStation, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/scanning-stations"
@@ -87,6 +95,8 @@ func (r *OperationScanningStationService) List(ctx context.Context, query Operat
 }
 
 // Deletes a scanning station.
+//
+// This endpoint requires the permission: `scanners:delete`.
 func (r *OperationScanningStationService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *OperationScanningStationDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

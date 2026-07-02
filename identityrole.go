@@ -40,8 +40,11 @@ func NewIdentityRoleService(opts ...option.RequestOption) (r IdentityRoleService
 	return
 }
 
-// Creates a custom role with the specified permissions. Roles created through the
-// API always have type `user`.
+// Creates a custom role with the specified permissions.
+//
+// Roles created through the API always have type `user`.
+//
+// This endpoint requires the permission: `roles:create`.
 func (r *IdentityRoleService) New(ctx context.Context, params IdentityRoleNewParams, opts ...option.RequestOption) (res *Role, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/identity/roles"
@@ -50,6 +53,8 @@ func (r *IdentityRoleService) New(ctx context.Context, params IdentityRoleNewPar
 }
 
 // Returns a role by ID, including its permissions.
+//
+// This endpoint requires the permission: `roles:read`.
 func (r *IdentityRoleService) Get(ctx context.Context, id string, query IdentityRoleGetParams, opts ...option.RequestOption) (res *Role, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -61,8 +66,11 @@ func (r *IdentityRoleService) Get(ctx context.Context, id string, query Identity
 	return res, err
 }
 
-// Partially updates a custom role's name or permissions. Provided permissions
-// replace all existing ones; global roles cannot be modified.
+// Partially updates a custom role's name or permissions.
+//
+// Provided permissions replace all existing ones; global roles cannot be modified.
+//
+// This endpoint requires the permission: `roles:update`.
 func (r *IdentityRoleService) Update(ctx context.Context, id string, params IdentityRoleUpdateParams, opts ...option.RequestOption) (res *Role, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -76,6 +84,8 @@ func (r *IdentityRoleService) Update(ctx context.Context, id string, params Iden
 
 // Returns a paginated list of roles for the target account, including global
 // roles.
+//
+// This endpoint requires the permission: `roles:read`.
 func (r *IdentityRoleService) List(ctx context.Context, query IdentityRoleListParams, opts ...option.RequestOption) (res *ListRole, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/identity/roles"
@@ -83,8 +93,12 @@ func (r *IdentityRoleService) List(ctx context.Context, query IdentityRoleListPa
 	return res, err
 }
 
-// Deletes a role and its associated permissions. Global roles and roles currently
-// assigned to one or more users cannot be deleted.
+// Deletes a role and its associated permissions.
+//
+// Global roles and roles currently assigned to one or more users cannot be
+// deleted.
+//
+// This endpoint requires the permission: `roles:delete`.
 func (r *IdentityRoleService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *IdentityRoleDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -98,7 +112,7 @@ func (r *IdentityRoleService) Delete(ctx context.Context, id string, opts ...opt
 
 // CreateRoleRequest is a request to create a role.
 //
-// The properties Name, Permissions are required.
+// The property Name is required.
 type CreateRoleRequestParam struct {
 	// Display name for the role, unique within the account.
 	Name string `json:"name" api:"required"`
@@ -106,7 +120,7 @@ type CreateRoleRequestParam struct {
 	//
 	// The action must be one of `create`, `read`, `update`, or `delete`. Omit to
 	// create a role with no permissions.
-	Permissions []string `json:"permissions,omitzero" api:"required"`
+	Permissions []string `json:"permissions,omitzero"`
 	paramObj
 }
 
@@ -153,8 +167,9 @@ const (
 
 // UpdateRoleRequest is a request to update a role.
 type UpdateRoleRequestParam struct {
-	// New display name for the role, unique within the account. Omit to leave
-	// unchanged.
+	// New display name for the role, unique within the account.
+	//
+	// Omit to leave unchanged.
 	Name param.Opt[string] `json:"name,omitzero"`
 	// Full replacement set of permissions, in `{domain}:{action}` format, such as
 	// `customers:read`.

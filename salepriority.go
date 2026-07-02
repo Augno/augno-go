@@ -41,6 +41,8 @@ func NewSalePriorityService(opts ...option.RequestOption) (r SalePriorityService
 }
 
 // Returns a priority by ID or code.
+//
+// This endpoint requires the permission: `priorities:read`.
 func (r *SalePriorityService) Get(ctx context.Context, id string, query SalePriorityGetParams, opts ...option.RequestOption) (res *Priority, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -53,6 +55,8 @@ func (r *SalePriorityService) Get(ctx context.Context, id string, query SalePrio
 }
 
 // Returns a paginated list of priorities.
+//
+// This endpoint requires the permission: `priorities:read`.
 func (r *SalePriorityService) List(ctx context.Context, query SalePriorityListParams, opts ...option.RequestOption) (res *ListPriority, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/priorities"
@@ -107,7 +111,7 @@ type Priority struct {
 	Code PriorityCode `json:"code" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name.
+	// Display name of the priority level.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//

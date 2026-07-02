@@ -41,6 +41,8 @@ func NewOperationShippingTermService(opts ...option.RequestOption) (r OperationS
 }
 
 // Creates an account-owned shipping term.
+//
+// This endpoint requires the permission: `shipping_terms:create`.
 func (r *OperationShippingTermService) New(ctx context.Context, params OperationShippingTermNewParams, opts ...option.RequestOption) (res *ShippingTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/shipping-terms"
@@ -49,6 +51,8 @@ func (r *OperationShippingTermService) New(ctx context.Context, params Operation
 }
 
 // Returns a shipping term by ID.
+//
+// This endpoint requires the permission: `shipping_terms:read`.
 func (r *OperationShippingTermService) Get(ctx context.Context, id string, query OperationShippingTermGetParams, opts ...option.RequestOption) (res *ShippingTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -63,6 +67,8 @@ func (r *OperationShippingTermService) Get(ctx context.Context, id string, query
 // Partially updates an account-owned shipping term.
 //
 // System-provided default shipping terms cannot be updated.
+//
+// This endpoint requires the permission: `shipping_terms:update`.
 func (r *OperationShippingTermService) Update(ctx context.Context, id string, params OperationShippingTermUpdateParams, opts ...option.RequestOption) (res *ShippingTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -76,6 +82,8 @@ func (r *OperationShippingTermService) Update(ctx context.Context, id string, pa
 
 // Returns a paginated list of shipping terms for the account, including default
 // system shipping terms.
+//
+// This endpoint requires the permission: `shipping_terms:read`.
 func (r *OperationShippingTermService) List(ctx context.Context, query OperationShippingTermListParams, opts ...option.RequestOption) (res *ListShippingTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/shipping-terms"
@@ -86,6 +94,8 @@ func (r *OperationShippingTermService) List(ctx context.Context, query Operation
 // Deletes an account-owned shipping term.
 //
 // System-provided default shipping terms cannot be deleted.
+//
+// This endpoint requires the permission: `shipping_terms:delete`.
 func (r *OperationShippingTermService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *OperationShippingTermDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

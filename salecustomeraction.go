@@ -45,6 +45,8 @@ func NewSaleCustomerActionService(opts ...option.RequestOption) (r SaleCustomerA
 // from the source customers are reassigned to the target; price groups, product
 // line access, addresses, and users are consolidated without duplicates; the
 // source customers are then deleted.
+//
+// This endpoint requires the permissions: `customers:update`, `customers:delete`.
 func (r *SaleCustomerActionService) Merge(ctx context.Context, id string, params SaleCustomerActionMergeParams, opts ...option.RequestOption) (res *Customer, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -83,11 +85,12 @@ type SaleCustomerActionMergeParams struct {
 	// `null`.
 	//
 	// Any of "bill_to_address", "ship_to_address", "type", "parent_account",
-	// "freight_preferences.carrier", "freight_preferences.service_level",
-	// "defaults.payment_term", "defaults.shipping_term", "defaults.sales_rep",
-	// "defaults.sales_rep.user", "defaults.priority", "contact_info",
-	// "freight_preferences", "defaults", "notification_preferences", "price_groups",
-	// "child_accounts", "credit_limit".
+	// "freight_preferences.carrier", "freight_preferences.carrier.service_levels",
+	// "freight_preferences.service_level", "defaults.payment_term",
+	// "defaults.shipping_term", "defaults.sales_rep", "defaults.sales_rep.user",
+	// "defaults.priority", "contact_info", "freight_preferences", "defaults",
+	// "notification_preferences", "price_groups", "child_accounts", "credit_limit",
+	// "credit_limit.unit".
 	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }

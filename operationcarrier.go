@@ -48,6 +48,8 @@ func NewOperationCarrierService(opts ...option.RequestOption) (r OperationCarrie
 // If a Shippo-supported code (`fedex`, `ups`, `usps`) is provided, the carrier is
 // connected through Shippo and its service levels are auto-synced, initially
 // hidden from the customer portal. Sandbox accounts skip the Shippo connection.
+//
+// This endpoint requires the permission: `carriers:create`.
 func (r *OperationCarrierService) New(ctx context.Context, params OperationCarrierNewParams, opts ...option.RequestOption) (res *Carrier, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/carriers"
@@ -56,6 +58,9 @@ func (r *OperationCarrierService) New(ctx context.Context, params OperationCarri
 }
 
 // Returns a carrier by ID.
+//
+// This endpoint requires the permissions: `carriers:read`, `customers:read`,
+// `suppliers:read`.
 func (r *OperationCarrierService) Get(ctx context.Context, id string, query OperationCarrierGetParams, opts ...option.RequestOption) (res *Carrier, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -68,6 +73,8 @@ func (r *OperationCarrierService) Get(ctx context.Context, id string, query Oper
 }
 
 // Partially updates a carrier's name and portal visibility.
+//
+// This endpoint requires the permission: `carriers:update`.
 func (r *OperationCarrierService) Update(ctx context.Context, id string, params OperationCarrierUpdateParams, opts ...option.RequestOption) (res *Carrier, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -80,6 +87,9 @@ func (r *OperationCarrierService) Update(ctx context.Context, id string, params 
 }
 
 // Returns a paginated list of carriers for the current account.
+//
+// This endpoint requires the permissions: `carriers:read`, `customers:read`,
+// `suppliers:read`.
 func (r *OperationCarrierService) List(ctx context.Context, query OperationCarrierListParams, opts ...option.RequestOption) (res *ListCarrier, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/carriers"
@@ -91,6 +101,8 @@ func (r *OperationCarrierService) List(ctx context.Context, query OperationCarri
 //
 // If the carrier is connected through Shippo, its Shippo carrier account is
 // deactivated. System-owned carriers cannot be deleted.
+//
+// This endpoint requires the permission: `carriers:delete`.
 func (r *OperationCarrierService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *OperationCarrierDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -208,9 +220,8 @@ type UpdateCarrierRequestParam struct {
 	Name param.Opt[string] `json:"name,omitzero"`
 	// Carrier visibility in the customer portal.
 	//
-	// If `visible`, this carrier will be available for your customers to utilize when
-	// they go to checkout. If `hidden`, this carrier will not be an option on
-	// checkout.
+	// A `visible` carrier can be selected by your customers at checkout; a `hidden`
+	// carrier is not offered there.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility UpdateCarrierRequestCustomerPortalVisibility `json:"customer_portal_visibility,omitzero"`
@@ -227,9 +238,8 @@ func (r *UpdateCarrierRequestParam) UnmarshalJSON(data []byte) error {
 
 // Carrier visibility in the customer portal.
 //
-// If `visible`, this carrier will be available for your customers to utilize when
-// they go to checkout. If `hidden`, this carrier will not be an option on
-// checkout.
+// A `visible` carrier can be selected by your customers at checkout; a `hidden`
+// carrier is not offered there.
 type UpdateCarrierRequestCustomerPortalVisibility string
 
 const (

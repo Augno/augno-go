@@ -41,6 +41,8 @@ func NewOperationLocationTypeService(opts ...option.RequestOption) (r OperationL
 }
 
 // Returns a location type by ID or code.
+//
+// This endpoint requires the permission: `locations:read`.
 func (r *OperationLocationTypeService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *LocationType, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -53,6 +55,8 @@ func (r *OperationLocationTypeService) Get(ctx context.Context, id string, opts 
 }
 
 // Returns a paginated list of location types.
+//
+// This endpoint requires the permission: `locations:read`.
 func (r *OperationLocationTypeService) List(ctx context.Context, query OperationLocationTypeListParams, opts ...option.RequestOption) (res *ListLocationType, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/location-types"

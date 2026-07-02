@@ -51,6 +51,8 @@ func NewAuthAPIKeyService(opts ...option.RequestOption) (r AuthAPIKeyService) {
 // store it securely. We provide some
 // [recommendations](https://docs.augno.com/api/managing-api-keys) on how you can
 // manage your API keys.
+//
+// This endpoint requires the `admin` role type.
 func (r *AuthAPIKeyService) New(ctx context.Context, params AuthAPIKeyNewParams, opts ...option.RequestOption) (res *CreatedAPIKey, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/auth/api-keys"
@@ -59,6 +61,8 @@ func (r *AuthAPIKeyService) New(ctx context.Context, params AuthAPIKeyNewParams,
 }
 
 // Returns [API key](https://docs.augno.com/api/api-keys) metadata by ID.
+//
+// This endpoint requires the `admin` role type.
 func (r *AuthAPIKeyService) Get(ctx context.Context, id string, query AuthAPIKeyGetParams, opts ...option.RequestOption) (res *APIKey, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -71,6 +75,8 @@ func (r *AuthAPIKeyService) Get(ctx context.Context, id string, query AuthAPIKey
 }
 
 // Returns a paginated list of [API keys](https://docs.augno.com/api/api-keys).
+//
+// This endpoint requires the `admin` role type.
 func (r *AuthAPIKeyService) List(ctx context.Context, query AuthAPIKeyListParams, opts ...option.RequestOption) (res *ListAPIKey, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/auth/api-keys"
@@ -83,6 +89,8 @@ func (r *AuthAPIKeyService) List(ctx context.Context, query AuthAPIKeyListParams
 // Revocation takes effect immediately and cannot be undone; revoked keys can no
 // longer be used to authenticate requests. To replace a key without losing access,
 // use Rotate API Key instead.
+//
+// This endpoint requires the `admin` role type.
 func (r *AuthAPIKeyService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *AuthAPIKeyDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -108,7 +116,7 @@ type Account struct {
 	// A saved address that can be used for billing and shipping on sales orders,
 	// invoices, and shipments.
 	DefaultShippingAddress Address `json:"default_shipping_address" api:"required"`
-	// Display name.
+	// The account's display name.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -267,7 +275,7 @@ type Address struct {
 	Object AddressObject `json:"object" api:"required"`
 	// Phone number associated with the address.
 	Phone string `json:"phone" api:"required"`
-	// Address type.
+	// How the address is used.
 	//
 	//   - `standard`: a normal shipping or billing address.
 	//   - `drop_ship`: an address an order is shipped to directly, typically a third
@@ -306,7 +314,7 @@ const (
 	AddressObjectAddress AddressObject = "address"
 )
 
-// Address type.
+// How the address is used.
 //
 //   - `standard`: a normal shipping or billing address.
 //   - `drop_ship`: an address an order is shipped to directly, typically a third
@@ -535,7 +543,7 @@ type Owner struct {
 	//
 	// Any of "owner".
 	Object OwnerObject `json:"object" api:"required"`
-	// Owner type, identifying where the resource came from.
+	// Where this resource came from.
 	//
 	//   - `system`: a platform-provided default shared across all accounts; not
 	//     editable.
@@ -567,7 +575,7 @@ const (
 	OwnerObjectOwner OwnerObject = "owner"
 )
 
-// Owner type, identifying where the resource came from.
+// Where this resource came from.
 //
 //   - `system`: a platform-provided default shared across all accounts; not
 //     editable.

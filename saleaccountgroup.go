@@ -44,6 +44,8 @@ func NewSaleAccountGroupService(opts ...option.RequestOption) (r SaleAccountGrou
 // Creates an account group.
 //
 // Returns a conflict error if an account group with the same name already exists.
+//
+// This endpoint requires the permission: `customer_groups:create`.
 func (r *SaleAccountGroupService) New(ctx context.Context, body SaleAccountGroupNewParams, opts ...option.RequestOption) (res *AccountGroup, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/account-groups"
@@ -52,6 +54,8 @@ func (r *SaleAccountGroupService) New(ctx context.Context, body SaleAccountGroup
 }
 
 // Returns an account group by ID.
+//
+// This endpoint requires the permission: `customer_groups:read`.
 func (r *SaleAccountGroupService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *AccountGroup, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -67,6 +71,8 @@ func (r *SaleAccountGroupService) Get(ctx context.Context, id string, opts ...op
 //
 // Only the provided fields are changed. The account group's `type` cannot be
 // changed after creation.
+//
+// This endpoint requires the permission: `customer_groups:update`.
 func (r *SaleAccountGroupService) Update(ctx context.Context, id string, body SaleAccountGroupUpdateParams, opts ...option.RequestOption) (res *AccountGroup, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -79,6 +85,8 @@ func (r *SaleAccountGroupService) Update(ctx context.Context, id string, body Sa
 }
 
 // Returns a paginated list of account groups.
+//
+// This endpoint requires the permission: `customer_groups:read`.
 func (r *SaleAccountGroupService) List(ctx context.Context, query SaleAccountGroupListParams, opts ...option.RequestOption) (res *ListAccountGroup, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/account-groups"
@@ -91,6 +99,8 @@ func (r *SaleAccountGroupService) List(ctx context.Context, query SaleAccountGro
 // Deletion fails with a validation error while the account group is still in use —
 // for example by customer records, product line access, volume discounts, pricing
 // assignments, or an active registration flow.
+//
+// This endpoint requires the permission: `customer_groups:delete`.
 func (r *SaleAccountGroupService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *SaleAccountGroupDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

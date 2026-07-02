@@ -46,6 +46,8 @@ func NewCoreSandboxService(opts ...option.RequestOption) (r CoreSandboxService) 
 // When `mode` is `seeded`, sample data is populated asynchronously and may not be
 // available immediately after the sandbox is created. Sandboxes cannot be created
 // while acting in a sandbox.
+//
+// This endpoint requires the permission: `sandboxes:create`.
 func (r *CoreSandboxService) New(ctx context.Context, params CoreSandboxNewParams, opts ...option.RequestOption) (res *Sandbox, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/core/sandboxes"
@@ -54,6 +56,8 @@ func (r *CoreSandboxService) New(ctx context.Context, params CoreSandboxNewParam
 }
 
 // Returns a sandbox by ID.
+//
+// This endpoint requires the permission: `sandboxes:read`.
 func (r *CoreSandboxService) Get(ctx context.Context, id string, query CoreSandboxGetParams, opts ...option.RequestOption) (res *Sandbox, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -66,6 +70,8 @@ func (r *CoreSandboxService) Get(ctx context.Context, id string, query CoreSandb
 }
 
 // Returns a paginated list of sandboxes.
+//
+// This endpoint requires the permission: `sandboxes:read`.
 func (r *CoreSandboxService) List(ctx context.Context, query CoreSandboxListParams, opts ...option.RequestOption) (res *ListSandbox, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/core/sandboxes"
@@ -77,6 +83,8 @@ func (r *CoreSandboxService) List(ctx context.Context, query CoreSandboxListPara
 //
 // The sandbox's data is purged asynchronously, so it may persist briefly after
 // this call returns.
+//
+// This endpoint requires the permission: `sandboxes:delete`.
 func (r *CoreSandboxService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CoreSandboxDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -92,7 +100,7 @@ func (r *CoreSandboxService) Delete(ctx context.Context, id string, opts ...opti
 //
 // The property Name is required.
 type CreateSandboxRequestParam struct {
-	// Display name.
+	// Display name of the sandbox.
 	Name string `json:"name" api:"required"`
 	// Controls how the sandbox is initialized.
 	//
@@ -164,7 +172,7 @@ type Sandbox struct {
 	ID string `json:"id" api:"required"`
 	// When this sandbox was created.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name.
+	// Display name of the sandbox.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//

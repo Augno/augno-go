@@ -44,6 +44,8 @@ func NewCatalogItemService(opts ...option.RequestOption) (r CatalogItemService) 
 }
 
 // Returns an item by ID.
+//
+// This endpoint requires the permission: `items:read`.
 func (r *CatalogItemService) Get(ctx context.Context, id string, query CatalogItemGetParams, opts ...option.RequestOption) (res *Item, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -56,6 +58,8 @@ func (r *CatalogItemService) Get(ctx context.Context, id string, query CatalogIt
 }
 
 // Returns a paginated list of items.
+//
+// This endpoint requires the permission: `items:read`.
 func (r *CatalogItemService) List(ctx context.Context, query CatalogItemListParams, opts ...option.RequestOption) (res *ListItem, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/items"
@@ -68,6 +72,8 @@ func (r *CatalogItemService) List(ctx context.Context, query CatalogItemListPara
 // The item's rate units (unit value, unit cost, burn rate) and any related
 // order-point, consumption, and production quantity units are updated to the new
 // category's base unit. Re-assigning the item's current category is a no-op.
+//
+// This endpoint requires the permission: `items:update`.
 func (r *CatalogItemService) ChangeCategory(ctx context.Context, categoryID string, params CatalogItemChangeCategoryParams, opts ...option.RequestOption) (res *Item, err error) {
 	opts = slices.Concat(r.options, opts)
 	if params.ID == "" {
@@ -85,6 +91,8 @@ func (r *CatalogItemService) ChangeCategory(ctx context.Context, categoryID stri
 
 // Returns inventory quantities for an item, including on-hand, reserved,
 // available-to-promise, and short amounts.
+//
+// This endpoint requires the permission: `items:read`.
 func (r *CatalogItemService) GetInventory(ctx context.Context, id string, query CatalogItemGetInventoryParams, opts ...option.RequestOption) (res *ItemInventory, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

@@ -41,6 +41,8 @@ func NewOperationLocationService(opts ...option.RequestOption) (r OperationLocat
 }
 
 // Creates a storage location, optionally placing it in the location hierarchy.
+//
+// This endpoint requires the permission: `locations:create`.
 func (r *OperationLocationService) New(ctx context.Context, params OperationLocationNewParams, opts ...option.RequestOption) (res *Location, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/locations"
@@ -49,6 +51,8 @@ func (r *OperationLocationService) New(ctx context.Context, params OperationLoca
 }
 
 // Returns a location by ID.
+//
+// This endpoint requires the permission: `locations:read`.
 func (r *OperationLocationService) Get(ctx context.Context, id string, query OperationLocationGetParams, opts ...option.RequestOption) (res *Location, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -61,6 +65,8 @@ func (r *OperationLocationService) Get(ctx context.Context, id string, query Ope
 }
 
 // Partially updates a location.
+//
+// This endpoint requires the permission: `locations:update`.
 func (r *OperationLocationService) Update(ctx context.Context, id string, params OperationLocationUpdateParams, opts ...option.RequestOption) (res *Location, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -73,6 +79,8 @@ func (r *OperationLocationService) Update(ctx context.Context, id string, params
 }
 
 // Returns a paginated list of locations in your account.
+//
+// This endpoint requires the permission: `locations:read`.
 func (r *OperationLocationService) List(ctx context.Context, query OperationLocationListParams, opts ...option.RequestOption) (res *ListLocation, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/operations/locations"
@@ -84,6 +92,8 @@ func (r *OperationLocationService) List(ctx context.Context, query OperationLoca
 //
 // Fails if the location has child locations; remove or reassign the children
 // first.
+//
+// This endpoint requires the permission: `locations:delete`.
 func (r *OperationLocationService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *OperationLocationDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

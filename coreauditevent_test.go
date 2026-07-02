@@ -58,6 +58,7 @@ func TestCoreAuditEventListWithOptionalParams(t *testing.T) {
 		Actions:          []string{"create"},
 		ActorAccountIDs:  []string{"string"},
 		ActorIDs:         []string{"string"},
+		ActorTypes:       []string{"user"},
 		Cursor:           augno.String("cursor"),
 		EndDate:          augno.Time(time.Now()),
 		Include:          []string{"account"},

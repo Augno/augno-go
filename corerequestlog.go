@@ -41,6 +41,8 @@ func NewCoreRequestLogService(opts ...option.RequestOption) (r CoreRequestLogSer
 }
 
 // Returns a request log by ID.
+//
+// This endpoint requires the permission: `request_logs:read`.
 func (r *CoreRequestLogService) Get(ctx context.Context, id string, query CoreRequestLogGetParams, opts ...option.RequestOption) (res *RequestLog, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -53,6 +55,8 @@ func (r *CoreRequestLogService) Get(ctx context.Context, id string, query CoreRe
 }
 
 // Returns a paginated list of request logs for the current account.
+//
+// This endpoint requires the permission: `request_logs:read`.
 func (r *CoreRequestLogService) List(ctx context.Context, query CoreRequestLogListParams, opts ...option.RequestOption) (res *ListRequestLog, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/core/request-logs"
@@ -60,16 +64,21 @@ func (r *CoreRequestLogService) List(ctx context.Context, query CoreRequestLogLi
 	return res, err
 }
 
-// Reference to an actor (user, API key, or agent).
+// Reference to an actor — the user, API key, agent, or group identity associated
+// with an action.
 type Actor struct {
-	// Actor ID.
+	// Unique identifier of the actor.
 	ID string `json:"id" api:"required"`
+	// URL of the actor's profile photo, if one is set.
+	//
+	// Only populated for `user` actors.
+	AvatarURL string `json:"avatar_url" api:"required"`
 	// Human-readable handle identifying the actor.
 	//
 	// - For `user` actors: the user's email address.
 	// - For `api_key` actors: the redacted key value.
 	//
-	// Agent actors carry no handle.
+	// Other actor types carry no handle.
 	Handle string `json:"handle" api:"required"`
 	// The actor's display name.
 	Name string `json:"name" api:"required"`
@@ -82,15 +91,18 @@ type Actor struct {
 	Role Role `json:"role" api:"required"`
 	// Actor type.
 	//
-	// - `user`: a human user account.
-	// - `api_key`: a programmatic caller authenticating with an API key.
-	// - `agent`: an automated agent acting on the account's behalf.
+	//   - `user`: a human user account.
+	//   - `api_key`: a programmatic caller authenticating with an API key.
+	//   - `agent`: an automated agent acting on the account's behalf.
+	//   - `group`: a shared group identity, such as a "Customer Service" persona, rather
+	//     than a single individual.
 	//
-	// Any of "user", "api_key", "agent".
+	// Any of "user", "api_key", "agent", "group".
 	Type ActorType `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
+		AvatarURL   respjson.Field
 		Handle      respjson.Field
 		Name        respjson.Field
 		Object      respjson.Field
@@ -116,15 +128,18 @@ const (
 
 // Actor type.
 //
-// - `user`: a human user account.
-// - `api_key`: a programmatic caller authenticating with an API key.
-// - `agent`: an automated agent acting on the account's behalf.
+//   - `user`: a human user account.
+//   - `api_key`: a programmatic caller authenticating with an API key.
+//   - `agent`: an automated agent acting on the account's behalf.
+//   - `group`: a shared group identity, such as a "Customer Service" persona, rather
+//     than a single individual.
 type ActorType string
 
 const (
 	ActorTypeUser   ActorType = "user"
 	ActorTypeAPIKey ActorType = "api_key"
 	ActorTypeAgent  ActorType = "agent"
+	ActorTypeGroup  ActorType = "group"
 )
 
 // List represents a paginated list of resources.
@@ -166,7 +181,8 @@ type RequestLog struct {
 	ID string `json:"id" api:"required"`
 	// A customer account, including its branding and customer portal sub-resources.
 	Account Account `json:"account" api:"required"`
-	// Reference to an actor (user, API key, or agent).
+	// Reference to an actor — the user, API key, agent, or group identity associated
+	// with an action.
 	Actor Actor `json:"actor" api:"required"`
 	// API version used.
 	APIVersion string `json:"api_version" api:"required"`
@@ -205,7 +221,7 @@ type RequestLog struct {
 	Object RequestLogObject `json:"object" api:"required"`
 	// When the request occurred.
 	OccurredAt time.Time `json:"occurred_at" api:"required" format:"date-time"`
-	// Non-normalized request path.
+	// The exact path the request was made to, including path parameter values.
 	Path string `json:"path" api:"required"`
 	// Query parameters. Encoded as a JSON value (object, array, string, number,
 	// boolean, or null), not a JSON-encoded string.
@@ -319,7 +335,7 @@ type CoreRequestLogListParams struct {
 	ActorIDs []string `query:"actor_ids,omitzero" json:"-"`
 	// Filter by the actor type.
 	//
-	// Any of "user", "api_key", "agent".
+	// Any of "user", "api_key", "agent", "group".
 	ActorTypes []string `query:"actor_types,omitzero" json:"-"`
 	// Filter by API error code.
 	//

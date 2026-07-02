@@ -48,6 +48,8 @@ func NewAuthAPIKeyActionService(opts ...option.RequestOption) (r AuthAPIKeyActio
 // store it securely. We provide some
 // [recommendations](https://docs.augno.com/api/managing-api-keys) on how you can
 // manage your API keys.
+//
+// This endpoint requires the `admin` role type.
 func (r *AuthAPIKeyActionService) Rotate(ctx context.Context, id string, params AuthAPIKeyActionRotateParams, opts ...option.RequestOption) (res *CreatedAPIKey, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

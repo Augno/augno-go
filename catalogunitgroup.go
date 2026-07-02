@@ -45,6 +45,8 @@ func NewCatalogUnitGroupService(opts ...option.RequestOption) (r CatalogUnitGrou
 }
 
 // Creates a unit group with optional associated units.
+//
+// This endpoint requires the permission: `unit_groups:create`.
 func (r *CatalogUnitGroupService) New(ctx context.Context, params CatalogUnitGroupNewParams, opts ...option.RequestOption) (res *UnitGroup, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/unit-groups"
@@ -53,6 +55,8 @@ func (r *CatalogUnitGroupService) New(ctx context.Context, params CatalogUnitGro
 }
 
 // Returns a unit group by ID.
+//
+// This endpoint requires the permission: `unit_groups:read`.
 func (r *CatalogUnitGroupService) Get(ctx context.Context, id string, query CatalogUnitGroupGetParams, opts ...option.RequestOption) (res *UnitGroup, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -65,6 +69,8 @@ func (r *CatalogUnitGroupService) Get(ctx context.Context, id string, query Cata
 }
 
 // Partially updates a unit group. System unit groups cannot be updated.
+//
+// This endpoint requires the permission: `unit_groups:update`.
 func (r *CatalogUnitGroupService) Update(ctx context.Context, id string, params CatalogUnitGroupUpdateParams, opts ...option.RequestOption) (res *UnitGroup, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -77,6 +83,8 @@ func (r *CatalogUnitGroupService) Update(ctx context.Context, id string, params 
 }
 
 // Returns a paginated list of unit groups, including system unit groups.
+//
+// This endpoint requires the permission: `unit_groups:read`.
 func (r *CatalogUnitGroupService) List(ctx context.Context, query CatalogUnitGroupListParams, opts ...option.RequestOption) (res *ListUnitGroup, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/unit-groups"
@@ -84,8 +92,10 @@ func (r *CatalogUnitGroupService) List(ctx context.Context, query CatalogUnitGro
 	return res, err
 }
 
-// Deletes a unit group and all associated unit conversions. System unit groups
-// cannot be deleted.
+// Deletes a unit group and all of its associated units. System unit groups cannot
+// be deleted.
+//
+// This endpoint requires the permission: `unit_groups:delete`.
 func (r *CatalogUnitGroupService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CatalogUnitGroupDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -107,7 +117,7 @@ type CreateUnitGroupRequestParam struct {
 	//
 	// Must be unique within the account.
 	Name string `json:"name" api:"required"`
-	// Dimension shared by every unit in this group (e.g. `mass`, `volume`).
+	// Dimension shared by every unit in this group.
 	//
 	// All associated units must be of this dimension.
 	//
@@ -129,7 +139,7 @@ func (r *CreateUnitGroupRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Dimension shared by every unit in this group (e.g. `mass`, `volume`).
+// Dimension shared by every unit in this group.
 //
 // All associated units must be of this dimension.
 type CreateUnitGroupRequestType string
@@ -259,7 +269,9 @@ type UnitGroup struct {
 	BaseUnit Unit `json:"base_unit" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name.
+	// Display name of the unit group.
+	//
+	// Unique within the account.
 	Name string `json:"name" api:"required"`
 	// Free-form notes about the unit group.
 	Notes string `json:"notes" api:"required"`
@@ -519,7 +531,7 @@ type CatalogUnitGroupListParams struct {
 	//
 	// Any of "owner", "owner.account", "base_unit", "associated_units".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Filter by unit dimension (e.g. `mass`).
+	// Filter by unit dimension.
 	//
 	// Any of "currency", "quantity", "time", "mass", "volume", "length",
 	// "temperature", "area".
@@ -536,7 +548,7 @@ func (r CatalogUnitGroupListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Filter by unit dimension (e.g. `mass`).
+// Filter by unit dimension.
 type CatalogUnitGroupListParamsType string
 
 const (

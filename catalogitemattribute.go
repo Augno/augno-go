@@ -39,6 +39,8 @@ func NewCatalogItemAttributeService(opts ...option.RequestOption) (r CatalogItem
 // Adds an attribute to an item and returns the updated item.
 //
 // If the attribute is already associated with the item, this is a no-op.
+//
+// This endpoint requires the permission: `items:update`.
 func (r *CatalogItemAttributeService) Update(ctx context.Context, attributeID string, params CatalogItemAttributeUpdateParams, opts ...option.RequestOption) (res *Item, err error) {
 	opts = slices.Concat(r.options, opts)
 	if params.ID == "" {
@@ -55,6 +57,8 @@ func (r *CatalogItemAttributeService) Update(ctx context.Context, attributeID st
 }
 
 // Removes an attribute from an item.
+//
+// This endpoint requires the permission: `items:update`.
 func (r *CatalogItemAttributeService) Delete(ctx context.Context, attributeID string, params CatalogItemAttributeDeleteParams, opts ...option.RequestOption) (res *Item, err error) {
 	opts = slices.Concat(r.options, opts)
 	if params.ID == "" {

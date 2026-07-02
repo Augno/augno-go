@@ -42,6 +42,8 @@ func NewCatalogUnitGroupUnitService(opts ...option.RequestOption) (r CatalogUnit
 
 // Adds a unit to a unit group. If the unit is already in the group, its existing
 // association is updated with the provided settings instead.
+//
+// This endpoint requires the permission: `unit_groups:update`.
 func (r *CatalogUnitGroupUnitService) New(ctx context.Context, unitGroupID string, params CatalogUnitGroupUnitNewParams, opts ...option.RequestOption) (res *UnitGroupUnit, err error) {
 	opts = slices.Concat(r.options, opts)
 	if unitGroupID == "" {
@@ -54,6 +56,8 @@ func (r *CatalogUnitGroupUnitService) New(ctx context.Context, unitGroupID strin
 }
 
 // Returns an associated unit within a unit group by ID.
+//
+// This endpoint requires the permission: `unit_groups:read`.
 func (r *CatalogUnitGroupUnitService) Get(ctx context.Context, id string, params CatalogUnitGroupUnitGetParams, opts ...option.RequestOption) (res *UnitGroupUnit, err error) {
 	opts = slices.Concat(r.options, opts)
 	if params.UnitGroupID == "" {
@@ -70,6 +74,8 @@ func (r *CatalogUnitGroupUnitService) Get(ctx context.Context, id string, params
 }
 
 // Partially updates an associated unit within a unit group.
+//
+// This endpoint requires the permission: `unit_groups:update`.
 func (r *CatalogUnitGroupUnitService) Update(ctx context.Context, id string, params CatalogUnitGroupUnitUpdateParams, opts ...option.RequestOption) (res *UnitGroupUnit, err error) {
 	opts = slices.Concat(r.options, opts)
 	if params.UnitGroupID == "" {
@@ -86,6 +92,8 @@ func (r *CatalogUnitGroupUnitService) Update(ctx context.Context, id string, par
 }
 
 // Returns a list of associated units within a unit group.
+//
+// This endpoint requires the permission: `unit_groups:read`.
 func (r *CatalogUnitGroupUnitService) List(ctx context.Context, unitGroupID string, query CatalogUnitGroupUnitListParams, opts ...option.RequestOption) (res *ListUnitGroupUnit, err error) {
 	opts = slices.Concat(r.options, opts)
 	if unitGroupID == "" {
@@ -98,6 +106,8 @@ func (r *CatalogUnitGroupUnitService) List(ctx context.Context, unitGroupID stri
 }
 
 // Removes a unit from a unit group. The unit itself is not deleted.
+//
+// This endpoint requires the permission: `unit_groups:delete`.
 func (r *CatalogUnitGroupUnitService) Delete(ctx context.Context, id string, body CatalogUnitGroupUnitDeleteParams, opts ...option.RequestOption) (res *CatalogUnitGroupUnitDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if body.UnitGroupID == "" {

@@ -43,6 +43,8 @@ func NewFinancePaymentTermService(opts ...option.RequestOption) (r FinancePaymen
 // Creates a payment term.
 //
 // The new term is owned by your account and starts with status `active`.
+//
+// This endpoint requires the permission: `payment_terms:create`.
 func (r *FinancePaymentTermService) New(ctx context.Context, params FinancePaymentTermNewParams, opts ...option.RequestOption) (res *PaymentTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/finance/payment-terms"
@@ -51,6 +53,8 @@ func (r *FinancePaymentTermService) New(ctx context.Context, params FinancePayme
 }
 
 // Returns a payment term by ID.
+//
+// This endpoint requires the permission: `payment_terms:read`.
 func (r *FinancePaymentTermService) Get(ctx context.Context, id string, query FinancePaymentTermGetParams, opts ...option.RequestOption) (res *PaymentTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -66,6 +70,8 @@ func (r *FinancePaymentTermService) Get(ctx context.Context, id string, query Fi
 //
 // Only payment terms created by your account can be updated; system-owned default
 // terms cannot be.
+//
+// This endpoint requires the permission: `payment_terms:update`.
 func (r *FinancePaymentTermService) Update(ctx context.Context, id string, params FinancePaymentTermUpdateParams, opts ...option.RequestOption) (res *PaymentTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -81,6 +87,8 @@ func (r *FinancePaymentTermService) Update(ctx context.Context, id string, param
 //
 // The list includes both payment terms created by your account and Augno-provided
 // system defaults.
+//
+// This endpoint requires the permission: `payment_terms:read`.
 func (r *FinancePaymentTermService) List(ctx context.Context, query FinancePaymentTermListParams, opts ...option.RequestOption) (res *ListPaymentTerm, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/finance/payment-terms"
@@ -92,6 +100,8 @@ func (r *FinancePaymentTermService) List(ctx context.Context, query FinancePayme
 //
 // Only payment terms created by your account can be deleted; system-owned default
 // terms cannot be.
+//
+// This endpoint requires the permission: `payment_terms:delete`.
 func (r *FinancePaymentTermService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *FinancePaymentTermDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {

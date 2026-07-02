@@ -45,6 +45,9 @@ func NewCatalogMaterialService(opts ...option.RequestOption) (r CatalogMaterialS
 //
 // Inventory tracking for the new material starts at a zero on-hand quantity in the
 // category's base unit.
+//
+// This endpoint requires the permissions: `materials:create`, `customers:update`,
+// `suppliers:update`.
 func (r *CatalogMaterialService) New(ctx context.Context, params CatalogMaterialNewParams, opts ...option.RequestOption) (res *Material, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/materials"
@@ -53,6 +56,9 @@ func (r *CatalogMaterialService) New(ctx context.Context, params CatalogMaterial
 }
 
 // Returns a material by ID.
+//
+// This endpoint requires the permissions: `materials:read`, `customers:read`,
+// `suppliers:read`.
 func (r *CatalogMaterialService) Get(ctx context.Context, id string, query CatalogMaterialGetParams, opts ...option.RequestOption) (res *Material, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -67,6 +73,9 @@ func (r *CatalogMaterialService) Get(ctx context.Context, id string, query Catal
 // Partially updates a material.
 //
 // Fields not provided retain their current values.
+//
+// This endpoint requires the permissions: `materials:update`, `customers:update`,
+// `suppliers:update`.
 func (r *CatalogMaterialService) Update(ctx context.Context, id string, params CatalogMaterialUpdateParams, opts ...option.RequestOption) (res *Material, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -79,6 +88,9 @@ func (r *CatalogMaterialService) Update(ctx context.Context, id string, params C
 }
 
 // Returns a paginated list of materials.
+//
+// This endpoint requires the permissions: `materials:read`, `customers:read`,
+// `suppliers:read`.
 func (r *CatalogMaterialService) List(ctx context.Context, query CatalogMaterialListParams, opts ...option.RequestOption) (res *ListMaterial, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/materials"
@@ -91,6 +103,9 @@ func (r *CatalogMaterialService) List(ctx context.Context, query CatalogMaterial
 // This is a soft delete: the material is marked deleted and no longer returned by
 // other endpoints, but the record is retained. Deleting an already-deleted
 // material returns an error.
+//
+// This endpoint requires the permissions: `materials:delete`, `customers:update`,
+// `suppliers:update`.
 func (r *CatalogMaterialService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *Material, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -122,9 +137,9 @@ type CreateMaterialRequestParam struct {
 	Notes param.Opt[string] `json:"notes,omitzero"`
 	// IDs of existing attributes to link to the material at creation time.
 	AttributeIDs []string `json:"attribute_ids,omitzero"`
-	// QuantityInputRequest is a quantity value and unit.
+	// A quantity, given as a decimal value and the unit it is measured in.
 	LeadTime QuantityInputRequestParam `json:"lead_time,omitzero"`
-	// QuantityInputRequest is a quantity value and unit.
+	// A quantity, given as a decimal value and the unit it is measured in.
 	OrderPoint QuantityInputRequestParam `json:"order_point,omitzero"`
 	// A rate value with its numerator and denominator units, used in create and update
 	// requests.
@@ -226,7 +241,7 @@ const (
 	MaterialObjectMaterial MaterialObject = "material"
 )
 
-// QuantityInputRequest is a quantity value and unit.
+// A quantity, given as a decimal value and the unit it is measured in.
 //
 // The properties UnitID, Value are required.
 type QuantityInputRequestParam struct {
@@ -279,9 +294,9 @@ type UpdateMaterialRequestParam struct {
 	// Must remain unique within the account; a conflict error is returned if another
 	// item already uses it.
 	SKU param.Opt[string] `json:"sku,omitzero"`
-	// QuantityInputRequest is a quantity value and unit.
+	// A quantity, given as a decimal value and the unit it is measured in.
 	LeadTime QuantityInputRequestParam `json:"lead_time,omitzero"`
-	// QuantityInputRequest is a quantity value and unit.
+	// A quantity, given as a decimal value and the unit it is measured in.
 	OrderPoint QuantityInputRequestParam `json:"order_point,omitzero"`
 	// A rate value with its numerator and denominator units, used in create and update
 	// requests.

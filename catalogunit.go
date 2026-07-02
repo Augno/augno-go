@@ -42,6 +42,8 @@ func NewCatalogUnitService(opts ...option.RequestOption) (r CatalogUnitService) 
 }
 
 // Creates an account-owned unit.
+//
+// This endpoint requires the permission: `units:create`.
 func (r *CatalogUnitService) New(ctx context.Context, params CatalogUnitNewParams, opts ...option.RequestOption) (res *Unit, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/units"
@@ -50,6 +52,8 @@ func (r *CatalogUnitService) New(ctx context.Context, params CatalogUnitNewParam
 }
 
 // Returns a unit by ID, including both account-owned and global system units.
+//
+// This endpoint requires the permission: `units:read`.
 func (r *CatalogUnitService) Get(ctx context.Context, id string, query CatalogUnitGetParams, opts ...option.RequestOption) (res *Unit, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -62,6 +66,8 @@ func (r *CatalogUnitService) Get(ctx context.Context, id string, query CatalogUn
 }
 
 // Partially updates an account-owned unit; system units cannot be updated.
+//
+// This endpoint requires the permission: `units:update`.
 func (r *CatalogUnitService) Update(ctx context.Context, id string, params CatalogUnitUpdateParams, opts ...option.RequestOption) (res *Unit, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -75,6 +81,8 @@ func (r *CatalogUnitService) Update(ctx context.Context, id string, params Catal
 
 // Returns a paginated list of units for the current account, including both
 // account-owned and global system units.
+//
+// This endpoint requires the permission: `units:read`.
 func (r *CatalogUnitService) List(ctx context.Context, query CatalogUnitListParams, opts ...option.RequestOption) (res *ListUnit, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/units"
@@ -82,8 +90,12 @@ func (r *CatalogUnitService) List(ctx context.Context, query CatalogUnitListPara
 	return res, err
 }
 
-// Deletes an account-owned unit. Associated unit group memberships are also
-// removed, and system units cannot be deleted.
+// Deletes an account-owned unit.
+//
+// Associated unit group memberships are also removed, and system units cannot be
+// deleted.
+//
+// This endpoint requires the permission: `units:delete`.
 func (r *CatalogUnitService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CatalogUnitDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -108,16 +120,19 @@ type CreateUnitRequestParam struct {
 	//
 	// Must be unique within the account.
 	Name string `json:"name" api:"required"`
-	// Conversion offset denominator, as a decimal string. Must not be zero.
+	// Conversion offset denominator.
+	//
+	// Must not be zero.
 	OffsetDenominator string `json:"offset_denominator" api:"required" format:"decimal"`
-	// Conversion offset numerator, as a decimal string.
+	// Conversion offset numerator, used for temperature-like conversions.
 	OffsetNumerator string `json:"offset_numerator" api:"required" format:"decimal"`
-	// Conversion ratio denominator relative to the base unit, as a decimal string.
+	// Conversion ratio denominator relative to the base unit.
+	//
 	// Must not be zero.
 	RatioDenominator string `json:"ratio_denominator" api:"required" format:"decimal"`
-	// Conversion ratio numerator relative to the base unit, as a decimal string.
+	// Conversion ratio numerator relative to the base unit.
 	RatioNumerator string `json:"ratio_numerator" api:"required" format:"decimal"`
-	// Unit dimension (e.g. `mass`, `volume`, `currency`).
+	// Unit dimension.
 	//
 	// Units can only be converted to other units of the same dimension.
 	//
@@ -135,7 +150,7 @@ func (r *CreateUnitRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Unit dimension (e.g. `mass`, `volume`, `currency`).
+// Unit dimension.
 //
 // Units can only be converted to other units of the same dimension.
 type CreateUnitRequestType string
@@ -291,13 +306,17 @@ type UpdateUnitRequestParam struct {
 	//
 	// Must be unique within the account.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Conversion offset denominator, as a decimal string. Must not be zero.
+	// Conversion offset denominator.
+	//
+	// Must not be zero.
 	OffsetDenominator param.Opt[string] `json:"offset_denominator,omitzero" format:"decimal"`
-	// Conversion offset numerator, as a decimal string.
+	// Conversion offset numerator, used for temperature-like conversions.
 	OffsetNumerator param.Opt[string] `json:"offset_numerator,omitzero" format:"decimal"`
-	// Conversion ratio denominator, as a decimal string. Must not be zero.
+	// Conversion ratio denominator relative to the base unit.
+	//
+	// Must not be zero.
 	RatioDenominator param.Opt[string] `json:"ratio_denominator,omitzero" format:"decimal"`
-	// Conversion ratio numerator, as a decimal string.
+	// Conversion ratio numerator relative to the base unit.
 	RatioNumerator param.Opt[string] `json:"ratio_numerator,omitzero" format:"decimal"`
 	paramObj
 }
@@ -412,7 +431,7 @@ type CatalogUnitListParams struct {
 	//
 	// Any of "owner", "owner.account".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Filter by unit dimension (e.g. `mass`).
+	// Filter by unit dimension.
 	//
 	// Any of "currency", "quantity", "time", "mass", "volume", "length",
 	// "temperature", "area".
@@ -430,7 +449,7 @@ func (r CatalogUnitListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Filter by unit dimension (e.g. `mass`).
+// Filter by unit dimension.
 type CatalogUnitListParamsType string
 
 const (
