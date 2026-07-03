@@ -170,6 +170,13 @@ type EmailInbox struct {
 	// After registration the domain starts in `pending`; publish the returned DKIM
 	// records, then poll the verify action until it flips to `verified`.
 	EmailDomain EmailDomain `json:"email_domain" api:"required"`
+	// A forwarding address on an Augno-owned domain that also routes to this inbox.
+	//
+	// Use this when your domain's mail is hosted elsewhere (e.g. Google Workspace,
+	// Microsoft 365) and you cannot point its MX records at Augno: forward mail from
+	// `address` to this address instead, and it will still be threaded into a
+	// conversation. `null` when domain forwarding is not configured.
+	ForwardingAddress string `json:"forwarding_address" api:"required"`
 	// The display name used in the `From` header of outbound mail.
 	FromName string `json:"from_name" api:"required"`
 	// Resource type identifier.
@@ -193,6 +200,7 @@ type EmailInbox struct {
 		AgentTriggerPolicy   respjson.Field
 		CreatedAt            respjson.Field
 		EmailDomain          respjson.Field
+		ForwardingAddress    respjson.Field
 		FromName             respjson.Field
 		Object               respjson.Field
 		Status               respjson.Field
