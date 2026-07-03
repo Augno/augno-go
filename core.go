@@ -96,7 +96,7 @@ type Entity struct {
 	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
 	// "notification_unread_count", "notification_send_result",
 	// "notification_unread_summary", "announcement", "conversation",
-	// "conversation_participant", "chat_message",
+	// "conversation_participant", "read_cursor", "chat_message",
 	// "notification_unread_summary_account", "messaging_block",
 	// "notification_preference", "message_attachment", "attachment_upload_target",
 	// "scheduled_message", "messaging_contact", "message_report", "tool_group",
@@ -230,6 +230,7 @@ const (
 	EntityTypeAnnouncement                      EntityType = "announcement"
 	EntityTypeConversation                      EntityType = "conversation"
 	EntityTypeConversationParticipant           EntityType = "conversation_participant"
+	EntityTypeReadCursor                        EntityType = "read_cursor"
 	EntityTypeChatMessage                       EntityType = "chat_message"
 	EntityTypeNotificationUnreadSummaryAccount  EntityType = "notification_unread_summary_account"
 	EntityTypeMessagingBlock                    EntityType = "messaging_block"
@@ -492,7 +493,7 @@ type CoreGetSearchParams struct {
 	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
 	// "notification_unread_count", "notification_send_result",
 	// "notification_unread_summary", "announcement", "conversation",
-	// "conversation_participant", "chat_message",
+	// "conversation_participant", "read_cursor", "chat_message",
 	// "notification_unread_summary_account", "messaging_block",
 	// "notification_preference", "message_attachment", "attachment_upload_target",
 	// "scheduled_message", "messaging_contact", "message_report", "tool_group",

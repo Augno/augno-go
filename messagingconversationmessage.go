@@ -216,7 +216,7 @@ type SendMessageRequestParam struct {
 	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
 	// "notification_unread_count", "notification_send_result",
 	// "notification_unread_summary", "announcement", "conversation",
-	// "conversation_participant", "chat_message",
+	// "conversation_participant", "read_cursor", "chat_message",
 	// "notification_unread_summary_account", "messaging_block",
 	// "notification_preference", "message_attachment", "attachment_upload_target",
 	// "scheduled_message", "messaging_contact", "message_report", "tool_group",
@@ -371,6 +371,7 @@ const (
 	SendMessageRequestLinkResourceTypeAnnouncement                      SendMessageRequestLinkResourceType = "announcement"
 	SendMessageRequestLinkResourceTypeConversation                      SendMessageRequestLinkResourceType = "conversation"
 	SendMessageRequestLinkResourceTypeConversationParticipant           SendMessageRequestLinkResourceType = "conversation_participant"
+	SendMessageRequestLinkResourceTypeReadCursor                        SendMessageRequestLinkResourceType = "read_cursor"
 	SendMessageRequestLinkResourceTypeChatMessage                       SendMessageRequestLinkResourceType = "chat_message"
 	SendMessageRequestLinkResourceTypeNotificationUnreadSummaryAccount  SendMessageRequestLinkResourceType = "notification_unread_summary_account"
 	SendMessageRequestLinkResourceTypeMessagingBlock                    SendMessageRequestLinkResourceType = "messaging_block"

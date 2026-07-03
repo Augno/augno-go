@@ -105,7 +105,7 @@ type AddConversationLinkRequestParam struct {
 	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
 	// "notification_unread_count", "notification_send_result",
 	// "notification_unread_summary", "announcement", "conversation",
-	// "conversation_participant", "chat_message",
+	// "conversation_participant", "read_cursor", "chat_message",
 	// "notification_unread_summary_account", "messaging_block",
 	// "notification_preference", "message_attachment", "attachment_upload_target",
 	// "scheduled_message", "messaging_contact", "message_report", "tool_group",
@@ -221,6 +221,7 @@ const (
 	AddConversationLinkRequestResourceTypeAnnouncement                      AddConversationLinkRequestResourceType = "announcement"
 	AddConversationLinkRequestResourceTypeConversation                      AddConversationLinkRequestResourceType = "conversation"
 	AddConversationLinkRequestResourceTypeConversationParticipant           AddConversationLinkRequestResourceType = "conversation_participant"
+	AddConversationLinkRequestResourceTypeReadCursor                        AddConversationLinkRequestResourceType = "read_cursor"
 	AddConversationLinkRequestResourceTypeChatMessage                       AddConversationLinkRequestResourceType = "chat_message"
 	AddConversationLinkRequestResourceTypeNotificationUnreadSummaryAccount  AddConversationLinkRequestResourceType = "notification_unread_summary_account"
 	AddConversationLinkRequestResourceTypeMessagingBlock                    AddConversationLinkRequestResourceType = "messaging_block"

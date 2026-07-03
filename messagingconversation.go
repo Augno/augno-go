@@ -1070,6 +1070,9 @@ type ConversationParticipant struct {
 	//
 	// Any of "conversation_participant".
 	Object ConversationParticipantObject `json:"object" api:"required"`
+	// A participant's read position in a conversation — the basis for read receipts
+	// ("who has seen this").
+	ReadCursor ReadCursor `json:"read_cursor" api:"required"`
 	// The participant's permission level in the conversation.
 	//
 	//   - `owner`: can rename or delete the conversation and manage its members and
@@ -1098,6 +1101,7 @@ type ConversationParticipant struct {
 		Membership           respjson.Field
 		Notifications        respjson.Field
 		Object               respjson.Field
+		ReadCursor           respjson.Field
 		Role                 respjson.Field
 		Type                 respjson.Field
 		ExtraFields          map[string]respjson.Field
@@ -1227,7 +1231,7 @@ type CreateConversationRequestParam struct {
 	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
 	// "notification_unread_count", "notification_send_result",
 	// "notification_unread_summary", "announcement", "conversation",
-	// "conversation_participant", "chat_message",
+	// "conversation_participant", "read_cursor", "chat_message",
 	// "notification_unread_summary_account", "messaging_block",
 	// "notification_preference", "message_attachment", "attachment_upload_target",
 	// "scheduled_message", "messaging_contact", "message_report", "tool_group",
@@ -1352,6 +1356,7 @@ const (
 	CreateConversationRequestTopicResourceTypeAnnouncement                      CreateConversationRequestTopicResourceType = "announcement"
 	CreateConversationRequestTopicResourceTypeConversation                      CreateConversationRequestTopicResourceType = "conversation"
 	CreateConversationRequestTopicResourceTypeConversationParticipant           CreateConversationRequestTopicResourceType = "conversation_participant"
+	CreateConversationRequestTopicResourceTypeReadCursor                        CreateConversationRequestTopicResourceType = "read_cursor"
 	CreateConversationRequestTopicResourceTypeChatMessage                       CreateConversationRequestTopicResourceType = "chat_message"
 	CreateConversationRequestTopicResourceTypeNotificationUnreadSummaryAccount  CreateConversationRequestTopicResourceType = "notification_unread_summary_account"
 	CreateConversationRequestTopicResourceTypeMessagingBlock                    CreateConversationRequestTopicResourceType = "messaging_block"
@@ -2157,6 +2162,51 @@ const (
 	MessagingGroupMemberObjectMessagingGroupMember MessagingGroupMemberObject = "messaging_group_member"
 )
 
+// A participant's read position in a conversation — the basis for read receipts
+// ("who has seen this").
+type ReadCursor struct {
+	// The id of the last message the participant has read.
+	//
+	// `null` if they have not read any message yet.
+	MessageID string `json:"message_id" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "read_cursor".
+	Object ReadCursorObject `json:"object" api:"required"`
+	// When the participant last advanced their read cursor.
+	//
+	// `null` if they have not read any message yet.
+	ReadAt time.Time `json:"read_at" api:"required" format:"date-time"`
+	// The sequence number of the last message the participant has read in the
+	// conversation.
+	//
+	// A message is "seen" by this participant when its `sequence` is `<=` this value.
+	// `0` means they have not read any message in the conversation yet.
+	Sequence int64 `json:"sequence" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		MessageID   respjson.Field
+		Object      respjson.Field
+		ReadAt      respjson.Field
+		Sequence    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ReadCursor) RawJSON() string { return r.JSON.raw }
+func (r *ReadCursor) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ReadCursorObject string
+
+const (
+	ReadCursorObjectReadCursor ReadCursorObject = "read_cursor"
+)
+
 // Trigger-type-specific configuration.
 //
 // Which fields are populated depends on the agent's `trigger_type`:
@@ -2345,7 +2395,7 @@ type MessagingConversationListParams struct {
 	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
 	// "notification_unread_count", "notification_send_result",
 	// "notification_unread_summary", "announcement", "conversation",
-	// "conversation_participant", "chat_message",
+	// "conversation_participant", "read_cursor", "chat_message",
 	// "notification_unread_summary_account", "messaging_block",
 	// "notification_preference", "message_attachment", "attachment_upload_target",
 	// "scheduled_message", "messaging_contact", "message_report", "tool_group",
@@ -2488,6 +2538,7 @@ const (
 	MessagingConversationListParamsTopicResourceTypeAnnouncement                      MessagingConversationListParamsTopicResourceType = "announcement"
 	MessagingConversationListParamsTopicResourceTypeConversation                      MessagingConversationListParamsTopicResourceType = "conversation"
 	MessagingConversationListParamsTopicResourceTypeConversationParticipant           MessagingConversationListParamsTopicResourceType = "conversation_participant"
+	MessagingConversationListParamsTopicResourceTypeReadCursor                        MessagingConversationListParamsTopicResourceType = "read_cursor"
 	MessagingConversationListParamsTopicResourceTypeChatMessage                       MessagingConversationListParamsTopicResourceType = "chat_message"
 	MessagingConversationListParamsTopicResourceTypeNotificationUnreadSummaryAccount  MessagingConversationListParamsTopicResourceType = "notification_unread_summary_account"
 	MessagingConversationListParamsTopicResourceTypeMessagingBlock                    MessagingConversationListParamsTopicResourceType = "messaging_block"

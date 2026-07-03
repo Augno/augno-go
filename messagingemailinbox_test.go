@@ -33,6 +33,7 @@ func TestMessagingEmailInboxNewWithOptionalParams(t *testing.T) {
 			AgentTriggerKeywords: []string{"invoice", "refund"},
 			AgentTriggerPolicy:   augno.String("keyword"),
 			FromName:             augno.String("Acme Support"),
+			GroupID:              augno.String("group_id"),
 		},
 		Include: []string{"email_domain"},
 	})
@@ -95,6 +96,7 @@ func TestMessagingEmailInboxUpdateWithOptionalParams(t *testing.T) {
 				AgentTriggerKeywords: []string{"invoice", "refund"},
 				AgentTriggerPolicy:   augno.String("keyword"),
 				FromName:             augno.String("Acme Support"),
+				GroupID:              augno.String("group_id"),
 			},
 			Include: []string{"email_domain"},
 		},
