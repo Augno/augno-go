@@ -1866,7 +1866,10 @@ type Message struct {
 	//
 	// `null` for ordinary messages.
 	StreamingState string `json:"streaming_state" api:"required"`
-	// The email subject of a customer-reply `draft` on an email-bridged case.
+	// The email subject line
+	//
+	// On an email-bridged case, the original subject of an inbound email, or the
+	// subject a customer-reply `draft`/outbound message is sent with.
 	Subject string `json:"subject" api:"required"`
 	// Last update timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
