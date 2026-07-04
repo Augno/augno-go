@@ -82,6 +82,23 @@ func (r *MessagingEmailDomainService) List(ctx context.Context, opts ...option.R
 	return res, err
 }
 
+// Deregisters a customer-owned domain from the email bridge.
+//
+// The domain's SES identity is removed. The domain must have no inboxes bound to
+// it.
+//
+// This endpoint requires the permission: `messaging:delete`.
+func (r *MessagingEmailDomainService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *MessagingEmailDomainDeleteResponse, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/messaging/email-domains/%s", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return res, err
+}
+
 // Request to register a sending/receiving domain with the email bridge.
 //
 // The property Domain is required.
@@ -186,6 +203,20 @@ type ListEmailDomainObject string
 const (
 	ListEmailDomainObjectList ListEmailDomainObject = "list"
 )
+
+type MessagingEmailDomainDeleteResponse struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r MessagingEmailDomainDeleteResponse) RawJSON() string { return r.JSON.raw }
+func (r *MessagingEmailDomainDeleteResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 type MessagingEmailDomainNewParams struct {
 	// Request to register a sending/receiving domain with the email bridge.
