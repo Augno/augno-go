@@ -14,6 +14,9 @@ import (
 // the [NewSettingService] method instead.
 type SettingService struct {
 	options []option.RequestOption
+	// Connect a custom domain to the account's customer portal, verify its DNS, and
+	// resolve custom hosts to portal accounts.
+	PortalDomains SettingPortalDomainService
 	// List and manage third-party account integrations.
 	Integrations SettingIntegrationService
 }
@@ -24,6 +27,7 @@ type SettingService struct {
 func NewSettingService(opts ...option.RequestOption) (r SettingService) {
 	r = SettingService{}
 	r.options = opts
+	r.PortalDomains = NewSettingPortalDomainService(opts...)
 	r.Integrations = NewSettingIntegrationService(opts...)
 	return
 }

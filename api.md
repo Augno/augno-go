@@ -1105,6 +1105,33 @@ Methods:
 
 # Settings
 
+## PortalDomains
+
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CreatePortalDomainRequestParam">CreatePortalDomainRequestParam</a>
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#DNSRecord">DNSRecord</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListDNSRecord">ListDNSRecord</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListPortalDomain">ListPortalDomain</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#PortalDomain">PortalDomain</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SettingPortalDomainDeleteResponse">SettingPortalDomainDeleteResponse</a>
+
+Methods:
+
+- <code title="post /v1/settings/portal-domains">client.Settings.PortalDomains.<a href="https://pkg.go.dev/github.com/augno/augno-go#SettingPortalDomainService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SettingPortalDomainNewParams">SettingPortalDomainNewParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#PortalDomain">PortalDomain</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /v1/settings/portal-domains/{id}">client.Settings.PortalDomains.<a href="https://pkg.go.dev/github.com/augno/augno-go#SettingPortalDomainService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#PortalDomain">PortalDomain</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /v1/settings/portal-domains">client.Settings.PortalDomains.<a href="https://pkg.go.dev/github.com/augno/augno-go#SettingPortalDomainService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListPortalDomain">ListPortalDomain</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="delete /v1/settings/portal-domains/{id}">client.Settings.PortalDomains.<a href="https://pkg.go.dev/github.com/augno/augno-go#SettingPortalDomainService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SettingPortalDomainDeleteResponse">SettingPortalDomainDeleteResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+### Actions
+
+Methods:
+
+- <code title="post /v1/settings/portal-domains/{id}/actions/verify">client.Settings.PortalDomains.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#SettingPortalDomainActionService.Verify">Verify</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#PortalDomain">PortalDomain</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
 ## Integrations
 
 Params Types:
