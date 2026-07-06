@@ -257,8 +257,10 @@ const (
 // `shop.acme.com`).
 //
 // After creation the domain starts in `pending`; publish the returned DNS records,
-// then poll the verify action until it flips to `verified`. Once verified, the
-// customer portal is served on the domain with TLS provisioned automatically.
+// then poll the verify action. Once DNS is correct the domain moves to `securing`
+// while its TLS certificate is issued — it is not yet reachable over HTTPS during
+// this window — and finally to `verified` once the certificate is live and the
+// portal is served on the domain.
 type PortalDomain struct {
 	// Portal domain ID.
 	ID string `json:"id" api:"required"`
@@ -274,11 +276,13 @@ type PortalDomain struct {
 	Object PortalDomainObject `json:"object" api:"required"`
 	// Verification status.
 	//
-	// - pending domains await DNS configuration
-	// - verified domains serve the portal
-	// - failed domains were rejected and cannot be used
+	//   - pending domains await DNS configuration
+	//   - securing domains have correct DNS and are waiting on TLS certificate issuance;
+	//     the portal is not yet reachable over HTTPS
+	//   - verified domains serve the portal over HTTPS
+	//   - failed domains were rejected and cannot be used
 	//
-	// Any of "pending", "verified", "failed".
+	// Any of "pending", "securing", "verified", "failed".
 	Status PortalDomainStatus `json:"status" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -314,13 +318,16 @@ const (
 
 // Verification status.
 //
-// - pending domains await DNS configuration
-// - verified domains serve the portal
-// - failed domains were rejected and cannot be used
+//   - pending domains await DNS configuration
+//   - securing domains have correct DNS and are waiting on TLS certificate issuance;
+//     the portal is not yet reachable over HTTPS
+//   - verified domains serve the portal over HTTPS
+//   - failed domains were rejected and cannot be used
 type PortalDomainStatus string
 
 const (
 	PortalDomainStatusPending  PortalDomainStatus = "pending"
+	PortalDomainStatusSecuring PortalDomainStatus = "securing"
 	PortalDomainStatusVerified PortalDomainStatus = "verified"
 	PortalDomainStatusFailed   PortalDomainStatus = "failed"
 )
