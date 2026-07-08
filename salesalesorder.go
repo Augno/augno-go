@@ -734,9 +734,10 @@ type SalesOrder struct {
 	// An order discount reduces the order total by either a percentage or a fixed
 	// amount, depending on `discount_type`.
 	OrderDiscount OrderDiscount `json:"order_discount" api:"required"`
-	// Payment state of the order.
-	//
-	// Payment tracking is not yet wired up, so this currently always reports `unpaid`.
+	// Stripe payment intent IDs recorded against this order.
+	PaymentIntentIDs []string `json:"payment_intent_ids" api:"required"`
+	// Payment state of the order, derived from settlement allocations, invoices, and
+	// Stripe payments.
 	//
 	// Any of "unpaid", "partially_paid", "paid".
 	PaymentStatus SalesOrderPaymentStatus `json:"payment_status" api:"required"`
@@ -800,6 +801,7 @@ type SalesOrder struct {
 		Number                      respjson.Field
 		Object                      respjson.Field
 		OrderDiscount               respjson.Field
+		PaymentIntentIDs            respjson.Field
 		PaymentStatus               respjson.Field
 		PaymentTerm                 respjson.Field
 		Priority                    respjson.Field
@@ -837,9 +839,8 @@ const (
 	SalesOrderObjectSalesOrder SalesOrderObject = "sales_order"
 )
 
-// Payment state of the order.
-//
-// Payment tracking is not yet wired up, so this currently always reports `unpaid`.
+// Payment state of the order, derived from settlement allocations, invoices, and
+// Stripe payments.
 type SalesOrderPaymentStatus string
 
 const (
@@ -1055,8 +1056,11 @@ type SaleSalesOrderNewParams struct {
 	// Any of "customer", "sales_rep", "bill_to_address", "ship_to_address", "freight",
 	// "payment_term", "shipping_term", "order_discount", "totals", "contacts",
 	// "related.pick", "related.production_run", "related.shipments", "lines",
-	// "lines.product", "lines.quantity_ordered", "lines.unit_price",
-	// "lines.unit_cost", "lines.totals".
+	// "lines.product", "lines.quantity_ordered", "lines.quantity_ordered.unit",
+	// "lines.unit_price", "lines.unit_price.numerator_unit",
+	// "lines.unit_price.denominator_unit", "lines.unit_cost",
+	// "lines.unit_cost.numerator_unit", "lines.unit_cost.denominator_unit",
+	// "lines.totals".
 	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
@@ -1105,8 +1109,11 @@ type SaleSalesOrderListParams struct {
 	// "ship_to_address", "freight", "payment_term", "shipping_term", "order_discount",
 	// "totals", "contacts", "related.pick", "related.production_run",
 	// "related.shipments", "lines", "lines.product", "lines.product.item",
-	// "lines.product.product_line", "lines.quantity_ordered", "lines.unit_price",
-	// "lines.unit_cost", "lines.totals".
+	// "lines.product.product_line", "lines.quantity_ordered",
+	// "lines.quantity_ordered.unit", "lines.unit_price",
+	// "lines.unit_price.numerator_unit", "lines.unit_price.denominator_unit",
+	// "lines.unit_cost", "lines.unit_cost.numerator_unit",
+	// "lines.unit_cost.denominator_unit", "lines.totals".
 	Include []string `query:"include,omitzero" json:"-"`
 	// Filter by item IDs.
 	ItemIDs []string `query:"item_ids,omitzero" json:"-"`

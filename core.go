@@ -153,7 +153,9 @@ type Entity struct {
 	// "checkout_sales_order_response", "create_production_run_response",
 	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
 	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data".
 	Type EntityType `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -427,6 +429,9 @@ const (
 	EntityTypeConversationLink                  EntityType = "conversation_link"
 	EntityTypeMessagingGroup                    EntityType = "messaging_group"
 	EntityTypeMessagingGroupMember              EntityType = "messaging_group_member"
+	EntityTypePortalProfile                     EntityType = "portal_profile"
+	EntityTypePortalRegistrationSession         EntityType = "portal_registration_session"
+	EntityTypePortalRegistrationSessionData     EntityType = "portal_registration_session_data"
 )
 
 // List represents a paginated list of resources.
@@ -552,7 +557,9 @@ type CoreGetSearchParams struct {
 	// "checkout_sales_order_response", "create_production_run_response",
 	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
 	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data".
 	Types []string `query:"types,omitzero" json:"-"`
 	paramObj
 }

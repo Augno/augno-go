@@ -162,7 +162,9 @@ type AddConversationLinkRequestParam struct {
 	// "checkout_sales_order_response", "create_production_run_response",
 	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
 	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data".
 	ResourceType AddConversationLinkRequestResourceType `json:"resource_type,omitzero" api:"required"`
 	paramObj
 }
@@ -418,6 +420,9 @@ const (
 	AddConversationLinkRequestResourceTypeConversationLink                  AddConversationLinkRequestResourceType = "conversation_link"
 	AddConversationLinkRequestResourceTypeMessagingGroup                    AddConversationLinkRequestResourceType = "messaging_group"
 	AddConversationLinkRequestResourceTypeMessagingGroupMember              AddConversationLinkRequestResourceType = "messaging_group_member"
+	AddConversationLinkRequestResourceTypePortalProfile                     AddConversationLinkRequestResourceType = "portal_profile"
+	AddConversationLinkRequestResourceTypePortalRegistrationSession         AddConversationLinkRequestResourceType = "portal_registration_session"
+	AddConversationLinkRequestResourceTypePortalRegistrationSessionData     AddConversationLinkRequestResourceType = "portal_registration_session_data"
 )
 
 // A business-record link on a conversation: the record the conversation is about

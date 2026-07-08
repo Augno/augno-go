@@ -582,7 +582,9 @@ type SendNotificationRequestParam struct {
 	// "checkout_sales_order_response", "create_production_run_response",
 	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
 	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data".
 	LinkResourceType SendNotificationRequestLinkResourceType `json:"link_resource_type,omitzero"`
 	// Delivery priority.
 	//
@@ -858,6 +860,9 @@ const (
 	SendNotificationRequestLinkResourceTypeConversationLink                  SendNotificationRequestLinkResourceType = "conversation_link"
 	SendNotificationRequestLinkResourceTypeMessagingGroup                    SendNotificationRequestLinkResourceType = "messaging_group"
 	SendNotificationRequestLinkResourceTypeMessagingGroupMember              SendNotificationRequestLinkResourceType = "messaging_group_member"
+	SendNotificationRequestLinkResourceTypePortalProfile                     SendNotificationRequestLinkResourceType = "portal_profile"
+	SendNotificationRequestLinkResourceTypePortalRegistrationSession         SendNotificationRequestLinkResourceType = "portal_registration_session"
+	SendNotificationRequestLinkResourceTypePortalRegistrationSessionData     SendNotificationRequestLinkResourceType = "portal_registration_session_data"
 )
 
 // Delivery priority.

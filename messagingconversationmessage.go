@@ -273,7 +273,9 @@ type SendMessageRequestParam struct {
 	// "checkout_sales_order_response", "create_production_run_response",
 	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
 	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data".
 	LinkResourceType SendMessageRequestLinkResourceType `json:"link_resource_type,omitzero"`
 	// Account user ids explicitly @mentioned in the message.
 	//
@@ -568,6 +570,9 @@ const (
 	SendMessageRequestLinkResourceTypeConversationLink                  SendMessageRequestLinkResourceType = "conversation_link"
 	SendMessageRequestLinkResourceTypeMessagingGroup                    SendMessageRequestLinkResourceType = "messaging_group"
 	SendMessageRequestLinkResourceTypeMessagingGroupMember              SendMessageRequestLinkResourceType = "messaging_group_member"
+	SendMessageRequestLinkResourceTypePortalProfile                     SendMessageRequestLinkResourceType = "portal_profile"
+	SendMessageRequestLinkResourceTypePortalRegistrationSession         SendMessageRequestLinkResourceType = "portal_registration_session"
+	SendMessageRequestLinkResourceTypePortalRegistrationSessionData     SendMessageRequestLinkResourceType = "portal_registration_session_data"
 )
 
 // Whether to deliver the message now or hold it as a customer-reply draft.

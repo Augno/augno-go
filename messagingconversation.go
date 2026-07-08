@@ -1288,7 +1288,9 @@ type CreateConversationRequestParam struct {
 	// "checkout_sales_order_response", "create_production_run_response",
 	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
 	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data".
 	TopicResourceType CreateConversationRequestTopicResourceType `json:"topic_resource_type,omitzero"`
 	paramObj
 }
@@ -1553,6 +1555,9 @@ const (
 	CreateConversationRequestTopicResourceTypeConversationLink                  CreateConversationRequestTopicResourceType = "conversation_link"
 	CreateConversationRequestTopicResourceTypeMessagingGroup                    CreateConversationRequestTopicResourceType = "messaging_group"
 	CreateConversationRequestTopicResourceTypeMessagingGroupMember              CreateConversationRequestTopicResourceType = "messaging_group_member"
+	CreateConversationRequestTopicResourceTypePortalProfile                     CreateConversationRequestTopicResourceType = "portal_profile"
+	CreateConversationRequestTopicResourceTypePortalRegistrationSession         CreateConversationRequestTopicResourceType = "portal_registration_session"
+	CreateConversationRequestTopicResourceTypePortalRegistrationSessionData     CreateConversationRequestTopicResourceType = "portal_registration_session_data"
 )
 
 // List represents a paginated list of resources.
@@ -2457,7 +2462,9 @@ type MessagingConversationListParams struct {
 	// "checkout_sales_order_response", "create_production_run_response",
 	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
 	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data".
 	TopicResourceType MessagingConversationListParamsTopicResourceType `query:"topic_resource_type,omitzero" json:"-"`
 	// Filter by conversation type.
 	//
@@ -2740,6 +2747,9 @@ const (
 	MessagingConversationListParamsTopicResourceTypeConversationLink                  MessagingConversationListParamsTopicResourceType = "conversation_link"
 	MessagingConversationListParamsTopicResourceTypeMessagingGroup                    MessagingConversationListParamsTopicResourceType = "messaging_group"
 	MessagingConversationListParamsTopicResourceTypeMessagingGroupMember              MessagingConversationListParamsTopicResourceType = "messaging_group_member"
+	MessagingConversationListParamsTopicResourceTypePortalProfile                     MessagingConversationListParamsTopicResourceType = "portal_profile"
+	MessagingConversationListParamsTopicResourceTypePortalRegistrationSession         MessagingConversationListParamsTopicResourceType = "portal_registration_session"
+	MessagingConversationListParamsTopicResourceTypePortalRegistrationSessionData     MessagingConversationListParamsTopicResourceType = "portal_registration_session_data"
 )
 
 // Filter by conversation type.

@@ -191,7 +191,9 @@ type AuditEvent struct {
 	// "checkout_sales_order_response", "create_production_run_response",
 	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
 	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data".
 	ResourceType AuditEventResourceType `json:"resource_type" api:"required"`
 	// Originating client IP address.
 	SourceIP string `json:"source_ip" api:"required"`
@@ -495,6 +497,9 @@ const (
 	AuditEventResourceTypeConversationLink                  AuditEventResourceType = "conversation_link"
 	AuditEventResourceTypeMessagingGroup                    AuditEventResourceType = "messaging_group"
 	AuditEventResourceTypeMessagingGroupMember              AuditEventResourceType = "messaging_group_member"
+	AuditEventResourceTypePortalProfile                     AuditEventResourceType = "portal_profile"
+	AuditEventResourceTypePortalRegistrationSession         AuditEventResourceType = "portal_registration_session"
+	AuditEventResourceTypePortalRegistrationSessionData     AuditEventResourceType = "portal_registration_session_data"
 )
 
 // Field-level before/after transition recorded during a mutation.
@@ -676,7 +681,9 @@ type ListObjectType struct {
 	// "checkout_sales_order_response", "create_production_run_response",
 	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
 	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data".
 	Data []string `json:"data" api:"required"`
 	// Resource type identifier.
 	//
@@ -841,7 +848,9 @@ type CoreAuditEventListParams struct {
 	// "checkout_sales_order_response", "create_production_run_response",
 	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
 	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member".
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
 	// Filter by the _target_ account the mutation was performed against (the event's
 	// `account`).
