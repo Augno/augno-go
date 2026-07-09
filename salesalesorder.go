@@ -964,6 +964,8 @@ const (
 // The members are individually expandable (e.g. include[]=related.pick). The group
 // is null unless at least one of its members is expanded.
 type SalesOrderRelated struct {
+	// List represents a paginated list of resources.
+	Invoices ListRecord `json:"invoices" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "sales_order_related".
@@ -988,6 +990,7 @@ type SalesOrderRelated struct {
 	Shipments ListRecord `json:"shipments" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		Invoices      respjson.Field
 		Object        respjson.Field
 		Pick          respjson.Field
 		ProductionRun respjson.Field
@@ -1055,12 +1058,12 @@ type SaleSalesOrderNewParams struct {
 	//
 	// Any of "customer", "sales_rep", "bill_to_address", "ship_to_address", "freight",
 	// "payment_term", "shipping_term", "order_discount", "totals", "contacts",
-	// "related.pick", "related.production_run", "related.shipments", "lines",
-	// "lines.product", "lines.quantity_ordered", "lines.quantity_ordered.unit",
-	// "lines.unit_price", "lines.unit_price.numerator_unit",
-	// "lines.unit_price.denominator_unit", "lines.unit_cost",
-	// "lines.unit_cost.numerator_unit", "lines.unit_cost.denominator_unit",
-	// "lines.totals".
+	// "related.pick", "related.production_run", "related.shipments",
+	// "related.invoices", "lines", "lines.product", "lines.quantity_ordered",
+	// "lines.quantity_ordered.unit", "lines.unit_price",
+	// "lines.unit_price.numerator_unit", "lines.unit_price.denominator_unit",
+	// "lines.unit_cost", "lines.unit_cost.numerator_unit",
+	// "lines.unit_cost.denominator_unit", "lines.totals".
 	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
@@ -1108,8 +1111,8 @@ type SaleSalesOrderListParams struct {
 	// Any of "customer", "sales_rep", "created_by", "bill_to_address",
 	// "ship_to_address", "freight", "payment_term", "shipping_term", "order_discount",
 	// "totals", "contacts", "related.pick", "related.production_run",
-	// "related.shipments", "lines", "lines.product", "lines.product.item",
-	// "lines.product.product_line", "lines.quantity_ordered",
+	// "related.shipments", "related.invoices", "lines", "lines.product",
+	// "lines.product.item", "lines.product.product_line", "lines.quantity_ordered",
 	// "lines.quantity_ordered.unit", "lines.unit_price",
 	// "lines.unit_price.numerator_unit", "lines.unit_price.denominator_unit",
 	// "lines.unit_cost", "lines.unit_cost.numerator_unit",
