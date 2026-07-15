@@ -96,15 +96,15 @@ type AddConversationLinkRequestParam struct {
 	// The kind of business record to link.
 	//
 	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
-	// "sales_order_related", "order_contact", "user", "address", "api_key",
-	// "created_api_key", "refresh_token", "list", "sandbox", "registration_session",
-	// "pricing_plan", "account_plan", "plan_change", "enterprise_inquiry",
-	// "request_log", "audit_event", "audit_field_change", "role", "unit",
-	// "account_affiliation", "agent_definition", "available_tool",
+	// "sales_order_stage_total", "sales_order_related", "order_contact", "user",
+	// "address", "api_key", "created_api_key", "refresh_token", "list", "sandbox",
+	// "registration_session", "pricing_plan", "account_plan", "plan_change",
+	// "enterprise_inquiry", "request_log", "audit_event", "audit_field_change",
+	// "role", "unit", "account_affiliation", "agent_definition", "available_tool",
 	// "agent_definition_tool", "agent_account_status", "agent_run", "agent_action",
 	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
 	// "notification_unread_count", "notification_send_result",
-	// "notification_unread_summary", "announcement", "conversation",
+	// "notification_unread_summary", "announcement", "conversation", "support_case",
 	// "conversation_participant", "read_cursor", "chat_message",
 	// "notification_unread_summary_account", "messaging_block",
 	// "notification_preference", "message_attachment", "attachment_upload_target",
@@ -114,12 +114,12 @@ type AddConversationLinkRequestParam struct {
 	// "account_user", "department", "account_integration", "account_price",
 	// "product_line", "item_category", "attribute", "rate",
 	// "account_group_product_line_access", "sales_target", "adjustment_type",
-	// "account_branding", "account_portal", "account_logo_url", "public_account",
-	// "property", "carrier", "service_level", "item", "item_inventory", "product",
-	// "batch", "batch_flow_node", "scanning_consumption", "open_batch_summary",
-	// "scanning_production_step_info", "scanning_station", "production_step",
-	// "production_run", "machine", "child_account", "unit_group", "unit_group_unit",
-	// "consumption", "customer_product_line_access", "customer",
+	// "account_branding", "account_portal", "account_logo_url", "account_favicon_url",
+	// "public_account", "property", "carrier", "service_level", "item",
+	// "item_inventory", "product", "batch", "batch_flow_node", "scanning_consumption",
+	// "open_batch_summary", "scanning_production_step_info", "scanning_station",
+	// "production_step", "production_run", "machine", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
 	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
 	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
 	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
@@ -138,19 +138,19 @@ type AddConversationLinkRequestParam struct {
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
 	// "customer_freight_preferences", "customer_defaults",
-	// "customer_notification_preferences", "order_discount", "sales_order_line",
-	// "sales_order_type", "sales_order_status", "material", "supplier_material",
-	// "part", "permission_group", "permission", "pick", "pick_line", "product_type",
-	// "production", "production_flow", "map", "purchase_order", "purchase_order_line",
-	// "supplier", "supplier_summary", "receivable_entry", "receiving_order",
-	// "receiving_order_line", "email_contact", "allocation_entry",
-	// "open_credit_entry", "volume_discount", "volume_discount_tier",
-	// "analyze_deliveries_response", "analyze_manufacturing_response",
-	// "analyze_manufacturing_batch_response", "analyze_quarterly_orders_response",
-	// "analyze_new_customers_response", "analyze_oee_response",
-	// "catalog_product_line", "catalog_category", "catalog_product",
-	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
-	// "inventory_item", "analyze_weeks_of_sales_response",
+	// "customer_notification_preferences", "order_notification_recipient",
+	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
+	// "material", "supplier_material", "part", "permission_group", "permission",
+	// "pick", "pick_line", "product_type", "production", "production_flow", "map",
+	// "purchase_order", "purchase_order_line", "supplier", "supplier_summary",
+	// "receivable_entry", "receiving_order", "receiving_order_line", "email_contact",
+	// "allocation_entry", "open_credit_entry", "volume_discount",
+	// "volume_discount_tier", "analyze_deliveries_response",
+	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
+	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
+	// "analyze_oee_response", "catalog_product_line", "catalog_category",
+	// "catalog_product", "catalog_property", "catalog_attribute", "dc_location",
+	// "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -158,13 +158,14 @@ type AddConversationLinkRequestParam struct {
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
 	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
 	// "pick_shipments_response", "tenancy_pending_registration",
-	// "invoice_allocation_entry", "allocation_customer",
-	// "checkout_sales_order_response", "create_production_run_response",
-	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
-	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
-	// "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data".
+	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
+	// "sales_order_price_quote", "sales_order_freight_quote",
+	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
+	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
+	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
+	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data", "pack_list", "pack_list_party",
+	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
 	ResourceType AddConversationLinkRequestResourceType `json:"resource_type,omitzero" api:"required"`
 	paramObj
 }
@@ -187,6 +188,7 @@ const (
 	AddConversationLinkRequestResourceTypeRecord                            AddConversationLinkRequestResourceType = "record"
 	AddConversationLinkRequestResourceTypeFreight                           AddConversationLinkRequestResourceType = "freight"
 	AddConversationLinkRequestResourceTypeSalesOrderTotals                  AddConversationLinkRequestResourceType = "sales_order_totals"
+	AddConversationLinkRequestResourceTypeSalesOrderStageTotal              AddConversationLinkRequestResourceType = "sales_order_stage_total"
 	AddConversationLinkRequestResourceTypeSalesOrderRelated                 AddConversationLinkRequestResourceType = "sales_order_related"
 	AddConversationLinkRequestResourceTypeOrderContact                      AddConversationLinkRequestResourceType = "order_contact"
 	AddConversationLinkRequestResourceTypeUser                              AddConversationLinkRequestResourceType = "user"
@@ -222,6 +224,7 @@ const (
 	AddConversationLinkRequestResourceTypeNotificationUnreadSummary         AddConversationLinkRequestResourceType = "notification_unread_summary"
 	AddConversationLinkRequestResourceTypeAnnouncement                      AddConversationLinkRequestResourceType = "announcement"
 	AddConversationLinkRequestResourceTypeConversation                      AddConversationLinkRequestResourceType = "conversation"
+	AddConversationLinkRequestResourceTypeSupportCase                       AddConversationLinkRequestResourceType = "support_case"
 	AddConversationLinkRequestResourceTypeConversationParticipant           AddConversationLinkRequestResourceType = "conversation_participant"
 	AddConversationLinkRequestResourceTypeReadCursor                        AddConversationLinkRequestResourceType = "read_cursor"
 	AddConversationLinkRequestResourceTypeChatMessage                       AddConversationLinkRequestResourceType = "chat_message"
@@ -257,6 +260,7 @@ const (
 	AddConversationLinkRequestResourceTypeAccountBranding                   AddConversationLinkRequestResourceType = "account_branding"
 	AddConversationLinkRequestResourceTypeAccountPortal                     AddConversationLinkRequestResourceType = "account_portal"
 	AddConversationLinkRequestResourceTypeAccountLogoURL                    AddConversationLinkRequestResourceType = "account_logo_url"
+	AddConversationLinkRequestResourceTypeAccountFaviconURL                 AddConversationLinkRequestResourceType = "account_favicon_url"
 	AddConversationLinkRequestResourceTypePublicAccount                     AddConversationLinkRequestResourceType = "public_account"
 	AddConversationLinkRequestResourceTypeProperty                          AddConversationLinkRequestResourceType = "property"
 	AddConversationLinkRequestResourceTypeCarrier                           AddConversationLinkRequestResourceType = "carrier"
@@ -342,6 +346,7 @@ const (
 	AddConversationLinkRequestResourceTypeCustomerFreightPreferences        AddConversationLinkRequestResourceType = "customer_freight_preferences"
 	AddConversationLinkRequestResourceTypeCustomerDefaults                  AddConversationLinkRequestResourceType = "customer_defaults"
 	AddConversationLinkRequestResourceTypeCustomerNotificationPreferences   AddConversationLinkRequestResourceType = "customer_notification_preferences"
+	AddConversationLinkRequestResourceTypeOrderNotificationRecipient        AddConversationLinkRequestResourceType = "order_notification_recipient"
 	AddConversationLinkRequestResourceTypeOrderDiscount                     AddConversationLinkRequestResourceType = "order_discount"
 	AddConversationLinkRequestResourceTypeSalesOrderLine                    AddConversationLinkRequestResourceType = "sales_order_line"
 	AddConversationLinkRequestResourceTypeSalesOrderType                    AddConversationLinkRequestResourceType = "sales_order_type"
@@ -408,9 +413,11 @@ const (
 	AddConversationLinkRequestResourceTypeTenancyPendingRegistration        AddConversationLinkRequestResourceType = "tenancy_pending_registration"
 	AddConversationLinkRequestResourceTypeInvoiceAllocationEntry            AddConversationLinkRequestResourceType = "invoice_allocation_entry"
 	AddConversationLinkRequestResourceTypeAllocationCustomer                AddConversationLinkRequestResourceType = "allocation_customer"
-	AddConversationLinkRequestResourceTypeCheckoutSalesOrderResponse        AddConversationLinkRequestResourceType = "checkout_sales_order_response"
-	AddConversationLinkRequestResourceTypeCreateProductionRunResponse       AddConversationLinkRequestResourceType = "create_production_run_response"
+	AddConversationLinkRequestResourceTypeCheckoutSalesOrder                AddConversationLinkRequestResourceType = "checkout_sales_order"
 	AddConversationLinkRequestResourceTypeSalesOrderPriceQuote              AddConversationLinkRequestResourceType = "sales_order_price_quote"
+	AddConversationLinkRequestResourceTypeSalesOrderFreightQuote            AddConversationLinkRequestResourceType = "sales_order_freight_quote"
+	AddConversationLinkRequestResourceTypeSalesOrderPriceQuoteLine          AddConversationLinkRequestResourceType = "sales_order_price_quote_line"
+	AddConversationLinkRequestResourceTypeSalesOrderQuoteRate               AddConversationLinkRequestResourceType = "sales_order_quote_rate"
 	AddConversationLinkRequestResourceTypeHubspotSyncJob                    AddConversationLinkRequestResourceType = "hubspot_sync_job"
 	AddConversationLinkRequestResourceTypeHubspotSyncReport                 AddConversationLinkRequestResourceType = "hubspot_sync_report"
 	AddConversationLinkRequestResourceTypeHubspotCompanyReview              AddConversationLinkRequestResourceType = "hubspot_company_review"
@@ -423,6 +430,11 @@ const (
 	AddConversationLinkRequestResourceTypePortalProfile                     AddConversationLinkRequestResourceType = "portal_profile"
 	AddConversationLinkRequestResourceTypePortalRegistrationSession         AddConversationLinkRequestResourceType = "portal_registration_session"
 	AddConversationLinkRequestResourceTypePortalRegistrationSessionData     AddConversationLinkRequestResourceType = "portal_registration_session_data"
+	AddConversationLinkRequestResourceTypePackList                          AddConversationLinkRequestResourceType = "pack_list"
+	AddConversationLinkRequestResourceTypePackListParty                     AddConversationLinkRequestResourceType = "pack_list_party"
+	AddConversationLinkRequestResourceTypePackListLineItem                  AddConversationLinkRequestResourceType = "pack_list_line_item"
+	AddConversationLinkRequestResourceTypePackListBackOrder                 AddConversationLinkRequestResourceType = "pack_list_back_order"
+	AddConversationLinkRequestResourceTypePackListCase                      AddConversationLinkRequestResourceType = "pack_list_case"
 )
 
 // A business-record link on a conversation: the record the conversation is about

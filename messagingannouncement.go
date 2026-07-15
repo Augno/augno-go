@@ -78,7 +78,7 @@ type Announcement struct {
 	// Category of the announcement.
 	//
 	// Any of "chat.message", "chat.mention", "chat.added", "order.updated",
-	// "agent.run_completed", "agent.alert", "system.broadcast".
+	// "agent.run_completed", "agent.alert", "system.broadcast", "customer.registered".
 	Category AnnouncementCategory `json:"category" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
@@ -156,13 +156,14 @@ func (r *Announcement) UnmarshalJSON(data []byte) error {
 type AnnouncementCategory string
 
 const (
-	AnnouncementCategoryChatMessage       AnnouncementCategory = "chat.message"
-	AnnouncementCategoryChatMention       AnnouncementCategory = "chat.mention"
-	AnnouncementCategoryChatAdded         AnnouncementCategory = "chat.added"
-	AnnouncementCategoryOrderUpdated      AnnouncementCategory = "order.updated"
-	AnnouncementCategoryAgentRunCompleted AnnouncementCategory = "agent.run_completed"
-	AnnouncementCategoryAgentAlert        AnnouncementCategory = "agent.alert"
-	AnnouncementCategorySystemBroadcast   AnnouncementCategory = "system.broadcast"
+	AnnouncementCategoryChatMessage        AnnouncementCategory = "chat.message"
+	AnnouncementCategoryChatMention        AnnouncementCategory = "chat.mention"
+	AnnouncementCategoryChatAdded          AnnouncementCategory = "chat.added"
+	AnnouncementCategoryOrderUpdated       AnnouncementCategory = "order.updated"
+	AnnouncementCategoryAgentRunCompleted  AnnouncementCategory = "agent.run_completed"
+	AnnouncementCategoryAgentAlert         AnnouncementCategory = "agent.alert"
+	AnnouncementCategorySystemBroadcast    AnnouncementCategory = "system.broadcast"
+	AnnouncementCategoryCustomerRegistered AnnouncementCategory = "customer.registered"
 )
 
 // Resource type identifier.

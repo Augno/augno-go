@@ -75,6 +75,86 @@ func TestSaleSalesOrderNewWithOptionalParams(t *testing.T) {
 	}
 }
 
+func TestSaleSalesOrderGetWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := augno.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Sales.SalesOrders.Get(
+		context.TODO(),
+		"or_01d5034136c3ccc048abecc312",
+		augno.SaleSalesOrderGetParams{
+			Include: []string{"customer"},
+		},
+	)
+	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSaleSalesOrderUpdateWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := augno.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Sales.SalesOrders.Update(
+		context.TODO(),
+		"or_01d5034136c3ccc048abecc312",
+		augno.SaleSalesOrderUpdateParams{
+			Include: []string{"customer"},
+			UpdateSalesOrderRequest: augno.UpdateSalesOrderRequestParam{
+				AcknowledgementEmailContacts: []augno.SalesOrderEmailContactInputParam{{
+					AccountUserID: "account_user_id",
+				}},
+				AcknowledgmentStatus:        augno.UpdateSalesOrderRequestAcknowledgmentStatusNotSent,
+				BillingAddressID:            augno.String("billing_address_id"),
+				CarrierBillingAccountNumber: augno.String("carrier_billing_account_number"),
+				CarrierBillingType:          augno.UpdateSalesOrderRequestCarrierBillingTypeSender,
+				CarrierID:                   augno.String("cr_01784fd54c9ba197bb4e42f0e6"),
+				CustomerID:                  augno.String("customer_id"),
+				CustomerPurchaseOrderNumber: augno.String("customer_purchase_order_number"),
+				InvoiceEmailContacts: []augno.SalesOrderEmailContactInputParam{{
+					AccountUserID: "account_user_id",
+				}},
+				Note:              augno.String("Updated shipping instructions"),
+				OrderDiscountID:   augno.String("order_discount_id"),
+				PaymentTermID:     augno.String("payment_term_id"),
+				PriorityCode:      augno.String("normal"),
+				PromisedAt:        augno.Time(time.Now()),
+				SalesRepID:        augno.String("sales_rep_id"),
+				ServiceLevelID:    augno.String("service_level_id"),
+				ShippingAddressID: augno.String("ad_012c2e4aeeb20f56c1a3d06cc7"),
+				ShippingTermID:    augno.String("shipping_term_id"),
+			},
+		},
+	)
+	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
 func TestSaleSalesOrderListWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -100,6 +180,91 @@ func TestSaleSalesOrderListWithOptionalParams(t *testing.T) {
 		SalesRepIDs:      []string{"string"},
 		StartDate:        augno.String("start_date"),
 		StatusCodes:      []string{"string"},
+	})
+	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSaleSalesOrderDelete(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := augno.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Sales.SalesOrders.Delete(context.TODO(), "or_01d5034136c3ccc048abecc312")
+	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSaleSalesOrderCheckout(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := augno.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Sales.SalesOrders.Checkout(
+		context.TODO(),
+		"or_01d5034136c3ccc048abecc312",
+		augno.SaleSalesOrderCheckoutParams{
+			CheckoutSalesOrderRequest: augno.CheckoutSalesOrderRequestParam{
+				Email: "operations@acme.example.com",
+			},
+		},
+	)
+	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSaleSalesOrderPriceQuote(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := augno.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Sales.SalesOrders.PriceQuote(context.TODO(), augno.SaleSalesOrderPriceQuoteParams{
+		QuoteSalesOrderPricesRequest: augno.QuoteSalesOrderPricesRequestParam{
+			BuyerAccountID: "ac_0170df1ac58e4d24c66fc89f5f",
+			Lines: []augno.QuoteSalesOrderLineInputParam{{
+				ProductID: "pd_013c29ab3f1518d0004094c316",
+				Quantity: augno.QuantityInputParam{
+					UnitID: "un_01966263f74a5a0cae356000a1",
+					Value:  "10",
+				},
+			}},
+		},
 	})
 	if err != nil {
 		var apierr *augno.Error

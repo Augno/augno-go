@@ -61,6 +61,7 @@ func TestCoreRequestLogListWithOptionalParams(t *testing.T) {
 		Cursor:            augno.String("cursor"),
 		EndDate:           augno.Time(time.Now()),
 		ErrorCodes:        []string{"expired_token"},
+		ExcludeErrorCodes: []string{"expired_token"},
 		Hosts:             []string{"string"},
 		IdempotencyKey:    augno.String("idempotency_key"),
 		Include:           []string{"account"},

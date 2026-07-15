@@ -4,6 +4,8 @@ package augno
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"slices"
@@ -26,6 +28,10 @@ import (
 // the [NewSaleSalesOrderService] method instead.
 type SaleSalesOrderService struct {
 	options []option.RequestOption
+	// List, view, create, update, and delete sales orders.
+	Actions SaleSalesOrderActionService
+	// List, view, create, update, and delete sales orders.
+	Lines SaleSalesOrderLineService
 }
 
 // NewSaleSalesOrderService generates a new service that applies the given options
@@ -34,6 +40,8 @@ type SaleSalesOrderService struct {
 func NewSaleSalesOrderService(opts ...option.RequestOption) (r SaleSalesOrderService) {
 	r = SaleSalesOrderService{}
 	r.options = opts
+	r.Actions = NewSaleSalesOrderActionService(opts...)
+	r.Lines = NewSaleSalesOrderLineService(opts...)
 	return
 }
 
@@ -51,6 +59,35 @@ func (r *SaleSalesOrderService) New(ctx context.Context, params SaleSalesOrderNe
 	return res, err
 }
 
+// Returns a sales order by ID.
+//
+// This endpoint requires the permissions: `customers:read`, `suppliers:read`,
+// `sales_orders:read`.
+func (r *SaleSalesOrderService) Get(ctx context.Context, id string, query SaleSalesOrderGetParams, opts ...option.RequestOption) (res *SalesOrder, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/sales/sales-orders/%s", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
+// Partially updates a sales order.
+//
+// This endpoint requires the permission: `sales_orders:update`.
+func (r *SaleSalesOrderService) Update(ctx context.Context, id string, params SaleSalesOrderUpdateParams, opts ...option.RequestOption) (res *SalesOrder, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/sales/sales-orders/%s", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
+	return res, err
+}
+
 // Returns a paginated list of sales orders for the current account.
 //
 // This endpoint requires the permissions: `sales_orders:read`, `customers:read`,
@@ -62,6 +99,55 @@ func (r *SaleSalesOrderService) List(ctx context.Context, query SaleSalesOrderLi
 	return res, err
 }
 
+// Deletes a sales order and all its related records.
+//
+// Fulfilled orders cannot be deleted.
+//
+// This endpoint requires the permission: `sales_orders:delete`.
+func (r *SaleSalesOrderService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *SaleSalesOrderDeleteResponse, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/sales/sales-orders/%s", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return res, err
+}
+
+// Creates a hosted payment checkout session for a sales order.
+//
+// Requires an active Stripe integration on the account. The checkout is built from
+// the order's lines, and the checkout link is emailed to the provided address.
+// Fails with a conflict if the order already has a payment.
+//
+// This endpoint requires the permission: `sales_orders:update`.
+func (r *SaleSalesOrderService) Checkout(ctx context.Context, id string, body SaleSalesOrderCheckoutParams, opts ...option.RequestOption) (res *CheckoutSalesOrderResponse, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/sales/sales-orders/%s/checkout", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
+// Calculates the unit price for each line without creating an order.
+//
+// Use this to display prices to users as they build an order. Prices are computed
+// server-side from the product's list price, contracted account prices, and
+// applicable discounts — the same logic used when an order is created. Internal
+// price overrides are not accepted here; the calculated price is always returned.
+//
+// This endpoint requires the permission: `sales_orders:read`.
+func (r *SaleSalesOrderService) PriceQuote(ctx context.Context, body SaleSalesOrderPriceQuoteParams, opts ...option.RequestOption) (res *QuoteSalesOrderPricesResponse, err error) {
+	opts = slices.Concat(r.options, opts)
+	path := "v1/sales/sales-orders/price-quote"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 // Returns a paginated list of sales order statuses.
 func (r *SaleSalesOrderService) GetStatuses(ctx context.Context, query SaleSalesOrderGetStatusesParams, opts ...option.RequestOption) (res *ListSalesOrderStatus, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -69,6 +155,55 @@ func (r *SaleSalesOrderService) GetStatuses(ctx context.Context, query SaleSales
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
+
+// Request to create a checkout session for a sales order.
+//
+// The property Email is required.
+type CheckoutSalesOrderRequestParam struct {
+	// Email address to send the checkout link to.
+	//
+	// Also set as the customer email on the payment provider's checkout session.
+	Email string `json:"email" api:"required"`
+	paramObj
+}
+
+func (r CheckoutSalesOrderRequestParam) MarshalJSON() (data []byte, err error) {
+	type shadow CheckoutSalesOrderRequestParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *CheckoutSalesOrderRequestParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Checkout session result.
+type CheckoutSalesOrderResponse struct {
+	// URL of the hosted payment page where the customer completes the checkout.
+	CheckoutURL string `json:"checkout_url" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "checkout_sales_order".
+	Object CheckoutSalesOrderResponseObject `json:"object" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		CheckoutURL respjson.Field
+		Object      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CheckoutSalesOrderResponse) RawJSON() string { return r.JSON.raw }
+func (r *CheckoutSalesOrderResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type CheckoutSalesOrderResponseObject string
+
+const (
+	CheckoutSalesOrderResponseObjectCheckoutSalesOrder CheckoutSalesOrderResponseObject = "checkout_sales_order"
+)
 
 // Line item input for a create sales order request.
 //
@@ -331,6 +466,39 @@ const (
 )
 
 // List represents a paginated list of resources.
+type ListQuotedSalesOrderLine struct {
+	// Resources in this page.
+	Data []QuotedSalesOrderLine `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListQuotedSalesOrderLineObject `json:"object" api:"required"`
+	// PageInfo contains URL-based pagination metadata.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListQuotedSalesOrderLine) RawJSON() string { return r.JSON.raw }
+func (r *ListQuotedSalesOrderLine) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListQuotedSalesOrderLineObject string
+
+const (
+	ListQuotedSalesOrderLineObjectList ListQuotedSalesOrderLineObject = "list"
+)
+
+// List represents a paginated list of resources.
 type ListRecord struct {
 	// Resources in this page.
 	Data []Record `json:"data" api:"required"`
@@ -576,6 +744,111 @@ const (
 	OrderDiscountObjectOrderDiscount OrderDiscountObject = "order_discount"
 )
 
+// A line to price in a quote request.
+//
+// The properties ProductID, Quantity are required.
+type QuoteSalesOrderLineInputParam struct {
+	// ID of the product to price.
+	ProductID string `json:"product_id" api:"required"`
+	// A value with an associated unit, used in create and update requests.
+	Quantity QuantityInputParam `json:"quantity,omitzero" api:"required"`
+	paramObj
+}
+
+func (r QuoteSalesOrderLineInputParam) MarshalJSON() (data []byte, err error) {
+	type shadow QuoteSalesOrderLineInputParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *QuoteSalesOrderLineInputParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request to quote sales-order line prices without creating an order.
+//
+// The properties BuyerAccountID, Lines are required.
+type QuoteSalesOrderPricesRequestParam struct {
+	// ID of the customer account the prices are for.
+	BuyerAccountID string `json:"buyer_account_id" api:"required"`
+	// Lines to price.
+	Lines []QuoteSalesOrderLineInputParam `json:"lines,omitzero" api:"required"`
+	paramObj
+}
+
+func (r QuoteSalesOrderPricesRequestParam) MarshalJSON() (data []byte, err error) {
+	type shadow QuoteSalesOrderPricesRequestParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *QuoteSalesOrderPricesRequestParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Quoted unit prices for the requested lines, in request order.
+type QuoteSalesOrderPricesResponse struct {
+	// List represents a paginated list of resources.
+	Lines ListQuotedSalesOrderLine `json:"lines" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "sales_order_price_quote".
+	Object QuoteSalesOrderPricesResponseObject `json:"object" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Lines       respjson.Field
+		Object      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r QuoteSalesOrderPricesResponse) RawJSON() string { return r.JSON.raw }
+func (r *QuoteSalesOrderPricesResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type QuoteSalesOrderPricesResponseObject string
+
+const (
+	QuoteSalesOrderPricesResponseObjectSalesOrderPriceQuote QuoteSalesOrderPricesResponseObject = "sales_order_price_quote"
+)
+
+// One priced line in a quote response.
+type QuotedSalesOrderLine struct {
+	// Resource type identifier.
+	//
+	// Any of "sales_order_price_quote_line".
+	Object QuotedSalesOrderLineObject `json:"object" api:"required"`
+	// Product pairs an inventory item with how it is sold: its product type, optional
+	// product line, and customer portal visibility.
+	Product Product `json:"product" api:"required"`
+	// A per-unit rate on a sales-order quote.
+	//
+	// A lightweight, unpersisted variant of a rate: it carries no ID or timestamps
+	// because a quote is computed on demand and never stored.
+	UnitPrice SalesOrderQuoteRate `json:"unit_price" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Object      respjson.Field
+		Product     respjson.Field
+		UnitPrice   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r QuotedSalesOrderLine) RawJSON() string { return r.JSON.raw }
+func (r *QuotedSalesOrderLine) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type QuotedSalesOrderLineObject string
+
+const (
+	QuotedSalesOrderLineObjectSalesOrderPriceQuoteLine QuotedSalesOrderLineObject = "sales_order_price_quote_line"
+)
+
 // Record is a lightweight reference to a business record — a sales order, purchase
 // order, pick, shipment, production run, invoice, etc.
 //
@@ -776,7 +1049,9 @@ type SalesOrder struct {
 	// Any of "estimate", "issued", "fulfilled".
 	Status SalesOrderStatus `json:"status" api:"required"`
 	// SalesOrderTotals holds the derived monetary totals for a sales order or one of
-	// its lines, following the lifecycle ordered -> packed -> invoiced.
+	// its lines, following the lifecycle ordered -> picked -> packed -> invoiced. Each
+	// downstream stage carries both its monetary amount and its completion progress
+	// against the ordered baseline.
 	Totals SalesOrderTotals `json:"totals" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -917,7 +1192,9 @@ type SalesOrderLine struct {
 	// Value with an associated unit.
 	QuantityOrdered Quantity `json:"quantity_ordered" api:"required"`
 	// SalesOrderTotals holds the derived monetary totals for a sales order or one of
-	// its lines, following the lifecycle ordered -> packed -> invoiced.
+	// its lines, following the lifecycle ordered -> picked -> packed -> invoiced. Each
+	// downstream stage carries both its monetary amount and its completion progress
+	// against the ordered baseline.
 	Totals SalesOrderTotals `json:"totals" api:"required"`
 	// Value expressed as a ratio of two units, such as a price per kilogram or a
 	// throughput per hour.
@@ -957,6 +1234,46 @@ type SalesOrderLineObject string
 
 const (
 	SalesOrderLineObjectSalesOrderLine SalesOrderLineObject = "sales_order_line"
+)
+
+// A per-unit rate on a sales-order quote.
+//
+// A lightweight, unpersisted variant of a rate: it carries no ID or timestamps
+// because a quote is computed on demand and never stored.
+type SalesOrderQuoteRate struct {
+	// Unit of measurement used for conversions and product quantities.
+	DenominatorUnit Unit `json:"denominator_unit" api:"required"`
+	// Unit of measurement used for conversions and product quantities.
+	NumeratorUnit Unit `json:"numerator_unit" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "sales_order_quote_rate".
+	Object SalesOrderQuoteRateObject `json:"object" api:"required"`
+	// Decimal value of the rate, expressed as the amount of the numerator unit per one
+	// denominator unit.
+	Value string `json:"value" api:"required" format:"decimal"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		DenominatorUnit respjson.Field
+		NumeratorUnit   respjson.Field
+		Object          respjson.Field
+		Value           respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SalesOrderQuoteRate) RawJSON() string { return r.JSON.raw }
+func (r *SalesOrderQuoteRate) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type SalesOrderQuoteRateObject string
+
+const (
+	SalesOrderQuoteRateObjectSalesOrderQuoteRate SalesOrderQuoteRateObject = "sales_order_quote_rate"
 )
 
 // SalesOrderRelated groups the records related to a sales order.
@@ -1013,25 +1330,70 @@ const (
 	SalesOrderRelatedObjectSalesOrderRelated SalesOrderRelatedObject = "sales_order_related"
 )
 
+// SalesOrderStageTotal pairs a fulfillment stage's monetary amount with its
+// completion progress.
+type SalesOrderStageTotal struct {
+	// Amount for this stage as a decimal string (unit price x quantity at this stage).
+	Amount string `json:"amount" api:"required" format:"decimal"`
+	// Progress to completion for this stage, as a fraction between 0 and 1: quantity
+	// at this stage divided by quantity ordered. `0` when nothing has reached this
+	// stage yet.
+	Completion float64 `json:"completion" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "sales_order_stage_total".
+	Object SalesOrderStageTotalObject `json:"object" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount      respjson.Field
+		Completion  respjson.Field
+		Object      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SalesOrderStageTotal) RawJSON() string { return r.JSON.raw }
+func (r *SalesOrderStageTotal) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type SalesOrderStageTotalObject string
+
+const (
+	SalesOrderStageTotalObjectSalesOrderStageTotal SalesOrderStageTotalObject = "sales_order_stage_total"
+)
+
 // SalesOrderTotals holds the derived monetary totals for a sales order or one of
-// its lines, following the lifecycle ordered -> packed -> invoiced.
+// its lines, following the lifecycle ordered -> picked -> packed -> invoiced. Each
+// downstream stage carries both its monetary amount and its completion progress
+// against the ordered baseline.
 type SalesOrderTotals struct {
-	// Total invoiced amount as a decimal string (unit price x quantity invoiced).
-	Invoiced string `json:"invoiced" api:"required" format:"decimal"`
+	// SalesOrderStageTotal pairs a fulfillment stage's monetary amount with its
+	// completion progress.
+	Invoiced SalesOrderStageTotal `json:"invoiced" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "sales_order_totals".
 	Object SalesOrderTotalsObject `json:"object" api:"required"`
-	// Total ordered amount as a decimal string (unit price x quantity ordered).
+	// Total ordered amount as a decimal string (unit price x quantity ordered). This
+	// is the baseline the stage completions are measured against.
 	Ordered string `json:"ordered" api:"required" format:"decimal"`
-	// Total packed amount as a decimal string (unit price x quantity packed).
-	Packed string `json:"packed" api:"required" format:"decimal"`
+	// SalesOrderStageTotal pairs a fulfillment stage's monetary amount with its
+	// completion progress.
+	Packed SalesOrderStageTotal `json:"packed" api:"required"`
+	// SalesOrderStageTotal pairs a fulfillment stage's monetary amount with its
+	// completion progress.
+	Picked SalesOrderStageTotal `json:"picked" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Invoiced    respjson.Field
 		Object      respjson.Field
 		Ordered     respjson.Field
 		Packed      respjson.Field
+		Picked      respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
@@ -1049,6 +1411,115 @@ type SalesOrderTotalsObject string
 const (
 	SalesOrderTotalsObjectSalesOrderTotals SalesOrderTotalsObject = "sales_order_totals"
 )
+
+// Request to update a sales order.
+type UpdateSalesOrderRequestParam struct {
+	// Carrier billing account number. Send `null` to clear.
+	CarrierBillingAccountNumber param.Opt[string] `json:"carrier_billing_account_number,omitzero"`
+	// Customer's purchase order number. Send `null` to clear.
+	CustomerPurchaseOrderNumber param.Opt[string] `json:"customer_purchase_order_number,omitzero"`
+	// Order note. Send `null` to clear.
+	Note param.Opt[string] `json:"note,omitzero"`
+	// Order discount ID. Send `null` to clear.
+	OrderDiscountID param.Opt[string] `json:"order_discount_id,omitzero"`
+	// Promised delivery date. Send `null` to clear.
+	PromisedAt param.Opt[time.Time] `json:"promised_at,omitzero" format:"date-time"`
+	// Sales rep ID. Send `null` to clear.
+	SalesRepID param.Opt[string] `json:"sales_rep_id,omitzero"`
+	// Service level ID. Send `null` to clear.
+	ServiceLevelID param.Opt[string] `json:"service_level_id,omitzero"`
+	// Billing address ID.
+	//
+	// Re-points the order to an existing address. To change an address's contents, use
+	// the update-address endpoint.
+	BillingAddressID param.Opt[string] `json:"billing_address_id,omitzero"`
+	// Carrier ID.
+	CarrierID param.Opt[string] `json:"carrier_id,omitzero"`
+	// Customer ID.
+	CustomerID param.Opt[string] `json:"customer_id,omitzero"`
+	// Payment term ID.
+	PaymentTermID param.Opt[string] `json:"payment_term_id,omitzero"`
+	// New fulfillment priority for the order.
+	PriorityCode param.Opt[string] `json:"priority_code,omitzero"`
+	// Shipping address ID.
+	//
+	// Re-points the order to an existing address. To change an address's contents, use
+	// the update-address endpoint.
+	ShippingAddressID param.Opt[string] `json:"shipping_address_id,omitzero"`
+	// Shipping term ID.
+	ShippingTermID param.Opt[string] `json:"shipping_term_id,omitzero"`
+	// Who is billed for freight. Send `null` to clear.
+	//
+	//   - `sender`: the sender pays for shipping.
+	//   - `third_party`: a third party pays for shipping, using the carrier billing
+	//     account number.
+	//
+	// Any of "sender", "third_party".
+	CarrierBillingType UpdateSalesOrderRequestCarrierBillingType `json:"carrier_billing_type,omitzero"`
+	// Replaces the acknowledgement email contacts on the order.
+	//
+	// An empty list clears all contacts; omitting the field leaves existing contacts
+	// untouched.
+	AcknowledgementEmailContacts []SalesOrderEmailContactInputParam `json:"acknowledgement_email_contacts,omitzero"`
+	// Acknowledgment status of the order.
+	//
+	// Set to `sent` to mark the acknowledgement as sent without emailing the customer,
+	// or `not_sent` to reset it.
+	//
+	// Any of "not_sent", "sent".
+	AcknowledgmentStatus UpdateSalesOrderRequestAcknowledgmentStatus `json:"acknowledgment_status,omitzero"`
+	// Replaces the invoice email contacts on the order.
+	//
+	// An empty list clears all contacts; omitting the field leaves existing contacts
+	// untouched.
+	InvoiceEmailContacts []SalesOrderEmailContactInputParam `json:"invoice_email_contacts,omitzero"`
+	paramObj
+}
+
+func (r UpdateSalesOrderRequestParam) MarshalJSON() (data []byte, err error) {
+	type shadow UpdateSalesOrderRequestParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *UpdateSalesOrderRequestParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Acknowledgment status of the order.
+//
+// Set to `sent` to mark the acknowledgement as sent without emailing the customer,
+// or `not_sent` to reset it.
+type UpdateSalesOrderRequestAcknowledgmentStatus string
+
+const (
+	UpdateSalesOrderRequestAcknowledgmentStatusNotSent UpdateSalesOrderRequestAcknowledgmentStatus = "not_sent"
+	UpdateSalesOrderRequestAcknowledgmentStatusSent    UpdateSalesOrderRequestAcknowledgmentStatus = "sent"
+)
+
+// Who is billed for freight. Send `null` to clear.
+//
+//   - `sender`: the sender pays for shipping.
+//   - `third_party`: a third party pays for shipping, using the carrier billing
+//     account number.
+type UpdateSalesOrderRequestCarrierBillingType string
+
+const (
+	UpdateSalesOrderRequestCarrierBillingTypeSender     UpdateSalesOrderRequestCarrierBillingType = "sender"
+	UpdateSalesOrderRequestCarrierBillingTypeThirdParty UpdateSalesOrderRequestCarrierBillingType = "third_party"
+)
+
+type SaleSalesOrderDeleteResponse struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SaleSalesOrderDeleteResponse) RawJSON() string { return r.JSON.raw }
+func (r *SaleSalesOrderDeleteResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 type SaleSalesOrderNewParams struct {
 	// Request to create a sales order.
@@ -1078,6 +1549,66 @@ func (r *SaleSalesOrderNewParams) UnmarshalJSON(data []byte) error {
 // URLQuery serializes [SaleSalesOrderNewParams]'s query parameters as
 // `url.Values`.
 func (r SaleSalesOrderNewParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type SaleSalesOrderGetParams struct {
+	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
+	// `null`.
+	//
+	// Any of "customer", "sales_rep", "created_by", "bill_to_address",
+	// "ship_to_address", "freight", "payment_term", "shipping_term", "order_discount",
+	// "totals", "contacts", "related.pick", "related.production_run",
+	// "related.shipments", "related.invoices", "lines", "lines.product",
+	// "lines.product.item", "lines.product.product_line", "lines.quantity_ordered",
+	// "lines.quantity_ordered.unit", "lines.unit_price",
+	// "lines.unit_price.numerator_unit", "lines.unit_price.denominator_unit",
+	// "lines.unit_cost", "lines.unit_cost.numerator_unit",
+	// "lines.unit_cost.denominator_unit", "lines.totals".
+	Include []string `query:"include,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [SaleSalesOrderGetParams]'s query parameters as
+// `url.Values`.
+func (r SaleSalesOrderGetParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type SaleSalesOrderUpdateParams struct {
+	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
+	// `null`.
+	//
+	// Any of "customer", "sales_rep", "bill_to_address", "ship_to_address", "freight",
+	// "payment_term", "shipping_term", "order_discount", "totals", "contacts",
+	// "related.pick", "related.production_run", "related.shipments",
+	// "related.invoices", "lines", "lines.product", "lines.quantity_ordered",
+	// "lines.quantity_ordered.unit", "lines.unit_price",
+	// "lines.unit_price.numerator_unit", "lines.unit_price.denominator_unit",
+	// "lines.unit_cost", "lines.unit_cost.numerator_unit",
+	// "lines.unit_cost.denominator_unit", "lines.totals".
+	Include []string `query:"include,omitzero" json:"-"`
+	// Request to update a sales order.
+	UpdateSalesOrderRequest UpdateSalesOrderRequestParam
+	paramObj
+}
+
+func (r SaleSalesOrderUpdateParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.UpdateSalesOrderRequest)
+}
+func (r *SaleSalesOrderUpdateParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// URLQuery serializes [SaleSalesOrderUpdateParams]'s query parameters as
+// `url.Values`.
+func (r SaleSalesOrderUpdateParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
@@ -1136,6 +1667,32 @@ func (r SaleSalesOrderListParams) URLQuery() (v url.Values, err error) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type SaleSalesOrderCheckoutParams struct {
+	// Request to create a checkout session for a sales order.
+	CheckoutSalesOrderRequest CheckoutSalesOrderRequestParam
+	paramObj
+}
+
+func (r SaleSalesOrderCheckoutParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.CheckoutSalesOrderRequest)
+}
+func (r *SaleSalesOrderCheckoutParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type SaleSalesOrderPriceQuoteParams struct {
+	// Request to quote sales-order line prices without creating an order.
+	QuoteSalesOrderPricesRequest QuoteSalesOrderPricesRequestParam
+	paramObj
+}
+
+func (r SaleSalesOrderPriceQuoteParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.QuoteSalesOrderPricesRequest)
+}
+func (r *SaleSalesOrderPriceQuoteParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type SaleSalesOrderGetStatusesParams struct {

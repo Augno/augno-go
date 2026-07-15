@@ -341,15 +341,36 @@ type CoreRequestLogListParams struct {
 	//
 	// Any of "expired_token", "api_key_expired", "api_key_revoked",
 	// "invalid_credentials", "insufficient_permissions", "payment_required",
-	// "validation_failed", "missing_field", "invalid_format", "method_not_allowed",
-	// "resource_not_found", "resource_exists", "resource_conflict", "resource_gone",
-	// "idempotency_in_progress", "limit_exceeded", "registration_closed",
-	// "rate_limit_exceeded", "parameter_missing", "parameter_invalid",
-	// "parameter_unknown", "parameters_exclusive", "internal_error",
-	// "service_unavailable", "external_service_error", "timeout", "connection_error",
-	// "request_timeout", "client_closed_request", "api_version_required",
-	// "api_version_invalid", "api_version_too_old".
+	// "agent_spending_cap_reached", "validation_failed", "missing_field",
+	// "invalid_format", "method_not_allowed", "resource_not_found", "resource_exists",
+	// "resource_conflict", "resource_gone", "idempotency_in_progress",
+	// "limit_exceeded", "registration_closed", "rate_limit_exceeded",
+	// "parameter_missing", "parameter_invalid", "parameter_unknown",
+	// "parameters_exclusive", "internal_error", "service_unavailable",
+	// "external_service_error", "timeout", "connection_error", "request_timeout",
+	// "client_closed_request", "api_version_required", "api_version_invalid",
+	// "api_version_too_old".
 	ErrorCodes []string `query:"error_codes,omitzero" json:"-"`
+	// Exclude request logs whose API error code is in this set.
+	//
+	// Applied as a negative filter after all other filters. Successful requests (which
+	// have no error code) are always kept. The dashboard uses this to hide routine
+	// `expired_token` 401s — the noise from short-lived access tokens expiring and
+	// clients silently refreshing — while still surfacing genuine auth failures like
+	// `invalid_credentials`.
+	//
+	// Any of "expired_token", "api_key_expired", "api_key_revoked",
+	// "invalid_credentials", "insufficient_permissions", "payment_required",
+	// "agent_spending_cap_reached", "validation_failed", "missing_field",
+	// "invalid_format", "method_not_allowed", "resource_not_found", "resource_exists",
+	// "resource_conflict", "resource_gone", "idempotency_in_progress",
+	// "limit_exceeded", "registration_closed", "rate_limit_exceeded",
+	// "parameter_missing", "parameter_invalid", "parameter_unknown",
+	// "parameters_exclusive", "internal_error", "service_unavailable",
+	// "external_service_error", "timeout", "connection_error", "request_timeout",
+	// "client_closed_request", "api_version_required", "api_version_invalid",
+	// "api_version_too_old".
+	ExcludeErrorCodes []string `query:"exclude_error_codes,omitzero" json:"-"`
 	// Filter by the request host.
 	//
 	// Typically `api.augno.com`.

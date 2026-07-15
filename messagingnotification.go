@@ -188,7 +188,7 @@ type Notification struct {
 	//   - `system.broadcast`: a targeted system message.
 	//
 	// Any of "chat.message", "chat.mention", "chat.added", "order.updated",
-	// "agent.run_completed", "agent.alert", "system.broadcast".
+	// "agent.run_completed", "agent.alert", "system.broadcast", "customer.registered".
 	Category NotificationCategory `json:"category" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
@@ -266,13 +266,14 @@ func (r *Notification) UnmarshalJSON(data []byte) error {
 type NotificationCategory string
 
 const (
-	NotificationCategoryChatMessage       NotificationCategory = "chat.message"
-	NotificationCategoryChatMention       NotificationCategory = "chat.mention"
-	NotificationCategoryChatAdded         NotificationCategory = "chat.added"
-	NotificationCategoryOrderUpdated      NotificationCategory = "order.updated"
-	NotificationCategoryAgentRunCompleted NotificationCategory = "agent.run_completed"
-	NotificationCategoryAgentAlert        NotificationCategory = "agent.alert"
-	NotificationCategorySystemBroadcast   NotificationCategory = "system.broadcast"
+	NotificationCategoryChatMessage        NotificationCategory = "chat.message"
+	NotificationCategoryChatMention        NotificationCategory = "chat.mention"
+	NotificationCategoryChatAdded          NotificationCategory = "chat.added"
+	NotificationCategoryOrderUpdated       NotificationCategory = "order.updated"
+	NotificationCategoryAgentRunCompleted  NotificationCategory = "agent.run_completed"
+	NotificationCategoryAgentAlert         NotificationCategory = "agent.alert"
+	NotificationCategorySystemBroadcast    NotificationCategory = "system.broadcast"
+	NotificationCategoryCustomerRegistered NotificationCategory = "customer.registered"
 )
 
 // Resource type identifier.
@@ -490,7 +491,7 @@ type SendNotificationRequestParam struct {
 	// Category of the notification.
 	//
 	// Any of "chat.message", "chat.mention", "chat.added", "order.updated",
-	// "agent.run_completed", "agent.alert", "system.broadcast".
+	// "agent.run_completed", "agent.alert", "system.broadcast", "customer.registered".
 	Category SendNotificationRequestCategory `json:"category,omitzero" api:"required"`
 	// NotificationTargetInput selects what a notification send is aimed at.
 	//
@@ -516,15 +517,15 @@ type SendNotificationRequestParam struct {
 	// recipient can open.
 	//
 	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
-	// "sales_order_related", "order_contact", "user", "address", "api_key",
-	// "created_api_key", "refresh_token", "list", "sandbox", "registration_session",
-	// "pricing_plan", "account_plan", "plan_change", "enterprise_inquiry",
-	// "request_log", "audit_event", "audit_field_change", "role", "unit",
-	// "account_affiliation", "agent_definition", "available_tool",
+	// "sales_order_stage_total", "sales_order_related", "order_contact", "user",
+	// "address", "api_key", "created_api_key", "refresh_token", "list", "sandbox",
+	// "registration_session", "pricing_plan", "account_plan", "plan_change",
+	// "enterprise_inquiry", "request_log", "audit_event", "audit_field_change",
+	// "role", "unit", "account_affiliation", "agent_definition", "available_tool",
 	// "agent_definition_tool", "agent_account_status", "agent_run", "agent_action",
 	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
 	// "notification_unread_count", "notification_send_result",
-	// "notification_unread_summary", "announcement", "conversation",
+	// "notification_unread_summary", "announcement", "conversation", "support_case",
 	// "conversation_participant", "read_cursor", "chat_message",
 	// "notification_unread_summary_account", "messaging_block",
 	// "notification_preference", "message_attachment", "attachment_upload_target",
@@ -534,12 +535,12 @@ type SendNotificationRequestParam struct {
 	// "account_user", "department", "account_integration", "account_price",
 	// "product_line", "item_category", "attribute", "rate",
 	// "account_group_product_line_access", "sales_target", "adjustment_type",
-	// "account_branding", "account_portal", "account_logo_url", "public_account",
-	// "property", "carrier", "service_level", "item", "item_inventory", "product",
-	// "batch", "batch_flow_node", "scanning_consumption", "open_batch_summary",
-	// "scanning_production_step_info", "scanning_station", "production_step",
-	// "production_run", "machine", "child_account", "unit_group", "unit_group_unit",
-	// "consumption", "customer_product_line_access", "customer",
+	// "account_branding", "account_portal", "account_logo_url", "account_favicon_url",
+	// "public_account", "property", "carrier", "service_level", "item",
+	// "item_inventory", "product", "batch", "batch_flow_node", "scanning_consumption",
+	// "open_batch_summary", "scanning_production_step_info", "scanning_station",
+	// "production_step", "production_run", "machine", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
 	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
 	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
 	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
@@ -558,19 +559,19 @@ type SendNotificationRequestParam struct {
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
 	// "customer_freight_preferences", "customer_defaults",
-	// "customer_notification_preferences", "order_discount", "sales_order_line",
-	// "sales_order_type", "sales_order_status", "material", "supplier_material",
-	// "part", "permission_group", "permission", "pick", "pick_line", "product_type",
-	// "production", "production_flow", "map", "purchase_order", "purchase_order_line",
-	// "supplier", "supplier_summary", "receivable_entry", "receiving_order",
-	// "receiving_order_line", "email_contact", "allocation_entry",
-	// "open_credit_entry", "volume_discount", "volume_discount_tier",
-	// "analyze_deliveries_response", "analyze_manufacturing_response",
-	// "analyze_manufacturing_batch_response", "analyze_quarterly_orders_response",
-	// "analyze_new_customers_response", "analyze_oee_response",
-	// "catalog_product_line", "catalog_category", "catalog_product",
-	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
-	// "inventory_item", "analyze_weeks_of_sales_response",
+	// "customer_notification_preferences", "order_notification_recipient",
+	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
+	// "material", "supplier_material", "part", "permission_group", "permission",
+	// "pick", "pick_line", "product_type", "production", "production_flow", "map",
+	// "purchase_order", "purchase_order_line", "supplier", "supplier_summary",
+	// "receivable_entry", "receiving_order", "receiving_order_line", "email_contact",
+	// "allocation_entry", "open_credit_entry", "volume_discount",
+	// "volume_discount_tier", "analyze_deliveries_response",
+	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
+	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
+	// "analyze_oee_response", "catalog_product_line", "catalog_category",
+	// "catalog_product", "catalog_property", "catalog_attribute", "dc_location",
+	// "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -578,13 +579,14 @@ type SendNotificationRequestParam struct {
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
 	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
 	// "pick_shipments_response", "tenancy_pending_registration",
-	// "invoice_allocation_entry", "allocation_customer",
-	// "checkout_sales_order_response", "create_production_run_response",
-	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
-	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
-	// "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data".
+	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
+	// "sales_order_price_quote", "sales_order_freight_quote",
+	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
+	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
+	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
+	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data", "pack_list", "pack_list_party",
+	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
 	LinkResourceType SendNotificationRequestLinkResourceType `json:"link_resource_type,omitzero"`
 	// Delivery priority.
 	//
@@ -605,13 +607,14 @@ func (r *SendNotificationRequestParam) UnmarshalJSON(data []byte) error {
 type SendNotificationRequestCategory string
 
 const (
-	SendNotificationRequestCategoryChatMessage       SendNotificationRequestCategory = "chat.message"
-	SendNotificationRequestCategoryChatMention       SendNotificationRequestCategory = "chat.mention"
-	SendNotificationRequestCategoryChatAdded         SendNotificationRequestCategory = "chat.added"
-	SendNotificationRequestCategoryOrderUpdated      SendNotificationRequestCategory = "order.updated"
-	SendNotificationRequestCategoryAgentRunCompleted SendNotificationRequestCategory = "agent.run_completed"
-	SendNotificationRequestCategoryAgentAlert        SendNotificationRequestCategory = "agent.alert"
-	SendNotificationRequestCategorySystemBroadcast   SendNotificationRequestCategory = "system.broadcast"
+	SendNotificationRequestCategoryChatMessage        SendNotificationRequestCategory = "chat.message"
+	SendNotificationRequestCategoryChatMention        SendNotificationRequestCategory = "chat.mention"
+	SendNotificationRequestCategoryChatAdded          SendNotificationRequestCategory = "chat.added"
+	SendNotificationRequestCategoryOrderUpdated       SendNotificationRequestCategory = "order.updated"
+	SendNotificationRequestCategoryAgentRunCompleted  SendNotificationRequestCategory = "agent.run_completed"
+	SendNotificationRequestCategoryAgentAlert         SendNotificationRequestCategory = "agent.alert"
+	SendNotificationRequestCategorySystemBroadcast    SendNotificationRequestCategory = "system.broadcast"
+	SendNotificationRequestCategoryCustomerRegistered SendNotificationRequestCategory = "customer.registered"
 )
 
 // Object type of the resource this notification should link to.
@@ -627,6 +630,7 @@ const (
 	SendNotificationRequestLinkResourceTypeRecord                            SendNotificationRequestLinkResourceType = "record"
 	SendNotificationRequestLinkResourceTypeFreight                           SendNotificationRequestLinkResourceType = "freight"
 	SendNotificationRequestLinkResourceTypeSalesOrderTotals                  SendNotificationRequestLinkResourceType = "sales_order_totals"
+	SendNotificationRequestLinkResourceTypeSalesOrderStageTotal              SendNotificationRequestLinkResourceType = "sales_order_stage_total"
 	SendNotificationRequestLinkResourceTypeSalesOrderRelated                 SendNotificationRequestLinkResourceType = "sales_order_related"
 	SendNotificationRequestLinkResourceTypeOrderContact                      SendNotificationRequestLinkResourceType = "order_contact"
 	SendNotificationRequestLinkResourceTypeUser                              SendNotificationRequestLinkResourceType = "user"
@@ -662,6 +666,7 @@ const (
 	SendNotificationRequestLinkResourceTypeNotificationUnreadSummary         SendNotificationRequestLinkResourceType = "notification_unread_summary"
 	SendNotificationRequestLinkResourceTypeAnnouncement                      SendNotificationRequestLinkResourceType = "announcement"
 	SendNotificationRequestLinkResourceTypeConversation                      SendNotificationRequestLinkResourceType = "conversation"
+	SendNotificationRequestLinkResourceTypeSupportCase                       SendNotificationRequestLinkResourceType = "support_case"
 	SendNotificationRequestLinkResourceTypeConversationParticipant           SendNotificationRequestLinkResourceType = "conversation_participant"
 	SendNotificationRequestLinkResourceTypeReadCursor                        SendNotificationRequestLinkResourceType = "read_cursor"
 	SendNotificationRequestLinkResourceTypeChatMessage                       SendNotificationRequestLinkResourceType = "chat_message"
@@ -697,6 +702,7 @@ const (
 	SendNotificationRequestLinkResourceTypeAccountBranding                   SendNotificationRequestLinkResourceType = "account_branding"
 	SendNotificationRequestLinkResourceTypeAccountPortal                     SendNotificationRequestLinkResourceType = "account_portal"
 	SendNotificationRequestLinkResourceTypeAccountLogoURL                    SendNotificationRequestLinkResourceType = "account_logo_url"
+	SendNotificationRequestLinkResourceTypeAccountFaviconURL                 SendNotificationRequestLinkResourceType = "account_favicon_url"
 	SendNotificationRequestLinkResourceTypePublicAccount                     SendNotificationRequestLinkResourceType = "public_account"
 	SendNotificationRequestLinkResourceTypeProperty                          SendNotificationRequestLinkResourceType = "property"
 	SendNotificationRequestLinkResourceTypeCarrier                           SendNotificationRequestLinkResourceType = "carrier"
@@ -782,6 +788,7 @@ const (
 	SendNotificationRequestLinkResourceTypeCustomerFreightPreferences        SendNotificationRequestLinkResourceType = "customer_freight_preferences"
 	SendNotificationRequestLinkResourceTypeCustomerDefaults                  SendNotificationRequestLinkResourceType = "customer_defaults"
 	SendNotificationRequestLinkResourceTypeCustomerNotificationPreferences   SendNotificationRequestLinkResourceType = "customer_notification_preferences"
+	SendNotificationRequestLinkResourceTypeOrderNotificationRecipient        SendNotificationRequestLinkResourceType = "order_notification_recipient"
 	SendNotificationRequestLinkResourceTypeOrderDiscount                     SendNotificationRequestLinkResourceType = "order_discount"
 	SendNotificationRequestLinkResourceTypeSalesOrderLine                    SendNotificationRequestLinkResourceType = "sales_order_line"
 	SendNotificationRequestLinkResourceTypeSalesOrderType                    SendNotificationRequestLinkResourceType = "sales_order_type"
@@ -848,9 +855,11 @@ const (
 	SendNotificationRequestLinkResourceTypeTenancyPendingRegistration        SendNotificationRequestLinkResourceType = "tenancy_pending_registration"
 	SendNotificationRequestLinkResourceTypeInvoiceAllocationEntry            SendNotificationRequestLinkResourceType = "invoice_allocation_entry"
 	SendNotificationRequestLinkResourceTypeAllocationCustomer                SendNotificationRequestLinkResourceType = "allocation_customer"
-	SendNotificationRequestLinkResourceTypeCheckoutSalesOrderResponse        SendNotificationRequestLinkResourceType = "checkout_sales_order_response"
-	SendNotificationRequestLinkResourceTypeCreateProductionRunResponse       SendNotificationRequestLinkResourceType = "create_production_run_response"
+	SendNotificationRequestLinkResourceTypeCheckoutSalesOrder                SendNotificationRequestLinkResourceType = "checkout_sales_order"
 	SendNotificationRequestLinkResourceTypeSalesOrderPriceQuote              SendNotificationRequestLinkResourceType = "sales_order_price_quote"
+	SendNotificationRequestLinkResourceTypeSalesOrderFreightQuote            SendNotificationRequestLinkResourceType = "sales_order_freight_quote"
+	SendNotificationRequestLinkResourceTypeSalesOrderPriceQuoteLine          SendNotificationRequestLinkResourceType = "sales_order_price_quote_line"
+	SendNotificationRequestLinkResourceTypeSalesOrderQuoteRate               SendNotificationRequestLinkResourceType = "sales_order_quote_rate"
 	SendNotificationRequestLinkResourceTypeHubspotSyncJob                    SendNotificationRequestLinkResourceType = "hubspot_sync_job"
 	SendNotificationRequestLinkResourceTypeHubspotSyncReport                 SendNotificationRequestLinkResourceType = "hubspot_sync_report"
 	SendNotificationRequestLinkResourceTypeHubspotCompanyReview              SendNotificationRequestLinkResourceType = "hubspot_company_review"
@@ -863,6 +872,11 @@ const (
 	SendNotificationRequestLinkResourceTypePortalProfile                     SendNotificationRequestLinkResourceType = "portal_profile"
 	SendNotificationRequestLinkResourceTypePortalRegistrationSession         SendNotificationRequestLinkResourceType = "portal_registration_session"
 	SendNotificationRequestLinkResourceTypePortalRegistrationSessionData     SendNotificationRequestLinkResourceType = "portal_registration_session_data"
+	SendNotificationRequestLinkResourceTypePackList                          SendNotificationRequestLinkResourceType = "pack_list"
+	SendNotificationRequestLinkResourceTypePackListParty                     SendNotificationRequestLinkResourceType = "pack_list_party"
+	SendNotificationRequestLinkResourceTypePackListLineItem                  SendNotificationRequestLinkResourceType = "pack_list_line_item"
+	SendNotificationRequestLinkResourceTypePackListBackOrder                 SendNotificationRequestLinkResourceType = "pack_list_back_order"
+	SendNotificationRequestLinkResourceTypePackListCase                      SendNotificationRequestLinkResourceType = "pack_list_case"
 )
 
 // Delivery priority.
@@ -925,7 +939,7 @@ type MessagingNotificationListParams struct {
 	// Filter by category.
 	//
 	// Any of "chat.message", "chat.mention", "chat.added", "order.updated",
-	// "agent.run_completed", "agent.alert", "system.broadcast".
+	// "agent.run_completed", "agent.alert", "system.broadcast", "customer.registered".
 	Category MessagingNotificationListParamsCategory `query:"category,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -961,13 +975,14 @@ func (r MessagingNotificationListParams) URLQuery() (v url.Values, err error) {
 type MessagingNotificationListParamsCategory string
 
 const (
-	MessagingNotificationListParamsCategoryChatMessage       MessagingNotificationListParamsCategory = "chat.message"
-	MessagingNotificationListParamsCategoryChatMention       MessagingNotificationListParamsCategory = "chat.mention"
-	MessagingNotificationListParamsCategoryChatAdded         MessagingNotificationListParamsCategory = "chat.added"
-	MessagingNotificationListParamsCategoryOrderUpdated      MessagingNotificationListParamsCategory = "order.updated"
-	MessagingNotificationListParamsCategoryAgentRunCompleted MessagingNotificationListParamsCategory = "agent.run_completed"
-	MessagingNotificationListParamsCategoryAgentAlert        MessagingNotificationListParamsCategory = "agent.alert"
-	MessagingNotificationListParamsCategorySystemBroadcast   MessagingNotificationListParamsCategory = "system.broadcast"
+	MessagingNotificationListParamsCategoryChatMessage        MessagingNotificationListParamsCategory = "chat.message"
+	MessagingNotificationListParamsCategoryChatMention        MessagingNotificationListParamsCategory = "chat.mention"
+	MessagingNotificationListParamsCategoryChatAdded          MessagingNotificationListParamsCategory = "chat.added"
+	MessagingNotificationListParamsCategoryOrderUpdated       MessagingNotificationListParamsCategory = "order.updated"
+	MessagingNotificationListParamsCategoryAgentRunCompleted  MessagingNotificationListParamsCategory = "agent.run_completed"
+	MessagingNotificationListParamsCategoryAgentAlert         MessagingNotificationListParamsCategory = "agent.alert"
+	MessagingNotificationListParamsCategorySystemBroadcast    MessagingNotificationListParamsCategory = "system.broadcast"
+	MessagingNotificationListParamsCategoryCustomerRegistered MessagingNotificationListParamsCategory = "customer.registered"
 )
 
 // Filter by lifecycle status.

@@ -125,15 +125,15 @@ type AuditEvent struct {
 	// Resource type of the audited entity.
 	//
 	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
-	// "sales_order_related", "order_contact", "user", "address", "api_key",
-	// "created_api_key", "refresh_token", "list", "sandbox", "registration_session",
-	// "pricing_plan", "account_plan", "plan_change", "enterprise_inquiry",
-	// "request_log", "audit_event", "audit_field_change", "role", "unit",
-	// "account_affiliation", "agent_definition", "available_tool",
+	// "sales_order_stage_total", "sales_order_related", "order_contact", "user",
+	// "address", "api_key", "created_api_key", "refresh_token", "list", "sandbox",
+	// "registration_session", "pricing_plan", "account_plan", "plan_change",
+	// "enterprise_inquiry", "request_log", "audit_event", "audit_field_change",
+	// "role", "unit", "account_affiliation", "agent_definition", "available_tool",
 	// "agent_definition_tool", "agent_account_status", "agent_run", "agent_action",
 	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
 	// "notification_unread_count", "notification_send_result",
-	// "notification_unread_summary", "announcement", "conversation",
+	// "notification_unread_summary", "announcement", "conversation", "support_case",
 	// "conversation_participant", "read_cursor", "chat_message",
 	// "notification_unread_summary_account", "messaging_block",
 	// "notification_preference", "message_attachment", "attachment_upload_target",
@@ -143,12 +143,12 @@ type AuditEvent struct {
 	// "account_user", "department", "account_integration", "account_price",
 	// "product_line", "item_category", "attribute", "rate",
 	// "account_group_product_line_access", "sales_target", "adjustment_type",
-	// "account_branding", "account_portal", "account_logo_url", "public_account",
-	// "property", "carrier", "service_level", "item", "item_inventory", "product",
-	// "batch", "batch_flow_node", "scanning_consumption", "open_batch_summary",
-	// "scanning_production_step_info", "scanning_station", "production_step",
-	// "production_run", "machine", "child_account", "unit_group", "unit_group_unit",
-	// "consumption", "customer_product_line_access", "customer",
+	// "account_branding", "account_portal", "account_logo_url", "account_favicon_url",
+	// "public_account", "property", "carrier", "service_level", "item",
+	// "item_inventory", "product", "batch", "batch_flow_node", "scanning_consumption",
+	// "open_batch_summary", "scanning_production_step_info", "scanning_station",
+	// "production_step", "production_run", "machine", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
 	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
 	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
 	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
@@ -167,19 +167,19 @@ type AuditEvent struct {
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
 	// "customer_freight_preferences", "customer_defaults",
-	// "customer_notification_preferences", "order_discount", "sales_order_line",
-	// "sales_order_type", "sales_order_status", "material", "supplier_material",
-	// "part", "permission_group", "permission", "pick", "pick_line", "product_type",
-	// "production", "production_flow", "map", "purchase_order", "purchase_order_line",
-	// "supplier", "supplier_summary", "receivable_entry", "receiving_order",
-	// "receiving_order_line", "email_contact", "allocation_entry",
-	// "open_credit_entry", "volume_discount", "volume_discount_tier",
-	// "analyze_deliveries_response", "analyze_manufacturing_response",
-	// "analyze_manufacturing_batch_response", "analyze_quarterly_orders_response",
-	// "analyze_new_customers_response", "analyze_oee_response",
-	// "catalog_product_line", "catalog_category", "catalog_product",
-	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
-	// "inventory_item", "analyze_weeks_of_sales_response",
+	// "customer_notification_preferences", "order_notification_recipient",
+	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
+	// "material", "supplier_material", "part", "permission_group", "permission",
+	// "pick", "pick_line", "product_type", "production", "production_flow", "map",
+	// "purchase_order", "purchase_order_line", "supplier", "supplier_summary",
+	// "receivable_entry", "receiving_order", "receiving_order_line", "email_contact",
+	// "allocation_entry", "open_credit_entry", "volume_discount",
+	// "volume_discount_tier", "analyze_deliveries_response",
+	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
+	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
+	// "analyze_oee_response", "catalog_product_line", "catalog_category",
+	// "catalog_product", "catalog_property", "catalog_attribute", "dc_location",
+	// "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -187,13 +187,14 @@ type AuditEvent struct {
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
 	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
 	// "pick_shipments_response", "tenancy_pending_registration",
-	// "invoice_allocation_entry", "allocation_customer",
-	// "checkout_sales_order_response", "create_production_run_response",
-	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
-	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
-	// "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data".
+	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
+	// "sales_order_price_quote", "sales_order_freight_quote",
+	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
+	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
+	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
+	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data", "pack_list", "pack_list_party",
+	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
 	ResourceType AuditEventResourceType `json:"resource_type" api:"required"`
 	// Originating client IP address.
 	SourceIP string `json:"source_ip" api:"required"`
@@ -264,6 +265,7 @@ const (
 	AuditEventResourceTypeRecord                            AuditEventResourceType = "record"
 	AuditEventResourceTypeFreight                           AuditEventResourceType = "freight"
 	AuditEventResourceTypeSalesOrderTotals                  AuditEventResourceType = "sales_order_totals"
+	AuditEventResourceTypeSalesOrderStageTotal              AuditEventResourceType = "sales_order_stage_total"
 	AuditEventResourceTypeSalesOrderRelated                 AuditEventResourceType = "sales_order_related"
 	AuditEventResourceTypeOrderContact                      AuditEventResourceType = "order_contact"
 	AuditEventResourceTypeUser                              AuditEventResourceType = "user"
@@ -299,6 +301,7 @@ const (
 	AuditEventResourceTypeNotificationUnreadSummary         AuditEventResourceType = "notification_unread_summary"
 	AuditEventResourceTypeAnnouncement                      AuditEventResourceType = "announcement"
 	AuditEventResourceTypeConversation                      AuditEventResourceType = "conversation"
+	AuditEventResourceTypeSupportCase                       AuditEventResourceType = "support_case"
 	AuditEventResourceTypeConversationParticipant           AuditEventResourceType = "conversation_participant"
 	AuditEventResourceTypeReadCursor                        AuditEventResourceType = "read_cursor"
 	AuditEventResourceTypeChatMessage                       AuditEventResourceType = "chat_message"
@@ -334,6 +337,7 @@ const (
 	AuditEventResourceTypeAccountBranding                   AuditEventResourceType = "account_branding"
 	AuditEventResourceTypeAccountPortal                     AuditEventResourceType = "account_portal"
 	AuditEventResourceTypeAccountLogoURL                    AuditEventResourceType = "account_logo_url"
+	AuditEventResourceTypeAccountFaviconURL                 AuditEventResourceType = "account_favicon_url"
 	AuditEventResourceTypePublicAccount                     AuditEventResourceType = "public_account"
 	AuditEventResourceTypeProperty                          AuditEventResourceType = "property"
 	AuditEventResourceTypeCarrier                           AuditEventResourceType = "carrier"
@@ -419,6 +423,7 @@ const (
 	AuditEventResourceTypeCustomerFreightPreferences        AuditEventResourceType = "customer_freight_preferences"
 	AuditEventResourceTypeCustomerDefaults                  AuditEventResourceType = "customer_defaults"
 	AuditEventResourceTypeCustomerNotificationPreferences   AuditEventResourceType = "customer_notification_preferences"
+	AuditEventResourceTypeOrderNotificationRecipient        AuditEventResourceType = "order_notification_recipient"
 	AuditEventResourceTypeOrderDiscount                     AuditEventResourceType = "order_discount"
 	AuditEventResourceTypeSalesOrderLine                    AuditEventResourceType = "sales_order_line"
 	AuditEventResourceTypeSalesOrderType                    AuditEventResourceType = "sales_order_type"
@@ -485,9 +490,11 @@ const (
 	AuditEventResourceTypeTenancyPendingRegistration        AuditEventResourceType = "tenancy_pending_registration"
 	AuditEventResourceTypeInvoiceAllocationEntry            AuditEventResourceType = "invoice_allocation_entry"
 	AuditEventResourceTypeAllocationCustomer                AuditEventResourceType = "allocation_customer"
-	AuditEventResourceTypeCheckoutSalesOrderResponse        AuditEventResourceType = "checkout_sales_order_response"
-	AuditEventResourceTypeCreateProductionRunResponse       AuditEventResourceType = "create_production_run_response"
+	AuditEventResourceTypeCheckoutSalesOrder                AuditEventResourceType = "checkout_sales_order"
 	AuditEventResourceTypeSalesOrderPriceQuote              AuditEventResourceType = "sales_order_price_quote"
+	AuditEventResourceTypeSalesOrderFreightQuote            AuditEventResourceType = "sales_order_freight_quote"
+	AuditEventResourceTypeSalesOrderPriceQuoteLine          AuditEventResourceType = "sales_order_price_quote_line"
+	AuditEventResourceTypeSalesOrderQuoteRate               AuditEventResourceType = "sales_order_quote_rate"
 	AuditEventResourceTypeHubspotSyncJob                    AuditEventResourceType = "hubspot_sync_job"
 	AuditEventResourceTypeHubspotSyncReport                 AuditEventResourceType = "hubspot_sync_report"
 	AuditEventResourceTypeHubspotCompanyReview              AuditEventResourceType = "hubspot_company_review"
@@ -500,6 +507,11 @@ const (
 	AuditEventResourceTypePortalProfile                     AuditEventResourceType = "portal_profile"
 	AuditEventResourceTypePortalRegistrationSession         AuditEventResourceType = "portal_registration_session"
 	AuditEventResourceTypePortalRegistrationSessionData     AuditEventResourceType = "portal_registration_session_data"
+	AuditEventResourceTypePackList                          AuditEventResourceType = "pack_list"
+	AuditEventResourceTypePackListParty                     AuditEventResourceType = "pack_list_party"
+	AuditEventResourceTypePackListLineItem                  AuditEventResourceType = "pack_list_line_item"
+	AuditEventResourceTypePackListBackOrder                 AuditEventResourceType = "pack_list_back_order"
+	AuditEventResourceTypePackListCase                      AuditEventResourceType = "pack_list_case"
 )
 
 // Field-level before/after transition recorded during a mutation.
@@ -615,15 +627,15 @@ type ListObjectType struct {
 	// Resources in this page.
 	//
 	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
-	// "sales_order_related", "order_contact", "user", "address", "api_key",
-	// "created_api_key", "refresh_token", "list", "sandbox", "registration_session",
-	// "pricing_plan", "account_plan", "plan_change", "enterprise_inquiry",
-	// "request_log", "audit_event", "audit_field_change", "role", "unit",
-	// "account_affiliation", "agent_definition", "available_tool",
+	// "sales_order_stage_total", "sales_order_related", "order_contact", "user",
+	// "address", "api_key", "created_api_key", "refresh_token", "list", "sandbox",
+	// "registration_session", "pricing_plan", "account_plan", "plan_change",
+	// "enterprise_inquiry", "request_log", "audit_event", "audit_field_change",
+	// "role", "unit", "account_affiliation", "agent_definition", "available_tool",
 	// "agent_definition_tool", "agent_account_status", "agent_run", "agent_action",
 	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
 	// "notification_unread_count", "notification_send_result",
-	// "notification_unread_summary", "announcement", "conversation",
+	// "notification_unread_summary", "announcement", "conversation", "support_case",
 	// "conversation_participant", "read_cursor", "chat_message",
 	// "notification_unread_summary_account", "messaging_block",
 	// "notification_preference", "message_attachment", "attachment_upload_target",
@@ -633,12 +645,12 @@ type ListObjectType struct {
 	// "account_user", "department", "account_integration", "account_price",
 	// "product_line", "item_category", "attribute", "rate",
 	// "account_group_product_line_access", "sales_target", "adjustment_type",
-	// "account_branding", "account_portal", "account_logo_url", "public_account",
-	// "property", "carrier", "service_level", "item", "item_inventory", "product",
-	// "batch", "batch_flow_node", "scanning_consumption", "open_batch_summary",
-	// "scanning_production_step_info", "scanning_station", "production_step",
-	// "production_run", "machine", "child_account", "unit_group", "unit_group_unit",
-	// "consumption", "customer_product_line_access", "customer",
+	// "account_branding", "account_portal", "account_logo_url", "account_favicon_url",
+	// "public_account", "property", "carrier", "service_level", "item",
+	// "item_inventory", "product", "batch", "batch_flow_node", "scanning_consumption",
+	// "open_batch_summary", "scanning_production_step_info", "scanning_station",
+	// "production_step", "production_run", "machine", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
 	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
 	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
 	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
@@ -657,19 +669,19 @@ type ListObjectType struct {
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
 	// "customer_freight_preferences", "customer_defaults",
-	// "customer_notification_preferences", "order_discount", "sales_order_line",
-	// "sales_order_type", "sales_order_status", "material", "supplier_material",
-	// "part", "permission_group", "permission", "pick", "pick_line", "product_type",
-	// "production", "production_flow", "map", "purchase_order", "purchase_order_line",
-	// "supplier", "supplier_summary", "receivable_entry", "receiving_order",
-	// "receiving_order_line", "email_contact", "allocation_entry",
-	// "open_credit_entry", "volume_discount", "volume_discount_tier",
-	// "analyze_deliveries_response", "analyze_manufacturing_response",
-	// "analyze_manufacturing_batch_response", "analyze_quarterly_orders_response",
-	// "analyze_new_customers_response", "analyze_oee_response",
-	// "catalog_product_line", "catalog_category", "catalog_product",
-	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
-	// "inventory_item", "analyze_weeks_of_sales_response",
+	// "customer_notification_preferences", "order_notification_recipient",
+	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
+	// "material", "supplier_material", "part", "permission_group", "permission",
+	// "pick", "pick_line", "product_type", "production", "production_flow", "map",
+	// "purchase_order", "purchase_order_line", "supplier", "supplier_summary",
+	// "receivable_entry", "receiving_order", "receiving_order_line", "email_contact",
+	// "allocation_entry", "open_credit_entry", "volume_discount",
+	// "volume_discount_tier", "analyze_deliveries_response",
+	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
+	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
+	// "analyze_oee_response", "catalog_product_line", "catalog_category",
+	// "catalog_product", "catalog_property", "catalog_attribute", "dc_location",
+	// "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -677,13 +689,14 @@ type ListObjectType struct {
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
 	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
 	// "pick_shipments_response", "tenancy_pending_registration",
-	// "invoice_allocation_entry", "allocation_customer",
-	// "checkout_sales_order_response", "create_production_run_response",
-	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
-	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
-	// "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data".
+	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
+	// "sales_order_price_quote", "sales_order_freight_quote",
+	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
+	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
+	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
+	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data", "pack_list", "pack_list_party",
+	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
 	Data []string `json:"data" api:"required"`
 	// Resource type identifier.
 	//
@@ -782,15 +795,15 @@ type CoreAuditEventListParams struct {
 	// Types endpoint.
 	//
 	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
-	// "sales_order_related", "order_contact", "user", "address", "api_key",
-	// "created_api_key", "refresh_token", "list", "sandbox", "registration_session",
-	// "pricing_plan", "account_plan", "plan_change", "enterprise_inquiry",
-	// "request_log", "audit_event", "audit_field_change", "role", "unit",
-	// "account_affiliation", "agent_definition", "available_tool",
+	// "sales_order_stage_total", "sales_order_related", "order_contact", "user",
+	// "address", "api_key", "created_api_key", "refresh_token", "list", "sandbox",
+	// "registration_session", "pricing_plan", "account_plan", "plan_change",
+	// "enterprise_inquiry", "request_log", "audit_event", "audit_field_change",
+	// "role", "unit", "account_affiliation", "agent_definition", "available_tool",
 	// "agent_definition_tool", "agent_account_status", "agent_run", "agent_action",
 	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
 	// "notification_unread_count", "notification_send_result",
-	// "notification_unread_summary", "announcement", "conversation",
+	// "notification_unread_summary", "announcement", "conversation", "support_case",
 	// "conversation_participant", "read_cursor", "chat_message",
 	// "notification_unread_summary_account", "messaging_block",
 	// "notification_preference", "message_attachment", "attachment_upload_target",
@@ -800,12 +813,12 @@ type CoreAuditEventListParams struct {
 	// "account_user", "department", "account_integration", "account_price",
 	// "product_line", "item_category", "attribute", "rate",
 	// "account_group_product_line_access", "sales_target", "adjustment_type",
-	// "account_branding", "account_portal", "account_logo_url", "public_account",
-	// "property", "carrier", "service_level", "item", "item_inventory", "product",
-	// "batch", "batch_flow_node", "scanning_consumption", "open_batch_summary",
-	// "scanning_production_step_info", "scanning_station", "production_step",
-	// "production_run", "machine", "child_account", "unit_group", "unit_group_unit",
-	// "consumption", "customer_product_line_access", "customer",
+	// "account_branding", "account_portal", "account_logo_url", "account_favicon_url",
+	// "public_account", "property", "carrier", "service_level", "item",
+	// "item_inventory", "product", "batch", "batch_flow_node", "scanning_consumption",
+	// "open_batch_summary", "scanning_production_step_info", "scanning_station",
+	// "production_step", "production_run", "machine", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
 	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
 	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
 	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
@@ -824,19 +837,19 @@ type CoreAuditEventListParams struct {
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
 	// "customer_freight_preferences", "customer_defaults",
-	// "customer_notification_preferences", "order_discount", "sales_order_line",
-	// "sales_order_type", "sales_order_status", "material", "supplier_material",
-	// "part", "permission_group", "permission", "pick", "pick_line", "product_type",
-	// "production", "production_flow", "map", "purchase_order", "purchase_order_line",
-	// "supplier", "supplier_summary", "receivable_entry", "receiving_order",
-	// "receiving_order_line", "email_contact", "allocation_entry",
-	// "open_credit_entry", "volume_discount", "volume_discount_tier",
-	// "analyze_deliveries_response", "analyze_manufacturing_response",
-	// "analyze_manufacturing_batch_response", "analyze_quarterly_orders_response",
-	// "analyze_new_customers_response", "analyze_oee_response",
-	// "catalog_product_line", "catalog_category", "catalog_product",
-	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
-	// "inventory_item", "analyze_weeks_of_sales_response",
+	// "customer_notification_preferences", "order_notification_recipient",
+	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
+	// "material", "supplier_material", "part", "permission_group", "permission",
+	// "pick", "pick_line", "product_type", "production", "production_flow", "map",
+	// "purchase_order", "purchase_order_line", "supplier", "supplier_summary",
+	// "receivable_entry", "receiving_order", "receiving_order_line", "email_contact",
+	// "allocation_entry", "open_credit_entry", "volume_discount",
+	// "volume_discount_tier", "analyze_deliveries_response",
+	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
+	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
+	// "analyze_oee_response", "catalog_product_line", "catalog_category",
+	// "catalog_product", "catalog_property", "catalog_attribute", "dc_location",
+	// "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -844,13 +857,14 @@ type CoreAuditEventListParams struct {
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
 	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
 	// "pick_shipments_response", "tenancy_pending_registration",
-	// "invoice_allocation_entry", "allocation_customer",
-	// "checkout_sales_order_response", "create_production_run_response",
-	// "sales_order_price_quote", "hubspot_sync_job", "hubspot_sync_report",
-	// "hubspot_company_review", "hubspot_company_candidate", "contact_match",
-	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
-	// "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data".
+	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
+	// "sales_order_price_quote", "sales_order_freight_quote",
+	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
+	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
+	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
+	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data", "pack_list", "pack_list_party",
+	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
 	// Filter by the _target_ account the mutation was performed against (the event's
 	// `account`).

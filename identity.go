@@ -16,6 +16,8 @@ type IdentityService struct {
 	options []option.RequestOption
 	// List and manage account users.
 	AccountUsers IdentityAccountUserService
+	// Manage account details, branding, portal, logo, and favicon.
+	Accounts IdentityAccountService
 	// List and manage roles.
 	Roles IdentityRoleService
 }
@@ -27,6 +29,7 @@ func NewIdentityService(opts ...option.RequestOption) (r IdentityService) {
 	r = IdentityService{}
 	r.options = opts
 	r.AccountUsers = NewIdentityAccountUserService(opts...)
+	r.Accounts = NewIdentityAccountService(opts...)
 	r.Roles = NewIdentityRoleService(opts...)
 	return
 }

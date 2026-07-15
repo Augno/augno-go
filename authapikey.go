@@ -163,6 +163,8 @@ type AccountBranding struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Facebook handle.
 	FacebookHandle string `json:"facebook_handle" api:"required"`
+	// Customer-portal favicon URL.
+	FaviconURL string `json:"favicon_url" api:"required"`
 	// Instagram handle.
 	InstagramHandle string `json:"instagram_handle" api:"required"`
 	// LinkedIn handle.
@@ -188,6 +190,7 @@ type AccountBranding struct {
 		ID              respjson.Field
 		CreatedAt       respjson.Field
 		FacebookHandle  respjson.Field
+		FaviconURL      respjson.Field
 		InstagramHandle respjson.Field
 		LinkedinHandle  respjson.Field
 		LogoURL         respjson.Field
