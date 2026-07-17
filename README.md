@@ -35,7 +35,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/augno/augno-go@v0.10.5'
+go get -u 'github.com/augno/augno-go@v0.10.6'
 ```
 
 <!-- x-release-please-end -->
