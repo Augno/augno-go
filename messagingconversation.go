@@ -1289,10 +1289,11 @@ type CreateConversationRequestParam struct {
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
 	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
-	// "messaging_group_member", "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data", "pack_list", "pack_list_party",
-	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
+	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
+	// "messaging_group", "messaging_group_member", "portal_profile",
+	// "portal_registration_session", "portal_registration_session_data", "pack_list",
+	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
+	// "pack_list_case".
 	TopicResourceType CreateConversationRequestTopicResourceType `json:"topic_resource_type,omitzero"`
 	paramObj
 }
@@ -1558,6 +1559,7 @@ const (
 	CreateConversationRequestTopicResourceTypeHubspotSyncReport                 CreateConversationRequestTopicResourceType = "hubspot_sync_report"
 	CreateConversationRequestTopicResourceTypeHubspotCompanyReview              CreateConversationRequestTopicResourceType = "hubspot_company_review"
 	CreateConversationRequestTopicResourceTypeHubspotCompanyCandidate           CreateConversationRequestTopicResourceType = "hubspot_company_candidate"
+	CreateConversationRequestTopicResourceTypeHubspotSyncRecord                 CreateConversationRequestTopicResourceType = "hubspot_sync_record"
 	CreateConversationRequestTopicResourceTypeContactMatch                      CreateConversationRequestTopicResourceType = "contact_match"
 	CreateConversationRequestTopicResourceTypeReplyDraft                        CreateConversationRequestTopicResourceType = "reply_draft"
 	CreateConversationRequestTopicResourceTypeConversationLink                  CreateConversationRequestTopicResourceType = "conversation_link"
@@ -2484,10 +2486,11 @@ type MessagingConversationListParams struct {
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
 	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
-	// "messaging_group_member", "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data", "pack_list", "pack_list_party",
-	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
+	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
+	// "messaging_group", "messaging_group_member", "portal_profile",
+	// "portal_registration_session", "portal_registration_session_data", "pack_list",
+	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
+	// "pack_list_case".
 	TopicResourceType MessagingConversationListParamsTopicResourceType `query:"topic_resource_type,omitzero" json:"-"`
 	// Filter by conversation type.
 	//
@@ -2771,6 +2774,7 @@ const (
 	MessagingConversationListParamsTopicResourceTypeHubspotSyncReport                 MessagingConversationListParamsTopicResourceType = "hubspot_sync_report"
 	MessagingConversationListParamsTopicResourceTypeHubspotCompanyReview              MessagingConversationListParamsTopicResourceType = "hubspot_company_review"
 	MessagingConversationListParamsTopicResourceTypeHubspotCompanyCandidate           MessagingConversationListParamsTopicResourceType = "hubspot_company_candidate"
+	MessagingConversationListParamsTopicResourceTypeHubspotSyncRecord                 MessagingConversationListParamsTopicResourceType = "hubspot_sync_record"
 	MessagingConversationListParamsTopicResourceTypeContactMatch                      MessagingConversationListParamsTopicResourceType = "contact_match"
 	MessagingConversationListParamsTopicResourceTypeReplyDraft                        MessagingConversationListParamsTopicResourceType = "reply_draft"
 	MessagingConversationListParamsTopicResourceTypeConversationLink                  MessagingConversationListParamsTopicResourceType = "conversation_link"

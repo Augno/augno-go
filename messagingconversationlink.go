@@ -162,10 +162,11 @@ type AddConversationLinkRequestParam struct {
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
 	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
-	// "messaging_group_member", "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data", "pack_list", "pack_list_party",
-	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
+	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
+	// "messaging_group", "messaging_group_member", "portal_profile",
+	// "portal_registration_session", "portal_registration_session_data", "pack_list",
+	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
+	// "pack_list_case".
 	ResourceType AddConversationLinkRequestResourceType `json:"resource_type,omitzero" api:"required"`
 	paramObj
 }
@@ -422,6 +423,7 @@ const (
 	AddConversationLinkRequestResourceTypeHubspotSyncReport                 AddConversationLinkRequestResourceType = "hubspot_sync_report"
 	AddConversationLinkRequestResourceTypeHubspotCompanyReview              AddConversationLinkRequestResourceType = "hubspot_company_review"
 	AddConversationLinkRequestResourceTypeHubspotCompanyCandidate           AddConversationLinkRequestResourceType = "hubspot_company_candidate"
+	AddConversationLinkRequestResourceTypeHubspotSyncRecord                 AddConversationLinkRequestResourceType = "hubspot_sync_record"
 	AddConversationLinkRequestResourceTypeContactMatch                      AddConversationLinkRequestResourceType = "contact_match"
 	AddConversationLinkRequestResourceTypeReplyDraft                        AddConversationLinkRequestResourceType = "reply_draft"
 	AddConversationLinkRequestResourceTypeConversationLink                  AddConversationLinkRequestResourceType = "conversation_link"

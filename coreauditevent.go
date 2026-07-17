@@ -191,10 +191,11 @@ type AuditEvent struct {
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
 	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
-	// "messaging_group_member", "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data", "pack_list", "pack_list_party",
-	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
+	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
+	// "messaging_group", "messaging_group_member", "portal_profile",
+	// "portal_registration_session", "portal_registration_session_data", "pack_list",
+	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
+	// "pack_list_case".
 	ResourceType AuditEventResourceType `json:"resource_type" api:"required"`
 	// Originating client IP address.
 	SourceIP string `json:"source_ip" api:"required"`
@@ -499,6 +500,7 @@ const (
 	AuditEventResourceTypeHubspotSyncReport                 AuditEventResourceType = "hubspot_sync_report"
 	AuditEventResourceTypeHubspotCompanyReview              AuditEventResourceType = "hubspot_company_review"
 	AuditEventResourceTypeHubspotCompanyCandidate           AuditEventResourceType = "hubspot_company_candidate"
+	AuditEventResourceTypeHubspotSyncRecord                 AuditEventResourceType = "hubspot_sync_record"
 	AuditEventResourceTypeContactMatch                      AuditEventResourceType = "contact_match"
 	AuditEventResourceTypeReplyDraft                        AuditEventResourceType = "reply_draft"
 	AuditEventResourceTypeConversationLink                  AuditEventResourceType = "conversation_link"
@@ -693,10 +695,11 @@ type ListObjectType struct {
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
 	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
-	// "messaging_group_member", "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data", "pack_list", "pack_list_party",
-	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
+	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
+	// "messaging_group", "messaging_group_member", "portal_profile",
+	// "portal_registration_session", "portal_registration_session_data", "pack_list",
+	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
+	// "pack_list_case".
 	Data []string `json:"data" api:"required"`
 	// Resource type identifier.
 	//
@@ -861,10 +864,11 @@ type CoreAuditEventListParams struct {
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
 	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
-	// "messaging_group_member", "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data", "pack_list", "pack_list_party",
-	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
+	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
+	// "messaging_group", "messaging_group_member", "portal_profile",
+	// "portal_registration_session", "portal_registration_session_data", "pack_list",
+	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
+	// "pack_list_case".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
 	// Filter by the _target_ account the mutation was performed against (the event's
 	// `account`).

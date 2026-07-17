@@ -583,10 +583,11 @@ type SendNotificationRequestParam struct {
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
 	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
-	// "messaging_group_member", "portal_profile", "portal_registration_session",
-	// "portal_registration_session_data", "pack_list", "pack_list_party",
-	// "pack_list_line_item", "pack_list_back_order", "pack_list_case".
+	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
+	// "messaging_group", "messaging_group_member", "portal_profile",
+	// "portal_registration_session", "portal_registration_session_data", "pack_list",
+	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
+	// "pack_list_case".
 	LinkResourceType SendNotificationRequestLinkResourceType `json:"link_resource_type,omitzero"`
 	// Delivery priority.
 	//
@@ -864,6 +865,7 @@ const (
 	SendNotificationRequestLinkResourceTypeHubspotSyncReport                 SendNotificationRequestLinkResourceType = "hubspot_sync_report"
 	SendNotificationRequestLinkResourceTypeHubspotCompanyReview              SendNotificationRequestLinkResourceType = "hubspot_company_review"
 	SendNotificationRequestLinkResourceTypeHubspotCompanyCandidate           SendNotificationRequestLinkResourceType = "hubspot_company_candidate"
+	SendNotificationRequestLinkResourceTypeHubspotSyncRecord                 SendNotificationRequestLinkResourceType = "hubspot_sync_record"
 	SendNotificationRequestLinkResourceTypeContactMatch                      SendNotificationRequestLinkResourceType = "contact_match"
 	SendNotificationRequestLinkResourceTypeReplyDraft                        SendNotificationRequestLinkResourceType = "reply_draft"
 	SendNotificationRequestLinkResourceTypeConversationLink                  SendNotificationRequestLinkResourceType = "conversation_link"
