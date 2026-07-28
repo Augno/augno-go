@@ -763,6 +763,8 @@ type CoreAuditEventListParams struct {
 	//
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
+	// Filter by the root resource.
+	RootResourceID param.Opt[string] `query:"root_resource_id,omitzero" json:"-"`
 	// Restricts results to audit events on or after this timestamp.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
 	// Filter by the mutation type recorded on the event.
@@ -870,6 +872,86 @@ type CoreAuditEventListParams struct {
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
 	// "pack_list_case".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
+	// Scope results to a root record's entire history tree.
+	//
+	// Every event whose root resource matches, including the root itself and all of
+	// its descendants (for example a sales order together with its lines, picks,
+	// shipments, and invoices). Both `root_resource_type` and `root_resource_id` must
+	// be supplied together.
+	//
+	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
+	// "sales_order_stage_total", "sales_order_related", "order_contact", "user",
+	// "address", "api_key", "created_api_key", "refresh_token", "list", "sandbox",
+	// "registration_session", "pricing_plan", "account_plan", "plan_change",
+	// "enterprise_inquiry", "request_log", "audit_event", "audit_field_change",
+	// "role", "unit", "account_affiliation", "agent_definition", "available_tool",
+	// "agent_definition_tool", "agent_account_status", "agent_run", "agent_action",
+	// "agent_run_step", "agent_token_usage", "agent_memory", "notification",
+	// "notification_unread_count", "notification_send_result",
+	// "notification_unread_summary", "announcement", "conversation", "support_case",
+	// "conversation_participant", "read_cursor", "chat_message",
+	// "notification_unread_summary_account", "messaging_block",
+	// "notification_preference", "message_attachment", "attachment_upload_target",
+	// "scheduled_message", "messaging_contact", "message_report", "tool_group",
+	// "model", "payment_term", "shipping_term", "quantity", "account_group",
+	// "support_route", "support_availability", "account_status", "geolocation",
+	// "account_user", "department", "account_integration", "account_price",
+	// "product_line", "item_category", "attribute", "rate",
+	// "account_group_product_line_access", "sales_target", "adjustment_type",
+	// "account_branding", "account_portal", "account_logo_url", "account_favicon_url",
+	// "public_account", "property", "carrier", "service_level", "item",
+	// "item_inventory", "product", "batch", "batch_flow_node", "scanning_consumption",
+	// "open_batch_summary", "scanning_production_step_info", "scanning_station",
+	// "production_step", "production_run", "machine", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
+	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
+	// "invoice_summary", "invoice_line", "invoice_allocation", "invoice_for_payment",
+	// "shipment", "shipment_summary", "shipment_line", "shipping_case",
+	// "shipping_case_label_url", "settlement", "settlement_summary",
+	// "role_permission", "registration_flow", "registration_flow_option",
+	// "transaction", "transaction_summary", "transaction_method", "transaction_type",
+	// "transaction_allocation", "usage_item", "account_usage_response",
+	// "subscription_info", "billing_portal_session_response", "switch_plan_response",
+	// "ensure_billing_customer_response", "spending_cap_response", "agent_spend_info",
+	// "webhook_response", "address_suggestion", "address_components",
+	// "address_details_result", "validated_address", "plan_limit",
+	// "plan_change_proration", "plan_change_line_item", "setup_billing_response",
+	// "confirm_payment_response", "oauth_response", "oauth_status_response",
+	// "stripe_publishable_key", "stripe_status", "healthcheck",
+	// "agent_definition_config", "trigger_config", "customer_contact_info",
+	// "customer_freight_preferences", "customer_defaults",
+	// "customer_notification_preferences", "order_notification_recipient",
+	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
+	// "material", "supplier_material", "part", "permission_group", "permission",
+	// "pick", "pick_line", "product_type", "production", "production_flow", "map",
+	// "purchase_order", "purchase_order_line", "supplier", "supplier_summary",
+	// "receivable_entry", "receiving_order", "receiving_order_line", "email_contact",
+	// "allocation_entry", "open_credit_entry", "volume_discount",
+	// "volume_discount_tier", "analyze_deliveries_response",
+	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
+	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
+	// "analyze_oee_response", "catalog_product_line", "catalog_category",
+	// "catalog_product", "catalog_property", "catalog_attribute", "dc_location",
+	// "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
+	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
+	// "sys_property_value", "territory", "tenancy", "checkout_session",
+	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
+	// "created_by", "message", "account_photo_upload_result",
+	// "user_photo_upload_result", "user_photo_url", "batch_lot",
+	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
+	// "pick_shipments_response", "tenancy_pending_registration",
+	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
+	// "sales_order_price_quote", "sales_order_freight_quote",
+	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
+	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
+	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
+	// "messaging_group", "messaging_group_member", "portal_profile",
+	// "portal_registration_session", "portal_registration_session_data", "pack_list",
+	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
+	// "pack_list_case".
+	RootResourceType CoreAuditEventListParamsRootResourceType `query:"root_resource_type,omitzero" json:"-"`
 	// Filter by the _target_ account the mutation was performed against (the event's
 	// `account`).
 	//
@@ -888,3 +970,268 @@ func (r CoreAuditEventListParams) URLQuery() (v url.Values, err error) {
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }
+
+// Scope results to a root record's entire history tree.
+//
+// Every event whose root resource matches, including the root itself and all of
+// its descendants (for example a sales order together with its lines, picks,
+// shipments, and invoices). Both `root_resource_type` and `root_resource_id` must
+// be supplied together.
+type CoreAuditEventListParamsRootResourceType string
+
+const (
+	CoreAuditEventListParamsRootResourceTypeAccount                           CoreAuditEventListParamsRootResourceType = "account"
+	CoreAuditEventListParamsRootResourceTypeActor                             CoreAuditEventListParamsRootResourceType = "actor"
+	CoreAuditEventListParamsRootResourceTypeEntity                            CoreAuditEventListParamsRootResourceType = "entity"
+	CoreAuditEventListParamsRootResourceTypeRecord                            CoreAuditEventListParamsRootResourceType = "record"
+	CoreAuditEventListParamsRootResourceTypeFreight                           CoreAuditEventListParamsRootResourceType = "freight"
+	CoreAuditEventListParamsRootResourceTypeSalesOrderTotals                  CoreAuditEventListParamsRootResourceType = "sales_order_totals"
+	CoreAuditEventListParamsRootResourceTypeSalesOrderStageTotal              CoreAuditEventListParamsRootResourceType = "sales_order_stage_total"
+	CoreAuditEventListParamsRootResourceTypeSalesOrderRelated                 CoreAuditEventListParamsRootResourceType = "sales_order_related"
+	CoreAuditEventListParamsRootResourceTypeOrderContact                      CoreAuditEventListParamsRootResourceType = "order_contact"
+	CoreAuditEventListParamsRootResourceTypeUser                              CoreAuditEventListParamsRootResourceType = "user"
+	CoreAuditEventListParamsRootResourceTypeAddress                           CoreAuditEventListParamsRootResourceType = "address"
+	CoreAuditEventListParamsRootResourceTypeAPIKey                            CoreAuditEventListParamsRootResourceType = "api_key"
+	CoreAuditEventListParamsRootResourceTypeCreatedAPIKey                     CoreAuditEventListParamsRootResourceType = "created_api_key"
+	CoreAuditEventListParamsRootResourceTypeRefreshToken                      CoreAuditEventListParamsRootResourceType = "refresh_token"
+	CoreAuditEventListParamsRootResourceTypeList                              CoreAuditEventListParamsRootResourceType = "list"
+	CoreAuditEventListParamsRootResourceTypeSandbox                           CoreAuditEventListParamsRootResourceType = "sandbox"
+	CoreAuditEventListParamsRootResourceTypeRegistrationSession               CoreAuditEventListParamsRootResourceType = "registration_session"
+	CoreAuditEventListParamsRootResourceTypePricingPlan                       CoreAuditEventListParamsRootResourceType = "pricing_plan"
+	CoreAuditEventListParamsRootResourceTypeAccountPlan                       CoreAuditEventListParamsRootResourceType = "account_plan"
+	CoreAuditEventListParamsRootResourceTypePlanChange                        CoreAuditEventListParamsRootResourceType = "plan_change"
+	CoreAuditEventListParamsRootResourceTypeEnterpriseInquiry                 CoreAuditEventListParamsRootResourceType = "enterprise_inquiry"
+	CoreAuditEventListParamsRootResourceTypeRequestLog                        CoreAuditEventListParamsRootResourceType = "request_log"
+	CoreAuditEventListParamsRootResourceTypeAuditEvent                        CoreAuditEventListParamsRootResourceType = "audit_event"
+	CoreAuditEventListParamsRootResourceTypeAuditFieldChange                  CoreAuditEventListParamsRootResourceType = "audit_field_change"
+	CoreAuditEventListParamsRootResourceTypeRole                              CoreAuditEventListParamsRootResourceType = "role"
+	CoreAuditEventListParamsRootResourceTypeUnit                              CoreAuditEventListParamsRootResourceType = "unit"
+	CoreAuditEventListParamsRootResourceTypeAccountAffiliation                CoreAuditEventListParamsRootResourceType = "account_affiliation"
+	CoreAuditEventListParamsRootResourceTypeAgentDefinition                   CoreAuditEventListParamsRootResourceType = "agent_definition"
+	CoreAuditEventListParamsRootResourceTypeAvailableTool                     CoreAuditEventListParamsRootResourceType = "available_tool"
+	CoreAuditEventListParamsRootResourceTypeAgentDefinitionTool               CoreAuditEventListParamsRootResourceType = "agent_definition_tool"
+	CoreAuditEventListParamsRootResourceTypeAgentAccountStatus                CoreAuditEventListParamsRootResourceType = "agent_account_status"
+	CoreAuditEventListParamsRootResourceTypeAgentRun                          CoreAuditEventListParamsRootResourceType = "agent_run"
+	CoreAuditEventListParamsRootResourceTypeAgentAction                       CoreAuditEventListParamsRootResourceType = "agent_action"
+	CoreAuditEventListParamsRootResourceTypeAgentRunStep                      CoreAuditEventListParamsRootResourceType = "agent_run_step"
+	CoreAuditEventListParamsRootResourceTypeAgentTokenUsage                   CoreAuditEventListParamsRootResourceType = "agent_token_usage"
+	CoreAuditEventListParamsRootResourceTypeAgentMemory                       CoreAuditEventListParamsRootResourceType = "agent_memory"
+	CoreAuditEventListParamsRootResourceTypeNotification                      CoreAuditEventListParamsRootResourceType = "notification"
+	CoreAuditEventListParamsRootResourceTypeNotificationUnreadCount           CoreAuditEventListParamsRootResourceType = "notification_unread_count"
+	CoreAuditEventListParamsRootResourceTypeNotificationSendResult            CoreAuditEventListParamsRootResourceType = "notification_send_result"
+	CoreAuditEventListParamsRootResourceTypeNotificationUnreadSummary         CoreAuditEventListParamsRootResourceType = "notification_unread_summary"
+	CoreAuditEventListParamsRootResourceTypeAnnouncement                      CoreAuditEventListParamsRootResourceType = "announcement"
+	CoreAuditEventListParamsRootResourceTypeConversation                      CoreAuditEventListParamsRootResourceType = "conversation"
+	CoreAuditEventListParamsRootResourceTypeSupportCase                       CoreAuditEventListParamsRootResourceType = "support_case"
+	CoreAuditEventListParamsRootResourceTypeConversationParticipant           CoreAuditEventListParamsRootResourceType = "conversation_participant"
+	CoreAuditEventListParamsRootResourceTypeReadCursor                        CoreAuditEventListParamsRootResourceType = "read_cursor"
+	CoreAuditEventListParamsRootResourceTypeChatMessage                       CoreAuditEventListParamsRootResourceType = "chat_message"
+	CoreAuditEventListParamsRootResourceTypeNotificationUnreadSummaryAccount  CoreAuditEventListParamsRootResourceType = "notification_unread_summary_account"
+	CoreAuditEventListParamsRootResourceTypeMessagingBlock                    CoreAuditEventListParamsRootResourceType = "messaging_block"
+	CoreAuditEventListParamsRootResourceTypeNotificationPreference            CoreAuditEventListParamsRootResourceType = "notification_preference"
+	CoreAuditEventListParamsRootResourceTypeMessageAttachment                 CoreAuditEventListParamsRootResourceType = "message_attachment"
+	CoreAuditEventListParamsRootResourceTypeAttachmentUploadTarget            CoreAuditEventListParamsRootResourceType = "attachment_upload_target"
+	CoreAuditEventListParamsRootResourceTypeScheduledMessage                  CoreAuditEventListParamsRootResourceType = "scheduled_message"
+	CoreAuditEventListParamsRootResourceTypeMessagingContact                  CoreAuditEventListParamsRootResourceType = "messaging_contact"
+	CoreAuditEventListParamsRootResourceTypeMessageReport                     CoreAuditEventListParamsRootResourceType = "message_report"
+	CoreAuditEventListParamsRootResourceTypeToolGroup                         CoreAuditEventListParamsRootResourceType = "tool_group"
+	CoreAuditEventListParamsRootResourceTypeModel                             CoreAuditEventListParamsRootResourceType = "model"
+	CoreAuditEventListParamsRootResourceTypePaymentTerm                       CoreAuditEventListParamsRootResourceType = "payment_term"
+	CoreAuditEventListParamsRootResourceTypeShippingTerm                      CoreAuditEventListParamsRootResourceType = "shipping_term"
+	CoreAuditEventListParamsRootResourceTypeQuantity                          CoreAuditEventListParamsRootResourceType = "quantity"
+	CoreAuditEventListParamsRootResourceTypeAccountGroup                      CoreAuditEventListParamsRootResourceType = "account_group"
+	CoreAuditEventListParamsRootResourceTypeSupportRoute                      CoreAuditEventListParamsRootResourceType = "support_route"
+	CoreAuditEventListParamsRootResourceTypeSupportAvailability               CoreAuditEventListParamsRootResourceType = "support_availability"
+	CoreAuditEventListParamsRootResourceTypeAccountStatus                     CoreAuditEventListParamsRootResourceType = "account_status"
+	CoreAuditEventListParamsRootResourceTypeGeolocation                       CoreAuditEventListParamsRootResourceType = "geolocation"
+	CoreAuditEventListParamsRootResourceTypeAccountUser                       CoreAuditEventListParamsRootResourceType = "account_user"
+	CoreAuditEventListParamsRootResourceTypeDepartment                        CoreAuditEventListParamsRootResourceType = "department"
+	CoreAuditEventListParamsRootResourceTypeAccountIntegration                CoreAuditEventListParamsRootResourceType = "account_integration"
+	CoreAuditEventListParamsRootResourceTypeAccountPrice                      CoreAuditEventListParamsRootResourceType = "account_price"
+	CoreAuditEventListParamsRootResourceTypeProductLine                       CoreAuditEventListParamsRootResourceType = "product_line"
+	CoreAuditEventListParamsRootResourceTypeItemCategory                      CoreAuditEventListParamsRootResourceType = "item_category"
+	CoreAuditEventListParamsRootResourceTypeAttribute                         CoreAuditEventListParamsRootResourceType = "attribute"
+	CoreAuditEventListParamsRootResourceTypeRate                              CoreAuditEventListParamsRootResourceType = "rate"
+	CoreAuditEventListParamsRootResourceTypeAccountGroupProductLineAccess     CoreAuditEventListParamsRootResourceType = "account_group_product_line_access"
+	CoreAuditEventListParamsRootResourceTypeSalesTarget                       CoreAuditEventListParamsRootResourceType = "sales_target"
+	CoreAuditEventListParamsRootResourceTypeAdjustmentType                    CoreAuditEventListParamsRootResourceType = "adjustment_type"
+	CoreAuditEventListParamsRootResourceTypeAccountBranding                   CoreAuditEventListParamsRootResourceType = "account_branding"
+	CoreAuditEventListParamsRootResourceTypeAccountPortal                     CoreAuditEventListParamsRootResourceType = "account_portal"
+	CoreAuditEventListParamsRootResourceTypeAccountLogoURL                    CoreAuditEventListParamsRootResourceType = "account_logo_url"
+	CoreAuditEventListParamsRootResourceTypeAccountFaviconURL                 CoreAuditEventListParamsRootResourceType = "account_favicon_url"
+	CoreAuditEventListParamsRootResourceTypePublicAccount                     CoreAuditEventListParamsRootResourceType = "public_account"
+	CoreAuditEventListParamsRootResourceTypeProperty                          CoreAuditEventListParamsRootResourceType = "property"
+	CoreAuditEventListParamsRootResourceTypeCarrier                           CoreAuditEventListParamsRootResourceType = "carrier"
+	CoreAuditEventListParamsRootResourceTypeServiceLevel                      CoreAuditEventListParamsRootResourceType = "service_level"
+	CoreAuditEventListParamsRootResourceTypeItem                              CoreAuditEventListParamsRootResourceType = "item"
+	CoreAuditEventListParamsRootResourceTypeItemInventory                     CoreAuditEventListParamsRootResourceType = "item_inventory"
+	CoreAuditEventListParamsRootResourceTypeProduct                           CoreAuditEventListParamsRootResourceType = "product"
+	CoreAuditEventListParamsRootResourceTypeBatch                             CoreAuditEventListParamsRootResourceType = "batch"
+	CoreAuditEventListParamsRootResourceTypeBatchFlowNode                     CoreAuditEventListParamsRootResourceType = "batch_flow_node"
+	CoreAuditEventListParamsRootResourceTypeScanningConsumption               CoreAuditEventListParamsRootResourceType = "scanning_consumption"
+	CoreAuditEventListParamsRootResourceTypeOpenBatchSummary                  CoreAuditEventListParamsRootResourceType = "open_batch_summary"
+	CoreAuditEventListParamsRootResourceTypeScanningProductionStepInfo        CoreAuditEventListParamsRootResourceType = "scanning_production_step_info"
+	CoreAuditEventListParamsRootResourceTypeScanningStation                   CoreAuditEventListParamsRootResourceType = "scanning_station"
+	CoreAuditEventListParamsRootResourceTypeProductionStep                    CoreAuditEventListParamsRootResourceType = "production_step"
+	CoreAuditEventListParamsRootResourceTypeProductionRun                     CoreAuditEventListParamsRootResourceType = "production_run"
+	CoreAuditEventListParamsRootResourceTypeMachine                           CoreAuditEventListParamsRootResourceType = "machine"
+	CoreAuditEventListParamsRootResourceTypeChildAccount                      CoreAuditEventListParamsRootResourceType = "child_account"
+	CoreAuditEventListParamsRootResourceTypeUnitGroup                         CoreAuditEventListParamsRootResourceType = "unit_group"
+	CoreAuditEventListParamsRootResourceTypeUnitGroupUnit                     CoreAuditEventListParamsRootResourceType = "unit_group_unit"
+	CoreAuditEventListParamsRootResourceTypeConsumption                       CoreAuditEventListParamsRootResourceType = "consumption"
+	CoreAuditEventListParamsRootResourceTypeCustomerProductLineAccess         CoreAuditEventListParamsRootResourceType = "customer_product_line_access"
+	CoreAuditEventListParamsRootResourceTypeCustomer                          CoreAuditEventListParamsRootResourceType = "customer"
+	CoreAuditEventListParamsRootResourceTypeFrequentlyOrderedProduct          CoreAuditEventListParamsRootResourceType = "frequently_ordered_product"
+	CoreAuditEventListParamsRootResourceTypePriority                          CoreAuditEventListParamsRootResourceType = "priority"
+	CoreAuditEventListParamsRootResourceTypeDelivery                          CoreAuditEventListParamsRootResourceType = "delivery"
+	CoreAuditEventListParamsRootResourceTypeDeliveryLine                      CoreAuditEventListParamsRootResourceType = "delivery_line"
+	CoreAuditEventListParamsRootResourceTypeSalesOrder                        CoreAuditEventListParamsRootResourceType = "sales_order"
+	CoreAuditEventListParamsRootResourceTypeLocation                          CoreAuditEventListParamsRootResourceType = "location"
+	CoreAuditEventListParamsRootResourceTypeLocationType                      CoreAuditEventListParamsRootResourceType = "location_type"
+	CoreAuditEventListParamsRootResourceTypeLot                               CoreAuditEventListParamsRootResourceType = "lot"
+	CoreAuditEventListParamsRootResourceTypeEmailLog                          CoreAuditEventListParamsRootResourceType = "email_log"
+	CoreAuditEventListParamsRootResourceTypeEmailDomain                       CoreAuditEventListParamsRootResourceType = "email_domain"
+	CoreAuditEventListParamsRootResourceTypeEmailInbox                        CoreAuditEventListParamsRootResourceType = "email_inbox"
+	CoreAuditEventListParamsRootResourceTypePortalDomain                      CoreAuditEventListParamsRootResourceType = "portal_domain"
+	CoreAuditEventListParamsRootResourceTypeDNSRecord                         CoreAuditEventListParamsRootResourceType = "dns_record"
+	CoreAuditEventListParamsRootResourceTypeInventoryChangeLog                CoreAuditEventListParamsRootResourceType = "inventory_change_log"
+	CoreAuditEventListParamsRootResourceTypeInvoice                           CoreAuditEventListParamsRootResourceType = "invoice"
+	CoreAuditEventListParamsRootResourceTypeInvoiceSummary                    CoreAuditEventListParamsRootResourceType = "invoice_summary"
+	CoreAuditEventListParamsRootResourceTypeInvoiceLine                       CoreAuditEventListParamsRootResourceType = "invoice_line"
+	CoreAuditEventListParamsRootResourceTypeInvoiceAllocation                 CoreAuditEventListParamsRootResourceType = "invoice_allocation"
+	CoreAuditEventListParamsRootResourceTypeInvoiceForPayment                 CoreAuditEventListParamsRootResourceType = "invoice_for_payment"
+	CoreAuditEventListParamsRootResourceTypeShipment                          CoreAuditEventListParamsRootResourceType = "shipment"
+	CoreAuditEventListParamsRootResourceTypeShipmentSummary                   CoreAuditEventListParamsRootResourceType = "shipment_summary"
+	CoreAuditEventListParamsRootResourceTypeShipmentLine                      CoreAuditEventListParamsRootResourceType = "shipment_line"
+	CoreAuditEventListParamsRootResourceTypeShippingCase                      CoreAuditEventListParamsRootResourceType = "shipping_case"
+	CoreAuditEventListParamsRootResourceTypeShippingCaseLabelURL              CoreAuditEventListParamsRootResourceType = "shipping_case_label_url"
+	CoreAuditEventListParamsRootResourceTypeSettlement                        CoreAuditEventListParamsRootResourceType = "settlement"
+	CoreAuditEventListParamsRootResourceTypeSettlementSummary                 CoreAuditEventListParamsRootResourceType = "settlement_summary"
+	CoreAuditEventListParamsRootResourceTypeRolePermission                    CoreAuditEventListParamsRootResourceType = "role_permission"
+	CoreAuditEventListParamsRootResourceTypeRegistrationFlow                  CoreAuditEventListParamsRootResourceType = "registration_flow"
+	CoreAuditEventListParamsRootResourceTypeRegistrationFlowOption            CoreAuditEventListParamsRootResourceType = "registration_flow_option"
+	CoreAuditEventListParamsRootResourceTypeTransaction                       CoreAuditEventListParamsRootResourceType = "transaction"
+	CoreAuditEventListParamsRootResourceTypeTransactionSummary                CoreAuditEventListParamsRootResourceType = "transaction_summary"
+	CoreAuditEventListParamsRootResourceTypeTransactionMethod                 CoreAuditEventListParamsRootResourceType = "transaction_method"
+	CoreAuditEventListParamsRootResourceTypeTransactionType                   CoreAuditEventListParamsRootResourceType = "transaction_type"
+	CoreAuditEventListParamsRootResourceTypeTransactionAllocation             CoreAuditEventListParamsRootResourceType = "transaction_allocation"
+	CoreAuditEventListParamsRootResourceTypeUsageItem                         CoreAuditEventListParamsRootResourceType = "usage_item"
+	CoreAuditEventListParamsRootResourceTypeAccountUsageResponse              CoreAuditEventListParamsRootResourceType = "account_usage_response"
+	CoreAuditEventListParamsRootResourceTypeSubscriptionInfo                  CoreAuditEventListParamsRootResourceType = "subscription_info"
+	CoreAuditEventListParamsRootResourceTypeBillingPortalSessionResponse      CoreAuditEventListParamsRootResourceType = "billing_portal_session_response"
+	CoreAuditEventListParamsRootResourceTypeSwitchPlanResponse                CoreAuditEventListParamsRootResourceType = "switch_plan_response"
+	CoreAuditEventListParamsRootResourceTypeEnsureBillingCustomerResponse     CoreAuditEventListParamsRootResourceType = "ensure_billing_customer_response"
+	CoreAuditEventListParamsRootResourceTypeSpendingCapResponse               CoreAuditEventListParamsRootResourceType = "spending_cap_response"
+	CoreAuditEventListParamsRootResourceTypeAgentSpendInfo                    CoreAuditEventListParamsRootResourceType = "agent_spend_info"
+	CoreAuditEventListParamsRootResourceTypeWebhookResponse                   CoreAuditEventListParamsRootResourceType = "webhook_response"
+	CoreAuditEventListParamsRootResourceTypeAddressSuggestion                 CoreAuditEventListParamsRootResourceType = "address_suggestion"
+	CoreAuditEventListParamsRootResourceTypeAddressComponents                 CoreAuditEventListParamsRootResourceType = "address_components"
+	CoreAuditEventListParamsRootResourceTypeAddressDetailsResult              CoreAuditEventListParamsRootResourceType = "address_details_result"
+	CoreAuditEventListParamsRootResourceTypeValidatedAddress                  CoreAuditEventListParamsRootResourceType = "validated_address"
+	CoreAuditEventListParamsRootResourceTypePlanLimit                         CoreAuditEventListParamsRootResourceType = "plan_limit"
+	CoreAuditEventListParamsRootResourceTypePlanChangeProration               CoreAuditEventListParamsRootResourceType = "plan_change_proration"
+	CoreAuditEventListParamsRootResourceTypePlanChangeLineItem                CoreAuditEventListParamsRootResourceType = "plan_change_line_item"
+	CoreAuditEventListParamsRootResourceTypeSetupBillingResponse              CoreAuditEventListParamsRootResourceType = "setup_billing_response"
+	CoreAuditEventListParamsRootResourceTypeConfirmPaymentResponse            CoreAuditEventListParamsRootResourceType = "confirm_payment_response"
+	CoreAuditEventListParamsRootResourceTypeOAuthResponse                     CoreAuditEventListParamsRootResourceType = "oauth_response"
+	CoreAuditEventListParamsRootResourceTypeOAuthStatusResponse               CoreAuditEventListParamsRootResourceType = "oauth_status_response"
+	CoreAuditEventListParamsRootResourceTypeStripePublishableKey              CoreAuditEventListParamsRootResourceType = "stripe_publishable_key"
+	CoreAuditEventListParamsRootResourceTypeStripeStatus                      CoreAuditEventListParamsRootResourceType = "stripe_status"
+	CoreAuditEventListParamsRootResourceTypeHealthcheck                       CoreAuditEventListParamsRootResourceType = "healthcheck"
+	CoreAuditEventListParamsRootResourceTypeAgentDefinitionConfig             CoreAuditEventListParamsRootResourceType = "agent_definition_config"
+	CoreAuditEventListParamsRootResourceTypeTriggerConfig                     CoreAuditEventListParamsRootResourceType = "trigger_config"
+	CoreAuditEventListParamsRootResourceTypeCustomerContactInfo               CoreAuditEventListParamsRootResourceType = "customer_contact_info"
+	CoreAuditEventListParamsRootResourceTypeCustomerFreightPreferences        CoreAuditEventListParamsRootResourceType = "customer_freight_preferences"
+	CoreAuditEventListParamsRootResourceTypeCustomerDefaults                  CoreAuditEventListParamsRootResourceType = "customer_defaults"
+	CoreAuditEventListParamsRootResourceTypeCustomerNotificationPreferences   CoreAuditEventListParamsRootResourceType = "customer_notification_preferences"
+	CoreAuditEventListParamsRootResourceTypeOrderNotificationRecipient        CoreAuditEventListParamsRootResourceType = "order_notification_recipient"
+	CoreAuditEventListParamsRootResourceTypeOrderDiscount                     CoreAuditEventListParamsRootResourceType = "order_discount"
+	CoreAuditEventListParamsRootResourceTypeSalesOrderLine                    CoreAuditEventListParamsRootResourceType = "sales_order_line"
+	CoreAuditEventListParamsRootResourceTypeSalesOrderType                    CoreAuditEventListParamsRootResourceType = "sales_order_type"
+	CoreAuditEventListParamsRootResourceTypeSalesOrderStatus                  CoreAuditEventListParamsRootResourceType = "sales_order_status"
+	CoreAuditEventListParamsRootResourceTypeMaterial                          CoreAuditEventListParamsRootResourceType = "material"
+	CoreAuditEventListParamsRootResourceTypeSupplierMaterial                  CoreAuditEventListParamsRootResourceType = "supplier_material"
+	CoreAuditEventListParamsRootResourceTypePart                              CoreAuditEventListParamsRootResourceType = "part"
+	CoreAuditEventListParamsRootResourceTypePermissionGroup                   CoreAuditEventListParamsRootResourceType = "permission_group"
+	CoreAuditEventListParamsRootResourceTypePermission                        CoreAuditEventListParamsRootResourceType = "permission"
+	CoreAuditEventListParamsRootResourceTypePick                              CoreAuditEventListParamsRootResourceType = "pick"
+	CoreAuditEventListParamsRootResourceTypePickLine                          CoreAuditEventListParamsRootResourceType = "pick_line"
+	CoreAuditEventListParamsRootResourceTypeProductType                       CoreAuditEventListParamsRootResourceType = "product_type"
+	CoreAuditEventListParamsRootResourceTypeProduction                        CoreAuditEventListParamsRootResourceType = "production"
+	CoreAuditEventListParamsRootResourceTypeProductionFlow                    CoreAuditEventListParamsRootResourceType = "production_flow"
+	CoreAuditEventListParamsRootResourceTypeMap                               CoreAuditEventListParamsRootResourceType = "map"
+	CoreAuditEventListParamsRootResourceTypePurchaseOrder                     CoreAuditEventListParamsRootResourceType = "purchase_order"
+	CoreAuditEventListParamsRootResourceTypePurchaseOrderLine                 CoreAuditEventListParamsRootResourceType = "purchase_order_line"
+	CoreAuditEventListParamsRootResourceTypeSupplier                          CoreAuditEventListParamsRootResourceType = "supplier"
+	CoreAuditEventListParamsRootResourceTypeSupplierSummary                   CoreAuditEventListParamsRootResourceType = "supplier_summary"
+	CoreAuditEventListParamsRootResourceTypeReceivableEntry                   CoreAuditEventListParamsRootResourceType = "receivable_entry"
+	CoreAuditEventListParamsRootResourceTypeReceivingOrder                    CoreAuditEventListParamsRootResourceType = "receiving_order"
+	CoreAuditEventListParamsRootResourceTypeReceivingOrderLine                CoreAuditEventListParamsRootResourceType = "receiving_order_line"
+	CoreAuditEventListParamsRootResourceTypeEmailContact                      CoreAuditEventListParamsRootResourceType = "email_contact"
+	CoreAuditEventListParamsRootResourceTypeAllocationEntry                   CoreAuditEventListParamsRootResourceType = "allocation_entry"
+	CoreAuditEventListParamsRootResourceTypeOpenCreditEntry                   CoreAuditEventListParamsRootResourceType = "open_credit_entry"
+	CoreAuditEventListParamsRootResourceTypeVolumeDiscount                    CoreAuditEventListParamsRootResourceType = "volume_discount"
+	CoreAuditEventListParamsRootResourceTypeVolumeDiscountTier                CoreAuditEventListParamsRootResourceType = "volume_discount_tier"
+	CoreAuditEventListParamsRootResourceTypeAnalyzeDeliveriesResponse         CoreAuditEventListParamsRootResourceType = "analyze_deliveries_response"
+	CoreAuditEventListParamsRootResourceTypeAnalyzeManufacturingResponse      CoreAuditEventListParamsRootResourceType = "analyze_manufacturing_response"
+	CoreAuditEventListParamsRootResourceTypeAnalyzeManufacturingBatchResponse CoreAuditEventListParamsRootResourceType = "analyze_manufacturing_batch_response"
+	CoreAuditEventListParamsRootResourceTypeAnalyzeQuarterlyOrdersResponse    CoreAuditEventListParamsRootResourceType = "analyze_quarterly_orders_response"
+	CoreAuditEventListParamsRootResourceTypeAnalyzeNewCustomersResponse       CoreAuditEventListParamsRootResourceType = "analyze_new_customers_response"
+	CoreAuditEventListParamsRootResourceTypeAnalyzeOeeResponse                CoreAuditEventListParamsRootResourceType = "analyze_oee_response"
+	CoreAuditEventListParamsRootResourceTypeCatalogProductLine                CoreAuditEventListParamsRootResourceType = "catalog_product_line"
+	CoreAuditEventListParamsRootResourceTypeCatalogCategory                   CoreAuditEventListParamsRootResourceType = "catalog_category"
+	CoreAuditEventListParamsRootResourceTypeCatalogProduct                    CoreAuditEventListParamsRootResourceType = "catalog_product"
+	CoreAuditEventListParamsRootResourceTypeCatalogProperty                   CoreAuditEventListParamsRootResourceType = "catalog_property"
+	CoreAuditEventListParamsRootResourceTypeCatalogAttribute                  CoreAuditEventListParamsRootResourceType = "catalog_attribute"
+	CoreAuditEventListParamsRootResourceTypeDcLocation                        CoreAuditEventListParamsRootResourceType = "dc_location"
+	CoreAuditEventListParamsRootResourceTypeEdiRun                            CoreAuditEventListParamsRootResourceType = "edi_run"
+	CoreAuditEventListParamsRootResourceTypeInventoryItem                     CoreAuditEventListParamsRootResourceType = "inventory_item"
+	CoreAuditEventListParamsRootResourceTypeAnalyzeWeeksOfSalesResponse       CoreAuditEventListParamsRootResourceType = "analyze_weeks_of_sales_response"
+	CoreAuditEventListParamsRootResourceTypeBulkReconcileItemsResponse        CoreAuditEventListParamsRootResourceType = "bulk_reconcile_items_response"
+	CoreAuditEventListParamsRootResourceTypeSysProperty                       CoreAuditEventListParamsRootResourceType = "sys_property"
+	CoreAuditEventListParamsRootResourceTypeSysPropertyType                   CoreAuditEventListParamsRootResourceType = "sys_property_type"
+	CoreAuditEventListParamsRootResourceTypeSysPropertyValue                  CoreAuditEventListParamsRootResourceType = "sys_property_value"
+	CoreAuditEventListParamsRootResourceTypeTerritory                         CoreAuditEventListParamsRootResourceType = "territory"
+	CoreAuditEventListParamsRootResourceTypeTenancy                           CoreAuditEventListParamsRootResourceType = "tenancy"
+	CoreAuditEventListParamsRootResourceTypeCheckoutSession                   CoreAuditEventListParamsRootResourceType = "checkout_session"
+	CoreAuditEventListParamsRootResourceTypeEstimateRateResult                CoreAuditEventListParamsRootResourceType = "estimate_rate_result"
+	CoreAuditEventListParamsRootResourceTypeRateShopOption                    CoreAuditEventListParamsRootResourceType = "rate_shop_option"
+	CoreAuditEventListParamsRootResourceTypeRateShopResult                    CoreAuditEventListParamsRootResourceType = "rate_shop_result"
+	CoreAuditEventListParamsRootResourceTypeOwner                             CoreAuditEventListParamsRootResourceType = "owner"
+	CoreAuditEventListParamsRootResourceTypeCreatedBy                         CoreAuditEventListParamsRootResourceType = "created_by"
+	CoreAuditEventListParamsRootResourceTypeMessage                           CoreAuditEventListParamsRootResourceType = "message"
+	CoreAuditEventListParamsRootResourceTypeAccountPhotoUploadResult          CoreAuditEventListParamsRootResourceType = "account_photo_upload_result"
+	CoreAuditEventListParamsRootResourceTypeUserPhotoUploadResult             CoreAuditEventListParamsRootResourceType = "user_photo_upload_result"
+	CoreAuditEventListParamsRootResourceTypeUserPhotoURL                      CoreAuditEventListParamsRootResourceType = "user_photo_url"
+	CoreAuditEventListParamsRootResourceTypeBatchLot                          CoreAuditEventListParamsRootResourceType = "batch_lot"
+	CoreAuditEventListParamsRootResourceTypeCheckDuplicateResult              CoreAuditEventListParamsRootResourceType = "check_duplicate_result"
+	CoreAuditEventListParamsRootResourceTypeItemTrendPoint                    CoreAuditEventListParamsRootResourceType = "item_trend_point"
+	CoreAuditEventListParamsRootResourceTypePackPickResponse                  CoreAuditEventListParamsRootResourceType = "pack_pick_response"
+	CoreAuditEventListParamsRootResourceTypePickShipmentsResponse             CoreAuditEventListParamsRootResourceType = "pick_shipments_response"
+	CoreAuditEventListParamsRootResourceTypeTenancyPendingRegistration        CoreAuditEventListParamsRootResourceType = "tenancy_pending_registration"
+	CoreAuditEventListParamsRootResourceTypeInvoiceAllocationEntry            CoreAuditEventListParamsRootResourceType = "invoice_allocation_entry"
+	CoreAuditEventListParamsRootResourceTypeAllocationCustomer                CoreAuditEventListParamsRootResourceType = "allocation_customer"
+	CoreAuditEventListParamsRootResourceTypeCheckoutSalesOrder                CoreAuditEventListParamsRootResourceType = "checkout_sales_order"
+	CoreAuditEventListParamsRootResourceTypeSalesOrderPriceQuote              CoreAuditEventListParamsRootResourceType = "sales_order_price_quote"
+	CoreAuditEventListParamsRootResourceTypeSalesOrderFreightQuote            CoreAuditEventListParamsRootResourceType = "sales_order_freight_quote"
+	CoreAuditEventListParamsRootResourceTypeSalesOrderPriceQuoteLine          CoreAuditEventListParamsRootResourceType = "sales_order_price_quote_line"
+	CoreAuditEventListParamsRootResourceTypeSalesOrderQuoteRate               CoreAuditEventListParamsRootResourceType = "sales_order_quote_rate"
+	CoreAuditEventListParamsRootResourceTypeHubspotSyncJob                    CoreAuditEventListParamsRootResourceType = "hubspot_sync_job"
+	CoreAuditEventListParamsRootResourceTypeHubspotSyncReport                 CoreAuditEventListParamsRootResourceType = "hubspot_sync_report"
+	CoreAuditEventListParamsRootResourceTypeHubspotCompanyReview              CoreAuditEventListParamsRootResourceType = "hubspot_company_review"
+	CoreAuditEventListParamsRootResourceTypeHubspotCompanyCandidate           CoreAuditEventListParamsRootResourceType = "hubspot_company_candidate"
+	CoreAuditEventListParamsRootResourceTypeHubspotSyncRecord                 CoreAuditEventListParamsRootResourceType = "hubspot_sync_record"
+	CoreAuditEventListParamsRootResourceTypeContactMatch                      CoreAuditEventListParamsRootResourceType = "contact_match"
+	CoreAuditEventListParamsRootResourceTypeReplyDraft                        CoreAuditEventListParamsRootResourceType = "reply_draft"
+	CoreAuditEventListParamsRootResourceTypeConversationLink                  CoreAuditEventListParamsRootResourceType = "conversation_link"
+	CoreAuditEventListParamsRootResourceTypeMessagingGroup                    CoreAuditEventListParamsRootResourceType = "messaging_group"
+	CoreAuditEventListParamsRootResourceTypeMessagingGroupMember              CoreAuditEventListParamsRootResourceType = "messaging_group_member"
+	CoreAuditEventListParamsRootResourceTypePortalProfile                     CoreAuditEventListParamsRootResourceType = "portal_profile"
+	CoreAuditEventListParamsRootResourceTypePortalRegistrationSession         CoreAuditEventListParamsRootResourceType = "portal_registration_session"
+	CoreAuditEventListParamsRootResourceTypePortalRegistrationSessionData     CoreAuditEventListParamsRootResourceType = "portal_registration_session_data"
+	CoreAuditEventListParamsRootResourceTypePackList                          CoreAuditEventListParamsRootResourceType = "pack_list"
+	CoreAuditEventListParamsRootResourceTypePackListParty                     CoreAuditEventListParamsRootResourceType = "pack_list_party"
+	CoreAuditEventListParamsRootResourceTypePackListLineItem                  CoreAuditEventListParamsRootResourceType = "pack_list_line_item"
+	CoreAuditEventListParamsRootResourceTypePackListBackOrder                 CoreAuditEventListParamsRootResourceType = "pack_list_back_order"
+	CoreAuditEventListParamsRootResourceTypePackListCase                      CoreAuditEventListParamsRootResourceType = "pack_list_case"
+)

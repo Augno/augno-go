@@ -66,6 +66,8 @@ func TestCoreAuditEventListWithOptionalParams(t *testing.T) {
 		Q:                augno.String("q"),
 		ResourceIDs:      []string{"string"},
 		ResourceTypes:    []string{"account"},
+		RootResourceID:   augno.String("root_resource_id"),
+		RootResourceType: augno.CoreAuditEventListParamsRootResourceTypeAccount,
 		StartDate:        augno.Time(time.Now()),
 		TargetAccountIDs: []string{"string"},
 	})
