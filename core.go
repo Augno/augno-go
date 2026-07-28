@@ -502,7 +502,8 @@ type CoreGetSearchParams struct {
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Filter the search to specific resource types.
 	//
-	// Omit to search every supported type the caller can read.
+	// Attempting to read a type you do not have permission to read will result in a
+	// `403` error. Omit to search every supported type the caller can read.
 	//
 	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
 	// "sales_order_stage_total", "sales_order_related", "order_contact", "user",
