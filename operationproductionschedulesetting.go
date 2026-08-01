@@ -96,7 +96,7 @@ type ProductionScheduleSettings struct {
 	CapacityHeadroomPct float64 `json:"capacity_headroom_pct" api:"required"`
 	// Typical changeover duration, used to calibrate the changeover model.
 	ChangeoverAvgMinutes float64 `json:"changeover_avg_minutes" api:"required"`
-	// Hourly labour rate charged to a changeover.
+	// Hourly labor rate charged to a changeover.
 	ChangeoverLaborRate float64 `json:"changeover_labor_rate" api:"required"`
 	// Longest plausible changeover.
 	ChangeoverMaxMinutes float64 `json:"changeover_max_minutes" api:"required"`
@@ -271,7 +271,7 @@ type UpdateProductionScheduleSettingsRequestParam struct {
 	CapacityHeadroomPct float64 `json:"capacity_headroom_pct" api:"required"`
 	// Typical changeover duration.
 	ChangeoverAvgMinutes float64 `json:"changeover_avg_minutes" api:"required"`
-	// Hourly labour rate charged to a changeover.
+	// Hourly labor rate charged to a changeover.
 	ChangeoverLaborRate float64 `json:"changeover_labor_rate" api:"required"`
 	// Longest plausible changeover.
 	ChangeoverMaxMinutes float64 `json:"changeover_max_minutes" api:"required"`

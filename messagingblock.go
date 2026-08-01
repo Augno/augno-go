@@ -230,6 +230,9 @@ type Department struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Value expressed as a ratio of two units, such as a price per kilogram or a
+	// throughput per hour.
+	LaborRate Rate `json:"labor_rate" api:"required"`
 	// A physical storage location, such as a warehouse, aisle, or bin, arranged in a
 	// parent-child hierarchy.
 	Location Location `json:"location" api:"required"`
@@ -253,6 +256,7 @@ type Department struct {
 	JSON struct {
 		ID               respjson.Field
 		CreatedAt        respjson.Field
+		LaborRate        respjson.Field
 		Location         respjson.Field
 		Machines         respjson.Field
 		Name             respjson.Field
