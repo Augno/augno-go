@@ -869,25 +869,6 @@ const (
 	PaymentTermStatusInactive PaymentTermStatus = "inactive"
 )
 
-// A value with an associated unit, used in create and update requests.
-//
-// The properties UnitID, Value are required.
-type QuantityInputParam struct {
-	// ID of the unit of measure for the value.
-	UnitID string `json:"unit_id" api:"required"`
-	// Decimal value, as a string to preserve precision.
-	Value string `json:"value" api:"required" format:"decimal"`
-	paramObj
-}
-
-func (r QuantityInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow QuantityInputParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *QuantityInputParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Shipping service level for a carrier.
 type ServiceLevel struct {
 	// Service level ID.

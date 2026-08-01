@@ -35,7 +35,7 @@ func TestCatalogProductNewWithOptionalParams(t *testing.T) {
 			Description:      augno.String("Wireless barcode scanner with charging cradle"),
 			Notes:            augno.String("Ships with a 2-year warranty; register for extended coverage."),
 			PortalVisibility: augno.CreateProductRequestPortalVisibilityVisible,
-			ProductLineID:    augno.String("pl_01996357326a0d3f7b129542ea"),
+			ProductLineID:    augno.String("pdln_01996357326a0d3f7b129542ea"),
 			UnitCost: augno.RateInputParam{
 				DenominatorUnitID: "un_01966263f74a5a0cae356000a1",
 				NumeratorUnitID:   "un_01966263f74a5a0cae356000a1",
@@ -201,7 +201,7 @@ func TestCatalogProductChangeProductLineWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Products.ChangeProductLine(
 		context.TODO(),
-		"pl_01996357326a0d3f7b129542ea",
+		"pdln_01996357326a0d3f7b129542ea",
 		augno.CatalogProductChangeProductLineParams{
 			ID:      "pd_013c29ab3f1518d0004094c316",
 			Include: []string{"product_line"},

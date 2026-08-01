@@ -31,6 +31,10 @@ func TestCatalogProductLineNewWithOptionalParams(t *testing.T) {
 			FreightPolicy:    augno.CreateProductLineRequestFreightPolicyBilledFreight,
 			Name:             "Industrial Fasteners",
 			UnitGroupID:      "ug_01aad07abb8e41fd392d2d7013",
+			DefaultLot: augno.QuantityInputParam{
+				UnitID: "unit_id",
+				Value:  "value",
+			},
 		},
 		Include: []string{"owner"},
 	})
@@ -57,7 +61,7 @@ func TestCatalogProductLineGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.ProductLines.Get(
 		context.TODO(),
-		"pl_01996357326a0d3f7b129542ea",
+		"pdln_01996357326a0d3f7b129542ea",
 		augno.CatalogProductLineGetParams{
 			Include: []string{"owner"},
 		},
@@ -85,14 +89,18 @@ func TestCatalogProductLineUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.ProductLines.Update(
 		context.TODO(),
-		"pl_01996357326a0d3f7b129542ea",
+		"pdln_01996357326a0d3f7b129542ea",
 		augno.CatalogProductLineUpdateParams{
 			Include: []string{"owner"},
 			UpdateProductLineRequest: augno.UpdateProductLineRequestParam{
 				CommissionPolicy: augno.UpdateProductLineRequestCommissionPolicyCommissionApplied,
-				FreightPolicy:    augno.UpdateProductLineRequestFreightPolicyBilledFreight,
-				Name:             augno.String("Updated Product Line"),
-				UnitGroupID:      augno.String("ug_01aad07abb8e41fd392d2d7013"),
+				DefaultLot: augno.QuantityInputParam{
+					UnitID: "unit_id",
+					Value:  "value",
+				},
+				FreightPolicy: augno.UpdateProductLineRequestFreightPolicyBilledFreight,
+				Name:          augno.String("Updated Product Line"),
+				UnitGroupID:   augno.String("ug_01aad07abb8e41fd392d2d7013"),
 			},
 		},
 	)
@@ -144,7 +152,7 @@ func TestCatalogProductLineDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.ProductLines.Delete(context.TODO(), "pl_01996357326a0d3f7b129542ea")
+	_, err := client.Catalog.ProductLines.Delete(context.TODO(), "pdln_01996357326a0d3f7b129542ea")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

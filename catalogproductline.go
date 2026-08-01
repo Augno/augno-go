@@ -143,6 +143,8 @@ type CreateProductLineRequestParam struct {
 	// The unit group determines the set of units available to products in this product
 	// line.
 	UnitGroupID string `json:"unit_group_id" api:"required"`
+	// A value with an associated unit, used in create and update requests.
+	DefaultLot QuantityInputParam `json:"default_lot,omitzero"`
 	paramObj
 }
 
@@ -228,6 +230,8 @@ type ProductLine struct {
 	CommissionPolicy ProductLineCommissionPolicy `json:"commission_policy" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Value with an associated unit.
+	DefaultLot Quantity `json:"default_lot" api:"required"`
 	// Free-form description of the product line.
 	Description string `json:"description" api:"required"`
 	// Default freight policy for products in this product line.
@@ -258,6 +262,7 @@ type ProductLine struct {
 		ID               respjson.Field
 		CommissionPolicy respjson.Field
 		CreatedAt        respjson.Field
+		DefaultLot       respjson.Field
 		Description      respjson.Field
 		FreightPolicy    respjson.Field
 		Name             respjson.Field
@@ -308,6 +313,25 @@ const (
 	ProductLineObjectProductLine ProductLineObject = "product_line"
 )
 
+// A value with an associated unit, used in create and update requests.
+//
+// The properties UnitID, Value are required.
+type QuantityInputParam struct {
+	// ID of the unit of measure for the value.
+	UnitID string `json:"unit_id" api:"required"`
+	// Decimal value, as a string to preserve precision.
+	Value string `json:"value" api:"required" format:"decimal"`
+	paramObj
+}
+
+func (r QuantityInputParam) MarshalJSON() (data []byte, err error) {
+	type shadow QuantityInputParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *QuantityInputParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Request to partially update a product line.
 type UpdateProductLineRequestParam struct {
 	// Display name.
@@ -328,6 +352,8 @@ type UpdateProductLineRequestParam struct {
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy UpdateProductLineRequestCommissionPolicy `json:"commission_policy,omitzero"`
+	// A value with an associated unit, used in create and update requests.
+	DefaultLot QuantityInputParam `json:"default_lot,omitzero"`
 	// Default freight policy for products in this product line.
 	//
 	//   - `free_freight`: these products do not incur a freight charge.
@@ -391,7 +417,8 @@ type CatalogProductLineNewParams struct {
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
-	// Any of "owner", "owner.account", "unit_group".
+	// Any of "owner", "owner.account", "unit_group", "default_lot",
+	// "default_lot.unit".
 	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
@@ -416,7 +443,8 @@ type CatalogProductLineGetParams struct {
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
-	// Any of "owner", "owner.account", "unit_group".
+	// Any of "owner", "owner.account", "unit_group", "default_lot",
+	// "default_lot.unit".
 	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
@@ -434,7 +462,8 @@ type CatalogProductLineUpdateParams struct {
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
-	// Any of "owner", "owner.account", "unit_group".
+	// Any of "owner", "owner.account", "unit_group", "default_lot",
+	// "default_lot.unit".
 	Include []string `query:"include,omitzero" json:"-"`
 	// Request to partially update a product line.
 	UpdateProductLineRequest UpdateProductLineRequestParam
@@ -473,7 +502,8 @@ type CatalogProductLineListParams struct {
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
 	//
-	// Any of "owner", "owner.account", "unit_group".
+	// Any of "owner", "owner.account", "unit_group", "default_lot",
+	// "default_lot.unit".
 	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
