@@ -14,7 +14,7 @@ import (
 	"github.com/augno/augno-go/option"
 )
 
-func TestCatalogItemGetWithOptionalParams(t *testing.T) {
+func TestOperationDemandOverrideNewWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -26,48 +26,22 @@ func TestCatalogItemGetWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.Get(
-		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
-		augno.CatalogItemGetParams{
-			Include: []string{"category"},
+	_, err := client.Operations.DemandOverrides.New(context.TODO(), augno.OperationDemandOverrideNewParams{
+		CreateDemandOverrideRequest: augno.CreateDemandOverrideRequestParam{
+			Adjustment:     augno.CreateDemandOverrideRequestAdjustmentDeltaUnits,
+			PeriodEndsAt:   time.Now(),
+			PeriodStartsAt: time.Now(),
+			ScopeRefID:     "it_0131e386ac683e8c29a71f6f1f",
+			ScopeType:      augno.CreateDemandOverrideRequestScopeTypeItem,
+			Value:          5000,
+			Active:         augno.Bool(false),
+			EffectiveAt:    augno.Time(time.Now()),
+			ExpiresAt:      augno.Time(time.Now()),
+			Note:           augno.String("note"),
+			Reason:         augno.CreateDemandOverrideRequestReasonNewCustomer,
+			UnitID:         augno.String("unit_id"),
 		},
-	)
-	if err != nil {
-		var apierr *augno.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestCatalogItemListWithOptionalParams(t *testing.T) {
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := augno.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
-	)
-	_, err := client.Catalog.Items.List(context.TODO(), augno.CatalogItemListParams{
-		AttributeIDs:      []string{"string"},
-		CategoryIDs:       []string{"string"},
-		Cursor:            augno.String("cursor"),
-		CustomerIDs:       []string{"string"},
-		EndDate:           augno.Time(time.Now()),
-		Include:           []string{"category"},
-		Limit:             augno.Int(0),
-		ProductLineIDs:    []string{"string"},
-		Q:                 augno.String("q"),
-		StartDate:         augno.Time(time.Now()),
-		SubassemblyFilter: augno.CatalogItemListParamsSubassemblyFilterAll,
-		SupplierID:        augno.String("supplier_id"),
-		Types:             []string{"string"},
+		Include: []string{"scope"},
 	})
 	if err != nil {
 		var apierr *augno.Error
@@ -78,7 +52,7 @@ func TestCatalogItemListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCatalogItemChangeCategoryWithOptionalParams(t *testing.T) {
+func TestOperationDemandOverrideGetWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -90,12 +64,11 @@ func TestCatalogItemChangeCategoryWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.ChangeCategory(
+	_, err := client.Operations.DemandOverrides.Get(
 		context.TODO(),
-		"ic_01ae7bd7bfd21ca0ab81e1357e",
-		augno.CatalogItemChangeCategoryParams{
-			ID:      "it_0131e386ac683e8c29a71f6f1f",
-			Include: []string{"category"},
+		"deov_0192b7d38c4f5a9b02d3e16f88",
+		augno.OperationDemandOverrideGetParams{
+			Include: []string{"scope"},
 		},
 	)
 	if err != nil {
@@ -107,7 +80,7 @@ func TestCatalogItemChangeCategoryWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCatalogItemGetInventoryWithOptionalParams(t *testing.T) {
+func TestOperationDemandOverrideUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -119,11 +92,22 @@ func TestCatalogItemGetInventoryWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.GetInventory(
+	_, err := client.Operations.DemandOverrides.Update(
 		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
-		augno.CatalogItemGetInventoryParams{
-			Include: []string{"on_hand"},
+		"deov_0192b7d38c4f5a9b02d3e16f88",
+		augno.OperationDemandOverrideUpdateParams{
+			Include: []string{"scope"},
+			UpdateDemandOverrideRequest: augno.UpdateDemandOverrideRequestParam{
+				Active:         augno.Bool(false),
+				Adjustment:     augno.UpdateDemandOverrideRequestAdjustmentAbsolute,
+				ExpiresAt:      augno.Time(time.Now()),
+				Note:           augno.String("note"),
+				PeriodEndsAt:   augno.Time(time.Now()),
+				PeriodStartsAt: augno.Time(time.Now()),
+				Reason:         augno.UpdateDemandOverrideRequestReasonNewCustomer,
+				UnitID:         augno.String("unit_id"),
+				Value:          augno.Float(7500),
+			},
 		},
 	)
 	if err != nil {
@@ -135,7 +119,7 @@ func TestCatalogItemGetInventoryWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCatalogItemGetLotDefaultWithOptionalParams(t *testing.T) {
+func TestOperationDemandOverrideListWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -147,13 +131,40 @@ func TestCatalogItemGetLotDefaultWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.GetLotDefault(
-		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
-		augno.CatalogItemGetLotDefaultParams{
-			Include: []string{"unit"},
-		},
+	_, err := client.Operations.DemandOverrides.List(context.TODO(), augno.OperationDemandOverrideListParams{
+		Adjustments: []string{"absolute"},
+		Cursor:      augno.String("cursor"),
+		Include:     []string{"scope"},
+		Limit:       augno.Int(0),
+		PeriodEnd:   augno.String("period_end"),
+		PeriodStart: augno.String("period_start"),
+		Q:           augno.String("q"),
+		ScopeRefIDs: []string{"string"},
+		ScopeTypes:  []string{"item"},
+		Statuses:    []string{"active"},
+	})
+	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestOperationDemandOverrideDelete(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := augno.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
 	)
+	_, err := client.Operations.DemandOverrides.Delete(context.TODO(), "deov_0192b7d38c4f5a9b02d3e16f88")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

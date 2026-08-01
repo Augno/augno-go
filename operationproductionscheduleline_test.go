@@ -7,14 +7,13 @@ import (
 	"errors"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/augno/augno-go"
 	"github.com/augno/augno-go/internal/testutil"
 	"github.com/augno/augno-go/option"
 )
 
-func TestCatalogItemGetWithOptionalParams(t *testing.T) {
+func TestOperationProductionScheduleLineNewWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -26,11 +25,20 @@ func TestCatalogItemGetWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.Get(
+	_, err := client.Operations.ProductionSchedules.Lines.New(
 		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
-		augno.CatalogItemGetParams{
-			Include: []string{"category"},
+		"pnsc_0192a4c17b3e4f8a91c2d0",
+		augno.OperationProductionScheduleLineNewParams{
+			CreateProductionScheduleLineRequest: augno.CreateProductionScheduleLineRequestParam{
+				ItemID:     "it_0131e386ac683e8c29a71f6f1f",
+				MachineID:  "mc_0177d18f55a1615f783d3bf8d0",
+				Quantity:   600,
+				WeekIndex:  2,
+				Lots:       augno.Int(0),
+				Reason:     augno.CreateProductionScheduleLineRequestReasonMachineDown,
+				ReasonNote: augno.String("reason_note"),
+				RunHours:   augno.Float(0),
+			},
 		},
 	)
 	if err != nil {
@@ -42,7 +50,7 @@ func TestCatalogItemGetWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCatalogItemListWithOptionalParams(t *testing.T) {
+func TestOperationProductionScheduleLineUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -54,48 +62,22 @@ func TestCatalogItemListWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.List(context.TODO(), augno.CatalogItemListParams{
-		AttributeIDs:      []string{"string"},
-		CategoryIDs:       []string{"string"},
-		Cursor:            augno.String("cursor"),
-		CustomerIDs:       []string{"string"},
-		EndDate:           augno.Time(time.Now()),
-		Include:           []string{"category"},
-		Limit:             augno.Int(0),
-		ProductLineIDs:    []string{"string"},
-		Q:                 augno.String("q"),
-		StartDate:         augno.Time(time.Now()),
-		SubassemblyFilter: augno.CatalogItemListParamsSubassemblyFilterAll,
-		SupplierID:        augno.String("supplier_id"),
-		Types:             []string{"string"},
-	})
-	if err != nil {
-		var apierr *augno.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestCatalogItemChangeCategoryWithOptionalParams(t *testing.T) {
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := augno.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
-	)
-	_, err := client.Catalog.Items.ChangeCategory(
+	_, err := client.Operations.ProductionSchedules.Lines.Update(
 		context.TODO(),
-		"ic_01ae7bd7bfd21ca0ab81e1357e",
-		augno.CatalogItemChangeCategoryParams{
-			ID:      "it_0131e386ac683e8c29a71f6f1f",
-			Include: []string{"category"},
+		"orln_0142f9b74268973450b3a76ce3",
+		augno.OperationProductionScheduleLineUpdateParams{
+			ID: "pnsc_0192a4c17b3e4f8a91c2d0",
+			UpdateProductionScheduleLineRequest: augno.UpdateProductionScheduleLineRequestParam{
+				Lots:          augno.Int(0),
+				MachineID:     augno.String("machine_id"),
+				Quantity:      augno.Float(900),
+				Reason:        augno.UpdateProductionScheduleLineRequestReasonMachineDown,
+				ReasonNote:    augno.String("reason_note"),
+				RunHours:      augno.Float(0),
+				SequenceIndex: augno.Int(0),
+				Status:        augno.UpdateProductionScheduleLineRequestStatusPlanned,
+				WeekIndex:     augno.Int(0),
+			},
 		},
 	)
 	if err != nil {
@@ -107,7 +89,7 @@ func TestCatalogItemChangeCategoryWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCatalogItemGetInventoryWithOptionalParams(t *testing.T) {
+func TestOperationProductionScheduleLineListWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -119,11 +101,12 @@ func TestCatalogItemGetInventoryWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.GetInventory(
+	_, err := client.Operations.ProductionSchedules.Lines.List(
 		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
-		augno.CatalogItemGetInventoryParams{
-			Include: []string{"on_hand"},
+		"pnsc_0192a4c17b3e4f8a91c2d0",
+		augno.OperationProductionScheduleLineListParams{
+			MachineIDs: []string{"string"},
+			WeekIndex:  augno.Int(0),
 		},
 	)
 	if err != nil {
@@ -135,7 +118,7 @@ func TestCatalogItemGetInventoryWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCatalogItemGetLotDefaultWithOptionalParams(t *testing.T) {
+func TestOperationProductionScheduleLineDeleteWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -147,11 +130,13 @@ func TestCatalogItemGetLotDefaultWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.GetLotDefault(
+	_, err := client.Operations.ProductionSchedules.Lines.Delete(
 		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
-		augno.CatalogItemGetLotDefaultParams{
-			Include: []string{"unit"},
+		"orln_0142f9b74268973450b3a76ce3",
+		augno.OperationProductionScheduleLineDeleteParams{
+			ID:         "pnsc_0192a4c17b3e4f8a91c2d0",
+			Reason:     augno.OperationProductionScheduleLineDeleteParamsReasonMachineDown,
+			ReasonNote: augno.String("reason_note"),
 		},
 	)
 	if err != nil {

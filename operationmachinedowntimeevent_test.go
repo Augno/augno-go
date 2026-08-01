@@ -14,7 +14,7 @@ import (
 	"github.com/augno/augno-go/option"
 )
 
-func TestCatalogItemGetWithOptionalParams(t *testing.T) {
+func TestOperationMachineDowntimeEventNewWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -26,48 +26,19 @@ func TestCatalogItemGetWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.Get(
-		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
-		augno.CatalogItemGetParams{
-			Include: []string{"category"},
+	_, err := client.Operations.MachineDowntimeEvents.New(context.TODO(), augno.OperationMachineDowntimeEventNewParams{
+		CreateMachineDowntimeEventRequest: augno.CreateMachineDowntimeEventRequestParam{
+			MachineID:       "mc_0177d18f55a1615f783d3bf8d0",
+			Reason:          augno.CreateMachineDowntimeEventRequestReasonBreakdown,
+			StartedAt:       time.Now(),
+			BatchID:         augno.String("batch_id"),
+			EndedAt:         augno.Time(time.Now()),
+			ItemID:          augno.String("item_id"),
+			Note:            augno.String("note"),
+			ProductionRunID: augno.String("production_run_id"),
+			Source:          augno.CreateMachineDowntimeEventRequestSourceManual,
 		},
-	)
-	if err != nil {
-		var apierr *augno.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestCatalogItemListWithOptionalParams(t *testing.T) {
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := augno.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
-	)
-	_, err := client.Catalog.Items.List(context.TODO(), augno.CatalogItemListParams{
-		AttributeIDs:      []string{"string"},
-		CategoryIDs:       []string{"string"},
-		Cursor:            augno.String("cursor"),
-		CustomerIDs:       []string{"string"},
-		EndDate:           augno.Time(time.Now()),
-		Include:           []string{"category"},
-		Limit:             augno.Int(0),
-		ProductLineIDs:    []string{"string"},
-		Q:                 augno.String("q"),
-		StartDate:         augno.Time(time.Now()),
-		SubassemblyFilter: augno.CatalogItemListParamsSubassemblyFilterAll,
-		SupplierID:        augno.String("supplier_id"),
-		Types:             []string{"string"},
+		Include: []string{"machine"},
 	})
 	if err != nil {
 		var apierr *augno.Error
@@ -78,7 +49,7 @@ func TestCatalogItemListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCatalogItemChangeCategoryWithOptionalParams(t *testing.T) {
+func TestOperationMachineDowntimeEventGetWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -90,12 +61,11 @@ func TestCatalogItemChangeCategoryWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.ChangeCategory(
+	_, err := client.Operations.MachineDowntimeEvents.Get(
 		context.TODO(),
-		"ic_01ae7bd7bfd21ca0ab81e1357e",
-		augno.CatalogItemChangeCategoryParams{
-			ID:      "it_0131e386ac683e8c29a71f6f1f",
-			Include: []string{"category"},
+		"mcdt_0192a4c17b3e4f8a91c2d05e77",
+		augno.OperationMachineDowntimeEventGetParams{
+			Include: []string{"machine"},
 		},
 	)
 	if err != nil {
@@ -107,7 +77,7 @@ func TestCatalogItemChangeCategoryWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCatalogItemGetInventoryWithOptionalParams(t *testing.T) {
+func TestOperationMachineDowntimeEventUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -119,11 +89,20 @@ func TestCatalogItemGetInventoryWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.GetInventory(
+	_, err := client.Operations.MachineDowntimeEvents.Update(
 		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
-		augno.CatalogItemGetInventoryParams{
-			Include: []string{"on_hand"},
+		"mcdt_0192a4c17b3e4f8a91c2d05e77",
+		augno.OperationMachineDowntimeEventUpdateParams{
+			Include: []string{"machine"},
+			UpdateMachineDowntimeEventRequest: augno.UpdateMachineDowntimeEventRequestParam{
+				BatchID:         augno.String("batch_id"),
+				EndedAt:         augno.Time(time.Now()),
+				ItemID:          augno.String("item_id"),
+				Note:            augno.String("note"),
+				ProductionRunID: augno.String("production_run_id"),
+				Reason:          augno.UpdateMachineDowntimeEventRequestReasonBreakdown,
+				StartedAt:       augno.Time(time.Now()),
+			},
 		},
 	)
 	if err != nil {
@@ -135,7 +114,7 @@ func TestCatalogItemGetInventoryWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCatalogItemGetLotDefaultWithOptionalParams(t *testing.T) {
+func TestOperationMachineDowntimeEventListWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -147,13 +126,40 @@ func TestCatalogItemGetLotDefaultWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Items.GetLotDefault(
-		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
-		augno.CatalogItemGetLotDefaultParams{
-			Include: []string{"unit"},
-		},
+	_, err := client.Operations.MachineDowntimeEvents.List(context.TODO(), augno.OperationMachineDowntimeEventListParams{
+		Cursor:        augno.String("cursor"),
+		DepartmentIDs: []string{"string"},
+		EndDate:       augno.String("end_date"),
+		Include:       []string{"machine"},
+		Limit:         augno.Int(0),
+		MachineIDs:    []string{"string"},
+		Open:          augno.Bool(true),
+		Q:             augno.String("q"),
+		Reasons:       []string{"breakdown"},
+		StartDate:     augno.String("start_date"),
+	})
+	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestOperationMachineDowntimeEventDelete(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := augno.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
 	)
+	_, err := client.Operations.MachineDowntimeEvents.Delete(context.TODO(), "mcdt_0192a4c17b3e4f8a91c2d05e77")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

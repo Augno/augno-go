@@ -104,6 +104,33 @@ func (r *CatalogItemService) GetInventory(ctx context.Context, id string, query 
 	return res, err
 }
 
+// Returns the lot this item is made in — how many, counted in what.
+//
+// A lot is a doff, a pallet, a batch: the quantity production is issued in. The
+// unit is what makes it meaningful, since 60 pairs and 60 eaches are different
+// lots, so `quantity` should never be read without `unit`.
+//
+// Resolved through the same chain the production schedule uses, most specific
+// first: a per-item override, then the item's own product line, then the product
+// lines of the finished goods it becomes, then the account-wide default. `source`
+// names which rule applied. Intermediate items like greige are not sold and have
+// no product line of their own, which is why they inherit from what they become.
+//
+// `quantity` is `0` when nothing in the chain supplies a lot. That means the item
+// has no lot convention, not that its lot is zero.
+//
+// This endpoint requires the permission: `items:read`.
+func (r *CatalogItemService) GetLotDefault(ctx context.Context, id string, query CatalogItemGetLotDefaultParams, opts ...option.RequestOption) (res *ItemLotDefault, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/catalog/items/%s/lot-default", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
 // Item is an inventory item (product, material, or part).
 type Item struct {
 	// Item ID.
@@ -307,6 +334,80 @@ type ItemInventoryObject string
 
 const (
 	ItemInventoryObjectItemInventory ItemInventoryObject = "item_inventory"
+)
+
+// The lot an item is made in — how many, counted in what.
+//
+// A lot is the quantity production is issued in: a doff, a pallet, a batch. The
+// unit is what makes it meaningful, since 60 pairs and 60 eaches are different
+// lots.
+type ItemLotDefault struct {
+	// Entity is a polymorphic reference to any resource in the system.
+	Item Entity `json:"item" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "item_lot_default".
+	Object ItemLotDefaultObject `json:"object" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	ProductLine Entity `json:"product_line" api:"required"`
+	// Units in one lot.
+	//
+	// `0` means the item has no lot convention, not that its lot is zero.
+	Quantity float64 `json:"quantity" api:"required"`
+	// Which rule in the chain produced this lot.
+	//
+	//   - `item_override`: a lot size set on the item itself.
+	//   - `product_line`: the convention of the line the item sells under.
+	//   - `downstream_product_line`: inherited from the finished goods this item
+	//     becomes, for intermediates that are not themselves sold.
+	//   - `account_default`: the account-wide fallback.
+	//
+	// Any of "item_override", "product_line", "downstream_product_line",
+	// "account_default", "".
+	Source ItemLotDefaultSource `json:"source" api:"required"`
+	// Unit of measurement used for conversions and product quantities.
+	Unit Unit `json:"unit" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Item        respjson.Field
+		Object      respjson.Field
+		ProductLine respjson.Field
+		Quantity    respjson.Field
+		Source      respjson.Field
+		Unit        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ItemLotDefault) RawJSON() string { return r.JSON.raw }
+func (r *ItemLotDefault) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ItemLotDefaultObject string
+
+const (
+	ItemLotDefaultObjectItemLotDefault ItemLotDefaultObject = "item_lot_default"
+)
+
+// Which rule in the chain produced this lot.
+//
+//   - `item_override`: a lot size set on the item itself.
+//   - `product_line`: the convention of the line the item sells under.
+//   - `downstream_product_line`: inherited from the finished goods this item
+//     becomes, for intermediates that are not themselves sold.
+//   - `account_default`: the account-wide fallback.
+type ItemLotDefaultSource string
+
+const (
+	ItemLotDefaultSourceItemOverride          ItemLotDefaultSource = "item_override"
+	ItemLotDefaultSourceProductLine           ItemLotDefaultSource = "product_line"
+	ItemLotDefaultSourceDownstreamProductLine ItemLotDefaultSource = "downstream_product_line"
+	ItemLotDefaultSourceAccountDefault        ItemLotDefaultSource = "account_default"
+	ItemLotDefaultSourceEmpty                 ItemLotDefaultSource = ""
 )
 
 // List represents a paginated list of resources.
@@ -559,6 +660,24 @@ type CatalogItemGetInventoryParams struct {
 // URLQuery serializes [CatalogItemGetInventoryParams]'s query parameters as
 // `url.Values`.
 func (r CatalogItemGetInventoryParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type CatalogItemGetLotDefaultParams struct {
+	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
+	// `null`.
+	//
+	// Any of "unit".
+	Include []string `query:"include,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [CatalogItemGetLotDefaultParams]'s query parameters as
+// `url.Values`.
+func (r CatalogItemGetLotDefaultParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

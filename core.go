@@ -37,6 +37,8 @@ type CoreService struct {
 	Addresses CoreAddressService
 	// View email logs for accounts.
 	EmailLogs CoreEmailLogService
+	// Analyze sales, orders, manufacturing, materials, and other business metrics.
+	Analytics CoreAnalyticsService
 }
 
 // NewCoreService generates a new service that applies the given options to each
@@ -50,6 +52,7 @@ func NewCoreService(opts ...option.RequestOption) (r CoreService) {
 	r.AuditEvents = NewCoreAuditEventService(opts...)
 	r.Addresses = NewCoreAddressService(opts...)
 	r.EmailLogs = NewCoreEmailLogService(opts...)
+	r.Analytics = NewCoreAnalyticsService(opts...)
 	return
 }
 
