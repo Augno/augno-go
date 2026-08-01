@@ -45,9 +45,11 @@ func NewOperationDemandOverrideService(opts ...option.RequestOption) (r Operatio
 // Creates a demand override.
 //
 // The scope reference is validated against the account's items or product lines,
-// so an override can never silently match nothing. An `absolute` value replaces
-// the forecast for the period, `delta_units` adds to it, and `delta_percent`
-// scales it; a percent override cannot reduce demand by more than 100%.
+// so an override can never silently match nothing. An `account`-scoped override
+// applies to every planned item and takes no scope reference; it must be a delta,
+// not an absolute value. An `absolute` value replaces the forecast for the period,
+// `delta_units` adds to it, and `delta_percent` scales it; a percent override
+// cannot reduce demand by more than 100%.
 //
 // This endpoint requires the permission: `demand_overrides:create`.
 func (r *OperationDemandOverrideService) New(ctx context.Context, params OperationDemandOverrideNewParams, opts ...option.RequestOption) (res *DemandOverride, err error) {
@@ -132,11 +134,12 @@ type CreateDemandOverrideRequestParam struct {
 	PeriodEndsAt time.Time `json:"period_ends_at" api:"required" format:"date-time"`
 	// First day of the demand period the override applies to.
 	PeriodStartsAt time.Time `json:"period_starts_at" api:"required" format:"date-time"`
-	// ID of the item or product line the override targets.
+	// ID of the item or product line the override targets. Omit for an `account`-wide
+	// override, which targets every planned item.
 	ScopeRefID string `json:"scope_ref_id" api:"required"`
 	// What the override targets.
 	//
-	// Any of "item", "product_line".
+	// Any of "item", "product_line", "account".
 	ScopeType CreateDemandOverrideRequestScopeType `json:"scope_type,omitzero" api:"required"`
 	// The adjustment, interpreted according to `adjustment`.
 	Value float64 `json:"value" api:"required"`
@@ -182,6 +185,7 @@ type CreateDemandOverrideRequestScopeType string
 const (
 	CreateDemandOverrideRequestScopeTypeItem        CreateDemandOverrideRequestScopeType = "item"
 	CreateDemandOverrideRequestScopeTypeProductLine CreateDemandOverrideRequestScopeType = "product_line"
+	CreateDemandOverrideRequestScopeTypeAccount     CreateDemandOverrideRequestScopeType = "account"
 )
 
 // Why the adjustment was made.
@@ -207,8 +211,9 @@ const (
 // which is a different question — an override for next quarter typically stops
 // applying once the real orders arrive.
 //
-// A product-line override is distributed across the line's items in proportion to
-// each item's baseline demand.
+// A product-line override applies to each of the line's items; an account-wide
+// override applies to every planned item, which is how a global growth assumption
+// (e.g. "plan for double demand") is expressed.
 type DemandOverride struct {
 	// Demand override ID.
 	ID string `json:"id" api:"required"`
@@ -245,7 +250,7 @@ type DemandOverride struct {
 	// What kind of resource the override targets. Mirrors `scope.type`, which is only
 	// present when the scope is expanded.
 	//
-	// Any of "item", "product_line".
+	// Any of "item", "product_line", "account".
 	ScopeType DemandOverrideScopeType `json:"scope_type" api:"required"`
 	// Whether the override is applied to solves at all.
 	//
@@ -324,6 +329,7 @@ type DemandOverrideScopeType string
 const (
 	DemandOverrideScopeTypeItem        DemandOverrideScopeType = "item"
 	DemandOverrideScopeTypeProductLine DemandOverrideScopeType = "product_line"
+	DemandOverrideScopeTypeAccount     DemandOverrideScopeType = "account"
 )
 
 // Whether the override is applied to solves at all.
@@ -545,7 +551,7 @@ type OperationDemandOverrideListParams struct {
 	ScopeRefIDs []string `query:"scope_ref_ids,omitzero" json:"-"`
 	// Only return overrides targeting these kinds of resource.
 	//
-	// Any of "item", "product_line".
+	// Any of "item", "product_line", "account".
 	ScopeTypes []string `query:"scope_types,omitzero" json:"-"`
 	// Only return overrides in these activation states.
 	//
