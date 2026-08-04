@@ -547,13 +547,6 @@ type OeeDepartment struct {
 	EstimatedRuntimeHours float64 `json:"estimated_runtime_hours" api:"required"`
 	// The number of good units produced.
 	GoodUnits float64 `json:"good_units" api:"required"`
-	// The ideal time of the batch tickets in the performance sample, in seconds: what
-	// their output should have taken at each production step's ideal cycle time.
-	MeasuredIdealSeconds float64 `json:"measured_ideal_seconds" api:"required"`
-	// The actual time the sampled tickets took, in seconds, measured from the gaps
-	// between consecutive batch-ticket scans per machine, net of downtime already
-	// charged elsewhere.
-	MeasuredRunSeconds float64 `json:"measured_run_seconds" api:"required"`
 	// Whether availability was measured from logged downtime or estimated from
 	// runtime. A department with no logged downtime computes as perfectly available,
 	// so an estimate is labelled rather than presented as a measurement.
@@ -565,18 +558,11 @@ type OeeDepartment struct {
 	NotScheduledSeconds float64 `json:"not_scheduled_seconds" api:"required"`
 	// Availability multiplied by performance multiplied by quality.
 	OeePct float64 `json:"oee_pct" api:"required"`
-	// How performance_pct was obtained: measured from scan intervals, or fallen back
-	// to the shift-pattern run-time estimate. Null when performance_pct is null.
-	//
-	// Any of "scan_intervals", "run_time_estimate".
-	PerformanceBasis OeeDepartmentPerformanceBasis `json:"performance_basis" api:"required"`
 	// Logged downtime charged against performance, in seconds.
 	PerformanceLossSeconds float64 `json:"performance_loss_seconds" api:"required"`
-	// Ideal time over actual time for the sampled batch tickets (measured), or
-	// standard seconds earned divided by run time (estimated fallback).
+	// Standard seconds earned divided by run time: how fast the department ran against
+	// the designed speed of its production steps.
 	PerformancePct float64 `json:"performance_pct" api:"required"`
-	// The number of batch tickets in the performance sample.
-	PerformanceTicketCount int64 `json:"performance_ticket_count" api:"required"`
 	// Logged downtime charged against quality, in seconds.
 	QualityLossSeconds float64 `json:"quality_loss_seconds" api:"required"`
 	// Good units divided by total units produced.
@@ -587,8 +573,9 @@ type OeeDepartment struct {
 	ScheduledSeconds float64 `json:"scheduled_seconds" api:"required"`
 	// The number of seconds units.
 	SecondsUnits float64 `json:"seconds_units" api:"required"`
-	// The time this output should have taken at each production step's own labor rate.
-	// This is the numerator of Performance.
+	// The time this output should have taken at each production step's own labor rate:
+	// ideal cycle time multiplied by the units produced. This is the numerator of
+	// Performance.
 	StandardSecondsEarned float64 `json:"standard_seconds_earned" api:"required"`
 	// The number of waste units.
 	WasteUnits float64 `json:"waste_units" api:"required"`
@@ -603,15 +590,11 @@ type OeeDepartment struct {
 		DowntimeEventCount      respjson.Field
 		EstimatedRuntimeHours   respjson.Field
 		GoodUnits               respjson.Field
-		MeasuredIdealSeconds    respjson.Field
-		MeasuredRunSeconds      respjson.Field
 		MeasurementStatus       respjson.Field
 		NotScheduledSeconds     respjson.Field
 		OeePct                  respjson.Field
-		PerformanceBasis        respjson.Field
 		PerformanceLossSeconds  respjson.Field
 		PerformancePct          respjson.Field
-		PerformanceTicketCount  respjson.Field
 		QualityLossSeconds      respjson.Field
 		QualityPct              respjson.Field
 		RunTimeSeconds          respjson.Field
@@ -638,15 +621,6 @@ type OeeDepartmentMeasurementStatus string
 const (
 	OeeDepartmentMeasurementStatusMeasured  OeeDepartmentMeasurementStatus = "measured"
 	OeeDepartmentMeasurementStatusEstimated OeeDepartmentMeasurementStatus = "estimated"
-)
-
-// How performance_pct was obtained: measured from scan intervals, or fallen back
-// to the shift-pattern run-time estimate. Null when performance_pct is null.
-type OeeDepartmentPerformanceBasis string
-
-const (
-	OeeDepartmentPerformanceBasisScanIntervals   OeeDepartmentPerformanceBasis = "scan_intervals"
-	OeeDepartmentPerformanceBasisRunTimeEstimate OeeDepartmentPerformanceBasis = "run_time_estimate"
 )
 
 // OeeDepartmentPlannedTime supplies the scheduled production time for one
