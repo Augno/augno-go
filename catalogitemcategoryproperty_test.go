@@ -27,9 +27,9 @@ func TestCatalogItemCategoryPropertyUpdate(t *testing.T) {
 	)
 	_, err := client.Catalog.ItemCategories.Properties.Update(
 		context.TODO(),
-		"pp_01e21344878064372f69e67093",
+		"pp_fhnnvtt3q3ov",
 		augno.CatalogItemCategoryPropertyUpdateParams{
-			ID: "ic_01ae7bd7bfd21ca0ab81e1357e",
+			ID: "ic_d06g9c6yc9ck",
 		},
 	)
 	if err != nil {
@@ -55,9 +55,9 @@ func TestCatalogItemCategoryPropertyDelete(t *testing.T) {
 	)
 	_, err := client.Catalog.ItemCategories.Properties.Delete(
 		context.TODO(),
-		"pp_01e21344878064372f69e67093",
+		"pp_fhnnvtt3q3ov",
 		augno.CatalogItemCategoryPropertyDeleteParams{
-			ID: "ic_01ae7bd7bfd21ca0ab81e1357e",
+			ID: "ic_d06g9c6yc9ck",
 		},
 	)
 	if err != nil {

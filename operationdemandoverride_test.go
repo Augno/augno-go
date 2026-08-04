@@ -31,7 +31,7 @@ func TestOperationDemandOverrideNewWithOptionalParams(t *testing.T) {
 			Adjustment:     augno.CreateDemandOverrideRequestAdjustmentDeltaUnits,
 			PeriodEndsAt:   time.Now(),
 			PeriodStartsAt: time.Now(),
-			ScopeRefID:     "it_0131e386ac683e8c29a71f6f1f",
+			ScopeRefID:     "it_pej07ckhvu62",
 			ScopeType:      augno.CreateDemandOverrideRequestScopeTypeItem,
 			Value:          5000,
 			Active:         augno.Bool(false),
@@ -66,7 +66,7 @@ func TestOperationDemandOverrideGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.DemandOverrides.Get(
 		context.TODO(),
-		"deov_0192b7d38c4f5a9b02d3e16f88",
+		"deov_p8roudstrung",
 		augno.OperationDemandOverrideGetParams{
 			Include: []string{"scope"},
 		},
@@ -94,7 +94,7 @@ func TestOperationDemandOverrideUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.DemandOverrides.Update(
 		context.TODO(),
-		"deov_0192b7d38c4f5a9b02d3e16f88",
+		"deov_p8roudstrung",
 		augno.OperationDemandOverrideUpdateParams{
 			Include: []string{"scope"},
 			UpdateDemandOverrideRequest: augno.UpdateDemandOverrideRequestParam{
@@ -164,7 +164,7 @@ func TestOperationDemandOverrideDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.DemandOverrides.Delete(context.TODO(), "deov_0192b7d38c4f5a9b02d3e16f88")
+	_, err := client.Operations.DemandOverrides.Delete(context.TODO(), "deov_p8roudstrung")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

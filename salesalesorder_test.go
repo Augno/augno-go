@@ -28,12 +28,12 @@ func TestSaleSalesOrderNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.SalesOrders.New(context.TODO(), augno.SaleSalesOrderNewParams{
 		CreateSalesOrderRequest: augno.CreateSalesOrderRequestParam{
-			BillToAddressID: "ad_012c2e4aeeb20f56c1a3d06cc7",
-			BuyerAccountID:  "ac_0170df1ac58e4d24c66fc89f5f",
+			BillToAddressID: "ad_npqa5y43q26z",
+			BuyerAccountID:  "ac_opnlh43ymyee",
 			Lines: []augno.CreateSalesOrderLineInputParam{{
-				ProductID: "pd_013c29ab3f1518d0004094c316",
+				ProductID: "pd_07oe0r7adh2w",
 				Quantity: augno.QuantityInputParam{
-					UnitID: "un_01966263f74a5a0cae356000a1",
+					UnitID: "un_82bd37dae5po",
 					Value:  "10",
 				},
 				ProductDescription: augno.String("product_description"),
@@ -45,24 +45,24 @@ func TestSaleSalesOrderNewWithOptionalParams(t *testing.T) {
 				},
 			}},
 			PriorityCode:    "normal",
-			ShipToAddressID: "ad_012c2e4aeeb20f56c1a3d06cc7",
+			ShipToAddressID: "ad_npqa5y43q26z",
 			AcknowledgementEmailContacts: []augno.SalesOrderEmailContactInputParam{{
-				AccountUserID: "acus_01ea9983ddb41dacc44ecf997c",
+				AccountUserID: "acus_e5zu8bde0z3h",
 			}},
 			CarrierBillingAccountNumber: augno.String("123456789"),
 			CarrierBillingType:          augno.CreateSalesOrderRequestCarrierBillingTypeSender,
-			CarrierID:                   augno.String("cr_01784fd54c9ba197bb4e42f0e6"),
+			CarrierID:                   augno.String("cr_tv5vfjtgu1n3"),
 			CustomerPurchaseOrderNumber: augno.String("PO-88231"),
 			InvoiceEmailContacts: []augno.SalesOrderEmailContactInputParam{{
-				AccountUserID: "acus_01ea9983ddb41dacc44ecf997c",
+				AccountUserID: "acus_e5zu8bde0z3h",
 			}},
 			Note:            augno.String("Rush order for trade show"),
-			OrderDiscountID: augno.String("ords_01121c5e2f6937a6b896daad3a"),
-			PaymentTermID:   augno.String("pytm_018694d6601ea771cd1b52e890"),
+			OrderDiscountID: augno.String("ords_qnbrjvq5ih2q"),
+			PaymentTermID:   augno.String("pytm_skssmsy21lem"),
 			PromisedAt:      augno.Time(time.Now()),
-			SalesRepID:      augno.String("acus_01ea9983ddb41dacc44ecf997c"),
-			ServiceLevelID:  augno.String("crop_01cfaf03f104e90ef9680e2a30"),
-			ShippingTermID:  augno.String("shtm_014341ab4bb5bf94d5b6936f86"),
+			SalesRepID:      augno.String("acus_e5zu8bde0z3h"),
+			ServiceLevelID:  augno.String("crop_4ilk9p6gccrx"),
+			ShippingTermID:  augno.String("shtm_c5gxy05whw6r"),
 		},
 		Include: []string{"customer"},
 	})
@@ -89,7 +89,7 @@ func TestSaleSalesOrderGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.SalesOrders.Get(
 		context.TODO(),
-		"or_01d5034136c3ccc048abecc312",
+		"or_9lqo07quiwyb",
 		augno.SaleSalesOrderGetParams{
 			Include: []string{"customer"},
 		},
@@ -117,7 +117,7 @@ func TestSaleSalesOrderUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.SalesOrders.Update(
 		context.TODO(),
-		"or_01d5034136c3ccc048abecc312",
+		"or_9lqo07quiwyb",
 		augno.SaleSalesOrderUpdateParams{
 			Include: []string{"customer"},
 			UpdateSalesOrderRequest: augno.UpdateSalesOrderRequestParam{
@@ -128,7 +128,7 @@ func TestSaleSalesOrderUpdateWithOptionalParams(t *testing.T) {
 				BillingAddressID:            augno.String("billing_address_id"),
 				CarrierBillingAccountNumber: augno.String("carrier_billing_account_number"),
 				CarrierBillingType:          augno.UpdateSalesOrderRequestCarrierBillingTypeSender,
-				CarrierID:                   augno.String("cr_01784fd54c9ba197bb4e42f0e6"),
+				CarrierID:                   augno.String("cr_tv5vfjtgu1n3"),
 				CustomerID:                  augno.String("customer_id"),
 				CustomerPurchaseOrderNumber: augno.String("customer_purchase_order_number"),
 				InvoiceEmailContacts: []augno.SalesOrderEmailContactInputParam{{
@@ -141,7 +141,7 @@ func TestSaleSalesOrderUpdateWithOptionalParams(t *testing.T) {
 				PromisedAt:        augno.Time(time.Now()),
 				SalesRepID:        augno.String("sales_rep_id"),
 				ServiceLevelID:    augno.String("service_level_id"),
-				ShippingAddressID: augno.String("ad_012c2e4aeeb20f56c1a3d06cc7"),
+				ShippingAddressID: augno.String("ad_npqa5y43q26z"),
 				ShippingTermID:    augno.String("shipping_term_id"),
 			},
 		},
@@ -202,7 +202,7 @@ func TestSaleSalesOrderDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.SalesOrders.Delete(context.TODO(), "or_01d5034136c3ccc048abecc312")
+	_, err := client.Sales.SalesOrders.Delete(context.TODO(), "or_9lqo07quiwyb")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -226,7 +226,7 @@ func TestSaleSalesOrderCheckout(t *testing.T) {
 	)
 	_, err := client.Sales.SalesOrders.Checkout(
 		context.TODO(),
-		"or_01d5034136c3ccc048abecc312",
+		"or_9lqo07quiwyb",
 		augno.SaleSalesOrderCheckoutParams{
 			CheckoutSalesOrderRequest: augno.CheckoutSalesOrderRequestParam{
 				Email: "operations@acme.example.com",
@@ -256,11 +256,11 @@ func TestSaleSalesOrderPriceQuote(t *testing.T) {
 	)
 	_, err := client.Sales.SalesOrders.PriceQuote(context.TODO(), augno.SaleSalesOrderPriceQuoteParams{
 		QuoteSalesOrderPricesRequest: augno.QuoteSalesOrderPricesRequestParam{
-			BuyerAccountID: "ac_0170df1ac58e4d24c66fc89f5f",
+			BuyerAccountID: "ac_opnlh43ymyee",
 			Lines: []augno.QuoteSalesOrderLineInputParam{{
-				ProductID: "pd_013c29ab3f1518d0004094c316",
+				ProductID: "pd_07oe0r7adh2w",
 				Quantity: augno.QuantityInputParam{
-					UnitID: "un_01966263f74a5a0cae356000a1",
+					UnitID: "un_82bd37dae5po",
 					Value:  "10",
 				},
 			}},

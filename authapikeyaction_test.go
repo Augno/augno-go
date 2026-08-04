@@ -28,7 +28,7 @@ func TestAuthAPIKeyActionRotateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Auth.APIKeys.Actions.Rotate(
 		context.TODO(),
-		"apke_01fba3a7db3996e3b3b1a07e00",
+		"apke_eiylmwr6q7oz",
 		augno.AuthAPIKeyActionRotateParams{
 			Include: []string{"role"},
 			RotateAPIKeyRequest: augno.RotateAPIKeyRequestParam{

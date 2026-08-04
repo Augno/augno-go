@@ -42,8 +42,14 @@ func NewOperationProductionScheduleActionService(opts ...option.RequestOption) (
 
 // Archives a schedule version, retiring it without discarding its history.
 //
-// This is how a published version is taken out of use: it stays readable and still
-// backs any attainment already measured against it.
+// Any version that is not already archived can be archived, including a draft that
+// was never published. The version stays readable — its campaigns, policy snapshot
+// and deviation log are kept — and it still backs any attainment already measured
+// against it.
+//
+// Archiving does not supersede anything or promote another version in its place.
+// To take a published version out of use by replacing it, generate and publish a
+// newer one instead.
 //
 // This endpoint requires the permission: `production_schedules:update`.
 func (r *OperationProductionScheduleActionService) Archive(ctx context.Context, id string, opts ...option.RequestOption) (res *ProductionSchedule, err error) {
@@ -61,9 +67,13 @@ func (r *OperationProductionScheduleActionService) Archive(ctx context.Context, 
 //
 // This is the inspection surface for the scheduler: it takes the same path a
 // generated schedule will take, minus the write, so a plan can be reviewed and
-// compared before anything depends on it. Machines must be marked as the planning
-// constraint in production schedule settings, otherwise there is nothing to
-// schedule.
+// compared before anything depends on it. No version is created and nothing is
+// numbered, so this can be called as often as needed.
+//
+// The solver plans the constraint department — the room that sets the pace of the
+// factory — so production schedule settings must name one and it must have
+// machines that are included in planning. Without that there is nothing to
+// schedule and the request is rejected rather than returning an empty plan.
 //
 // This endpoint requires the permission: `production_schedules:read`.
 func (r *OperationProductionScheduleActionService) Preview(ctx context.Context, body OperationProductionScheduleActionPreviewParams, opts ...option.RequestOption) (res *ProductionSchedulePreview, err error) {
@@ -76,14 +86,18 @@ func (r *OperationProductionScheduleActionService) Preview(ctx context.Context, 
 // Returns what regenerating this draft would change, without changing it.
 //
 // Every campaign either plan holds is listed, including the ones both agree on, so
-// the caller can render a full side-by-side rather than a list of surprises.
-// `discarded_manual_count` is what `replace_all` would destroy — a regenerate that
-// silently eats hand-work is abandoned within two cycles, so the destructive mode
-// has to be able to state its cost before it runs.
+// the caller can render a full side-by-side rather than a list of surprises. Only
+// a draft can be previewed, for the same reason only a draft can be regenerated.
 //
-// Planning inputs default to the ones the version was generated with, so a plain
-// preview answers "what would the solver say now" rather than answering a
-// different question with a different horizon.
+// The comparison is run the way a regenerate runs by default — hand-edited
+// campaigns are kept, and the fresh solve plans around them — so they read as
+// unchanged rather than as work the solver wants to take away. `manual_line_count`
+// is how many campaigns on the draft were placed or edited by hand, which is the
+// work a `replace_all` regenerate is putting at risk.
+//
+// The horizon and demand basis default to the ones this version already has, so a
+// plain call changes only how current the plan is, not what question is being
+// asked.
 //
 // This endpoint requires the permission: `production_schedules:read`.
 func (r *OperationProductionScheduleActionService) PreviewRegenerate(ctx context.Context, id string, body OperationProductionScheduleActionPreviewRegenerateParams, opts ...option.RequestOption) (res *ProductionScheduleRegeneratePreview, err error) {
@@ -101,9 +115,13 @@ func (r *OperationProductionScheduleActionService) PreviewRegenerate(ctx context
 //
 // Publishing is what makes a plan a commitment: the frozen weeks' lines are marked
 // frozen, the frozen line count and quantity are captured onto the version, and
-// any published version covering the same horizon is superseded rather than
-// rewritten. After this, changes inside the frozen window require a reason and are
-// recorded as deviations.
+// any published version whose horizon overlaps this one's is superseded rather
+// than rewritten. After this, a change inside the frozen window has to state a
+// reason.
+//
+// Only a draft can be published. How many weeks freeze comes from the account's
+// frozen-weeks setting as it stood when the version was generated, and a version
+// generated with zero frozen weeks publishes without committing to anything.
 //
 // The frozen counts are snapshotted here and never recomputed, so adherence keeps
 // the denominator it was committed to.
@@ -132,10 +150,14 @@ func (r *OperationProductionScheduleActionService) Publish(ctx context.Context, 
 // re-solve would fill the list with drafts nobody asked for and make the version
 // number meaningless as a count of the plans actually considered.
 //
-// `preserve_manual` keeps every hand-edited campaign and replaces the rest.
-// `replace_all` takes the fresh solve whole, and each hand edit it destroys is
-// written to the deviation log first — "where did my change go" has to stay
-// answerable. Call `preview-regenerate` first to see the cost as a number.
+// Every hand edit a `replace_all` destroys is written to the deviation log before
+// it goes, so "where did my change go" stays answerable. Call `preview-regenerate`
+// first to see what a re-solve would change.
+//
+// Aside from the hand edits a `preserve_manual` run keeps, the version's
+// campaigns, policy snapshot, derived department work, solver diagnostics and
+// settings snapshot are all replaced with the fresh solve's, so the plan can still
+// explain itself afterwards.
 //
 // This endpoint requires the permission: `production_schedules:update`.
 func (r *OperationProductionScheduleActionService) Regenerate(ctx context.Context, id string, body OperationProductionScheduleActionRegenerateParams, opts ...option.RequestOption) (res *ProductionSchedule, err error) {
@@ -164,6 +186,11 @@ func (r *OperationProductionScheduleActionService) Regenerate(ctx context.Contex
 // released line records the run now carrying it, and a line that is already
 // released is never re-pointed.
 //
+// Cancelled campaigns and campaigns planned at zero are left behind rather than
+// released. A week that would produce an implausible number of batches is rejected
+// outright, since that is far more likely to be a misconfigured lot size than a
+// real week's work.
+//
 // This endpoint requires the permissions: `production_schedules:update`,
 // `production_runs:create`.
 func (r *OperationProductionScheduleActionService) ReleaseWeek(ctx context.Context, id string, body OperationProductionScheduleActionReleaseWeekParams, opts ...option.RequestOption) (res *ReleaseScheduleWeekResult, err error) {
@@ -177,7 +204,8 @@ func (r *OperationProductionScheduleActionService) ReleaseWeek(ctx context.Conte
 	return res, err
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListScheduleCampaign struct {
 	// Resources in this page.
 	Data []ScheduleCampaign `json:"data" api:"required"`
@@ -185,7 +213,13 @@ type ListScheduleCampaign struct {
 	//
 	// Any of "list".
 	Object ListScheduleCampaignObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -210,7 +244,8 @@ const (
 	ListScheduleCampaignObjectList ListScheduleCampaignObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListScheduleDiffLine struct {
 	// Resources in this page.
 	Data []ScheduleDiffLine `json:"data" api:"required"`
@@ -218,7 +253,13 @@ type ListScheduleDiffLine struct {
 	//
 	// Any of "list".
 	Object ListScheduleDiffLineObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -243,7 +284,8 @@ const (
 	ListScheduleDiffLineObjectList ListScheduleDiffLineObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListSchedulePolicy struct {
 	// Resources in this page.
 	Data []SchedulePolicy `json:"data" api:"required"`
@@ -251,7 +293,13 @@ type ListSchedulePolicy struct {
 	//
 	// Any of "list".
 	Object ListSchedulePolicyObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -276,7 +324,8 @@ const (
 	ListSchedulePolicyObjectList ListSchedulePolicyObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListScheduleProjection struct {
 	// Resources in this page.
 	Data []ScheduleProjection `json:"data" api:"required"`
@@ -284,7 +333,13 @@ type ListScheduleProjection struct {
 	//
 	// Any of "list".
 	Object ListScheduleProjectionObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -311,11 +366,22 @@ const (
 
 // Request to preview a production schedule.
 type PreviewProductionScheduleRequestParam struct {
-	// Overrides the configured horizon for this preview only.
+	// Number of weeks the plan should cover, overriding the account's configured
+	// horizon for this preview only.
 	HorizonWeeks param.Opt[int64] `json:"horizon_weeks,omitzero"`
-	// The instant to plan against. Defaults to now.
+	// The instant to plan against, which is what stock, demand history and active
+	// demand overrides are read as of.
+	//
+	// Left unset, the preview is solved against the moment the request arrives. The
+	// horizon starts on the account's configured week-start day on or before this
+	// instant, so backdating this shifts the whole week grid.
 	PlanningAsOf param.Opt[time.Time] `json:"planning_as_of,omitzero" format:"date-time"`
-	// Overrides the configured demand basis for this preview only.
+	// How future demand is derived, overriding the account's configured basis for this
+	// preview only.
+	//
+	//   - `trailing_12`: demand is the trailing twelve months of orders.
+	//   - `seasonal_ema`: demand is a seasonal exponential moving average, which follows
+	//     a season arriving early or late rather than flattening it.
 	//
 	// Any of "trailing_12", "seasonal_ema".
 	DemandBasis PreviewProductionScheduleRequestDemandBasis `json:"demand_basis,omitzero"`
@@ -330,7 +396,12 @@ func (r *PreviewProductionScheduleRequestParam) UnmarshalJSON(data []byte) error
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Overrides the configured demand basis for this preview only.
+// How future demand is derived, overriding the account's configured basis for this
+// preview only.
+//
+//   - `trailing_12`: demand is the trailing twelve months of orders.
+//   - `seasonal_ema`: demand is a seasonal exponential moving average, which follows
+//     a season arriving early or late rather than flattening it.
 type PreviewProductionScheduleRequestDemandBasis string
 
 const (
@@ -340,11 +411,23 @@ const (
 
 // Request to see what a re-solve would change.
 type PreviewRegenerateProductionScheduleRequestParam struct {
-	// Weeks the plan should cover. Defaults to the version's own horizon.
+	// Number of weeks the re-solve should cover, defaulting to the horizon this
+	// version already has.
 	HorizonWeeks param.Opt[int64] `json:"horizon_weeks,omitzero"`
-	// Date to plan from. Defaults to the date the version was generated for.
+	// The instant to plan against, which is what stock, demand history and active
+	// demand overrides are read as of.
+	//
+	// Defaults to now rather than to the instant the version was first generated, so a
+	// plain call answers "what would the solver say today". Because the horizon
+	// re-anchors to the week containing this instant, a campaign can appear under a
+	// different `week_index` than the one stored on the draft.
 	PlanningAsOf param.Opt[time.Time] `json:"planning_as_of,omitzero" format:"date-time"`
-	// How demand is derived. Defaults to the version's own basis.
+	// How future demand is derived, defaulting to the basis this version was solved
+	// with.
+	//
+	//   - `trailing_12`: demand is the trailing twelve months of orders.
+	//   - `seasonal_ema`: demand is a seasonal exponential moving average, which follows
+	//     a season arriving early or late rather than flattening it.
 	//
 	// Any of "trailing_12", "seasonal_ema".
 	DemandBasis PreviewRegenerateProductionScheduleRequestDemandBasis `json:"demand_basis,omitzero"`
@@ -359,7 +442,12 @@ func (r *PreviewRegenerateProductionScheduleRequestParam) UnmarshalJSON(data []b
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// How demand is derived. Defaults to the version's own basis.
+// How future demand is derived, defaulting to the basis this version was solved
+// with.
+//
+//   - `trailing_12`: demand is the trailing twelve months of orders.
+//   - `seasonal_ema`: demand is a seasonal exponential moving average, which follows
+//     a season arriving early or late rather than flattening it.
 type PreviewRegenerateProductionScheduleRequestDemandBasis string
 
 const (
@@ -369,7 +457,8 @@ const (
 
 // A production plan produced by the scheduling solver.
 type ProductionSchedulePreview struct {
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Campaigns ListScheduleCampaign `json:"campaigns" api:"required"`
 	// What the solver could not do, and why the plan differs from raw history.
 	Diagnostics ScheduleDiagnostics `json:"diagnostics" api:"required"`
@@ -379,9 +468,11 @@ type ProductionSchedulePreview struct {
 	Object ProductionSchedulePreviewObject `json:"object" api:"required"`
 	// The instant the plan was calculated against.
 	PlanningAsOfAt time.Time `json:"planning_as_of_at" api:"required" format:"date-time"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Policies ListSchedulePolicy `json:"policies" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Projections ListScheduleProjection `json:"projections" api:"required"`
 	// Version of the solver that produced this plan.
 	SolverVersion string `json:"solver_version" api:"required"`
@@ -425,7 +516,8 @@ type ProductionScheduleRegeneratePreview struct {
 	ChangedCount int64 `json:"changed_count" api:"required"`
 	// Hand-edited campaigns `replace_all` would destroy.
 	DiscardedManualCount int64 `json:"discarded_manual_count" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Lines ListScheduleDiffLine `json:"lines" api:"required"`
 	// Hand-edited campaigns currently on the draft.
 	ManualLineCount int64 `json:"manual_line_count" api:"required"`
@@ -434,6 +526,10 @@ type ProductionScheduleRegeneratePreview struct {
 	// Any of "production_schedule_regenerate_preview".
 	Object ProductionScheduleRegeneratePreviewObject `json:"object" api:"required"`
 	// The instant the fresh solve planned from.
+	//
+	// Unless the caller names an instant, a regenerate plans from now rather than
+	// replaying the one the draft was first generated against, so demand overrides
+	// added since then are taken into account and the horizon re-anchors to today.
 	PlanningAsOfAt time.Time `json:"planning_as_of_at" api:"required" format:"date-time"`
 	// Entity is a polymorphic reference to any resource in the system.
 	ProductionSchedule Entity `json:"production_schedule" api:"required"`
@@ -473,15 +569,34 @@ const (
 
 // Request to re-solve a draft in place.
 type RegenerateProductionScheduleRequestParam struct {
-	// Weeks the plan should cover. Defaults to the version's own horizon.
+	// Number of weeks the re-solve should cover, defaulting to the horizon this
+	// version already has.
 	HorizonWeeks param.Opt[int64] `json:"horizon_weeks,omitzero"`
-	// Date to plan from. Defaults to the date the version was generated for.
+	// The instant to plan against, which is what stock, demand history and active
+	// demand overrides are read as of.
+	//
+	// Defaults to now rather than to the instant the version was first generated, so a
+	// plain call answers "what would the solver say today". Because the horizon
+	// re-anchors to the week containing this instant, a kept campaign keeps the
+	// calendar week it was planned in but can end up under a different `week_index`.
 	PlanningAsOf param.Opt[time.Time] `json:"planning_as_of,omitzero" format:"date-time"`
-	// How demand is derived. Defaults to the version's own basis.
+	// How future demand is derived, defaulting to the basis this version was solved
+	// with.
+	//
+	//   - `trailing_12`: demand is the trailing twelve months of orders.
+	//   - `seasonal_ema`: demand is a seasonal exponential moving average, which follows
+	//     a season arriving early or late rather than flattening it.
 	//
 	// Any of "trailing_12", "seasonal_ema".
 	DemandBasis RegenerateProductionScheduleRequestDemandBasis `json:"demand_basis,omitzero"`
-	// What happens to hand-edited campaigns. Defaults to keeping them.
+	// What happens to the campaigns someone placed or edited by hand.
+	//
+	//   - `preserve_manual`: hand-edited campaigns are kept, and the fresh solve plans
+	//     around them — their stock and machine time are facts the rest of the plan
+	//     responds to.
+	//   - `replace_all`: hand edits are discarded and the fresh solve is taken whole.
+	//
+	// Omitting this keeps hand edits, because the alternative destroys work silently.
 	//
 	// Any of "preserve_manual", "replace_all".
 	MergeMode RegenerateProductionScheduleRequestMergeMode `json:"merge_mode,omitzero"`
@@ -496,7 +611,12 @@ func (r *RegenerateProductionScheduleRequestParam) UnmarshalJSON(data []byte) er
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// How demand is derived. Defaults to the version's own basis.
+// How future demand is derived, defaulting to the basis this version was solved
+// with.
+//
+//   - `trailing_12`: demand is the trailing twelve months of orders.
+//   - `seasonal_ema`: demand is a seasonal exponential moving average, which follows
+//     a season arriving early or late rather than flattening it.
 type RegenerateProductionScheduleRequestDemandBasis string
 
 const (
@@ -504,7 +624,14 @@ const (
 	RegenerateProductionScheduleRequestDemandBasisSeasonalEma RegenerateProductionScheduleRequestDemandBasis = "seasonal_ema"
 )
 
-// What happens to hand-edited campaigns. Defaults to keeping them.
+// What happens to the campaigns someone placed or edited by hand.
+//
+//   - `preserve_manual`: hand-edited campaigns are kept, and the fresh solve plans
+//     around them — their stock and machine time are facts the rest of the plan
+//     responds to.
+//   - `replace_all`: hand edits are discarded and the fresh solve is taken whole.
+//
+// Omitting this keeps hand edits, because the alternative destroys work silently.
 type RegenerateProductionScheduleRequestMergeMode string
 
 const (
@@ -524,6 +651,8 @@ type ReleaseProductionScheduleWeekRequestParam struct {
 	// Zero-based week offset from the start of the horizon.
 	WeekIndex int64 `json:"week_index" api:"required"`
 	// ID of the scanning station the batches will be scanned at.
+	//
+	// Applied to every batch this release creates, across all machines in the week.
 	ScanningStationID param.Opt[string] `json:"scanning_station_id,omitzero"`
 	paramObj
 }
@@ -543,13 +672,15 @@ func (r *ReleaseProductionScheduleWeekRequestParam) UnmarshalJSON(data []byte) e
 type ReleaseScheduleWeekResult struct {
 	// How many batches were created across all campaigns.
 	BatchCount int64 `json:"batch_count" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Lines ListReleasedScheduleLine `json:"lines" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "production_schedule_week_release".
 	Object ReleaseScheduleWeekResultObject `json:"object" api:"required"`
-	// Production run resource.
+	// A production run: the group of shop-floor batches that are executed together,
+	// tracked from the first batch scan through to completion.
 	ProductionRun ProductionRun `json:"production_run" api:"required"`
 	// How many campaigns were released.
 	ReleasedLineCount int64 `json:"released_line_count" api:"required"`
@@ -627,17 +758,26 @@ func (r *ScheduleCampaign) UnmarshalJSON(data []byte) error {
 type ScheduleDiffLine struct {
 	// What the regenerate would do to this campaign.
 	//
+	// - `added`: the fresh solve wants a campaign the current plan does not have.
+	// - `removed`: the current plan holds a campaign the fresh solve does not want.
+	// - `changed`: both hold the campaign, in different quantities.
+	// - `unchanged`: both agree on it.
+	//
 	// Any of "added", "removed", "changed", "unchanged".
 	Change ScheduleDiffLineChange `json:"change" api:"required"`
 	// Whether the current campaign was created or edited by a person.
 	CurrentIsManual bool `json:"current_is_manual" api:"required"`
-	// Units the current plan asks for. Zero when the campaign is being added.
+	// Units the current plan asks for.
+	//
+	// Zero when the campaign is being added.
 	CurrentQuantity float64 `json:"current_quantity" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Item Entity `json:"item" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Machine Entity `json:"machine" api:"required"`
-	// Units the fresh solve asks for. Zero when the campaign is being removed.
+	// Units the fresh solve asks for.
+	//
+	// Zero when the campaign is being removed.
 	ProposedQuantity float64 `json:"proposed_quantity" api:"required"`
 	// SKU of that item.
 	SKU string `json:"sku" api:"required"`
@@ -665,6 +805,11 @@ func (r *ScheduleDiffLine) UnmarshalJSON(data []byte) error {
 }
 
 // What the regenerate would do to this campaign.
+//
+// - `added`: the fresh solve wants a campaign the current plan does not have.
+// - `removed`: the current plan holds a campaign the fresh solve does not want.
+// - `changed`: both hold the campaign, in different quantities.
+// - `unchanged`: both agree on it.
 type ScheduleDiffLineChange string
 
 const (
@@ -678,6 +823,10 @@ const (
 type SchedulePolicy struct {
 	// ABC class by share of constraint run hours.
 	//
+	// - `a`: consumes the largest share of constraint capacity.
+	// - `b`: moderate constraint consumption.
+	// - `c`: consumes little constraint capacity.
+	//
 	// Any of "a", "b", "c".
 	AbcClass SchedulePolicyAbcClass `json:"abc_class" api:"required"`
 	// Demand used for planning, annualized.
@@ -688,7 +837,8 @@ type SchedulePolicy struct {
 	AverageGreigeInventory float64 `json:"average_greige_inventory" api:"required"`
 	// Observed or default lead time at the constraint.
 	ConstraintLeadTimeWeeks float64 `json:"constraint_lead_time_weeks" api:"required"`
-	// Economic order quantity.
+	// Economic order quantity: the campaign size that balances the cost of a
+	// changeover against the cost of holding what it produces.
 	EoqUnits float64 `json:"eoq_units" api:"required"`
 	// Lead time from the constraint to sellable stock.
 	FinishLeadTimeWeeks float64 `json:"finish_lead_time_weeks" api:"required"`
@@ -758,6 +908,10 @@ func (r *SchedulePolicy) UnmarshalJSON(data []byte) error {
 }
 
 // ABC class by share of constraint run hours.
+//
+// - `a`: consumes the largest share of constraint capacity.
+// - `b`: moderate constraint consumption.
+// - `c`: consumes little constraint capacity.
 type SchedulePolicyAbcClass string
 
 const (

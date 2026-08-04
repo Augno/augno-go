@@ -103,7 +103,8 @@ func (r *AnalyzeOeeRequestParam) UnmarshalJSON(data []byte) error {
 
 // AnalyzeOeeResponse represents the response from the analyze OEE endpoint.
 type AnalyzeOeeResponse struct {
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Departments ListOeeDepartment `json:"departments" api:"required"`
 	// Resource type identifier.
 	//
@@ -176,18 +177,21 @@ const (
 // already worked. `baseline_schedules` names the versions used, so any number here
 // can be traced back to the plan that produced it.
 type AnalyzeScheduleAttainmentResponse struct {
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	BaselineSchedules ListEntity `json:"baseline_schedules" api:"required"`
 	// Whether the period had a plan to measure against. When `no_baseline`, every
 	// ratio is null and the period has no plan rather than a missed one.
 	//
 	// Any of "measured", "no_baseline".
 	BaselineStatus AnalyzeScheduleAttainmentResponseBaselineStatus `json:"baseline_status" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Buckets ListAttainmentBucket `json:"buckets" api:"required"`
 	// End of the measured period.
 	EndsAt time.Time `json:"ends_at" api:"required" format:"date-time"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	FrozenAdherence ListFrozenAdherence `json:"frozen_adherence" api:"required"`
 	// The dimension the breakdown is grouped by.
 	//
@@ -359,7 +363,8 @@ func (r *FrozenAdherence) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListAttainmentBucket struct {
 	// Resources in this page.
 	Data []AttainmentBucket `json:"data" api:"required"`
@@ -367,7 +372,13 @@ type ListAttainmentBucket struct {
 	//
 	// Any of "list".
 	Object ListAttainmentBucketObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -392,7 +403,8 @@ const (
 	ListAttainmentBucketObjectList ListAttainmentBucketObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListFrozenAdherence struct {
 	// Resources in this page.
 	Data []FrozenAdherence `json:"data" api:"required"`
@@ -400,7 +412,13 @@ type ListFrozenAdherence struct {
 	//
 	// Any of "list".
 	Object ListFrozenAdherenceObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -425,7 +443,8 @@ const (
 	ListFrozenAdherenceObjectList ListFrozenAdherenceObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListOeeDepartment struct {
 	// Resources in this page.
 	Data []OeeDepartment `json:"data" api:"required"`
@@ -433,7 +452,13 @@ type ListOeeDepartment struct {
 	//
 	// Any of "list".
 	Object ListOeeDepartmentObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -458,7 +483,8 @@ const (
 	ListOeeDepartmentObjectList ListOeeDepartmentObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListOeeDowntimeReason struct {
 	// Resources in this page.
 	Data []OeeDowntimeReason `json:"data" api:"required"`
@@ -466,7 +492,13 @@ type ListOeeDowntimeReason struct {
 	//
 	// Any of "list".
 	Object ListOeeDowntimeReasonObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -506,7 +538,8 @@ type OeeDepartment struct {
 	ChangeoverSeconds float64 `json:"changeover_seconds" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Department Entity `json:"department" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	DowntimeBreakdown ListOeeDowntimeReason `json:"downtime_breakdown" api:"required"`
 	// Number of downtime events logged in the period.
 	DowntimeEventCount int64 `json:"downtime_event_count" api:"required"`

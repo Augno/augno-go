@@ -40,7 +40,7 @@ func NewSaleAccountStatusService(opts ...option.RequestOption) (r SaleAccountSta
 	return
 }
 
-// Returns an account status by ID or code.
+// Returns a single account status, looked up by either its ID or its code.
 func (r *SaleAccountStatusService) Get(ctx context.Context, id string, query SaleAccountStatusGetParams, opts ...option.RequestOption) (res *AccountStatus, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -56,7 +56,8 @@ func (r *SaleAccountStatusService) Get(ctx context.Context, id string, query Sal
 //
 // Account statuses are system-provided lookup values shared across all accounts,
 // used to set a customer's status (for example, placing a customer on a credit
-// hold).
+// hold). The list is fixed — statuses cannot be created, edited, or deleted — so
+// use it to populate a status picker or to resolve a code to its display name.
 func (r *SaleAccountStatusService) List(ctx context.Context, query SaleAccountStatusListParams, opts ...option.RequestOption) (res *ListAccountStatus, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/account-statuses"
@@ -64,20 +65,25 @@ func (r *SaleAccountStatusService) List(ctx context.Context, query SaleAccountSt
 	return res, err
 }
 
-// AccountStatus is a lookup value describing the standing of a customer account,
-// such as whether shipments or all activity should be held.
+// A lookup value describing the standing of a customer account, such as whether
+// shipments or all activity should be held.
+//
+// The set of statuses is fixed by Augno and cannot be added to or edited; you
+// apply one to a customer by setting the customer's `status`.
 type AccountStatus struct {
 	// Account status ID.
 	ID string `json:"id" api:"required"`
 	// Machine-readable status code.
 	//
-	// This is the value used as a customer's `status`.
-	//
 	//   - `normal`: standard account with no restrictions.
-	//   - `preferred`: account flagged as preferred (e.g. for prioritized handling).
-	//   - `hold_shipment`: shipments to this account are held; orders may still be
-	//     placed.
-	//   - `hold_all`: all activity for this account is held.
+	//   - `preferred`: account flagged for prioritized handling.
+	//   - `hold_shipment`: the account's shipments should be held, typically over a
+	//     credit problem, while orders can still be placed.
+	//   - `hold_all`: all activity for the account should be held.
+	//
+	// The hold statuses are advisory: they are surfaced as credit-hold warnings on the
+	// customer's orders, but they do not by themselves cause order or shipment
+	// requests to be rejected.
 	//
 	// Any of "normal", "preferred", "hold_shipment", "hold_all".
 	Code AccountStatusCode `json:"code" api:"required"`
@@ -115,13 +121,15 @@ func (r *AccountStatus) UnmarshalJSON(data []byte) error {
 
 // Machine-readable status code.
 //
-// This is the value used as a customer's `status`.
-//
 //   - `normal`: standard account with no restrictions.
-//   - `preferred`: account flagged as preferred (e.g. for prioritized handling).
-//   - `hold_shipment`: shipments to this account are held; orders may still be
-//     placed.
-//   - `hold_all`: all activity for this account is held.
+//   - `preferred`: account flagged for prioritized handling.
+//   - `hold_shipment`: the account's shipments should be held, typically over a
+//     credit problem, while orders can still be placed.
+//   - `hold_all`: all activity for the account should be held.
+//
+// The hold statuses are advisory: they are surfaced as credit-hold warnings on the
+// customer's orders, but they do not by themselves cause order or shipment
+// requests to be rejected.
 type AccountStatusCode string
 
 const (
@@ -138,7 +146,8 @@ const (
 	AccountStatusObjectAccountStatus AccountStatusObject = "account_status"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListAccountStatus struct {
 	// Resources in this page.
 	Data []AccountStatus `json:"data" api:"required"`
@@ -146,7 +155,13 @@ type ListAccountStatus struct {
 	//
 	// Any of "list".
 	Object ListAccountStatusObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

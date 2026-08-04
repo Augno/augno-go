@@ -23,14 +23,17 @@ type Client struct {
 	// references.
 	Core    CoreService
 	Catalog CatalogService
+	// List available platform tools for agent configuration.
+	AI AIService
 	// List messageable contacts (the messaging directory).
 	Messaging MessagingService
 	Sales     SaleService
 	// Create, view, update, and delete transactions.
 	Finance    FinanceService
 	Operations OperationService
-	Identity   IdentityService
-	Settings   SettingService
+	// List permission groups and their permissions.
+	Identity IdentityService
+	Settings SettingService
 }
 
 // DefaultClientOptions read from the environment (AUGNO_API_KEY, AUGNO_BASE_URL).
@@ -66,6 +69,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Auth = NewAuthService(opts...)
 	r.Core = NewCoreService(opts...)
 	r.Catalog = NewCatalogService(opts...)
+	r.AI = NewAIService(opts...)
 	r.Messaging = NewMessagingService(opts...)
 	r.Sales = NewSaleService(opts...)
 	r.Finance = NewFinanceService(opts...)

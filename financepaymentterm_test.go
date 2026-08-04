@@ -54,7 +54,7 @@ func TestFinancePaymentTermGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Finance.PaymentTerms.Get(
 		context.TODO(),
-		"pytm_018694d6601ea771cd1b52e890",
+		"pytm_skssmsy21lem",
 		augno.FinancePaymentTermGetParams{
 			Include: []string{"owner"},
 		},
@@ -82,7 +82,7 @@ func TestFinancePaymentTermUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Finance.PaymentTerms.Update(
 		context.TODO(),
-		"pytm_018694d6601ea771cd1b52e890",
+		"pytm_skssmsy21lem",
 		augno.FinancePaymentTermUpdateParams{
 			Include: []string{"owner"},
 			UpdatePaymentTermRequest: augno.UpdatePaymentTermRequestParam{
@@ -138,7 +138,7 @@ func TestFinancePaymentTermDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Finance.PaymentTerms.Delete(context.TODO(), "pytm_018694d6601ea771cd1b52e890")
+	_, err := client.Finance.PaymentTerms.Delete(context.TODO(), "pytm_skssmsy21lem")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

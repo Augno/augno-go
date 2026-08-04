@@ -43,6 +43,7 @@ func NewSaleSalesOrderActionService(opts ...option.RequestOption) (r SaleSalesOr
 
 // Deletes multiple sales orders in a single atomic operation.
 //
+// Each order is torn down exactly as it would be by deleting it on its own.
 // Fulfilled orders cannot be deleted; if any requested order fails this check, no
 // orders are deleted.
 //
@@ -56,7 +57,10 @@ func (r *SaleSalesOrderActionService) BulkDelete(ctx context.Context, body SaleS
 
 // Closes a sales order, transitioning it from `issued` to `fulfilled`.
 //
-// Sets the order's completion timestamp and marks its pick as finished.
+// Stamps the order's completion timestamp and closes its pick, packing every pick
+// line that is still open so the pick reads as complete alongside the order. Only
+// an order in `issued` can be closed, and once it is fulfilled it can no longer be
+// deleted, nor can its lines be removed, until it is reopened.
 //
 // This endpoint requires the permission: `sales_orders:update`.
 func (r *SaleSalesOrderActionService) Close(ctx context.Context, id string, opts ...option.RequestOption) (res *SalesOrder, err error) {
@@ -72,9 +76,13 @@ func (r *SaleSalesOrderActionService) Close(ctx context.Context, id string, opts
 
 // Creates a production run from a sales order.
 //
-// Creates a batch for each of the order's item-backed lines, reserves the material
-// inventory required to produce them, and links the run to the order. An order can
-// have at most one production run.
+// Walks the production flow behind each item-backed line to work out what actually
+// has to be made, then creates one batch for each item that is produced directly
+// from raw materials, sized to cover every line that needs it. Reserves the
+// material inventory those batches consume and links the run to the order. The
+// caller becomes the run's responsible user. An order can have at most one
+// production run, and a line whose item has no production flow contributes no
+// batches.
 //
 // This endpoint requires the permission: `production_runs:create`.
 func (r *SaleSalesOrderActionService) NewProductionRun(ctx context.Context, id string, body SaleSalesOrderActionNewProductionRunParams, opts ...option.RequestOption) (res *ProductionRun, err error) {
@@ -92,6 +100,7 @@ func (r *SaleSalesOrderActionService) NewProductionRun(ctx context.Context, id s
 //
 // Issuing commits the order for fulfillment: a pick is created for the order's
 // sale lines and inventory is reserved for each line tied to an inventory item.
+// Only an order still in `estimate` can be issued.
 //
 // This endpoint requires the permission: `sales_orders:update`.
 func (r *SaleSalesOrderActionService) Issue(ctx context.Context, id string, body SaleSalesOrderActionIssueParams, opts ...option.RequestOption) (res *SalesOrder, err error) {
@@ -107,7 +116,10 @@ func (r *SaleSalesOrderActionService) Issue(ctx context.Context, id string, body
 
 // Reopens a sales order, transitioning it from `fulfilled` back to `issued`.
 //
-// Clears the order's completion timestamp and marks its pick as unfinished.
+// Clears the order's completion timestamp and reopens its pick, unpacking every
+// pick line that is not yet fully picked so the outstanding work can be resumed;
+// lines already picked in full stay packed. Only an order in `fulfilled` can be
+// reopened.
 //
 // This endpoint requires the permission: `sales_orders:update`.
 func (r *SaleSalesOrderActionService) Open(ctx context.Context, id string, opts ...option.RequestOption) (res *SalesOrder, err error) {
@@ -146,8 +158,9 @@ func (r *SaleSalesOrderActionService) QuoteFreight(ctx context.Context, id strin
 
 // Unissues a sales order, transitioning it from `issued` back to `estimate`.
 //
-// Deletes the order's pick and releases any inventory reserved when the order was
-// issued.
+// Deletes the order's pick, discarding any picking progress recorded against it,
+// and releases the inventory reserved when the order was issued. Only an order in
+// `issued` can be unissued.
 //
 // This endpoint requires the permission: `sales_orders:update`.
 func (r *SaleSalesOrderActionService) Unissue(ctx context.Context, id string, opts ...option.RequestOption) (res *SalesOrder, err error) {
@@ -184,8 +197,10 @@ func (r *BulkDeleteSalesOrdersRequestParam) UnmarshalJSON(data []byte) error {
 type IssueSalesOrderRequestParam struct {
 	// Whether to notify the customer.
 	//
-	// When `true`, the order acknowledgement email is sent to the contacts configured
-	// on the order and the order's `acknowledgment_status` is set to `sent`.
+	// When `true`, an order acknowledgement email with a PDF of the order is sent to
+	// the acknowledgement contacts on the order and the order's
+	// `acknowledgment_status` becomes `sent`. An order with no acknowledgement
+	// contacts sends nothing and leaves its `acknowledgment_status` unchanged.
 	NotifyCustomer bool `json:"notify_customer" api:"required"`
 	paramObj
 }
@@ -198,17 +213,18 @@ func (r *IssueSalesOrderRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Production run resource.
+// A production run: the group of shop-floor batches that are executed together,
+// tracked from the first batch scan through to completion.
 type ProductionRun struct {
 	// Production run ID.
 	ID string `json:"id" api:"required"`
 	// Number of batches currently recorded against this run.
 	BatchCount int64 `json:"batch_count" api:"required"`
-	// Time the run was marked complete.
+	// Time the run finished production.
 	//
-	// Set automatically once every batch in the run has been scanned or deleted, and
-	// unset while the run is still in progress. Once set, the run can no longer be
-	// updated and new batches can no longer be added.
+	// Set automatically once every batch in the run has been scanned or deleted. From
+	// that point the run can no longer be updated and no further batches can be added
+	// to it.
 	CompletedAt time.Time `json:"completed_at" api:"required" format:"date-time"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
@@ -224,13 +240,12 @@ type ProductionRun struct {
 	// A user's membership in an account, carrying the account-specific status, role,
 	// and department.
 	//
-	// Profile fields (name, email, username, image URL) live on the expandable `user`
+	// Profile fields (name, email, username, image URL) live on the `user`
 	// sub-resource, which is shared across every account the user belongs to.
 	ResponsibleUser AccountUser `json:"responsible_user" api:"required"`
 	// Time the run started production.
 	//
-	// Set automatically when the first batch in the run is scanned, and unset until
-	// then.
+	// Set automatically the first time a batch in the run is scanned at a station.
 	StartedAt time.Time `json:"started_at" api:"required" format:"date-time"`
 	// Last-updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`

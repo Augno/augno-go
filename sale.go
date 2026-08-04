@@ -20,6 +20,7 @@ type SaleService struct {
 	Addresses SaleAddressService
 	// List and retrieve account statuses.
 	AccountStatuses SaleAccountStatusService
+	AccountUsers    SaleAccountUserService
 	// List and retrieve priorities.
 	Priorities SalePriorityService
 	// Manage customer accounts.
@@ -37,6 +38,7 @@ func NewSaleService(opts ...option.RequestOption) (r SaleService) {
 	r.AccountGroups = NewSaleAccountGroupService(opts...)
 	r.Addresses = NewSaleAddressService(opts...)
 	r.AccountStatuses = NewSaleAccountStatusService(opts...)
+	r.AccountUsers = NewSaleAccountUserService(opts...)
 	r.Priorities = NewSalePriorityService(opts...)
 	r.Customers = NewSaleCustomerService(opts...)
 	r.Contacts = NewSaleContactService(opts...)

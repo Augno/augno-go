@@ -27,9 +27,9 @@ func TestCatalogItemAttributeUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Items.Attributes.Update(
 		context.TODO(),
-		"at_01c9493ec0c46bb0ed12708ae4",
+		"at_rf1w295jt5ia",
 		augno.CatalogItemAttributeUpdateParams{
-			ID:      "it_0131e386ac683e8c29a71f6f1f",
+			ID:      "it_pej07ckhvu62",
 			Include: []string{"category"},
 		},
 	)
@@ -56,9 +56,9 @@ func TestCatalogItemAttributeDeleteWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Items.Attributes.Delete(
 		context.TODO(),
-		"at_01c9493ec0c46bb0ed12708ae4",
+		"at_rf1w295jt5ia",
 		augno.CatalogItemAttributeDeleteParams{
-			ID:      "it_0131e386ac683e8c29a71f6f1f",
+			ID:      "it_pej07ckhvu62",
 			Include: []string{"category"},
 		},
 	)

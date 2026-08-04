@@ -43,7 +43,16 @@ func NewMessagingConversationParticipantService(opts ...option.RequestOption) (r
 	return
 }
 
-// Adds (or reactivates) a participant in a group conversation.
+// Adds an account user to a group conversation and returns the updated
+// conversation.
+//
+// Only an owner or admin of the conversation can add someone, and nobody can be
+// added to a direct message. Adding a user who previously left or was removed
+// reactivates their original membership with the role given here; adding someone
+// who is already an active member changes nothing.
+//
+// The added user receives a notification that they were added, and a system event
+// marking the addition is posted to the thread.
 //
 // This endpoint requires the permission: `messaging:create`.
 func (r *MessagingConversationParticipantService) New(ctx context.Context, id string, params MessagingConversationParticipantNewParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -58,6 +67,14 @@ func (r *MessagingConversationParticipantService) New(ctx context.Context, id st
 }
 
 // Removes a participant from a group conversation.
+//
+// Only an owner or admin can remove someone, participants cannot be removed from a
+// direct message, and callers cannot remove themselves — leave the conversation
+// instead. Use the remove-agent endpoint for agent participants.
+//
+// The removed member immediately loses access to the conversation, but their
+// earlier messages stay in the thread and a system event records the removal.
+// Adding them back later reactivates the same membership.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationParticipantService) Delete(ctx context.Context, pid string, body MessagingConversationParticipantDeleteParams, opts ...option.RequestOption) (res *MessagingConversationParticipantDeleteResponse, err error) {
@@ -75,7 +92,7 @@ func (r *MessagingConversationParticipantService) Delete(ctx context.Context, pi
 	return res, err
 }
 
-// Request to add a participant to a group (owner/admin).
+// Request to add an account user to a group conversation.
 //
 // The property AccountUserID is required.
 type AddParticipantRequestParam struct {
@@ -87,8 +104,8 @@ type AddParticipantRequestParam struct {
 	// - `member`: can post, leave, mute, and react.
 	// - `viewer`: read-only access.
 	//
-	// `owner` is not accepted here; ownership can only be transferred via the set-role
-	// endpoint.
+	// `owner` is not accepted here; use the set-role endpoint to make an existing
+	// participant an owner.
 	//
 	// Any of "owner", "admin", "member", "viewer".
 	Role AddParticipantRequestRole `json:"role,omitzero"`
@@ -109,8 +126,8 @@ func (r *AddParticipantRequestParam) UnmarshalJSON(data []byte) error {
 // - `member`: can post, leave, mute, and react.
 // - `viewer`: read-only access.
 //
-// `owner` is not accepted here; ownership can only be transferred via the set-role
-// endpoint.
+// `owner` is not accepted here; use the set-role endpoint to make an existing
+// participant an owner.
 type AddParticipantRequestRole string
 
 const (
@@ -135,7 +152,7 @@ func (r *MessagingConversationParticipantDeleteResponse) UnmarshalJSON(data []by
 }
 
 type MessagingConversationParticipantNewParams struct {
-	// Request to add a participant to a group (owner/admin).
+	// Request to add an account user to a group conversation.
 	AddParticipantRequest AddParticipantRequestParam
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

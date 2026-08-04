@@ -30,12 +30,12 @@ func TestOperationShippingTermNewWithOptionalParams(t *testing.T) {
 			Name: "Prepaid",
 			Type: augno.CreateShippingTermRequestTypeFlatRateFreight,
 			FlatRate: augno.QuantityInputParam{
-				UnitID: "un_01966263f74a5a0cae356000a1",
+				UnitID: "un_82bd37dae5po",
 				Value:  "15.00",
 			},
-			FreeShippingServiceLevelIDs: []string{"crop_01cfaf03f104e90ef9680e2a30"},
+			FreeShippingServiceLevelIDs: []string{"crop_4ilk9p6gccrx"},
 			MinimumOrderValue: augno.QuantityInputParam{
-				UnitID: "un_01966263f74a5a0cae356000a1",
+				UnitID: "un_82bd37dae5po",
 				Value:  "500.00",
 			},
 		},
@@ -64,7 +64,7 @@ func TestOperationShippingTermGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.ShippingTerms.Get(
 		context.TODO(),
-		"shtm_014341ab4bb5bf94d5b6936f86",
+		"shtm_c5gxy05whw6r",
 		augno.OperationShippingTermGetParams{
 			Include: []string{"owner"},
 		},
@@ -92,17 +92,17 @@ func TestOperationShippingTermUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.ShippingTerms.Update(
 		context.TODO(),
-		"shtm_014341ab4bb5bf94d5b6936f86",
+		"shtm_c5gxy05whw6r",
 		augno.OperationShippingTermUpdateParams{
 			Include: []string{"owner"},
 			UpdateShippingTermRequest: augno.UpdateShippingTermRequestParam{
 				FlatRate: augno.QuantityInputParam{
-					UnitID: "un_01966263f74a5a0cae356000a1",
+					UnitID: "un_82bd37dae5po",
 					Value:  "15.00",
 				},
-				FreeShippingServiceLevelIDs: []string{"crop_01cfaf03f104e90ef9680e2a30"},
+				FreeShippingServiceLevelIDs: []string{"crop_4ilk9p6gccrx"},
 				MinimumOrderValue: augno.QuantityInputParam{
-					UnitID: "un_01966263f74a5a0cae356000a1",
+					UnitID: "un_82bd37dae5po",
 					Value:  "500.00",
 				},
 				Name: augno.String("Collect"),
@@ -158,7 +158,7 @@ func TestOperationShippingTermDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ShippingTerms.Delete(context.TODO(), "shtm_014341ab4bb5bf94d5b6936f86")
+	_, err := client.Operations.ShippingTerms.Delete(context.TODO(), "shtm_c5gxy05whw6r")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

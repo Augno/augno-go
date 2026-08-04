@@ -27,7 +27,7 @@ func TestCoreEmailLogGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Core.EmailLogs.Get(
 		context.TODO(),
-		"eml_017b80707ada92dddff8a2c3a0",
+		"eml_h2j1q1nfibwb",
 		augno.CoreEmailLogGetParams{
 			Include: []string{"sent_by"},
 		},

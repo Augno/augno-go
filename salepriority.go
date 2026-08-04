@@ -40,7 +40,10 @@ func NewSalePriorityService(opts ...option.RequestOption) (r SalePriorityService
 	return
 }
 
-// Returns a priority by ID or code.
+// Retrieves a single priority level by ID or by code.
+//
+// Looking one up by code is usually more convenient, because other resources refer
+// to a priority by code rather than by ID.
 //
 // This endpoint requires the permission: `priorities:read`.
 func (r *SalePriorityService) Get(ctx context.Context, id string, query SalePriorityGetParams, opts ...option.RequestOption) (res *Priority, err error) {
@@ -54,7 +57,11 @@ func (r *SalePriorityService) Get(ctx context.Context, id string, query SalePrio
 	return res, err
 }
 
-// Returns a paginated list of priorities.
+// Lists the priority levels that can be set on a sales order or purchase order.
+//
+// The levels are platform-provided and the same for every account, so the result
+// is small and stable enough to cache. Results are ordered newest first rather
+// than by urgency.
 //
 // This endpoint requires the permission: `priorities:read`.
 func (r *SalePriorityService) List(ctx context.Context, query SalePriorityListParams, opts ...option.RequestOption) (res *ListPriority, err error) {
@@ -64,7 +71,8 @@ func (r *SalePriorityService) List(ctx context.Context, query SalePriorityListPa
 	return res, err
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListPriority struct {
 	// Resources in this page.
 	Data []Priority `json:"data" api:"required"`
@@ -72,7 +80,13 @@ type ListPriority struct {
 	//
 	// Any of "list".
 	Object ListPriorityObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -98,14 +112,18 @@ const (
 )
 
 // Priority level used to order work on sales orders, purchase orders, and picks.
+//
+// The levels are platform-provided and the same for every account, so they cannot
+// be created, renamed, or removed. A customer can carry a default priority that
+// pre-fills new orders for them.
 type Priority struct {
 	// Priority ID.
 	ID string `json:"id" api:"required"`
 	// Machine-readable code identifying the priority level.
 	//
-	// - `low`: lowest urgency; worked after normal and high.
-	// - `normal`: default urgency for most orders and picks.
-	// - `high`: highest urgency; worked ahead of normal and low.
+	// Other resources refer to a priority by this code rather than by its ID, such as
+	// a sales order's `priority`, and it can be used in place of the ID when
+	// retrieving a priority.
 	//
 	// Any of "low", "normal", "high".
 	Code PriorityCode `json:"code" api:"required"`
@@ -143,9 +161,9 @@ func (r *Priority) UnmarshalJSON(data []byte) error {
 
 // Machine-readable code identifying the priority level.
 //
-// - `low`: lowest urgency; worked after normal and high.
-// - `normal`: default urgency for most orders and picks.
-// - `high`: highest urgency; worked ahead of normal and low.
+// Other resources refer to a priority by this code rather than by its ID, such as
+// a sales order's `priority`, and it can be used in place of the ID when
+// retrieving a priority.
 type PriorityCode string
 
 const (

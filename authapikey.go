@@ -47,6 +47,10 @@ func NewAuthAPIKeyService(opts ...option.RequestOption) (r AuthAPIKeyService) {
 // Creates an [API key](https://docs.augno.com/api/api-keys) to authenticate API
 // requests.
 //
+// The key belongs to the account it was created under and only ever acts on behalf
+// of that account. Keys created under a sandbox account carry an `aug_sk_test_`
+// prefix; keys created under a production account carry an `aug_sk_prod_` prefix.
+//
 // The secret key is returned once and cannot be retrieved later, so you should
 // store it securely. We provide some
 // [recommendations](https://docs.augno.com/api/managing-api-keys) on how you can
@@ -62,6 +66,10 @@ func (r *AuthAPIKeyService) New(ctx context.Context, params AuthAPIKeyNewParams,
 
 // Returns [API key](https://docs.augno.com/api/api-keys) metadata by ID.
 //
+// Only the redacted key value is returned. The full secret is available only in
+// the response that issued the key, so a lost secret must be replaced by rotating
+// the key.
+//
 // This endpoint requires the `admin` role type.
 func (r *AuthAPIKeyService) Get(ctx context.Context, id string, query AuthAPIKeyGetParams, opts ...option.RequestOption) (res *APIKey, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -74,7 +82,11 @@ func (r *AuthAPIKeyService) Get(ctx context.Context, id string, query AuthAPIKey
 	return res, err
 }
 
-// Returns a paginated list of [API keys](https://docs.augno.com/api/api-keys).
+// Returns a paginated list of [API keys](https://docs.augno.com/api/api-keys),
+// newest first.
+//
+// Only keys belonging to the account making the request are returned. The search
+// term matches against the key name.
 //
 // This endpoint requires the `admin` role type.
 func (r *AuthAPIKeyService) List(ctx context.Context, query AuthAPIKeyListParams, opts ...option.RequestOption) (res *ListAPIKey, err error) {
@@ -86,9 +98,10 @@ func (r *AuthAPIKeyService) List(ctx context.Context, query AuthAPIKeyListParams
 
 // Revokes an [API key](https://docs.augno.com/api/api-keys).
 //
-// Revocation takes effect immediately and cannot be undone; revoked keys can no
-// longer be used to authenticate requests. To replace a key without losing access,
-// use Rotate API Key instead.
+// Revocation takes effect immediately and cannot be undone; any request still
+// presenting the key is rejected. The key record is kept, so it stays visible in
+// the key list with a `revoked` status. To replace a key without an interruption
+// in access, use Rotate API Key instead.
 //
 // This endpoint requires the `admin` role type.
 func (r *AuthAPIKeyService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *AuthAPIKeyDeleteResponse, err error) {
@@ -102,11 +115,16 @@ func (r *AuthAPIKeyService) Delete(ctx context.Context, id string, opts ...optio
 	return res, err
 }
 
-// A customer account, including its branding and customer portal sub-resources.
+// An organization on Augno, including its branding and customer portal
+// sub-resources.
+//
+// Your own account and any customer or supplier account you trade with are both
+// represented by this object.
 type Account struct {
 	// Account ID.
 	ID string `json:"id" api:"required"`
-	// Branding metadata for an account.
+	// The customer-facing branding an account presents on its portal, emails, and
+	// documents.
 	Branding AccountBranding `json:"branding" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
@@ -122,7 +140,7 @@ type Account struct {
 	//
 	// Any of "account".
 	Object AccountObject `json:"object" api:"required"`
-	// Portal metadata for an account.
+	// The customer portal an account publishes for its customers to sign in to.
 	Portal AccountPortal `json:"portal" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -155,7 +173,8 @@ const (
 	AccountObjectAccount AccountObject = "account"
 )
 
-// Branding metadata for an account.
+// The customer-facing branding an account presents on its portal, emails, and
+// documents.
 type AccountBranding struct {
 	// Branding ID.
 	ID string `json:"id" api:"required"`
@@ -163,27 +182,35 @@ type AccountBranding struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Facebook handle.
 	FacebookHandle string `json:"facebook_handle" api:"required"`
-	// Customer-portal favicon URL.
+	// Stored location of the account's customer-portal favicon.
+	//
+	// Favicons uploaded through the API are stored as an object key rather than a
+	// fetchable link, so use the Get Account Favicon URL endpoint to obtain a
+	// short-lived download URL.
 	FaviconURL string `json:"favicon_url" api:"required"`
 	// Instagram handle.
 	InstagramHandle string `json:"instagram_handle" api:"required"`
 	// LinkedIn handle.
 	LinkedinHandle string `json:"linkedin_handle" api:"required"`
-	// Logo URL.
+	// Stored location of the account's logo image.
+	//
+	// Logos uploaded through the API are stored as an object key rather than a
+	// fetchable link, so use the Get Account Logo URL endpoint to obtain a short-lived
+	// download URL.
 	LogoURL string `json:"logo_url" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "account_branding".
 	Object AccountBrandingObject `json:"object" api:"required"`
-	// Support phone number.
+	// The account's public contact phone number.
 	PhoneNumber string `json:"phone_number" api:"required"`
-	// Support email address.
+	// The email address customers are directed to for support.
 	SupportEmail string `json:"support_email" api:"required"`
 	// Twitter handle.
 	TwitterHandle string `json:"twitter_handle" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// Website URL.
+	// The account's public website.
 	WebsiteURL string `json:"website_url" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -218,7 +245,7 @@ const (
 	AccountBrandingObjectAccountBranding AccountBrandingObject = "account_branding"
 )
 
-// Portal metadata for an account.
+// The customer portal an account publishes for its customers to sign in to.
 type AccountPortal struct {
 	// Portal ID.
 	ID string `json:"id" api:"required"`
@@ -330,19 +357,22 @@ const (
 )
 
 // An API key used to authenticate requests to the Augno API.
+//
+// A key always acts on behalf of the account it was created under, with the
+// permissions of the role assigned to it.
 type APIKey struct {
 	// API key ID.
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// When the key expires and stops authenticating.
+	// When the key expires and stops authenticating requests.
 	//
-	// `null` if the key never expires.
+	// A key with no expiration keeps working until it is revoked or rotated.
 	ExpiresAt time.Time `json:"expires_at" api:"required" format:"date-time"`
 	// When the key was last used to authenticate a request.
 	//
-	// Updated at most once every 24 hours, so it may lag the key's most recent use.
-	// `null` if the key has never been used.
+	// Recorded at most once every 24 hours, so it can lag the key's most recent use by
+	// up to a day.
 	LastUsedAt time.Time `json:"last_used_at" api:"required" format:"date-time"`
 	// Human-readable name for the API key.
 	Name string `json:"name" api:"required"`
@@ -357,9 +387,8 @@ type APIKey struct {
 	RedactedValue string `json:"redacted_value" api:"required"`
 	// When the key's revocation takes effect.
 	//
-	// A future timestamp means revocation was scheduled (for example, during rotation)
-	// and the key continues to authenticate requests until that time. `null` if the
-	// key has not been revoked.
+	// A future timestamp means revocation was scheduled (for example, by a rotation)
+	// and the key continues to authenticate requests until that time.
 	RevokedAt time.Time `json:"revoked_at" api:"required" format:"date-time"`
 	// A named set of permissions that can be assigned to users to control what they
 	// can access.
@@ -401,14 +430,20 @@ const (
 // The properties Name, RoleID are required.
 type CreateAPIKeyRequestParam struct {
 	// Human-readable name for the API key.
+	//
+	// Shown when listing keys and used to match keys when searching, so prefer
+	// something that identifies the integration using it.
 	Name string `json:"name" api:"required"`
 	// ID of the role to assign to the API key.
 	//
-	// The role determines the permissions of requests authenticated with the key.
+	// The role determines what requests authenticated with the key are allowed to do.
+	// A key keeps its role for life — including through rotation — so issue a new key
+	// to use a different one, while changes to the role's own permissions take effect
+	// for existing keys immediately.
 	RoleID string `json:"role_id" api:"required"`
 	// When the key expires and stops authenticating requests.
 	//
-	// If omitted, the key never expires.
+	// If omitted, the key keeps working until it is revoked or rotated.
 	ExpiresAt param.Opt[time.Time] `json:"expires_at,omitzero" format:"date-time"`
 	paramObj
 }
@@ -421,13 +456,19 @@ func (r *CreateAPIKeyRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Result of creating an API key, with the full secret value.
+// A newly issued API key together with its secret value, returned when a key is
+// created or rotated.
 type CreatedAPIKey struct {
 	// An API key used to authenticate requests to the Augno API.
-	APIKeyInfo APIKey `json:"api_key_info" api:"required"`
-	// Full secret value.
 	//
-	// Returned once and cannot be retrieved later. Learn more about
+	// A key always acts on behalf of the account it was created under, with the
+	// permissions of the role assigned to it.
+	APIKeyInfo APIKey `json:"api_key_info" api:"required"`
+	// The secret used to authenticate requests, sent as a bearer token in the
+	// `Authorization` header.
+	//
+	// This is the only response that ever contains the secret; if it is lost, rotate
+	// the key to issue a new one. Learn more about
 	// [managing your API keys](https://docs.augno.com/api/managing-api-keys).
 	APIKeySecret string `json:"api_key_secret" api:"required"`
 	// Resource type identifier.
@@ -505,7 +546,8 @@ const (
 	GeolocationObjectGeolocation GeolocationObject = "geolocation"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListAPIKey struct {
 	// Resources in this page.
 	Data []APIKey `json:"data" api:"required"`
@@ -513,7 +555,13 @@ type ListAPIKey struct {
 	//
 	// Any of "list".
 	Object ListAPIKeyObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -540,7 +588,11 @@ const (
 
 // Owner describes the provenance of a resource.
 type Owner struct {
-	// A customer account, including its branding and customer portal sub-resources.
+	// An organization on Augno, including its branding and customer portal
+	// sub-resources.
+	//
+	// Your own account and any customer or supplier account you trade with are both
+	// represented by this object.
 	Account Account `json:"account" api:"required"`
 	// Resource type identifier.
 	//
@@ -591,19 +643,21 @@ const (
 	OwnerTypeAccount OwnerType = "account"
 )
 
-// PageInfo contains URL-based pagination metadata.
+// PageInfo describes where the current page sits within a paginated result set and
+// how to move to the adjacent pages.
+//
+// Page a list by following the URLs below rather than assembling cursors yourself.
+// For a top-level list endpoint the URL repeats the original request's query
+// string with only the cursor swapped, so following it preserves the same filters,
+// search term, and page size.
 type PageInfo struct {
 	// Whether more results exist after this page.
 	HasNextPage bool `json:"has_next_page" api:"required"`
 	// Whether results exist before this page.
 	HasPrevPage bool `json:"has_prev_page" api:"required"`
 	// Relative URL that fetches the next page of results.
-	//
-	// `null` when the last page has been reached.
 	NextPageURL string `json:"next_page_url" api:"required"`
 	// Relative URL that fetches the previous page of results.
-	//
-	// `null` while on the first page.
 	PreviousPageURL string `json:"previous_page_url" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -629,7 +683,9 @@ type Role struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name, unique within the account.
+	// Display name of the role.
+	//
+	// Unique within the account.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -637,20 +693,23 @@ type Role struct {
 	Object RoleObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// Permissions granted by this role, in `{domain}:{action}` format, such as
+	// Permissions granted by this role, in `{permission}:{action}` format, such as
 	// `customers:read`.
 	Permissions []string `json:"permissions" api:"required"`
 	// The kind of role.
 	//
-	// The role's type is sometimes used to gate special behaviors and to restrict some
-	// actions to only certain types of roles. For example, only roles with the type
-	// `admin` can create and manage API keys.
+	// The type gates behavior that individual permissions do not cover, and some
+	// actions are reserved for a single role type.
 	//
-	//   - `admin`: full administrative access, including managing API keys.
-	//   - `user`: a custom role tailored to a specific need (its permissions are defined
-	//     explicitly). Roles created through the API always have this type.
-	//   - `scanner`: a role for scanning-station operators.
-	//   - `sales_rep`: a role for sales representatives.
+	//   - `admin`: full administrative access. Sensitive areas such as API keys,
+	//     billing, and third-party integrations are restricted to admins no matter what
+	//     permissions another role holds.
+	//   - `user`: a custom role tailored to a specific need, with its permissions
+	//     defined explicitly. Roles created through the API always have this type.
+	//   - `scanner`: the role used by shop-floor scanning stations, assigned
+	//     automatically when a scanning-station user is created.
+	//   - `sales_rep`: a role for sales representatives. Order analytics are scoped to
+	//     the rep's own orders.
 	//   - `agent`: a role assigned to an automated agent rather than a person.
 	//
 	// Any of "admin", "user", "scanner", "sales_rep", "agent".
@@ -687,15 +746,18 @@ const (
 
 // The kind of role.
 //
-// The role's type is sometimes used to gate special behaviors and to restrict some
-// actions to only certain types of roles. For example, only roles with the type
-// `admin` can create and manage API keys.
+// The type gates behavior that individual permissions do not cover, and some
+// actions are reserved for a single role type.
 //
-//   - `admin`: full administrative access, including managing API keys.
-//   - `user`: a custom role tailored to a specific need (its permissions are defined
-//     explicitly). Roles created through the API always have this type.
-//   - `scanner`: a role for scanning-station operators.
-//   - `sales_rep`: a role for sales representatives.
+//   - `admin`: full administrative access. Sensitive areas such as API keys,
+//     billing, and third-party integrations are restricted to admins no matter what
+//     permissions another role holds.
+//   - `user`: a custom role tailored to a specific need, with its permissions
+//     defined explicitly. Roles created through the API always have this type.
+//   - `scanner`: the role used by shop-floor scanning stations, assigned
+//     automatically when a scanning-station user is created.
+//   - `sales_rep`: a role for sales representatives. Order analytics are scoped to
+//     the rep's own orders.
 //   - `agent`: a role assigned to an automated agent rather than a person.
 type RoleType string
 
@@ -784,10 +846,10 @@ type AuthAPIKeyListParams struct {
 	Include []string `query:"include,omitzero" json:"-"`
 	// API key statuses to filter by.
 	//
-	//   - `active`: the key can be used to authenticate requests.
-	//   - `expired`: the key passed its expiration time and can no longer authenticate
-	//     requests.
-	//   - `revoked`: the key was revoked and can no longer authenticate requests.
+	//   - `active`: the key still authenticates requests. A key whose revocation is
+	//     scheduled for a future time is still active until that time arrives.
+	//   - `expired`: the key passed its expiration time without having been revoked.
+	//   - `revoked`: the key was revoked, which takes precedence over expiration.
 	//
 	// When omitted, keys of every status are returned.
 	//

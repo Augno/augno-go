@@ -43,7 +43,12 @@ func NewSaleSalesOrderLineService(opts ...option.RequestOption) (r SaleSalesOrde
 	return
 }
 
-// Creates a line item on a sales order.
+// Adds a line item to a sales order.
+//
+// The new line is appended below the existing product lines, keeping the order's
+// freight and discount lines at the bottom. When the order has already been
+// issued, the line is added to its pick as outstanding work and the pick is
+// reopened if it had been finished.
 //
 // This endpoint requires the permissions: `customers:update`, `suppliers:update`,
 // `sales_orders:update`.
@@ -59,6 +64,13 @@ func (r *SaleSalesOrderLineService) New(ctx context.Context, id string, params S
 }
 
 // Partially updates a sales order line item.
+//
+// Changing the quantity flows through to fulfillment: the order's pick is
+// reconciled against what is still outstanding — reopening it when the new
+// quantity leaves work to do, or dropping the surplus pick line and finishing it
+// when everything ordered is already packed. Shipment and invoice lines that still
+// carry the full previously ordered quantity follow the new value, while partial
+// ones keep the amount that actually moved.
 //
 // This endpoint requires the permissions: `customers:update`, `suppliers:update`,
 // `sales_orders:update`.
@@ -77,7 +89,14 @@ func (r *SaleSalesOrderLineService) Update(ctx context.Context, lineID string, p
 	return res, err
 }
 
-// Deletes a sales order line and related records.
+// Deletes a sales order line and its pick lines.
+//
+// A line cannot be removed once it has been packed onto a shipment, or once the
+// order is fulfilled, and removing one from an order that is already completed or
+// has a shipped shipment requires an admin. The remaining lines are renumbered so
+// the sequence stays contiguous, and if this was the last line left to pick, the
+// order's pick is deleted and the order falls back to `estimate` with its reserved
+// inventory released.
 //
 // This endpoint requires the permissions: `customers:update`, `suppliers:update`,
 // `sales_orders:update`.
@@ -98,23 +117,24 @@ func (r *SaleSalesOrderLineService) Delete(ctx context.Context, lineID string, b
 
 // Request to create a line on a sales order.
 //
-// This mirrors the create-order line shape (not the shared purchase-order
-// OrderLineInput): the unit price is optional and, when omitted, the line is
-// priced server-side from the product. The unit cost is always resolved
-// server-side from the product.
-//
 // The properties ProductID, ProductSKU, Quantity are required.
 type CreateSalesOrderLineRequestParam struct {
 	// ID of the product being ordered.
 	ProductID string `json:"product_id" api:"required"`
 	// The product SKU recorded on the line.
 	ProductSKU string `json:"product_sku" api:"required"`
-	// A value with an associated unit, used in create and update requests.
+	// An amount together with the unit it is expressed in.
+	//
+	// The unit may be a currency, so money amounts such as a credit limit are written
+	// the same way as physical amounts like weights or counts.
 	Quantity QuantityInputParam `json:"quantity,omitzero" api:"required"`
 	// The product description recorded on the line.
 	ProductDescription param.Opt[string] `json:"product_description,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitPrice RateInputParam `json:"unit_price,omitzero"`
 	paramObj
 }
@@ -129,17 +149,26 @@ func (r *CreateSalesOrderLineRequestParam) UnmarshalJSON(data []byte) error {
 
 // Request to update a sales order line.
 type UpdateSalesOrderLineRequestParam struct {
-	// Product description.
+	// Description recorded on the line.
 	ProductDescription param.Opt[string] `json:"product_description,omitzero"`
-	// Product SKU.
+	// SKU recorded on the line.
 	ProductSKU param.Opt[string] `json:"product_sku,omitzero"`
-	// A value with an associated unit, used in create and update requests.
+	// An amount together with the unit it is expressed in.
+	//
+	// The unit may be a currency, so money amounts such as a credit limit are written
+	// the same way as physical amounts like weights or counts.
 	Quantity QuantityInputParam `json:"quantity,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitCost RateInputParam `json:"unit_cost,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitPrice RateInputParam `json:"unit_price,omitzero"`
 	paramObj
 }
@@ -168,11 +197,6 @@ func (r *SaleSalesOrderLineDeleteResponse) UnmarshalJSON(data []byte) error {
 
 type SaleSalesOrderLineNewParams struct {
 	// Request to create a line on a sales order.
-	//
-	// This mirrors the create-order line shape (not the shared purchase-order
-	// OrderLineInput): the unit price is optional and, when omitted, the line is
-	// priced server-side from the product. The unit cost is always resolved
-	// server-side from the product.
 	CreateSalesOrderLineRequest CreateSalesOrderLineRequestParam
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

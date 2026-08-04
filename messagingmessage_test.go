@@ -27,7 +27,7 @@ func TestMessagingMessageUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Messages.Update(
 		context.TODO(),
-		"mg_01h9z8q1w2e3r4t5y6u7i8mg",
+		"mg_fdny8633ebgw",
 		augno.MessagingMessageUpdateParams{
 			UpdateDraftRequest: augno.UpdateDraftRequestParam{
 				Body:    "Hi Joe — good news, your order ships tomorrow.",

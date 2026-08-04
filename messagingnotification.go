@@ -44,11 +44,15 @@ func NewMessagingNotificationService(opts ...option.RequestOption) (r MessagingN
 	return
 }
 
-// Sends an in-app notification to a single user or broadcasts it to every user in
-// an account.
+// Sends an in-app notification to a single member of an account, or announces it
+// to everyone in the account.
 //
-// Delivery is asynchronous: the notification is fanned out to its recipients and
-// pushed to connected clients in real time.
+// A send to one member is attributed to the authenticated caller, so the recipient
+// sees who sent it. It is accepted and then fanned out, so it reaches the
+// recipient's feed and their connected clients shortly after the response.
+//
+// An announcement to the whole account is stored as the request is accepted,
+// carries no sender, and may only target the account you are currently acting in.
 //
 // This endpoint requires the permission: `alerts:create`.
 func (r *MessagingNotificationService) New(ctx context.Context, body MessagingNotificationNewParams, opts ...option.RequestOption) (res *NotificationSendResult, err error) {
@@ -58,7 +62,11 @@ func (r *MessagingNotificationService) New(ctx context.Context, body MessagingNo
 	return res, err
 }
 
-// Returns one of the caller's notifications by ID.
+// Retrieves a single notification by ID.
+//
+// Only notifications addressed to the current user are visible; another user's
+// notification is reported as not found. Dismissed notifications remain
+// retrievable.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingNotificationService) Get(ctx context.Context, id string, query MessagingNotificationGetParams, opts ...option.RequestOption) (res *Notification, err error) {
@@ -72,7 +80,11 @@ func (r *MessagingNotificationService) Get(ctx context.Context, id string, query
 	return res, err
 }
 
-// Returns the current user's notifications, most recent first.
+// Lists the notifications addressed to the current user, newest first.
+//
+// The feed is personal and scoped to the account being acted in, so it never
+// includes another user's notifications. Callers with no user membership in that
+// account, such as an API key, get an empty list rather than an error.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingNotificationService) List(ctx context.Context, query MessagingNotificationListParams, opts ...option.RequestOption) (res *ListNotification, err error) {
@@ -82,7 +94,11 @@ func (r *MessagingNotificationService) List(ctx context.Context, query Messaging
 	return res, err
 }
 
-// Returns the current user's unread notification counts.
+// Returns the current user's unread tallies for the account they are acting in,
+// for driving a notification badge.
+//
+// The total also counts account announcements the user has not seen, so it can be
+// higher than the notification count alone.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingNotificationService) GetUnreadCount(ctx context.Context, opts ...option.RequestOption) (res *NotificationUnreadCount, err error) {
@@ -92,7 +108,12 @@ func (r *MessagingNotificationService) GetUnreadCount(ctx context.Context, opts 
 	return res, err
 }
 
-// Returns the caller's unread totals across every account they belong to.
+// Returns the caller's unread totals broken down by account, covering every
+// account they belong to and not just the one they are acting in.
+//
+// Use it to show a user that activity is waiting for them elsewhere before they
+// switch accounts. Each tally counts unseen notifications and unseen account
+// announcements together.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingNotificationService) GetUnreadSummary(ctx context.Context, opts ...option.RequestOption) (res *NotificationUnreadSummary, err error) {
@@ -102,7 +123,8 @@ func (r *MessagingNotificationService) GetUnreadSummary(ctx context.Context, opt
 	return res, err
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListNotification struct {
 	// Resources in this page.
 	Data []Notification `json:"data" api:"required"`
@@ -110,7 +132,13 @@ type ListNotification struct {
 	//
 	// Any of "list".
 	Object ListNotificationObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -135,7 +163,8 @@ const (
 	ListNotificationObjectList ListNotificationObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListNotificationUnreadSummaryAccount struct {
 	// Resources in this page.
 	Data []NotificationUnreadSummaryAccount `json:"data" api:"required"`
@@ -143,7 +172,13 @@ type ListNotificationUnreadSummaryAccount struct {
 	//
 	// Any of "list".
 	Object ListNotificationUnreadSummaryAccountObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -168,11 +203,17 @@ const (
 	ListNotificationUnreadSummaryAccountObjectList ListNotificationUnreadSummaryAccountObject = "list"
 )
 
-// An in-app notification in the user's bell feed.
+// An in-app notification addressed to a single user, shown in their notification
+// (bell) feed.
+//
+// A notification belongs to one user in one account, so the feed you read is
+// always that of the authenticated caller in the account they are acting in.
+// Announcements broadcast to a whole account are a separate resource.
 type Notification struct {
 	// Notification ID.
 	ID string `json:"id" api:"required"`
-	// Preview/body text.
+	// Supporting detail shown beneath the title, such as a preview of the message that
+	// triggered the notification.
 	Body string `json:"body" api:"required"`
 	// The kind of event this notification represents.
 	//
@@ -186,6 +227,7 @@ type Notification struct {
 	//   - `agent.run_completed`: an agent run the user triggered finished.
 	//   - `agent.alert`: an agent raised an alert during a run.
 	//   - `system.broadcast`: a targeted system message.
+	//   - `customer.registered`: a buyer completed registration on your customer portal.
 	//
 	// Any of "chat.message", "chat.mention", "chat.added", "order.updated",
 	// "agent.run_completed", "agent.alert", "system.broadcast", "customer.registered".
@@ -198,7 +240,8 @@ type Notification struct {
 	//
 	// Any of "notification".
 	Object NotificationObject `json:"object" api:"required"`
-	// Delivery priority.
+	// How prominently the notification should be surfaced, from `low` through
+	// `urgent`.
 	//
 	// Any of "low", "normal", "high", "urgent".
 	Priority NotificationPriority `json:"priority" api:"required"`
@@ -206,21 +249,24 @@ type Notification struct {
 	ReadAt time.Time `json:"read_at" api:"required" format:"date-time"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Resource Entity `json:"resource" api:"required"`
-	// When the notification first appeared in the dropdown.
+	// When the notification was first surfaced to the user.
 	SeenAt time.Time `json:"seen_at" api:"required" format:"date-time"`
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
 	Sender Actor `json:"sender" api:"required"`
 	// Where the notification is in its lifecycle.
 	//
-	// - `unseen`: not yet surfaced in the notification dropdown.
-	// - `seen`: surfaced in the dropdown but not yet opened.
+	// - `unseen`: delivered but not yet surfaced to the user.
+	// - `seen`: surfaced in the feed but not yet opened.
 	// - `read`: explicitly opened by the user.
 	// - `dismissed`: removed from the active feed.
 	//
+	// The status is derived from the seen, read, and dismissed timestamps, and only
+	// ever moves forward — a notification can never become unseen again.
+	//
 	// Any of "unseen", "seen", "read", "dismissed".
 	Status NotificationStatus `json:"status" api:"required"`
-	// Human-readable title.
+	// Short headline shown in the feed.
 	Title string `json:"title" api:"required"`
 	// Last update timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -263,6 +309,7 @@ func (r *Notification) UnmarshalJSON(data []byte) error {
 //   - `agent.run_completed`: an agent run the user triggered finished.
 //   - `agent.alert`: an agent raised an alert during a run.
 //   - `system.broadcast`: a targeted system message.
+//   - `customer.registered`: a buyer completed registration on your customer portal.
 type NotificationCategory string
 
 const (
@@ -283,7 +330,8 @@ const (
 	NotificationObjectNotification NotificationObject = "notification"
 )
 
-// Delivery priority.
+// How prominently the notification should be surfaced, from `low` through
+// `urgent`.
 type NotificationPriority string
 
 const (
@@ -295,10 +343,13 @@ const (
 
 // Where the notification is in its lifecycle.
 //
-// - `unseen`: not yet surfaced in the notification dropdown.
-// - `seen`: surfaced in the dropdown but not yet opened.
+// - `unseen`: delivered but not yet surfaced to the user.
+// - `seen`: surfaced in the feed but not yet opened.
 // - `read`: explicitly opened by the user.
 // - `dismissed`: removed from the active feed.
+//
+// The status is derived from the seen, read, and dismissed timestamps, and only
+// ever moves forward — a notification can never become unseen again.
 type NotificationStatus string
 
 const (
@@ -308,9 +359,14 @@ const (
 	NotificationStatusDismissed NotificationStatus = "dismissed"
 )
 
-// NotificationSendResult acknowledges a notification send/fan-out request.
+// The acknowledgement returned when a notification is accepted for delivery.
 type NotificationSendResult struct {
-	// Number of recipients the notification was enqueued for.
+	// Number of deliveries accepted for the notification.
+	//
+	// An account broadcast is stored once as a single announcement that serves
+	// everyone in the account, so it reports `1` rather than a per-user count.
+	// Acceptance is not delivery: recipients who cannot be resolved are skipped when
+	// the notification is fanned out.
 	Enqueued int64 `json:"enqueued" api:"required"`
 	// Resource type identifier.
 	//
@@ -338,23 +394,21 @@ const (
 	NotificationSendResultObjectNotificationSendResult NotificationSendResultObject = "notification_send_result"
 )
 
-// NotificationTargetInput selects what a notification send is aimed at.
-//
-// The target is a polymorphic reference carrying a `type` and the `id` it refers
-// to. Modeling it this way, rather than a single id or a broadcast flag, lets new
-// target kinds be added without a breaking change to the send API.
-//
-// Supported types:
-//
-//   - `account_user`: `id` is an account_user id; delivers a per-user notification.
-//   - `account`: `id` is an account id; broadcasts an announcement to every user in
-//     the account.
+// Who a notification is aimed at.
 //
 // The properties ID, Type are required.
 type NotificationTargetInputParam struct {
-	// The id of the target (an account_user id or an account id, matching `type`).
+	// The id of the recipient, matching `type`: an account user id, or an account id.
+	//
+	// An account target must be the account you are currently acting in — you cannot
+	// broadcast into another account.
 	ID string `json:"id" api:"required"`
-	// The kind of target.
+	// The kind of recipient being addressed.
+	//
+	//   - `account_user`: one member of the account, who receives a personal
+	//     notification in their feed.
+	//   - `account`: every member of the account, who all receive a single shared
+	//     announcement.
 	//
 	// Any of "account_user", "account".
 	Type NotificationTargetInputType `json:"type,omitzero" api:"required"`
@@ -369,7 +423,12 @@ func (r *NotificationTargetInputParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The kind of target.
+// The kind of recipient being addressed.
+//
+//   - `account_user`: one member of the account, who receives a personal
+//     notification in their feed.
+//   - `account`: every member of the account, who all receive a single shared
+//     announcement.
 type NotificationTargetInputType string
 
 const (
@@ -377,17 +436,27 @@ const (
 	NotificationTargetInputTypeAccount     NotificationTargetInputType = "account"
 )
 
-// NotificationUnreadCount summarizes a user's unread tallies across surfaces.
+// The caller's unread tallies in one account, used to drive the notification bell
+// badge.
 type NotificationUnreadCount struct {
-	// Number of conversations with unread messages (0 until chat ships).
+	// Number of conversations with unread messages.
+	//
+	// Always `0` today — conversation unread counts are not yet folded into the bell.
 	Conversations int64 `json:"conversations" api:"required"`
-	// Number of unseen bell notifications.
+	// Number of the caller's notifications that have not been seen yet.
+	//
+	// Dismissed notifications are never counted, and marking all notifications seen
+	// drops this to zero.
 	Notifications int64 `json:"notifications" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "notification_unread_count".
 	Object NotificationUnreadCountObject `json:"object" api:"required"`
-	// Combined unread total.
+	// Combined unread total for the bell badge.
+	//
+	// This is the unseen notification count plus any account announcements the caller
+	// has not seen, so it can exceed `notifications`. Announcements are cleared
+	// individually rather than by marking all notifications seen.
 	Total int64 `json:"total" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -413,10 +482,11 @@ const (
 	NotificationUnreadCountObjectNotificationUnreadCount NotificationUnreadCountObject = "notification_unread_count"
 )
 
-// NotificationUnreadSummary is the caller's unread totals across every account
-// they belong to.
+// The caller's unread totals across every account they belong to, used to show
+// unread activity waiting in accounts they are not currently working in.
 type NotificationUnreadSummary struct {
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Accounts ListNotificationUnreadSummaryAccount `json:"accounts" api:"required"`
 	// Resource type identifier.
 	//
@@ -447,8 +517,7 @@ const (
 	NotificationUnreadSummaryObjectNotificationUnreadSummary NotificationUnreadSummaryObject = "notification_unread_summary"
 )
 
-// NotificationUnreadSummaryAccount is one account's unread tally in the
-// cross-account summary.
+// One account's unread tally within the caller's cross-account summary.
 type NotificationUnreadSummaryAccount struct {
 	// Entity is a polymorphic reference to any resource in the system.
 	Account Entity `json:"account" api:"required"`
@@ -456,7 +525,8 @@ type NotificationUnreadSummaryAccount struct {
 	//
 	// Any of "notification_unread_summary_account".
 	Object NotificationUnreadSummaryAccountObject `json:"object" api:"required"`
-	// Number of unread items (notifications + announcements) in this account.
+	// Number of unseen notifications and account announcements the caller has in this
+	// account.
 	Unread int64 `json:"unread" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -483,38 +553,32 @@ const (
 
 // Request to send an in-app notification.
 //
-// The target determines whether it is delivered to a single user or broadcast to
-// every user in an account. This endpoint is internal/admin only.
+// The target decides whether the notification goes to one member of the account or
+// to everyone in it.
 //
 // The properties Category, Target, Title are required.
 type SendNotificationRequestParam struct {
-	// Category of the notification.
+	// The kind of event the notification represents, such as `order.updated`.
+	//
+	// Categories are how clients group and filter the feed, so reuse an existing one
+	// where it fits.
 	//
 	// Any of "chat.message", "chat.mention", "chat.added", "order.updated",
 	// "agent.run_completed", "agent.alert", "system.broadcast", "customer.registered".
 	Category SendNotificationRequestCategory `json:"category,omitzero" api:"required"`
-	// NotificationTargetInput selects what a notification send is aimed at.
-	//
-	// The target is a polymorphic reference carrying a `type` and the `id` it refers
-	// to. Modeling it this way, rather than a single id or a broadcast flag, lets new
-	// target kinds be added without a breaking change to the send API.
-	//
-	// Supported types:
-	//
-	//   - `account_user`: `id` is an account_user id; delivers a per-user notification.
-	//   - `account`: `id` is an account id; broadcasts an announcement to every user in
-	//     the account.
+	// Who a notification is aimed at.
 	Target NotificationTargetInputParam `json:"target,omitzero" api:"required"`
-	// Human-readable title.
+	// Short headline shown in the recipient's feed.
 	Title string `json:"title" api:"required"`
-	// Preview/body text.
+	// Supporting detail shown beneath the title.
 	Body param.Opt[string] `json:"body,omitzero"`
-	// ID of the resource this notification should link to.
+	// ID of the resource the notification should link to.
 	LinkResourceID param.Opt[string] `json:"link_resource_id,omitzero"`
-	// Object type of the resource this notification should link to.
+	// Type of the resource the notification should link to, such as `sales_order`.
 	//
-	// Set together with `link_resource_id` to point the notification at something the
-	// recipient can open.
+	// Set it together with `link_resource_id` to point the notification at something
+	// the recipient can open; supplying only one of the two produces a notification
+	// with no link.
 	//
 	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
 	// "sales_order_stage_total", "sales_order_related", "order_contact", "user",
@@ -599,7 +663,8 @@ type SendNotificationRequestParam struct {
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
 	// "pack_list_case".
 	LinkResourceType SendNotificationRequestLinkResourceType `json:"link_resource_type,omitzero"`
-	// Delivery priority.
+	// How prominently the notification should be surfaced, from `low` through
+	// `urgent`.
 	//
 	// Any of "low", "normal", "high", "urgent".
 	Priority SendNotificationRequestPriority `json:"priority,omitzero"`
@@ -614,7 +679,10 @@ func (r *SendNotificationRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Category of the notification.
+// The kind of event the notification represents, such as `order.updated`.
+//
+// Categories are how clients group and filter the feed, so reuse an existing one
+// where it fits.
 type SendNotificationRequestCategory string
 
 const (
@@ -628,10 +696,11 @@ const (
 	SendNotificationRequestCategoryCustomerRegistered SendNotificationRequestCategory = "customer.registered"
 )
 
-// Object type of the resource this notification should link to.
+// Type of the resource the notification should link to, such as `sales_order`.
 //
-// Set together with `link_resource_id` to point the notification at something the
-// recipient can open.
+// Set it together with `link_resource_id` to point the notification at something
+// the recipient can open; supplying only one of the two produces a notification
+// with no link.
 type SendNotificationRequestLinkResourceType string
 
 const (
@@ -912,7 +981,8 @@ const (
 	SendNotificationRequestLinkResourceTypePackListCase                         SendNotificationRequestLinkResourceType = "pack_list_case"
 )
 
-// Delivery priority.
+// How prominently the notification should be surfaced, from `low` through
+// `urgent`.
 type SendNotificationRequestPriority string
 
 const (
@@ -925,8 +995,8 @@ const (
 type MessagingNotificationNewParams struct {
 	// Request to send an in-app notification.
 	//
-	// The target determines whether it is delivered to a single user or broadcast to
-	// every user in an account. This endpoint is internal/admin only.
+	// The target decides whether the notification goes to one member of the account or
+	// to everyone in it.
 	SendNotificationRequest SendNotificationRequestParam
 	paramObj
 }
@@ -969,7 +1039,8 @@ type MessagingNotificationListParams struct {
 	//
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
-	// Filter by category.
+	// Return only notifications of this category, such as `chat.mention` or
+	// `order.updated`.
 	//
 	// Any of "chat.message", "chat.mention", "chat.added", "order.updated",
 	// "agent.run_completed", "agent.alert", "system.broadcast", "customer.registered".
@@ -979,16 +1050,23 @@ type MessagingNotificationListParams struct {
 	//
 	// Any of "sender", "resource".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Filter by sender id(s).
+	// Return only notifications sent by these actors.
+	//
+	// A notification sent by a person is attributed to their account user id, not
+	// their user id.
 	SenderIDs []string `query:"sender_ids,omitzero" json:"-"`
-	// Filter by sender type(s).
+	// Return only notifications sent by these kinds of actor.
+	//
+	// Notifications raised by the platform itself are attributed to the `system`
+	// sender type but are returned without a sender.
 	//
 	// Any of "user", "group", "system", "agent", "apikey".
 	SenderTypes []string `query:"sender_types,omitzero" json:"-"`
-	// Filter by lifecycle status.
+	// Return only notifications in this lifecycle state.
 	//
-	// When omitted, the feed returns the full active feed — every non-dismissed
-	// notification (seen and unseen alike), newest first.
+	// When omitted, the response is the active feed: every notification that has not
+	// been dismissed, whatever its seen or read state. Pass `dismissed` to review
+	// notifications that were cleared out of the feed.
 	//
 	// Any of "unseen", "seen", "read", "dismissed".
 	Status MessagingNotificationListParamsStatus `query:"status,omitzero" json:"-"`
@@ -1004,7 +1082,8 @@ func (r MessagingNotificationListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Filter by category.
+// Return only notifications of this category, such as `chat.mention` or
+// `order.updated`.
 type MessagingNotificationListParamsCategory string
 
 const (
@@ -1018,10 +1097,11 @@ const (
 	MessagingNotificationListParamsCategoryCustomerRegistered MessagingNotificationListParamsCategory = "customer.registered"
 )
 
-// Filter by lifecycle status.
+// Return only notifications in this lifecycle state.
 //
-// When omitted, the feed returns the full active feed — every non-dismissed
-// notification (seen and unseen alike), newest first.
+// When omitted, the response is the active feed: every notification that has not
+// been dismissed, whatever its seen or read state. Pass `dismissed` to review
+// notifications that were cleared out of the feed.
 type MessagingNotificationListParamsStatus string
 
 const (

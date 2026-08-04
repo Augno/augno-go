@@ -27,7 +27,7 @@ func TestMessagingAnnouncementActionDismissWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Announcements.Actions.Dismiss(
 		context.TODO(),
-		"an_01c4d5e6f7a8b9c0d1e2f3a4",
+		"an_m4vwgn2t8cqs",
 		augno.MessagingAnnouncementActionDismissParams{
 			Include: []string{"resource"},
 		},
@@ -55,7 +55,7 @@ func TestMessagingAnnouncementActionReadWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Announcements.Actions.Read(
 		context.TODO(),
-		"an_01c4d5e6f7a8b9c0d1e2f3a4",
+		"an_m4vwgn2t8cqs",
 		augno.MessagingAnnouncementActionReadParams{
 			Include: []string{"resource"},
 		},
@@ -83,7 +83,7 @@ func TestMessagingAnnouncementActionSeenWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Announcements.Actions.Seen(
 		context.TODO(),
-		"an_01c4d5e6f7a8b9c0d1e2f3a4",
+		"an_m4vwgn2t8cqs",
 		augno.MessagingAnnouncementActionSeenParams{
 			Include: []string{"resource"},
 		},

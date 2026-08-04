@@ -60,7 +60,7 @@ func TestSaleAddressGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Addresses.Get(context.TODO(), "ad_012100950cfaa34aa0e0ad7258")
+	_, err := client.Sales.Addresses.Get(context.TODO(), "ad_j8cz0b79pwdb")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -84,7 +84,7 @@ func TestSaleAddressUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.Addresses.Update(
 		context.TODO(),
-		"ad_012100950cfaa34aa0e0ad7258",
+		"ad_j8cz0b79pwdb",
 		augno.SaleAddressUpdateParams{
 			UpdateAddressRequest: augno.UpdateAddressRequestParam{
 				Country:     augno.String("US"),
@@ -148,7 +148,7 @@ func TestSaleAddressDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Addresses.Delete(context.TODO(), "ad_012100950cfaa34aa0e0ad7258")
+	_, err := client.Sales.Addresses.Delete(context.TODO(), "ad_j8cz0b79pwdb")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

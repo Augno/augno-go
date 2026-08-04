@@ -51,7 +51,7 @@ func TestSettingPortalDomainGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Settings.PortalDomains.Get(context.TODO(), "podn_018e88072d1320808dc9aab42")
+	_, err := client.Settings.PortalDomains.Get(context.TODO(), "podn_ml44z5ggf169")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -95,7 +95,7 @@ func TestSettingPortalDomainDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Settings.PortalDomains.Delete(context.TODO(), "podn_018e88072d1320808dc9aab42")
+	_, err := client.Settings.PortalDomains.Delete(context.TODO(), "podn_ml44z5ggf169")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

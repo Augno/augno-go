@@ -47,6 +47,10 @@ func NewCatalogProductService(opts ...option.RequestOption) (r CatalogProductSer
 // zero rates in the category's base unit unless `unit_price` or `unit_cost` is
 // provided.
 //
+// Only products of type `sale` appear in the product list and export; products
+// created with any other type are still usable on orders and invoices but must be
+// retrieved by ID.
+//
 // This endpoint requires the permission: `items:create`.
 func (r *CatalogProductService) New(ctx context.Context, params CatalogProductNewParams, opts ...option.RequestOption) (res *Product, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -72,6 +76,11 @@ func (r *CatalogProductService) Get(ctx context.Context, id string, query Catalo
 
 // Partially updates a product.
 //
+// `sku`, `description`, `notes`, and `unit_price` all live on the product's
+// backing item and are written there, so the change is visible on the item as
+// well. The product line is reassigned through its own endpoint, and the product
+// type cannot be changed after creation.
+//
 // This endpoint requires the permission: `items:update`.
 func (r *CatalogProductService) Update(ctx context.Context, id string, params CatalogProductUpdateParams, opts ...option.RequestOption) (res *Product, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -84,7 +93,17 @@ func (r *CatalogProductService) Update(ctx context.Context, id string, params Ca
 	return res, err
 }
 
-// Returns a paginated list of products for the target account.
+// Returns a paginated list of products for the target account, newest first.
+//
+// Only products of type `sale` are listed — service, shipping, credit, return, and
+// tax products are excluded and must be retrieved by ID. A request made by a
+// customer-portal buyer always returns portal-visible products only, and its
+// `customer_ids` filter is replaced with the buyer's own account, so the results
+// reflect what that account is entitled to buy.
+//
+// The `q` search term is matched against the SKU and description of each product's
+// item; when it is supplied, products whose SKU matches are returned ahead of the
+// rest.
 //
 // This endpoint requires the permissions: `items:read`, `customers:read`,
 // `suppliers:read`.
@@ -95,7 +114,11 @@ func (r *CatalogProductService) List(ctx context.Context, query CatalogProductLi
 	return res, err
 }
 
-// Soft-deletes a product and returns the deleted product.
+// Soft-deletes a product and returns it as it stood at deletion.
+//
+// Deletion marks the product's backing item as deleted, so the item and its
+// inventory drop out of catalog and inventory listings too. Deleting the same
+// product again returns an error saying it has already been deleted.
 //
 // This endpoint requires the permission: `items:delete`.
 func (r *CatalogProductService) Delete(ctx context.Context, id string, body CatalogProductDeleteParams, opts ...option.RequestOption) (res *Product, err error) {
@@ -109,7 +132,13 @@ func (r *CatalogProductService) Delete(ctx context.Context, id string, body Cata
 	return res, err
 }
 
-// Changes the product line assignment for a product.
+// Moves a product to a different product line.
+//
+// The target product line must be one your account owns or a shared system line;
+// anything else fails as not found. Because customer accounts are granted access
+// to whole product lines, moving a product changes which buyers can see and order
+// it in the customer portal, and which default commission and freight policies
+// apply to it.
 //
 // This endpoint requires the permission: `items:update`.
 func (r *CatalogProductService) ChangeProductLine(ctx context.Context, productLineID string, params CatalogProductChangeProductLineParams, opts ...option.RequestOption) (res *Product, err error) {
@@ -127,7 +156,7 @@ func (r *CatalogProductService) ChangeProductLine(ctx context.Context, productLi
 	return res, err
 }
 
-// CreateProductRequest is the request to create a product.
+// Request to create a product.
 //
 // The properties CategoryID, SKU, Type are required.
 type CreateProductRequestParam struct {
@@ -158,8 +187,16 @@ type CreateProductRequestParam struct {
 	// Free-form notes about the product.
 	Notes param.Opt[string] `json:"notes,omitzero"`
 	// ID of the product line to assign the product to.
+	//
+	// The product line must be one your account owns or a shared system line; anything
+	// else fails as not found. Buyers are granted access to whole product lines, so a
+	// product created without one never appears in the customer portal, whatever its
+	// `portal_visibility`.
 	ProductLineID param.Opt[string] `json:"product_line_id,omitzero"`
-	// Attribute IDs to connect to the product at creation time.
+	// Attribute IDs to link to the product's item at creation time.
+	//
+	// Every ID must already exist in your account; an unknown ID fails the whole
+	// request rather than being skipped.
 	AttributeIDs []string `json:"attribute_ids,omitzero"`
 	// Whether the product is shown to buyers in the customer portal.
 	//
@@ -172,11 +209,17 @@ type CreateProductRequestParam struct {
 	//
 	// Any of "visible", "hidden".
 	PortalVisibility CreateProductRequestPortalVisibility `json:"portal_visibility,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitCost RateInputParam `json:"unit_cost,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitPrice RateInputParam `json:"unit_price,omitzero"`
 	paramObj
 }
@@ -224,7 +267,8 @@ const (
 	CreateProductRequestPortalVisibilityHidden  CreateProductRequestPortalVisibility = "hidden"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListProduct struct {
 	// Resources in this page.
 	Data []Product `json:"data" api:"required"`
@@ -232,7 +276,13 @@ type ListProduct struct {
 	//
 	// Any of "list".
 	Object ListProductObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -257,14 +307,18 @@ const (
 	ListProductObjectList ListProductObject = "list"
 )
 
-// Product pairs an inventory item with how it is sold: its product type, optional
+// A catalog entry as it is sold: an inventory item together with its product type,
 // product line, and customer portal visibility.
+//
+// Every product is backed by exactly one item, which carries the SKU, description,
+// pricing, attributes, and inventory position. Creating a product creates that
+// item; deleting the product deletes it.
 type Product struct {
 	// Product ID.
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Item is an inventory item (product, material, or part).
+	// An entry in your catalog: something you sell, consume, or build with.
 	Item Item `json:"item" api:"required"`
 	// Resource type identifier.
 	//
@@ -276,12 +330,17 @@ type Product struct {
 	//   - `hidden`: the product is concealed from the portal but remains usable
 	//     internally.
 	//
+	// Visibility alone is not enough to expose a product: a buyer only sees it if
+	// their account has also been granted access to the product's product line.
+	//
 	// Any of "visible", "hidden".
 	PortalVisibility ProductPortalVisibility `json:"portal_visibility" api:"required"`
-	// Product line resource.
+	// A named grouping of related products in your catalog.
 	//
-	// A product line groups related products in your catalog and carries the default
-	// commission policy, freight policy, and unit group for those products.
+	// A product line carries the default commission and freight policies for the
+	// products assigned to it, along with the unit group that determines how those
+	// products are measured. Product lines are also the unit that catalog access is
+	// granted over, for both customers and account groups.
 	ProductLine ProductLine `json:"product_line" api:"required"`
 	// Product type code, which determines how the product behaves on orders and
 	// invoices.
@@ -330,6 +389,9 @@ const (
 //   - `visible`: buyers can see and order the product in the portal.
 //   - `hidden`: the product is concealed from the portal but remains usable
 //     internally.
+//
+// Visibility alone is not enough to expose a product: a buyer only sees it if
+// their account has also been granted access to the product's product line.
 type ProductPortalVisibility string
 
 const (
@@ -357,7 +419,7 @@ const (
 	ProductTypeTax      ProductType = "tax"
 )
 
-// UpdateProductRequest is the request to partially update a product.
+// Request to partially update a product.
 type UpdateProductRequestParam struct {
 	// Free-form description of the product.
 	//
@@ -380,8 +442,11 @@ type UpdateProductRequestParam struct {
 	//
 	// Any of "visible", "hidden".
 	PortalVisibility UpdateProductRequestPortalVisibility `json:"portal_visibility,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitPrice RateInputParam `json:"unit_price,omitzero"`
 	paramObj
 }
@@ -407,7 +472,7 @@ const (
 )
 
 type CatalogProductNewParams struct {
-	// CreateProductRequest is the request to create a product.
+	// Request to create a product.
 	CreateProductRequest CreateProductRequestParam
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -478,7 +543,7 @@ type CatalogProductUpdateParams struct {
 	// "item.category.unit_group.associated_units.unit", "item.unit_value",
 	// "item.unit_cost", "item.burn_rate", "item.attributes".
 	Include []string `query:"include,omitzero" json:"-"`
-	// UpdateProductRequest is the request to partially update a product.
+	// Request to partially update a product.
 	UpdateProductRequest UpdateProductRequestParam
 	paramObj
 }
@@ -516,11 +581,17 @@ type CatalogProductListParams struct {
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Start of creation date range.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
-	// Filter by attribute IDs.
+	// Filter to products whose item carries at least one of these attributes.
 	AttributeIDs []string `query:"attribute_ids,omitzero" json:"-"`
-	// Filter by category IDs.
+	// Filter by the item category the product's item belongs to.
 	CategoryIDs []string `query:"category_ids,omitzero" json:"-"`
-	// Filter by customer IDs.
+	// Restrict results to products these customer accounts are entitled to buy.
+	//
+	// A product matches when its product line has been granted to the customer
+	// directly, through the customer's account group, or through the account group
+	// used for the customer's pricing. Combined with `product_line_ids` this widens
+	// the results rather than narrowing them: products matching either filter are
+	// returned.
 	CustomerIDs []string `query:"customer_ids,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -539,6 +610,8 @@ type CatalogProductListParams struct {
 	// Any of "visible", "hidden".
 	PortalVisibility CatalogProductListParamsPortalVisibility `query:"portal_visibility,omitzero" json:"-"`
 	// Filter by product line IDs.
+	//
+	// Combined with `customer_ids`, products matching either filter are returned.
 	ProductLineIDs []string `query:"product_line_ids,omitzero" json:"-"`
 	paramObj
 }

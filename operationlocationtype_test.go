@@ -25,7 +25,7 @@ func TestOperationLocationTypeGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.LocationTypes.Get(context.TODO(), "lc_01e69cd3745a1bc0dd485986c0")
+	_, err := client.Operations.LocationTypes.Get(context.TODO(), "lc_ra08sngd0fxr")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

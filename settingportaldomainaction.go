@@ -36,11 +36,14 @@ func NewSettingPortalDomainActionService(opts ...option.RequestOption) (r Settin
 	return
 }
 
-// Re-checks the domain's DNS configuration and flips it to `verified` once the
-// published records are confirmed.
+// Re-checks a portal domain against the serving provider and advances its status.
 //
-// Returns the updated domain (still `pending` if DNS has not propagated yet) along
-// with the currently required DNS records.
+// Run this after publishing the DNS records, and keep polling it: the domain stays
+// `pending` while its records are missing or misconfigured, moves to `securing`
+// once they are correct and its TLS certificate is being issued, and reaches
+// `verified` only once that certificate is live and the portal answers on the
+// domain. The response carries the updated domain along with the records still
+// required. Verifying an already-verified domain returns it unchanged.
 //
 // This endpoint requires the permission: `self:update`.
 func (r *SettingPortalDomainActionService) Verify(ctx context.Context, id string, opts ...option.RequestOption) (res *PortalDomain, err error) {

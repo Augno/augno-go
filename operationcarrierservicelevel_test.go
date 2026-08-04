@@ -27,7 +27,7 @@ func TestOperationCarrierServiceLevelNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.Carriers.ServiceLevels.New(
 		context.TODO(),
-		"cr_01784fd54c9ba197bb4e42f0e6",
+		"cr_tv5vfjtgu1n3",
 		augno.OperationCarrierServiceLevelNewParams{
 			CreateServiceLevelRequest: augno.CreateServiceLevelRequestParam{
 				Code:                     "ground",
@@ -61,9 +61,9 @@ func TestOperationCarrierServiceLevelGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.Carriers.ServiceLevels.Get(
 		context.TODO(),
-		"crop_01cfaf03f104e90ef9680e2a30",
+		"crop_4ilk9p6gccrx",
 		augno.OperationCarrierServiceLevelGetParams{
-			CarrierID: "cr_01784fd54c9ba197bb4e42f0e6",
+			CarrierID: "cr_tv5vfjtgu1n3",
 			Include:   []string{"owner"},
 		},
 	)
@@ -90,9 +90,9 @@ func TestOperationCarrierServiceLevelUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.Carriers.ServiceLevels.Update(
 		context.TODO(),
-		"crop_01cfaf03f104e90ef9680e2a30",
+		"crop_4ilk9p6gccrx",
 		augno.OperationCarrierServiceLevelUpdateParams{
-			CarrierID: "cr_01784fd54c9ba197bb4e42f0e6",
+			CarrierID: "cr_tv5vfjtgu1n3",
 			Include:   []string{"owner"},
 			UpdateServiceLevelRequest: augno.UpdateServiceLevelRequestParam{
 				Code:                     augno.String("express"),
@@ -125,7 +125,7 @@ func TestOperationCarrierServiceLevelListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.Carriers.ServiceLevels.List(
 		context.TODO(),
-		"cr_01784fd54c9ba197bb4e42f0e6",
+		"cr_tv5vfjtgu1n3",
 		augno.OperationCarrierServiceLevelListParams{
 			Cursor:  augno.String("cursor"),
 			Include: []string{"owner"},
@@ -156,9 +156,9 @@ func TestOperationCarrierServiceLevelDelete(t *testing.T) {
 	)
 	_, err := client.Operations.Carriers.ServiceLevels.Delete(
 		context.TODO(),
-		"crop_01cfaf03f104e90ef9680e2a30",
+		"crop_4ilk9p6gccrx",
 		augno.OperationCarrierServiceLevelDeleteParams{
-			CarrierID: "cr_01784fd54c9ba197bb4e42f0e6",
+			CarrierID: "cr_tv5vfjtgu1n3",
 		},
 	)
 	if err != nil {

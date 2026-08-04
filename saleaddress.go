@@ -42,6 +42,10 @@ func NewSaleAddressService(opts ...option.RequestOption) (r SaleAddressService) 
 
 // Creates an address.
 //
+// The address is saved to the account you are acting in, which may be your own
+// account or a customer or supplier account you manage, and can then be used as a
+// billing or shipping address on sales orders, invoices, and shipments.
+//
 // This endpoint requires the permissions: `addresses:create`, `customers:update`,
 // `suppliers:update`.
 func (r *SaleAddressService) New(ctx context.Context, body SaleAddressNewParams, opts ...option.RequestOption) (res *Address, err error) {
@@ -86,6 +90,10 @@ func (r *SaleAddressService) Update(ctx context.Context, id string, body SaleAdd
 
 // Returns a paginated list of addresses.
 //
+// Addresses belonging to the account you are acting in are returned newest first.
+// The `q` search term matches the address name, street lines, city, state, postal
+// code, and country.
+//
 // This endpoint requires the permissions: `addresses:read`, `customers:read`,
 // `suppliers:read`.
 func (r *SaleAddressService) List(ctx context.Context, query SaleAddressListParams, opts ...option.RequestOption) (res *ListAddress, err error) {
@@ -113,12 +121,15 @@ func (r *SaleAddressService) Delete(ctx context.Context, id string, opts ...opti
 	return res, err
 }
 
-// Address details used to create an address, either directly or inline on another
-// resource.
+// Address details supplied when creating an address, either on its own or inline
+// on another resource.
+//
+// A few requests, such as shipping rate estimates, take these same fields for a
+// one-off address that is never saved to the account.
 //
 // The properties Country, Name are required.
 type AddressInputParam struct {
-	// Two-letter country code.
+	// Two-letter ISO 3166-1 country code, such as `US`.
 	Country string `json:"country" api:"required"`
 	// Display name of the address.
 	Name string `json:"name" api:"required"`
@@ -167,7 +178,8 @@ const (
 	AddressInputTypeDropShip AddressInputType = "drop_ship"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListAddress struct {
 	// Resources in this page.
 	Data []Address `json:"data" api:"required"`
@@ -175,7 +187,13 @@ type ListAddress struct {
 	//
 	// Any of "list".
 	Object ListAddressObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -274,8 +292,11 @@ func (r *SaleAddressDeleteResponse) UnmarshalJSON(data []byte) error {
 }
 
 type SaleAddressNewParams struct {
-	// Address details used to create an address, either directly or inline on another
-	// resource.
+	// Address details supplied when creating an address, either on its own or inline
+	// on another resource.
+	//
+	// A few requests, such as shipping rate estimates, take these same fields for a
+	// one-off address that is never saved to the account.
 	AddressInput AddressInputParam
 	paramObj
 }
@@ -315,7 +336,7 @@ type SaleAddressListParams struct {
 	//
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
-	// Filter results to a single address type.
+	// Filters results to addresses of the given type.
 	//
 	// Any of "standard", "drop_ship".
 	Type SaleAddressListParamsType `query:"type,omitzero" json:"-"`
@@ -330,7 +351,7 @@ func (r SaleAddressListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Filter results to a single address type.
+// Filters results to addresses of the given type.
 type SaleAddressListParamsType string
 
 const (

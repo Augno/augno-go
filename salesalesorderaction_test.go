@@ -27,7 +27,7 @@ func TestSaleSalesOrderActionBulkDelete(t *testing.T) {
 	)
 	_, err := client.Sales.SalesOrders.Actions.BulkDelete(context.TODO(), augno.SaleSalesOrderActionBulkDeleteParams{
 		BulkDeleteSalesOrdersRequest: augno.BulkDeleteSalesOrdersRequestParam{
-			SalesOrderIDs: []string{"or_01d5034136c3ccc048abecc312"},
+			SalesOrderIDs: []string{"or_9lqo07quiwyb"},
 		},
 	})
 	if err != nil {
@@ -51,7 +51,7 @@ func TestSaleSalesOrderActionClose(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.SalesOrders.Actions.Close(context.TODO(), "or_01d5034136c3ccc048abecc312")
+	_, err := client.Sales.SalesOrders.Actions.Close(context.TODO(), "or_9lqo07quiwyb")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -75,7 +75,7 @@ func TestSaleSalesOrderActionNewProductionRunWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.SalesOrders.Actions.NewProductionRun(
 		context.TODO(),
-		"or_01d5034136c3ccc048abecc312",
+		"or_9lqo07quiwyb",
 		augno.SaleSalesOrderActionNewProductionRunParams{
 			Include: []string{"responsible_user"},
 		},
@@ -103,7 +103,7 @@ func TestSaleSalesOrderActionIssue(t *testing.T) {
 	)
 	_, err := client.Sales.SalesOrders.Actions.Issue(
 		context.TODO(),
-		"or_01d5034136c3ccc048abecc312",
+		"or_9lqo07quiwyb",
 		augno.SaleSalesOrderActionIssueParams{
 			IssueSalesOrderRequest: augno.IssueSalesOrderRequestParam{
 				NotifyCustomer: true,
@@ -131,7 +131,7 @@ func TestSaleSalesOrderActionOpen(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.SalesOrders.Actions.Open(context.TODO(), "or_01d5034136c3ccc048abecc312")
+	_, err := client.Sales.SalesOrders.Actions.Open(context.TODO(), "or_9lqo07quiwyb")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -153,7 +153,7 @@ func TestSaleSalesOrderActionQuoteFreight(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.SalesOrders.Actions.QuoteFreight(context.TODO(), "or_01d5034136c3ccc048abecc312")
+	_, err := client.Sales.SalesOrders.Actions.QuoteFreight(context.TODO(), "or_9lqo07quiwyb")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -175,7 +175,7 @@ func TestSaleSalesOrderActionUnissue(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.SalesOrders.Actions.Unissue(context.TODO(), "or_01d5034136c3ccc048abecc312")
+	_, err := client.Sales.SalesOrders.Actions.Unissue(context.TODO(), "or_9lqo07quiwyb")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

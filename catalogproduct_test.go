@@ -28,22 +28,22 @@ func TestCatalogProductNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Products.New(context.TODO(), augno.CatalogProductNewParams{
 		CreateProductRequest: augno.CreateProductRequestParam{
-			CategoryID:       "ic_01ae7bd7bfd21ca0ab81e1357e",
+			CategoryID:       "ic_d06g9c6yc9ck",
 			SKU:              "ALM-2024-1001",
 			Type:             augno.CreateProductRequestTypeSale,
-			AttributeIDs:     []string{"at_01c9493ec0c46bb0ed12708ae4"},
+			AttributeIDs:     []string{"at_rf1w295jt5ia"},
 			Description:      augno.String("Wireless barcode scanner with charging cradle"),
 			Notes:            augno.String("Ships with a 2-year warranty; register for extended coverage."),
 			PortalVisibility: augno.CreateProductRequestPortalVisibilityVisible,
-			ProductLineID:    augno.String("pdln_01996357326a0d3f7b129542ea"),
+			ProductLineID:    augno.String("pdln_k9bnlgvxhxjh"),
 			UnitCost: augno.RateInputParam{
-				DenominatorUnitID: "un_01966263f74a5a0cae356000a1",
-				NumeratorUnitID:   "un_01966263f74a5a0cae356000a1",
+				DenominatorUnitID: "un_82bd37dae5po",
+				NumeratorUnitID:   "un_82bd37dae5po",
 				Value:             "112.00",
 			},
 			UnitPrice: augno.RateInputParam{
-				DenominatorUnitID: "un_01966263f74a5a0cae356000a1",
-				NumeratorUnitID:   "un_01966263f74a5a0cae356000a1",
+				DenominatorUnitID: "un_82bd37dae5po",
+				NumeratorUnitID:   "un_82bd37dae5po",
 				Value:             "199.00",
 			},
 		},
@@ -72,7 +72,7 @@ func TestCatalogProductGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Products.Get(
 		context.TODO(),
-		"pd_013c29ab3f1518d0004094c316",
+		"pd_07oe0r7adh2w",
 		augno.CatalogProductGetParams{
 			Include: []string{"product_line"},
 		},
@@ -100,7 +100,7 @@ func TestCatalogProductUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Products.Update(
 		context.TODO(),
-		"pd_013c29ab3f1518d0004094c316",
+		"pd_07oe0r7adh2w",
 		augno.CatalogProductUpdateParams{
 			Include: []string{"product_line"},
 			UpdateProductRequest: augno.UpdateProductRequestParam{
@@ -109,8 +109,8 @@ func TestCatalogProductUpdateWithOptionalParams(t *testing.T) {
 				PortalVisibility: augno.UpdateProductRequestPortalVisibilityVisible,
 				SKU:              augno.String("SKU-002"),
 				UnitPrice: augno.RateInputParam{
-					DenominatorUnitID: "un_01966263f74a5a0cae356000a1",
-					NumeratorUnitID:   "un_01966263f74a5a0cae356000a1",
+					DenominatorUnitID: "un_82bd37dae5po",
+					NumeratorUnitID:   "un_82bd37dae5po",
 					Value:             "219.00",
 				},
 			},
@@ -173,7 +173,7 @@ func TestCatalogProductDeleteWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Products.Delete(
 		context.TODO(),
-		"pd_013c29ab3f1518d0004094c316",
+		"pd_07oe0r7adh2w",
 		augno.CatalogProductDeleteParams{
 			Include: []string{"product_line"},
 		},
@@ -201,9 +201,9 @@ func TestCatalogProductChangeProductLineWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Products.ChangeProductLine(
 		context.TODO(),
-		"pdln_01996357326a0d3f7b129542ea",
+		"pdln_k9bnlgvxhxjh",
 		augno.CatalogProductChangeProductLineParams{
-			ID:      "pd_013c29ab3f1518d0004094c316",
+			ID:      "pd_07oe0r7adh2w",
 			Include: []string{"product_line"},
 		},
 	)

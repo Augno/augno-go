@@ -27,7 +27,7 @@ func TestMessagingAnnouncementGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Announcements.Get(
 		context.TODO(),
-		"an_01c4d5e6f7a8b9c0d1e2f3a4",
+		"an_m4vwgn2t8cqs",
 		augno.MessagingAnnouncementGetParams{
 			Include: []string{"resource"},
 		},

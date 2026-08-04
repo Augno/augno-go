@@ -36,8 +36,14 @@ func NewCoreAddressActionService(opts ...option.RequestOption) (r CoreAddressAct
 	return
 }
 
-// Validates an address and returns whether it is valid, a formatted version, and
-// any validation messages.
+// Checks an address against an address validation service and returns a
+// standardized version of it.
+//
+// Nothing is created or modified. Use this before creating or updating an address
+// to confirm it is complete and to pick up corrected values. When the service can
+// standardize the address, `formatted_address` and `components` carry the
+// corrected values, and `validation_messages` explains anything that was inferred,
+// replaced, or could not be confirmed.
 func (r *CoreAddressActionService) Validate(ctx context.Context, body CoreAddressActionValidateParams, opts ...option.RequestOption) (res *ValidatedAddress, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/core/addresses/actions/validate"
@@ -101,7 +107,10 @@ type ValidateAddressRequestParam struct {
 	AddressLine1 string `json:"address_line_1" api:"required"`
 	// City or locality.
 	City string `json:"city" api:"required"`
-	// Country name or two-letter country code (for example `United States` or `US`).
+	// Two-letter country code, such as `US`.
+	//
+	// A full country name such as `United States` is recognized for a handful of
+	// common countries; send the two-letter code for anywhere else.
 	Country string `json:"country" api:"required"`
 	// Postal or ZIP code.
 	PostalCode string `json:"postal_code" api:"required"`
@@ -120,7 +129,8 @@ func (r *ValidateAddressRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Result of address validation.
+// The outcome of checking a submitted address against an address validation
+// service.
 type ValidatedAddress struct {
 	// Parsed address components.
 	Components AddressComponents `json:"components" api:"required"`
@@ -133,7 +143,15 @@ type ValidatedAddress struct {
 	//
 	// Any of "validated_address".
 	Object ValidatedAddressObject `json:"object" api:"required"`
-	// Whether the address could be validated.
+	// Whether the address was confirmed as complete and specific enough to ship to.
+	//
+	//   - `valid`: nothing required was missing and the address resolved to a specific
+	//     building or block.
+	//   - `invalid`: required components were missing, or the address only resolved to a
+	//     street or a wider area.
+	//
+	// When the status is `invalid`, read `validation_messages` and compare
+	// `components` against what you submitted to see what to correct.
 	//
 	// Any of "valid", "invalid".
 	Status ValidatedAddressStatus `json:"status" api:"required"`
@@ -168,7 +186,15 @@ const (
 	ValidatedAddressObjectValidatedAddress ValidatedAddressObject = "validated_address"
 )
 
-// Whether the address could be validated.
+// Whether the address was confirmed as complete and specific enough to ship to.
+//
+//   - `valid`: nothing required was missing and the address resolved to a specific
+//     building or block.
+//   - `invalid`: required components were missing, or the address only resolved to a
+//     street or a wider area.
+//
+// When the status is `invalid`, read `validation_messages` and compare
+// `components` against what you submitted to see what to correct.
 type ValidatedAddressStatus string
 
 const (

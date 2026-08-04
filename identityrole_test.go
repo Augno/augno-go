@@ -55,7 +55,7 @@ func TestIdentityRoleGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Identity.Roles.Get(
 		context.TODO(),
-		"rl_01c16d2eb637c0d1f3a372937c",
+		"rl_3xknmfqflhvb",
 		augno.IdentityRoleGetParams{
 			Include: []string{"owner"},
 		},
@@ -83,7 +83,7 @@ func TestIdentityRoleUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Identity.Roles.Update(
 		context.TODO(),
-		"rl_01c16d2eb637c0d1f3a372937c",
+		"rl_3xknmfqflhvb",
 		augno.IdentityRoleUpdateParams{
 			Include: []string{"owner"},
 			UpdateRoleRequest: augno.UpdateRoleRequestParam{
@@ -141,7 +141,7 @@ func TestIdentityRoleDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Identity.Roles.Delete(context.TODO(), "rl_01c16d2eb637c0d1f3a372937c")
+	_, err := client.Identity.Roles.Delete(context.TODO(), "rl_3xknmfqflhvb")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

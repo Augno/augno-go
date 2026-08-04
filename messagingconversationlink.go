@@ -41,7 +41,11 @@ func NewMessagingConversationLinkService(opts ...option.RequestOption) (r Messag
 	return
 }
 
-// Links a business record to a conversation.
+// Links a business record to a conversation, in addition to whatever topic the
+// conversation is anchored to.
+//
+// A conversation can link any number of records, and each linked record surfaces
+// the conversation when conversations are listed for that record.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationLinkService) New(ctx context.Context, id string, params MessagingConversationLinkNewParams, opts ...option.RequestOption) (res *ConversationLink, err error) {
@@ -56,6 +60,9 @@ func (r *MessagingConversationLinkService) New(ctx context.Context, id string, p
 }
 
 // Returns the business records linked to a conversation.
+//
+// Every link is returned in one page. The conversation's primary `topic` anchor is
+// not a link and is not listed here.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingConversationLinkService) List(ctx context.Context, id string, query MessagingConversationLinkListParams, opts ...option.RequestOption) (res *ListConversationLink, err error) {
@@ -470,9 +477,13 @@ const (
 	AddConversationLinkRequestResourceTypePackListCase                         AddConversationLinkRequestResourceType = "pack_list_case"
 )
 
-// A business-record link on a conversation: the record the conversation is about
-// (an order, invoice, shipment, customer, …), shown prominently and usable as
-// agent context.
+// A reference from a conversation to a business record it concerns, such as an
+// order, invoice, shipment, or customer.
+//
+// Links sit alongside the conversation's primary `topic` anchor, so one thread can
+// reference several records. Listing conversations by business record matches the
+// topic anchor and these links alike, which is what surfaces a conversation on the
+// record's own page.
 type ConversationLink struct {
 	// Conversation link ID.
 	ID string `json:"id" api:"required"`
@@ -511,7 +522,8 @@ const (
 	ConversationLinkObjectConversationLink ConversationLinkObject = "conversation_link"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListConversationLink struct {
 	// Resources in this page.
 	Data []ConversationLink `json:"data" api:"required"`
@@ -519,7 +531,13 @@ type ListConversationLink struct {
 	//
 	// Any of "list".
 	Object ListConversationLinkObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

@@ -41,12 +41,14 @@ func NewSettingIntegrationService(opts ...option.RequestOption) (r SettingIntegr
 	return
 }
 
-// Creates an account integration, or updates the name and credentials of an
-// existing one with the same integration code.
+// Connects a third-party provider to the account, or replaces the name and
+// credentials of the provider's existing connection.
 //
-// Credentials are validated for the provider, encrypted at rest, and never
-// returned in API responses. An account can have at most one integration per
-// integration code.
+// An account can have at most one integration per `provider`, so calling this
+// again for a provider that is already connected rotates its credentials in place
+// and returns the same integration rather than creating a second one. Credentials
+// are checked for the provider's expected key format, encrypted at rest, and never
+// returned in API responses.
 //
 // This endpoint requires the `admin` role type.
 func (r *SettingIntegrationService) New(ctx context.Context, body SettingIntegrationNewParams, opts ...option.RequestOption) (res *AccountIntegration, err error) {
@@ -56,11 +58,10 @@ func (r *SettingIntegrationService) New(ctx context.Context, body SettingIntegra
 	return res, err
 }
 
-// Updates an account integration's name and active status.
+// Renames an account integration, or activates or deactivates it.
 //
-// Omitted fields are left unchanged. Credentials cannot be changed with this
-// endpoint; to rotate credentials, call Create Account Integration again with the
-// same integration code.
+// Omitted fields are left unchanged. Credentials cannot be changed here; to rotate
+// them, call Create Account Integration again with the same `provider`.
 //
 // This endpoint requires the `admin` role type.
 func (r *SettingIntegrationService) Update(ctx context.Context, id string, body SettingIntegrationUpdateParams, opts ...option.RequestOption) (res *AccountIntegration, err error) {
@@ -74,7 +75,10 @@ func (r *SettingIntegrationService) Update(ctx context.Context, id string, body 
 	return res, err
 }
 
-// Returns a paginated list of account integrations for the target account.
+// Returns a paginated list of the third-party providers connected to the target
+// account.
+//
+// Stored credentials are never included in the response.
 //
 // This endpoint requires the `admin` role type.
 func (r *SettingIntegrationService) List(ctx context.Context, query SettingIntegrationListParams, opts ...option.RequestOption) (res *ListAccountIntegration, err error) {
@@ -84,7 +88,14 @@ func (r *SettingIntegrationService) List(ctx context.Context, query SettingInteg
 	return res, err
 }
 
-// Deletes an account integration and returns the deleted resource.
+// Disconnects a third-party provider from the account and returns the deleted
+// integration.
+//
+// The stored credentials go with it, so any feature that relies on the provider
+// stops working until the integration is created again. Deleting an integration
+// that is already deleted returns an error rather than succeeding silently. To
+// pause a provider without discarding its credentials, set the integration's
+// status to `inactive` instead.
 //
 // This endpoint requires the `admin` role type.
 func (r *SettingIntegrationService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *AccountIntegration, err error) {
@@ -99,6 +110,10 @@ func (r *SettingIntegrationService) Delete(ctx context.Context, id string, opts 
 }
 
 // Third-party integration connected to an account.
+//
+// An account can have at most one integration per provider. The credentials
+// supplied when the integration was connected are encrypted at rest and are never
+// returned by the API.
 type AccountIntegration struct {
 	// Account integration ID.
 	ID string `json:"id" api:"required"`
@@ -193,8 +208,9 @@ type CreateAccountIntegrationRequestParam struct {
 	//   - `shippo`: `api_key` (`shippo_live_...` or `shippo_test_...`).
 	//   - `hubspot`: `access_token` (`pat-...`).
 	//
-	// Sandbox accounts must use test keys and production accounts must use live keys;
-	// credentials that do not match are rejected.
+	// For Stripe and Shippo, sandbox accounts must supply test keys and production
+	// accounts must supply live keys; credentials that do not match are rejected.
+	// HubSpot tokens make no such distinction.
 	Credentials string `json:"credentials" api:"required"`
 	// Display name of the integration.
 	Name string `json:"name" api:"required"`
@@ -230,7 +246,8 @@ const (
 	CreateAccountIntegrationRequestProviderHubspot CreateAccountIntegrationRequestProvider = "hubspot"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListAccountIntegration struct {
 	// Resources in this page.
 	Data []AccountIntegration `json:"data" api:"required"`
@@ -238,7 +255,13 @@ type ListAccountIntegration struct {
 	//
 	// Any of "list".
 	Object ListAccountIntegrationObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -269,8 +292,8 @@ type UpdateAccountIntegrationRequestParam struct {
 	Name param.Opt[string] `json:"name,omitzero"`
 	// Lifecycle status of the integration.
 	//
-	// Set to `inactive` to deactivate the integration without deleting its stored
-	// credentials.
+	// Set to `inactive` to stop the provider being used while keeping its stored
+	// credentials, and back to `active` to resume without re-entering them.
 	//
 	// Any of "active", "inactive".
 	Status UpdateAccountIntegrationRequestStatus `json:"status,omitzero"`
@@ -287,8 +310,8 @@ func (r *UpdateAccountIntegrationRequestParam) UnmarshalJSON(data []byte) error 
 
 // Lifecycle status of the integration.
 //
-// Set to `inactive` to deactivate the integration without deleting its stored
-// credentials.
+// Set to `inactive` to stop the provider being used while keeping its stored
+// credentials, and back to `active` to resume without re-entering them.
 type UpdateAccountIntegrationRequestStatus string
 
 const (

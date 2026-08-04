@@ -124,7 +124,11 @@ func (r *SaleCustomerService) Delete(ctx context.Context, id string, opts ...opt
 type Carrier struct {
 	// Carrier ID.
 	ID string `json:"id" api:"required"`
-	// Your account number with this carrier, used to connect UPS and USPS accounts.
+	// Your account number with this carrier.
+	//
+	// UPS and USPS carrier accounts are connected to Shippo using this number; FedEx
+	// carriers authorize through OAuth instead, so their account number is not used to
+	// connect them.
 	AccountNumber string `json:"account_number" api:"required"`
 	// Well-known carrier identifier, set only for recognized carriers and absent for
 	// custom ones.
@@ -148,7 +152,8 @@ type Carrier struct {
 	CustomerPortalVisibility CarrierCustomerPortalVisibility `json:"customer_portal_visibility" api:"required"`
 	// Soft-delete timestamp.
 	DeletedAt time.Time `json:"deleted_at" api:"required" format:"date-time"`
-	// Human-readable name for the carrier, unique among your account's carriers.
+	// Human-readable name for the carrier, unique among the carriers visible to your
+	// account.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -156,7 +161,8 @@ type Carrier struct {
 	Object CarrierObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	ServiceLevels ListServiceLevel `json:"service_levels" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -227,29 +233,41 @@ const (
 // The properties BillToAddress, CustomerTypeGroupID, DefaultCarrierID,
 // DefaultPaymentTermID, DefaultShippingTermID, Name, ShipToAddress are required.
 type CreateCustomerRequestParam struct {
-	// Address details used to create an address, either directly or inline on another
-	// resource.
+	// Address details supplied when creating an address, either on its own or inline
+	// on another resource.
+	//
+	// A few requests, such as shipping rate estimates, take these same fields for a
+	// one-off address that is never saved to the account.
 	BillToAddress AddressInputParam `json:"bill_to_address,omitzero" api:"required"`
 	// ID of the account group of type `type_group` that categorizes this customer (for
 	// example "Distributors").
 	CustomerTypeGroupID string `json:"customer_type_group_id" api:"required"`
-	// ID of the default carrier for this customer's shipments.
+	// ID of the carrier used on this customer's orders when the order does not specify
+	// one.
 	DefaultCarrierID string `json:"default_carrier_id" api:"required"`
-	// Default payment term ID.
+	// ID of the payment term used on this customer's orders when the order does not
+	// specify one.
 	DefaultPaymentTermID string `json:"default_payment_term_id" api:"required"`
-	// Default shipping term ID.
+	// ID of the shipping term used on this customer's orders when the order does not
+	// specify one.
 	DefaultShippingTermID string `json:"default_shipping_term_id" api:"required"`
 	// The customer's business name, as shown throughout the app and on documents.
 	Name string `json:"name" api:"required"`
-	// Address details used to create an address, either directly or inline on another
-	// resource.
+	// Address details supplied when creating an address, either on its own or inline
+	// on another resource.
+	//
+	// A few requests, such as shipping rate estimates, take these same fields for a
+	// one-off address that is never saved to the account.
 	ShipToAddress AddressInputParam `json:"ship_to_address,omitzero" api:"required"`
 	// Carrier billing account number charged when `carrier_billing_type` is
 	// `third_party`.
 	CarrierBillingAccount param.Opt[string] `json:"carrier_billing_account,omitzero"`
-	// The ID of the account user to assign as the default sales rep.
+	// The ID of the account user to credit as the sales rep on this customer's orders.
+	//
+	// Must be an account user on your own account.
 	DefaultSalesRepID param.Opt[string] `json:"default_sales_rep_id,omitzero"`
-	// ID of the default carrier service level.
+	// ID of the carrier service level used when an order takes its carrier from this
+	// customer's default.
 	DefaultServiceLevelID param.Opt[string] `json:"default_service_level_id,omitzero"`
 	// Email address.
 	Email param.Opt[string] `json:"email,omitzero"`
@@ -280,12 +298,15 @@ type CreateCustomerRequestParam struct {
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy CreateCustomerRequestCommissionPolicy `json:"commission_policy,omitzero"`
-	// A value with an associated unit, used in create and update requests.
+	// An amount together with the unit it is expressed in.
+	//
+	// The unit may be a currency, so money amounts such as a credit limit are written
+	// the same way as physical amounts like weights or counts.
 	CreditLimit QuantityInputParam `json:"credit_limit,omitzero"`
 	// IDs of the account groups of type `pricing_group` to assign to this customer,
 	// used to apply pricing rules.
 	CustomerPriceGroupIDs []string `json:"customer_price_group_ids,omitzero"`
-	// Priority applied to new orders for this customer.
+	// Priority used to pre-fill new orders for this customer.
 	//
 	// Any of "low", "normal", "high".
 	DefaultPriority CreateCustomerRequestDefaultPriority `json:"default_priority,omitzero"`
@@ -296,18 +317,21 @@ type CreateCustomerRequestParam struct {
 	EdiStatus CreateCustomerRequestEdiStatus `json:"edi_status,omitzero"`
 	// Whether this customer is billed for freight on their orders.
 	//
-	//   - `free_freight`: the customer is not billed for freight.
-	//   - `billed_freight`: freight is billed to the customer, unless overridden on the
-	//     order.
+	// - `free_freight`: the customer is not billed for freight.
+	// - `billed_freight`: freight is billed to the customer.
+	//
+	// Freight is also waived when the customer's type group, one of its price groups,
+	// or a product line the ordered products belong to is `free_freight`.
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy CreateCustomerRequestFreightPolicy `json:"freight_policy,omitzero"`
-	// Account status code, controlling whether the customer can transact.
+	// The customer's account standing.
 	//
-	// - `normal`: standard active account with no restrictions.
-	// - `preferred`: active account flagged as preferred.
-	// - `hold_shipment`: orders can be placed, but shipments are held.
-	// - `hold_all`: all activity is on hold.
+	//   - `normal`: standard account with no restrictions.
+	//   - `preferred`: account flagged for prioritized handling.
+	//   - `hold_shipment`: the customer's shipments should be held, typically over a
+	//     credit problem, while orders can still be placed.
+	//   - `hold_all`: all activity for the customer should be held.
 	//
 	// Any of "normal", "preferred", "hold_shipment", "hold_all".
 	Status CreateCustomerRequestStatus `json:"status,omitzero"`
@@ -345,7 +369,7 @@ const (
 	CreateCustomerRequestCommissionPolicyCommissionExempt  CreateCustomerRequestCommissionPolicy = "commission_exempt"
 )
 
-// Priority applied to new orders for this customer.
+// Priority used to pre-fill new orders for this customer.
 type CreateCustomerRequestDefaultPriority string
 
 const (
@@ -365,9 +389,11 @@ const (
 
 // Whether this customer is billed for freight on their orders.
 //
-//   - `free_freight`: the customer is not billed for freight.
-//   - `billed_freight`: freight is billed to the customer, unless overridden on the
-//     order.
+// - `free_freight`: the customer is not billed for freight.
+// - `billed_freight`: freight is billed to the customer.
+//
+// Freight is also waived when the customer's type group, one of its price groups,
+// or a product line the ordered products belong to is `free_freight`.
 type CreateCustomerRequestFreightPolicy string
 
 const (
@@ -375,12 +401,13 @@ const (
 	CreateCustomerRequestFreightPolicyBilledFreight CreateCustomerRequestFreightPolicy = "billed_freight"
 )
 
-// Account status code, controlling whether the customer can transact.
+// The customer's account standing.
 //
-// - `normal`: standard active account with no restrictions.
-// - `preferred`: active account flagged as preferred.
-// - `hold_shipment`: orders can be placed, but shipments are held.
-// - `hold_all`: all activity is on hold.
+//   - `normal`: standard account with no restrictions.
+//   - `preferred`: account flagged for prioritized handling.
+//   - `hold_shipment`: the customer's shipments should be held, typically over a
+//     credit problem, while orders can still be placed.
+//   - `hold_all`: all activity for the customer should be held.
 type CreateCustomerRequestStatus string
 
 const (
@@ -398,7 +425,8 @@ type Customer struct {
 	// A saved address that can be used for billing and shipping on sales orders,
 	// invoices, and shipments.
 	BillToAddress Address `json:"bill_to_address" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	ChildAccounts *ListCustomer `json:"child_accounts" api:"required"`
 	// How sales commission applies to this customer's orders.
 	//
@@ -406,15 +434,24 @@ type Customer struct {
 	//   - `commission_applied`: sales commission is calculated on this customer's
 	//     orders.
 	//
+	// The customer counts as exempt if this field, its `type` group, or any of its
+	// `price_groups` is `commission_exempt`. Exempt customers never have a sales rep
+	// assigned automatically when an order is created without one.
+	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy CustomerCommissionPolicy `json:"commission_policy" api:"required"`
 	// Customer contact information.
 	ContactInfo CustomerContactInfo `json:"contact_info" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	CreditLimit Quantity `json:"credit_limit" api:"required"`
-	// Customer default configuration.
+	// Values used to fill in a new sales order for this customer when the order does
+	// not supply its own.
 	Defaults CustomerDefaults `json:"defaults" api:"required"`
 	// Whether EDI (Electronic Data Interchange) is enabled for exchanging orders and
 	// documents with this customer.
@@ -431,6 +468,8 @@ type Customer struct {
 	NotificationPreferences CustomerNotificationPreferences `json:"notification_preferences" api:"required"`
 	// Human-readable customer number used to identify the account, distinct from the
 	// `id`.
+	//
+	// Unique within your account.
 	Number string `json:"number" api:"required"`
 	// Resource type identifier.
 	//
@@ -439,7 +478,8 @@ type Customer struct {
 	// A business you sell to, with its contact details, default fulfillment settings,
 	// and order policies.
 	ParentAccount *Customer `json:"parent_account" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	PriceGroups ListAccountGroup `json:"price_groups" api:"required"`
 	// The customer's position in the account hierarchy.
 	//
@@ -452,17 +492,27 @@ type Customer struct {
 	// A saved address that can be used for billing and shipping on sales orders,
 	// invoices, and shipments.
 	ShipToAddress Address `json:"ship_to_address" api:"required"`
-	// Account status code, controlling whether the customer can transact.
+	// The customer's account standing.
 	//
-	// - `normal`: standard active account with no restrictions.
-	// - `preferred`: active account flagged as preferred.
-	// - `hold_shipment`: orders can be placed, but shipments are held.
-	// - `hold_all`: all activity is on hold.
+	//   - `normal`: standard account with no restrictions.
+	//   - `preferred`: account flagged for prioritized handling.
+	//   - `hold_shipment`: the customer's shipments should be held, typically over a
+	//     credit problem, while orders can still be placed.
+	//   - `hold_all`: all activity for the customer should be held.
+	//
+	// The hold statuses are advisory: Augno flags the customer's orders as being on
+	// credit hold, but requests to create orders or shipments for the customer are not
+	// rejected.
 	//
 	// Any of "normal", "preferred", "hold_shipment", "hold_all".
 	Status CustomerStatus `json:"status" api:"required"`
 	// A named grouping of customer accounts, used for pricing rules or to categorize
 	// accounts.
+	//
+	// A customer carries at most one group of type `type_group` as its customer type,
+	// plus any number of groups of type `pricing_group`. Membership of either kind can
+	// scope a volume discount to the customer and open up product lines for it to
+	// order from.
 	Type AccountGroup `json:"type" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -506,6 +556,10 @@ func (r *Customer) UnmarshalJSON(data []byte) error {
 //   - `commission_exempt`: this customer's orders are exempt from sales commission.
 //   - `commission_applied`: sales commission is calculated on this customer's
 //     orders.
+//
+// The customer counts as exempt if this field, its `type` group, or any of its
+// `price_groups` is `commission_exempt`. Exempt customers never have a sales rep
+// assigned automatically when an order is created without one.
 type CustomerCommissionPolicy string
 
 const (
@@ -542,12 +596,17 @@ const (
 	CustomerRelationshipTypeChild      CustomerRelationshipType = "child"
 )
 
-// Account status code, controlling whether the customer can transact.
+// The customer's account standing.
 //
-// - `normal`: standard active account with no restrictions.
-// - `preferred`: active account flagged as preferred.
-// - `hold_shipment`: orders can be placed, but shipments are held.
-// - `hold_all`: all activity is on hold.
+//   - `normal`: standard account with no restrictions.
+//   - `preferred`: account flagged for prioritized handling.
+//   - `hold_shipment`: the customer's shipments should be held, typically over a
+//     credit problem, while orders can still be placed.
+//   - `hold_all`: all activity for the customer should be held.
+//
+// The hold statuses are advisory: Augno flags the customer's orders as being on
+// credit hold, but requests to create orders or shipments for the customer are not
+// rejected.
 type CustomerStatus string
 
 const (
@@ -593,7 +652,8 @@ const (
 	CustomerContactInfoObjectCustomerContactInfo CustomerContactInfoObject = "customer_contact_info"
 )
 
-// Customer default configuration.
+// Values used to fill in a new sales order for this customer when the order does
+// not supply its own.
 type CustomerDefaults struct {
 	// Resource type identifier.
 	//
@@ -603,14 +663,23 @@ type CustomerDefaults struct {
 	// customers, sales orders, purchase orders, and invoices.
 	PaymentTerm PaymentTerm `json:"payment_term" api:"required"`
 	// Priority level used to order work on sales orders, purchase orders, and picks.
+	//
+	// The levels are platform-provided and the same for every account, so they cannot
+	// be created, renamed, or removed. A customer can carry a default priority that
+	// pre-fills new orders for them.
 	Priority Priority `json:"priority" api:"required"`
 	// A user's membership in an account, carrying the account-specific status, role,
 	// and department.
 	//
-	// Profile fields (name, email, username, image URL) live on the expandable `user`
+	// Profile fields (name, email, username, image URL) live on the `user`
 	// sub-resource, which is shared across every account the user belongs to.
 	SalesRep AccountUser `json:"sales_rep" api:"required"`
-	// A shipping term defining how freight charges are calculated for an order.
+	// A named freight pricing rule that decides what a buyer pays for shipping.
+	//
+	// A customer's default shipping term is evaluated whenever freight is quoted for
+	// one of their orders. Freight exemptions on the customer, its type group, or any
+	// of its price groups are checked first and zero the freight charge before the
+	// shipping term is considered.
 	ShippingTerm ShippingTerm `json:"shipping_term" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -658,13 +727,20 @@ type CustomerFreightPreferences struct {
 	//
 	// Any of "customer_freight_preferences".
 	Object CustomerFreightPreferencesObject `json:"object" api:"required"`
-	// Shipping service level for a carrier.
+	// A shipping speed or method offered by a carrier, such as ground or overnight.
+	//
+	// Carriers connected through Shippo have their service levels synced from the
+	// carrier itself; any carrier can also have service levels you create by hand.
 	ServiceLevel ServiceLevel `json:"service_level" api:"required"`
 	// Freight policy applied to this customer's orders.
 	//
-	//   - `free_freight`: the customer is not billed for freight.
-	//   - `billed_freight`: freight is billed to the customer, unless overridden
-	//     elsewhere.
+	// - `free_freight`: the customer is not billed for freight.
+	// - `billed_freight`: freight is billed to the customer.
+	//
+	// Freight is waived when this field, the customer's `type` group, any of its
+	// `price_groups`, or any product line the ordered products belong to is
+	// `free_freight`, so a shipment can come back freight-exempt even while this field
+	// is `billed_freight`.
 	//
 	// Any of "free_freight", "billed_freight".
 	Status CustomerFreightPreferencesStatus `json:"status" api:"required"`
@@ -707,9 +783,13 @@ const (
 
 // Freight policy applied to this customer's orders.
 //
-//   - `free_freight`: the customer is not billed for freight.
-//   - `billed_freight`: freight is billed to the customer, unless overridden
-//     elsewhere.
+// - `free_freight`: the customer is not billed for freight.
+// - `billed_freight`: freight is billed to the customer.
+//
+// Freight is waived when this field, the customer's `type` group, any of its
+// `price_groups`, or any product line the ordered products belong to is
+// `free_freight`, so a shipment can come back freight-exempt even while this field
+// is `billed_freight`.
 type CustomerFreightPreferencesStatus string
 
 const (
@@ -719,7 +799,10 @@ const (
 
 // Customer notification settings.
 type CustomerNotificationPreferences struct {
-	// Whether invoice emails are accepted.
+	// Whether anyone is set up to receive invoice emails for this customer.
+	//
+	// Derived from the customer's notification recipients: true when at least one of
+	// them is configured for invoice notifications.
 	AcceptsInvoiceEmails bool `json:"accepts_invoice_emails" api:"required"`
 	// Resource type identifier.
 	//
@@ -747,7 +830,8 @@ const (
 	CustomerNotificationPreferencesObjectCustomerNotificationPreferences CustomerNotificationPreferencesObject = "customer_notification_preferences"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListCustomer struct {
 	// Resources in this page.
 	Data []Customer `json:"data" api:"required"`
@@ -755,7 +839,13 @@ type ListCustomer struct {
 	//
 	// Any of "list".
 	Object ListCustomerObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -780,7 +870,8 @@ const (
 	ListCustomerObjectList ListCustomerObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListServiceLevel struct {
 	// Resources in this page.
 	Data []ServiceLevel `json:"data" api:"required"`
@@ -788,7 +879,13 @@ type ListServiceLevel struct {
 	//
 	// Any of "list".
 	Object ListServiceLevelObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -820,7 +917,8 @@ type PaymentTerm struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name (e.g. `Net 30`).
+	// Display name (e.g. `Net 30`), unique among the payment terms visible to your
+	// account.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -828,7 +926,12 @@ type PaymentTerm struct {
 	Object PaymentTermObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// Lifecycle status of the payment term.
+	// Whether this payment term is still in active use.
+	//
+	// Payment terms created through the API are always `active`, and no endpoint
+	// changes a term's status. List Payment Terms returns inactive terms alongside
+	// active ones, so filter them out yourself if you only want the ones still on
+	// offer.
 	//
 	// Any of "active", "inactive".
 	Status PaymentTermStatus `json:"status" api:"required"`
@@ -861,7 +964,12 @@ const (
 	PaymentTermObjectPaymentTerm PaymentTermObject = "payment_term"
 )
 
-// Lifecycle status of the payment term.
+// Whether this payment term is still in active use.
+//
+// Payment terms created through the API are always `active`, and no endpoint
+// changes a term's status. List Payment Terms returns inactive terms alongside
+// active ones, so filter them out yourself if you only want the ones still on
+// offer.
 type PaymentTermStatus string
 
 const (
@@ -869,7 +977,10 @@ const (
 	PaymentTermStatusInactive PaymentTermStatus = "inactive"
 )
 
-// Shipping service level for a carrier.
+// A shipping speed or method offered by a carrier, such as ground or overnight.
+//
+// Carriers connected through Shippo have their service levels synced from the
+// carrier itself; any carrier can also have service levels you create by hand.
 type ServiceLevel struct {
 	// Service level ID.
 	ID string `json:"id" api:"required"`
@@ -884,7 +995,8 @@ type ServiceLevel struct {
 	// carrier is chosen.
 	//
 	// Each carrier has at most one default; setting a new default clears the previous
-	// one.
+	// one. A default service level cannot be deleted until another service level takes
+	// its place or the flag is cleared.
 	IsDefault bool `json:"is_default" api:"required"`
 	// Human-readable name for the service level, shown to customers at checkout when
 	// the service level is visible.
@@ -898,7 +1010,9 @@ type ServiceLevel struct {
 	// Carrier-specific code identifying this service level (e.g. `fedex_ground`,
 	// `ups_next_day_air`).
 	//
-	// Values are carrier-defined, so any non-empty string is accepted.
+	// For service levels synced from a connected carrier this is the carrier's own
+	// token, which is what rate shopping and label purchase are keyed on; for service
+	// levels you create yourself it is the `code` you supplied.
 	ServiceLevelToken string `json:"service_level_token" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -940,17 +1054,31 @@ const (
 	ServiceLevelObjectServiceLevel ServiceLevelObject = "service_level"
 )
 
-// A shipping term defining how freight charges are calculated for an order.
+// A named freight pricing rule that decides what a buyer pays for shipping.
+//
+// A customer's default shipping term is evaluated whenever freight is quoted for
+// one of their orders. Freight exemptions on the customer, its type group, or any
+// of its price groups are checked first and zero the freight charge before the
+// shipping term is considered.
 type ShippingTerm struct {
 	// Shipping term ID.
 	ID string `json:"id" api:"required"`
 	// When this shipping term was created.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	FlatRate Quantity `json:"flat_rate" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	FreeShippingServiceLevels ListServiceLevel `json:"free_shipping_service_levels" api:"required"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	MinimumOrderValue Quantity `json:"minimum_order_value" api:"required"`
 	// Human-readable name for the shipping term, used to identify it when assigning
 	// shipping terms to customers and orders.
@@ -963,11 +1091,11 @@ type ShippingTerm struct {
 	Owner Owner `json:"owner" api:"required"`
 	// Freight pricing model applied by this shipping term.
 	//
-	//   - `free_freight`: no shipping cost to the buyer.
-	//   - `flat_rate_freight`: a fixed shipping cost regardless of order details (see
-	//     `flat_rate`).
-	//   - `carrier_rate_freight`: shipping cost is determined by the carrier's quoted
-	//     rate.
+	//   - `free_freight`: the buyer is never charged for shipping.
+	//   - `flat_rate_freight`: the buyer is charged the fixed amount in `flat_rate`,
+	//     regardless of what the carrier would have charged.
+	//   - `carrier_rate_freight`: the buyer is charged the rate the carrier quotes for
+	//     the order's carrier and service level.
 	//
 	// Any of "free_freight", "flat_rate_freight", "carrier_rate_freight".
 	Type ShippingTermType `json:"type" api:"required"`
@@ -1005,11 +1133,11 @@ const (
 
 // Freight pricing model applied by this shipping term.
 //
-//   - `free_freight`: no shipping cost to the buyer.
-//   - `flat_rate_freight`: a fixed shipping cost regardless of order details (see
-//     `flat_rate`).
-//   - `carrier_rate_freight`: shipping cost is determined by the carrier's quoted
-//     rate.
+//   - `free_freight`: the buyer is never charged for shipping.
+//   - `flat_rate_freight`: the buyer is charged the fixed amount in `flat_rate`,
+//     regardless of what the carrier would have charged.
+//   - `carrier_rate_freight`: the buyer is charged the rate the carrier quotes for
+//     the order's carrier and service level.
 type ShippingTermType string
 
 const (
@@ -1021,13 +1149,18 @@ const (
 // Request to partially update a customer.
 type UpdateCustomerRequestParam struct {
 	// ID of an existing address to use as the default billing address.
+	//
+	// The address is linked to the customer's account if it is not already.
 	BillToAddressID param.Opt[string] `json:"bill_to_address_id,omitzero"`
 	// Carrier billing account number charged when `carrier_billing_type` is
 	// `third_party`.
 	CarrierBillingAccount param.Opt[string] `json:"carrier_billing_account,omitzero"`
-	// The ID of the account user to assign as the default sales rep.
+	// The ID of the account user to credit as the sales rep on this customer's orders.
+	//
+	// Must be an account user on your own account.
 	DefaultSalesRepID param.Opt[string] `json:"default_sales_rep_id,omitzero"`
-	// ID of the default carrier service level.
+	// ID of the carrier service level used when an order takes its carrier from this
+	// customer's default.
 	DefaultServiceLevelID param.Opt[string] `json:"default_service_level_id,omitzero"`
 	// Email address.
 	Email param.Opt[string] `json:"email,omitzero"`
@@ -1036,17 +1169,22 @@ type UpdateCustomerRequestParam struct {
 	// Phone number.
 	Phone param.Opt[string] `json:"phone,omitzero"`
 	// ID of an existing address to use as the default shipping address.
+	//
+	// The address is linked to the customer's account if it is not already.
 	ShipToAddressID param.Opt[string] `json:"ship_to_address_id,omitzero"`
 	// Website URL.
 	URL param.Opt[string] `json:"url,omitzero"`
 	// ID of the account group of type `type_group` that categorizes this customer (for
 	// example "Distributors").
 	CustomerTypeGroupID param.Opt[string] `json:"customer_type_group_id,omitzero"`
-	// ID of the default carrier for this customer's shipments.
+	// ID of the carrier used on this customer's orders when the order does not specify
+	// one.
 	DefaultCarrierID param.Opt[string] `json:"default_carrier_id,omitzero"`
-	// Default payment term ID.
+	// ID of the payment term used on this customer's orders when the order does not
+	// specify one.
 	DefaultPaymentTermID param.Opt[string] `json:"default_payment_term_id,omitzero"`
-	// Default shipping term ID.
+	// ID of the shipping term used on this customer's orders when the order does not
+	// specify one.
 	DefaultShippingTermID param.Opt[string] `json:"default_shipping_term_id,omitzero"`
 	// The customer's business name, as shown throughout the app and on documents.
 	Name param.Opt[string] `json:"name,omitzero"`
@@ -1070,14 +1208,17 @@ type UpdateCustomerRequestParam struct {
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy UpdateCustomerRequestCommissionPolicy `json:"commission_policy,omitzero"`
-	// A value with an associated unit, used in create and update requests.
+	// An amount together with the unit it is expressed in.
+	//
+	// The unit may be a currency, so money amounts such as a credit limit are written
+	// the same way as physical amounts like weights or counts.
 	CreditLimit QuantityInputParam `json:"credit_limit,omitzero"`
 	// IDs of the account groups of type `pricing_group` to assign to this customer,
 	// used to apply pricing rules.
 	//
 	// When provided, replaces the customer's full set of existing price groups.
 	CustomerPriceGroupIDs []string `json:"customer_price_group_ids,omitzero"`
-	// Priority applied to new orders for this customer.
+	// Priority used to pre-fill new orders for this customer.
 	//
 	// Any of "low", "normal", "high".
 	DefaultPriority UpdateCustomerRequestDefaultPriority `json:"default_priority,omitzero"`
@@ -1088,18 +1229,21 @@ type UpdateCustomerRequestParam struct {
 	EdiStatus UpdateCustomerRequestEdiStatus `json:"edi_status,omitzero"`
 	// Whether this customer is billed for freight on their orders.
 	//
-	//   - `free_freight`: the customer is not billed for freight.
-	//   - `billed_freight`: freight is billed to the customer, unless overridden on the
-	//     order.
+	// - `free_freight`: the customer is not billed for freight.
+	// - `billed_freight`: freight is billed to the customer.
+	//
+	// Freight is also waived when the customer's type group, one of its price groups,
+	// or a product line the ordered products belong to is `free_freight`.
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy UpdateCustomerRequestFreightPolicy `json:"freight_policy,omitzero"`
-	// Account status code, controlling whether the customer can transact.
+	// The customer's account standing.
 	//
-	// - `normal`: standard active account with no restrictions.
-	// - `preferred`: active account flagged as preferred.
-	// - `hold_shipment`: orders can be placed, but shipments are held.
-	// - `hold_all`: all activity is on hold.
+	//   - `normal`: standard account with no restrictions.
+	//   - `preferred`: account flagged for prioritized handling.
+	//   - `hold_shipment`: the customer's shipments should be held, typically over a
+	//     credit problem, while orders can still be placed.
+	//   - `hold_all`: all activity for the customer should be held.
 	//
 	// Any of "normal", "preferred", "hold_shipment", "hold_all".
 	Status UpdateCustomerRequestStatus `json:"status,omitzero"`
@@ -1137,7 +1281,7 @@ const (
 	UpdateCustomerRequestCommissionPolicyCommissionExempt  UpdateCustomerRequestCommissionPolicy = "commission_exempt"
 )
 
-// Priority applied to new orders for this customer.
+// Priority used to pre-fill new orders for this customer.
 type UpdateCustomerRequestDefaultPriority string
 
 const (
@@ -1157,9 +1301,11 @@ const (
 
 // Whether this customer is billed for freight on their orders.
 //
-//   - `free_freight`: the customer is not billed for freight.
-//   - `billed_freight`: freight is billed to the customer, unless overridden on the
-//     order.
+// - `free_freight`: the customer is not billed for freight.
+// - `billed_freight`: freight is billed to the customer.
+//
+// Freight is also waived when the customer's type group, one of its price groups,
+// or a product line the ordered products belong to is `free_freight`.
 type UpdateCustomerRequestFreightPolicy string
 
 const (
@@ -1167,12 +1313,13 @@ const (
 	UpdateCustomerRequestFreightPolicyBilledFreight UpdateCustomerRequestFreightPolicy = "billed_freight"
 )
 
-// Account status code, controlling whether the customer can transact.
+// The customer's account standing.
 //
-// - `normal`: standard active account with no restrictions.
-// - `preferred`: active account flagged as preferred.
-// - `hold_shipment`: orders can be placed, but shipments are held.
-// - `hold_all`: all activity is on hold.
+//   - `normal`: standard account with no restrictions.
+//   - `preferred`: account flagged for prioritized handling.
+//   - `hold_shipment`: the customer's shipments should be held, typically over a
+//     credit problem, while orders can still be placed.
+//   - `hold_all`: all activity for the customer should be held.
 type UpdateCustomerRequestStatus string
 
 const (
@@ -1312,14 +1459,20 @@ type SaleCustomerListParams struct {
 	State param.Opt[string] `query:"state,omitzero" json:"-"`
 	// Filter by default carrier IDs.
 	CarrierIDs []string `query:"carrier_ids,omitzero" json:"-"`
-	// Filter by commission policy.
+	// Filter by the commission policy set on the customer itself.
+	//
+	// Policies inherited from the customer's type group or price groups are not
+	// considered here.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionStatusCodes []string `query:"commission_status_codes,omitzero" json:"-"`
 	// Filter by customer type group IDs (the account group of type `type_group`
 	// returned in the customer's `type` field).
 	CustomerGroupIDs []string `query:"customer_group_ids,omitzero" json:"-"`
-	// Filter by freight policy.
+	// Filter by the freight policy set on the customer itself.
+	//
+	// Policies inherited from the customer's type group or price groups are not
+	// considered here.
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightStatusCodes []string `query:"freight_status_codes,omitzero" json:"-"`
@@ -1342,13 +1495,13 @@ type SaleCustomerListParams struct {
 	PaymentTermIDs []string `query:"payment_term_ids,omitzero" json:"-"`
 	// Filter to customers that belong to any of these pricing groups.
 	PricingGroupIDs []string `query:"pricing_group_ids,omitzero" json:"-"`
-	// Filter by default sales rep IDs.
+	// Filter to customers whose default sales rep is one of these account users.
 	SalesRepIDs []string `query:"sales_rep_ids,omitzero" json:"-"`
 	// Filter by default service level IDs.
 	ServiceLevelIDs []string `query:"service_level_ids,omitzero" json:"-"`
 	// Filter by default shipping term IDs.
 	ShippingTermIDs []string `query:"shipping_term_ids,omitzero" json:"-"`
-	// Filter by account status codes.
+	// Filter by the customer's account standing.
 	//
 	// Any of "normal", "preferred", "hold_shipment", "hold_all".
 	StatusCodes []string `query:"status_codes,omitzero" json:"-"`

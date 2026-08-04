@@ -44,6 +44,10 @@ func NewMessagingEmailInboxService(opts ...option.RequestOption) (r MessagingEma
 
 // Provisions a routable inbox address on a verified domain.
 //
+// Once created, mail arriving at the address opens a customer case conversation
+// and seats the bound agent and the group's members on it; a reply in a thread
+// that already opened one joins that conversation instead.
+//
 // This endpoint requires the permission: `messaging:create`.
 func (r *MessagingEmailInboxService) New(ctx context.Context, params MessagingEmailInboxNewParams, opts ...option.RequestOption) (res *EmailInbox, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -66,7 +70,12 @@ func (r *MessagingEmailInboxService) Get(ctx context.Context, id string, query M
 	return res, err
 }
 
-// Edits an email inbox's from-name, status, and default agent trigger config.
+// Edits an email inbox's from-name, status, agent configuration, and roster.
+//
+// Every field except `status` is merged into the inbox's current settings: a field
+// you omit — and an empty array you send — keeps the value it already has, so this
+// endpoint can change a setting but cannot clear one back to unset. The inbox's
+// address and domain are fixed at creation and cannot be changed here.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingEmailInboxService) Update(ctx context.Context, id string, params MessagingEmailInboxUpdateParams, opts ...option.RequestOption) (res *EmailInbox, err error) {
@@ -80,7 +89,9 @@ func (r *MessagingEmailInboxService) Update(ctx context.Context, id string, para
 	return res, err
 }
 
-// Returns the account's email inboxes.
+// Returns the account's email inboxes across every registered domain.
+//
+// Every inbox is returned in a single response; this list is not paginated.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingEmailInboxService) List(ctx context.Context, query MessagingEmailInboxListParams, opts ...option.RequestOption) (res *ListEmailInbox, err error) {
@@ -92,7 +103,9 @@ func (r *MessagingEmailInboxService) List(ctx context.Context, query MessagingEm
 
 // Removes an email inbox.
 //
-// Inbound mail to its address is no longer routed.
+// Mail sent to its address is no longer routed. Conversations the inbox already
+// opened are kept, but replies can no longer be sent on them, so disable the inbox
+// instead of deleting it if you still need to answer open threads.
 //
 // This endpoint requires the permission: `messaging:delete`.
 func (r *MessagingEmailInboxService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *MessagingEmailInboxDeleteResponse, err error) {
@@ -113,23 +126,38 @@ type CreateEmailInboxRequestParam struct {
 	// The full inbox address (e.g. `support@acme.com`).
 	//
 	// Its domain part must match the selected domain, which must already be verified.
+	// The address is lowercased before it is stored, and it must not already be in use
+	// by another inbox.
 	Address string `json:"address" api:"required"`
 	// The verified domain this inbox belongs to.
 	EmailDomainID string `json:"email_domain_id" api:"required"`
 	// The agent to bind to this inbox to handle incoming mail.
+	//
+	// With no agent bound, mail is still threaded into a conversation for your team,
+	// but nothing runs on it automatically.
 	AgentConfigID param.Opt[string] `json:"agent_config_id,omitzero"`
 	// How the bound agent decides whether to run on incoming mail.
 	//
-	// - `mention`: runs only when the agent is @mentioned in the message.
-	// - `keyword`: runs when the message contains any of the trigger keywords.
-	// - `always`: runs on every incoming message.
+	//   - `mention`: runs only when the agent is @mentioned, matched against the trigger
+	//     keywords below.
+	//   - `keyword`: runs when the message contains any of the trigger keywords.
+	//   - `always`: runs on every incoming message.
+	//
+	// Leaving this unset makes the agent run on every incoming message, since email
+	// has no reliable @mention convention.
 	AgentTriggerPolicy param.Opt[string] `json:"agent_trigger_policy,omitzero"`
 	// Display name for the `From` header of outbound mail.
 	FromName param.Opt[string] `json:"from_name,omitzero"`
 	// The messaging group (roster) whose members are seated on every conversation this
 	// inbox opens.
+	//
+	// Must name a group in your own account. Agents in the group are seated to run
+	// only when @mentioned, so they do not all fire alongside the inbox's own agent.
 	GroupID param.Opt[string] `json:"group_id,omitzero"`
-	// Keywords that fire the agent when the trigger policy is `keyword`.
+	// The keywords that decide whether the agent runs on an incoming message.
+	//
+	// Under the `keyword` policy a keyword matches anywhere in the message; under
+	// `mention` it only counts where it is prefixed with `@`.
 	AgentTriggerKeywords []string `json:"agent_trigger_keywords,omitzero"`
 	paramObj
 }
@@ -144,9 +172,10 @@ func (r *CreateEmailInboxRequestParam) UnmarshalJSON(data []byte) error {
 
 // A routable email inbox on a verified domain.
 //
-// Inbound mail to this address is threaded into a chat conversation, and outbound
-// replies may be sent from this identity. The optional agent trigger config
-// controls whether the bound agent runs automatically on incoming mail.
+// Mail sent to this address is threaded into a conversation: the first message of
+// a thread opens a new customer case, and later messages in the same thread join
+// the conversation it already created. Replies to the customer go back out from
+// this address, and the bound agent — if there is one — can draft or send them.
 type EmailInbox struct {
 	// Email inbox ID.
 	ID string `json:"id" api:"required"`
@@ -157,7 +186,10 @@ type EmailInbox struct {
 	// The definition describes what the agent does, how its runs are triggered, the
 	// tools it can use, and whether it is currently enabled for the account.
 	AgentConfig AgentDefinition `json:"agent_config" api:"required"`
-	// Keywords that fire the agent when `agent_trigger_policy` is `keyword`.
+	// The keywords that decide whether the agent runs on an incoming message.
+	//
+	// Under the `keyword` policy a keyword matches anywhere in the message; under
+	// `mention` it only counts where it is prefixed with `@`.
 	AgentTriggerKeywords []string `json:"agent_trigger_keywords" api:"required"`
 	// When the bound agent runs on incoming mail.
 	//
@@ -165,6 +197,9 @@ type EmailInbox struct {
 	//     keywords.
 	//   - `keyword`: when the mail contains any of the configured trigger keywords.
 	//   - `always`: on every incoming message.
+	//
+	// When no policy is set the agent runs on every incoming message, since email has
+	// no reliable @mention convention.
 	AgentTriggerPolicy string `json:"agent_trigger_policy" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
@@ -178,26 +213,26 @@ type EmailInbox struct {
 	// Use this when your domain's mail is hosted elsewhere (e.g. Google Workspace,
 	// Microsoft 365) and you cannot point its MX records at Augno: forward mail from
 	// `address` to this address instead, and it will still be threaded into a
-	// conversation. `null` when domain forwarding is not configured.
+	// conversation.
 	ForwardingAddress string `json:"forwarding_address" api:"required"`
 	// The display name used in the `From` header of outbound mail.
 	FromName string `json:"from_name" api:"required"`
 	// The messaging group (roster) whose members are added to every conversation this
 	// inbox opens.
 	//
-	// Everyone in the group — the human team plus any agents — is seated on each new
-	// email thread so they can read, edit, and approve replies alongside the bound
-	// agent. `null` when no group is set.
+	// Its members join each new email thread so the team can read, edit, and approve
+	// replies alongside the bound agent. Membership is captured when the thread opens,
+	// so later edits to the group only affect conversations opened after the change.
 	GroupID string `json:"group_id" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "email_inbox".
 	Object EmailInboxObject `json:"object" api:"required"`
-	// Whether the inbox is currently routing mail.
+	// Whether the inbox is currently accepting mail.
 	//
-	//   - `active`: inbound mail is threaded and outbound replies are allowed.
-	//   - `disabled`: the inbox is provisioned but drops inbound mail and does not send
-	//     replies.
+	//   - `active`: inbound mail is threaded into a conversation.
+	//   - `disabled`: the inbox stays provisioned and keeps its history, but inbound
+	//     mail is dropped without being threaded.
 	Status string `json:"status" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -234,7 +269,8 @@ const (
 	EmailInboxObjectEmailInbox EmailInboxObject = "email_inbox"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListEmailInbox struct {
 	// Resources in this page.
 	Data []EmailInbox `json:"data" api:"required"`
@@ -242,7 +278,13 @@ type ListEmailInbox struct {
 	//
 	// Any of "list".
 	Object ListEmailInboxObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -267,30 +309,41 @@ const (
 	ListEmailInboxObjectList ListEmailInboxObject = "list"
 )
 
-// Request to edit an email inbox's from-name, status, and default agent trigger
-// config.
+// Request to edit an email inbox's from-name, status, agent configuration, and
+// roster.
 //
 // The property Status is required.
 type UpdateEmailInboxRequestParam struct {
-	// Whether the inbox routes mail.
+	// Whether the inbox accepts mail.
 	//
-	// - `active`: inbound mail is threaded and outbound replies are allowed.
-	// - `disabled`: the inbox stays provisioned but does not route mail.
+	//   - `active`: inbound mail is threaded into a conversation.
+	//   - `disabled`: the inbox stays provisioned and keeps its history, but inbound
+	//     mail is dropped without being threaded.
 	Status string `json:"status" api:"required"`
 	// The agent to bind to this inbox to handle incoming mail.
 	AgentConfigID param.Opt[string] `json:"agent_config_id,omitzero"`
 	// How the bound agent decides whether to run on incoming mail.
 	//
-	// - `mention`: runs only when the agent is @mentioned in the message.
-	// - `keyword`: runs when the message contains any of the trigger keywords.
-	// - `always`: runs on every incoming message.
+	//   - `mention`: runs only when the agent is @mentioned, matched against the trigger
+	//     keywords below.
+	//   - `keyword`: runs when the message contains any of the trigger keywords.
+	//   - `always`: runs on every incoming message.
+	//
+	// While no policy has been set, the agent runs on every incoming message, since
+	// email has no reliable @mention convention.
 	AgentTriggerPolicy param.Opt[string] `json:"agent_trigger_policy,omitzero"`
 	// Display name for the `From` header of outbound mail.
 	FromName param.Opt[string] `json:"from_name,omitzero"`
 	// The messaging group (roster) whose members are seated on every conversation this
 	// inbox opens.
+	//
+	// Must name a group in your own account. Changing it only affects conversations
+	// opened afterwards.
 	GroupID param.Opt[string] `json:"group_id,omitzero"`
-	// Keywords that fire the agent when the trigger policy is `keyword`.
+	// The keywords that decide whether the agent runs on an incoming message.
+	//
+	// Under the `keyword` policy a keyword matches anywhere in the message; under
+	// `mention` it only counts where it is prefixed with `@`.
 	AgentTriggerKeywords []string `json:"agent_trigger_keywords,omitzero"`
 	paramObj
 }
@@ -363,8 +416,8 @@ func (r MessagingEmailInboxGetParams) URLQuery() (v url.Values, err error) {
 }
 
 type MessagingEmailInboxUpdateParams struct {
-	// Request to edit an email inbox's from-name, status, and default agent trigger
-	// config.
+	// Request to edit an email inbox's from-name, status, agent configuration, and
+	// roster.
 	UpdateEmailInboxRequest UpdateEmailInboxRequestParam
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

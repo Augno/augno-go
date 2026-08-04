@@ -41,7 +41,12 @@ func NewMessagingBlockService(opts ...option.RequestOption) (r MessagingBlockSer
 	return
 }
 
-// Blocks an account user (prevents DMs in both directions).
+// Blocks another user in your account from exchanging direct messages with you.
+//
+// While the block stands neither of you can start a direct message with the other
+// or post in one you already share; group conversations and customer cases are
+// unaffected. Blocking someone you have already blocked returns the original block
+// instead of creating a second one.
 //
 // This endpoint requires the permission: `messaging:create`.
 func (r *MessagingBlockService) New(ctx context.Context, params MessagingBlockNewParams, opts ...option.RequestOption) (res *MessagingBlock, err error) {
@@ -51,7 +56,9 @@ func (r *MessagingBlockService) New(ctx context.Context, params MessagingBlockNe
 	return res, err
 }
 
-// Lists the caller's messaging blocks.
+// Lists the users you have blocked, most recently blocked first.
+//
+// Only blocks you created are returned — you are never told who has blocked you.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingBlockService) List(ctx context.Context, query MessagingBlockListParams, opts ...option.RequestOption) (res *ListMessagingBlock, err error) {
@@ -61,7 +68,12 @@ func (r *MessagingBlockService) List(ctx context.Context, query MessagingBlockLi
 	return res, err
 }
 
-// Removes a block.
+// Lifts a block you placed on another user, letting the two of you message each
+// other again.
+//
+// Only your own block is removed: if the other person has also blocked you, direct
+// messages between you stay blocked. Unblocking someone you have not blocked
+// succeeds and changes nothing.
 //
 // This endpoint requires the permission: `messaging:delete`.
 func (r *MessagingBlockService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *MessagingBlockDeleteResponse, err error) {
@@ -78,7 +90,7 @@ func (r *MessagingBlockService) Delete(ctx context.Context, id string, opts ...o
 // A user's membership in an account, carrying the account-specific status, role,
 // and department.
 //
-// Profile fields (name, email, username, image URL) live on the expandable `user`
+// Profile fields (name, email, username, image URL) live on the `user`
 // sub-resource, which is shared across every account the user belongs to.
 type AccountUser struct {
 	// Account user ID.
@@ -97,11 +109,14 @@ type AccountUser struct {
 	// A named set of permissions that can be assigned to users to control what they
 	// can access.
 	Role Role `json:"role" api:"required"`
-	// Account user status.
+	// The current state of this user's membership in the account.
 	//
-	// - `active`: the user can access the account.
-	// - `disabled`: the user is locked out of the account.
-	// - `removed`: the user has been removed (soft-deleted) from the account.
+	//   - `active`: the user can sign in to the account and occupies one of the plan's
+	//     seats.
+	//   - `disabled`: the user is locked out of the account and their sessions have been
+	//     revoked, but the membership is retained.
+	//   - `removed`: the membership has been soft-deleted; it is hidden from listings by
+	//     default and can be restored with the activate action.
 	//
 	// Any of "active", "disabled", "removed".
 	Status AccountUserStatus `json:"status" api:"required"`
@@ -141,11 +156,14 @@ const (
 	AccountUserObjectAccountUser AccountUserObject = "account_user"
 )
 
-// Account user status.
+// The current state of this user's membership in the account.
 //
-// - `active`: the user can access the account.
-// - `disabled`: the user is locked out of the account.
-// - `removed`: the user has been removed (soft-deleted) from the account.
+//   - `active`: the user can sign in to the account and occupies one of the plan's
+//     seats.
+//   - `disabled`: the user is locked out of the account and their sessions have been
+//     revoked, but the membership is retained.
+//   - `removed`: the membership has been soft-deleted; it is hidden from listings by
+//     default and can be restored with the activate action.
 type AccountUserStatus string
 
 const (
@@ -159,6 +177,8 @@ const (
 // The property BlockedAccountUserID is required.
 type BlockRequestParam struct {
 	// The account user to block.
+	//
+	// It must be someone else in your account; you cannot block yourself.
 	BlockedAccountUserID string `json:"blocked_account_user_id" api:"required"`
 	paramObj
 }
@@ -176,10 +196,15 @@ func (r *BlockRequestParam) UnmarshalJSON(data []byte) error {
 // Each consumption records one input item and how much of it the step uses.
 // Consumptions also determine the production flow: when another step produces the
 // consumed item, the two steps are linked upstream/downstream automatically.
+//
+// The quantities are stated against the step's own output, so a step producing 100
+// pairs and consuming 5 kg of yarn needs 5 kg per 100 pairs. Material requirements
+// for an order scale every consumption in the flow by how much of the finished
+// item is wanted.
 type Consumption struct {
 	// Consumption ID.
 	ID string `json:"id" api:"required"`
-	// Item is an inventory item (product, material, or part).
+	// An entry in your catalog: something you sell, consume, or build with.
 	ConsumedItem Item `json:"consumed_item" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
@@ -189,11 +214,19 @@ type Consumption struct {
 	//
 	// Any of "consumption".
 	Object ConsumptionObject `json:"object" api:"required"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	Quantity Quantity `json:"quantity" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	WasteQuantity Quantity `json:"waste_quantity" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -236,7 +269,8 @@ type Department struct {
 	// A physical storage location, such as a warehouse, aisle, or bin, arranged in a
 	// parent-child hierarchy.
 	Location Location `json:"location" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Machines *ListMachine `json:"machines" api:"required"`
 	// Display name of the department.
 	//
@@ -248,7 +282,8 @@ type Department struct {
 	//
 	// Any of "department".
 	Object DepartmentObject `json:"object" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	ScanningStations *ListScanningStation `json:"scanning_stations" api:"required"`
 	// Last update timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -282,7 +317,8 @@ const (
 	DepartmentObjectDepartment DepartmentObject = "department"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListConsumption struct {
 	// Resources in this page.
 	Data []Consumption `json:"data" api:"required"`
@@ -290,7 +326,13 @@ type ListConsumption struct {
 	//
 	// Any of "list".
 	Object ListConsumptionObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -315,7 +357,8 @@ const (
 	ListConsumptionObjectList ListConsumptionObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListLocation struct {
 	// Resources in this page.
 	Data []Location `json:"data" api:"required"`
@@ -323,7 +366,13 @@ type ListLocation struct {
 	//
 	// Any of "list".
 	Object ListLocationObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -348,7 +397,8 @@ const (
 	ListLocationObjectList ListLocationObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListMachine struct {
 	// Resources in this page.
 	Data []Machine `json:"data" api:"required"`
@@ -356,7 +406,13 @@ type ListMachine struct {
 	//
 	// Any of "list".
 	Object ListMachineObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -381,7 +437,8 @@ const (
 	ListMachineObjectList ListMachineObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListMessagingBlock struct {
 	// Resources in this page.
 	Data []MessagingBlock `json:"data" api:"required"`
@@ -389,7 +446,13 @@ type ListMessagingBlock struct {
 	//
 	// Any of "list".
 	Object ListMessagingBlockObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -414,7 +477,8 @@ const (
 	ListMessagingBlockObjectList ListMessagingBlockObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListProductionStep struct {
 	// Resources in this page.
 	Data []ProductionStep `json:"data" api:"required"`
@@ -422,7 +486,13 @@ type ListProductionStep struct {
 	//
 	// Any of "list".
 	Object ListProductionStepObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -447,7 +517,8 @@ const (
 	ListProductionStepObjectList ListProductionStepObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListScanningStation struct {
 	// Resources in this page.
 	Data []ScanningStation `json:"data" api:"required"`
@@ -455,7 +526,13 @@ type ListScanningStation struct {
 	//
 	// Any of "list".
 	Object ListScanningStationObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -485,7 +562,8 @@ const (
 type Location struct {
 	// Location ID.
 	ID string `json:"id" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Children *ListLocation `json:"children" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
@@ -498,14 +576,11 @@ type Location struct {
 	// A physical storage location, such as a warehouse, aisle, or bin, arranged in a
 	// parent-child hierarchy.
 	Parent *Location `json:"parent" api:"required"`
-	// Location type code, identifying this location's level in the storage hierarchy.
+	// This location's level in the storage hierarchy.
 	//
-	// - `building`: a building-level location.
-	// - `section`: a section within a building.
-	// - `aisle`: an aisle within a section.
-	// - `rack`: a rack within an aisle.
-	// - `shelf`: a shelf within a rack.
-	// - `bin`: a bin within a shelf.
+	// The levels run from largest to smallest: `building`, `section`, `aisle`, `rack`,
+	// `shelf`, `bin`. They are descriptive labels rather than a rule — a location's
+	// parent is not required to be the next level up.
 	//
 	// Any of "building", "section", "aisle", "rack", "shelf", "bin".
 	Type LocationTypeCode `json:"type" api:"required"`
@@ -602,15 +677,18 @@ const (
 	MachineObjectMachine MachineObject = "machine"
 )
 
-// A 1:1 messaging block: the caller has blocked another account user from
-// messaging them.
+// A block one account user has placed on another.
+//
+// While the block stands, neither of the two can start a direct message with the
+// other or post in an existing one, whichever of them created it. Group
+// conversations and customer cases are unaffected.
 type MessagingBlock struct {
 	// Block ID.
 	ID string `json:"id" api:"required"`
 	// A user's membership in an account, carrying the account-specific status, role,
 	// and department.
 	//
-	// Profile fields (name, email, username, image URL) live on the expandable `user`
+	// Profile fields (name, email, username, image URL) live on the `user`
 	// sub-resource, which is shared across every account the user belongs to.
 	BlockedUser AccountUser `json:"blocked_user" api:"required"`
 	// When the block was created.
@@ -653,9 +731,13 @@ type ProductionOutput struct {
 	//
 	// Any of "production".
 	Object ProductionOutputObject `json:"object" api:"required"`
-	// Item is an inventory item (product, material, or part).
+	// An entry in your catalog: something you sell, consume, or build with.
 	ProducedItem Item `json:"produced_item" api:"required"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	Quantity Quantity `json:"quantity" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -696,14 +778,16 @@ type ProductionStep struct {
 	// Effective labor time per unit is
 	// `labor_time × (1 + leveling_factor) × (1 + allowances)`.
 	Allowances string `json:"allowances" api:"required" format:"decimal"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Consumptions ListConsumption `json:"consumptions" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// A functional area of a production operation, such as fabrication or packaging,
 	// that groups scanning stations and machines.
 	Department *Department `json:"department" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	InSteps *ListProductionStep `json:"in_steps" api:"required"`
 	// Value expressed as a ratio of two units, such as a price per kilogram or a
 	// throughput per hour.
@@ -717,7 +801,8 @@ type ProductionStep struct {
 	// Effective labor time per unit is
 	// `labor_time × (1 + leveling_factor) × (1 + allowances)`.
 	LevelingFactor string `json:"leveling_factor" api:"required" format:"decimal"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Machines *ListMachine `json:"machines" api:"required"`
 	// Display name of the step.
 	Name string `json:"name" api:"required"`
@@ -727,7 +812,8 @@ type ProductionStep struct {
 	//
 	// Any of "production_step".
 	Object ProductionStepObject `json:"object" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	OutSteps *ListProductionStep `json:"out_steps" api:"required"`
 	// Value expressed as a ratio of two units, such as a price per kilogram or a
 	// throughput per hour.
@@ -817,14 +903,19 @@ type ScanningStation struct {
 	//
 	// Any of "none", "material_check".
 	OperatorRequirement ScanningStationOperatorRequirement `json:"operator_requirement" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	ProductionSteps *ListProductionStep `json:"production_steps" api:"required"`
-	// Scanning station type, determining which batch operation the station performs.
+	// Scanning station type, determining which batch operation an operator performs
+	// when they scan here.
 	//
-	// - `init_batch`: initializes a new batch.
-	// - `merge_batch`: merges multiple batches into one.
-	// - `move_batch`: moves a batch to another location or step.
-	// - `split_batch`: splits a batch into multiple batches.
+	//   - `init_batch`: starts a new batch at the beginning of a production flow.
+	//   - `merge_batch`: combines several scanned batches into one.
+	//   - `move_batch`: advances a batch through a production step connected to this
+	//     station.
+	//   - `split_batch`: divides a batch into several batches.
+	//
+	// Fixed when the station is created.
 	//
 	// Any of "init_batch", "merge_batch", "move_batch", "split_batch".
 	Type ScanningStationType `json:"type" api:"required"`
@@ -896,12 +987,16 @@ const (
 	ScanningStationOperatorRequirementMaterialCheck ScanningStationOperatorRequirement = "material_check"
 )
 
-// Scanning station type, determining which batch operation the station performs.
+// Scanning station type, determining which batch operation an operator performs
+// when they scan here.
 //
-// - `init_batch`: initializes a new batch.
-// - `merge_batch`: merges multiple batches into one.
-// - `move_batch`: moves a batch to another location or step.
-// - `split_batch`: splits a batch into multiple batches.
+//   - `init_batch`: starts a new batch at the beginning of a production flow.
+//   - `merge_batch`: combines several scanned batches into one.
+//   - `move_batch`: advances a batch through a production step connected to this
+//     station.
+//   - `split_batch`: divides a batch into several batches.
+//
+// Fixed when the station is created.
 type ScanningStationType string
 
 const (
@@ -920,11 +1015,15 @@ type User struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Email address.
+	// Email address the user signs in with and receives platform email at.
 	Email string `json:"email" api:"required"`
 	// When the user verified their email address.
 	EmailVerifiedAt time.Time `json:"email_verified_at" api:"required" format:"date-time"`
-	// URL of the user's profile image.
+	// Location of the user's profile image.
+	//
+	// For photos uploaded through the API this holds an internal path rather than a
+	// fetchable image URL; call Get User Photo URL to obtain a temporary link to the
+	// image itself.
 	ImageURL string `json:"image_url" api:"required"`
 	// User's full display name.
 	Name string `json:"name" api:"required"`
@@ -934,7 +1033,9 @@ type User struct {
 	Object UserObject `json:"object" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// Username.
+	// Username the user can sign in with instead of their email address.
+	//
+	// Usernames are unique across the whole platform, not just within your account.
 	Username string `json:"username" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

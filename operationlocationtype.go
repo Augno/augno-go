@@ -56,6 +56,10 @@ func (r *OperationLocationTypeService) Get(ctx context.Context, id string, opts 
 
 // Returns a paginated list of location types.
 //
+// Location types are platform-defined and the same for every account, so this list
+// is the complete set of levels you can assign when creating a location. The `q`
+// search term matches on location type name.
+//
 // This endpoint requires the permission: `locations:read`.
 func (r *OperationLocationTypeService) List(ctx context.Context, query OperationLocationTypeListParams, opts ...option.RequestOption) (res *ListLocationType, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -64,7 +68,8 @@ func (r *OperationLocationTypeService) List(ctx context.Context, query Operation
 	return res, err
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListLocationType struct {
 	// Resources in this page.
 	Data []LocationType `json:"data" api:"required"`
@@ -72,7 +77,13 @@ type ListLocationType struct {
 	//
 	// Any of "list".
 	Object ListLocationTypeObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -98,18 +109,16 @@ const (
 )
 
 // A level in the storage location hierarchy, such as a building or a bin.
+//
+// Location types are platform-defined and identical for every account: you choose
+// one when creating a location, but you cannot add or modify the types themselves.
 type LocationType struct {
 	// Location type ID.
 	ID string `json:"id" api:"required"`
-	// Location type code, identifying the level of the storage hierarchy this type
-	// represents.
+	// The level of the storage hierarchy this type represents.
 	//
-	// - `building`: a building-level location.
-	// - `section`: a section within a building.
-	// - `aisle`: an aisle within a section.
-	// - `rack`: a rack within an aisle.
-	// - `shelf`: a shelf within a rack.
-	// - `bin`: a bin within a shelf.
+	// The levels run from largest to smallest: `building`, `section`, `aisle`, `rack`,
+	// `shelf`, `bin`.
 	//
 	// Any of "building", "section", "aisle", "rack", "shelf", "bin".
 	Code LocationTypeCode `json:"code" api:"required"`

@@ -43,8 +43,13 @@ func NewSaleCustomerActionService(opts ...option.RequestOption) (r SaleCustomerA
 //
 // Sales orders, invoices, shipments, deliveries, and other transaction records
 // from the source customers are reassigned to the target; price groups, product
-// line access, addresses, and users are consolidated without duplicates; the
-// source customers are then deleted.
+// line access, addresses, and users are consolidated without duplicates; child
+// accounts of the sources are re-parented to the target; the source customers are
+// then deleted.
+//
+// The target keeps its own name, number, default addresses, and default settings —
+// none of those are copied over from the sources, and the sources' notification
+// recipients are discarded rather than transferred.
 //
 // This endpoint requires the permissions: `customers:update`, `customers:delete`.
 func (r *SaleCustomerActionService) Merge(ctx context.Context, id string, params SaleCustomerActionMergeParams, opts ...option.RequestOption) (res *Customer, err error) {

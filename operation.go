@@ -29,6 +29,10 @@ type OperationService struct {
 	ShippingTerms OperationShippingTermService
 	// List and manage carriers and their Shippo integrations.
 	Carriers OperationCarrierService
+	// List and manage departments.
+	Departments OperationDepartmentService
+	// List and manage machines.
+	Machines OperationMachineService
 	// Log and review machine stoppages. Downtime is the source of OEE availability and
 	// changeover time.
 	MachineDowntimeEvents OperationMachineDowntimeEventService
@@ -44,6 +48,7 @@ type OperationService struct {
 	Locations OperationLocationService
 	// List and manage locations.
 	LocationTypes OperationLocationTypeService
+	Shipments     OperationShipmentService
 	// List and manage scanning stations.
 	ScanningStations OperationScanningStationService
 }
@@ -56,18 +61,24 @@ func NewOperationService(opts ...option.RequestOption) (r OperationService) {
 	r.options = opts
 	r.ShippingTerms = NewOperationShippingTermService(opts...)
 	r.Carriers = NewOperationCarrierService(opts...)
+	r.Departments = NewOperationDepartmentService(opts...)
+	r.Machines = NewOperationMachineService(opts...)
 	r.MachineDowntimeEvents = NewOperationMachineDowntimeEventService(opts...)
 	r.DemandOverrides = NewOperationDemandOverrideService(opts...)
 	r.ProductionSchedules = NewOperationProductionScheduleService(opts...)
 	r.ProductionScheduleSettings = NewOperationProductionScheduleSettingService(opts...)
 	r.Locations = NewOperationLocationService(opts...)
 	r.LocationTypes = NewOperationLocationTypeService(opts...)
+	r.Shipments = NewOperationShipmentService(opts...)
 	r.ScanningStations = NewOperationScanningStationService(opts...)
 	return
 }
 
 // Returns the demand override types, which describe how an override's value
 // adjusts the forecast.
+//
+// The taxonomy is platform-provided and identical for every account; each type's
+// `code` is a value accepted as an override's `adjustment`.
 //
 // This endpoint requires the permission: `demand_overrides:read`.
 func (r *OperationService) GetDemandOverrideTypes(ctx context.Context, opts ...option.RequestOption) (res *ListDemandOverrideType, err error) {
@@ -79,7 +90,10 @@ func (r *OperationService) GetDemandOverrideTypes(ctx context.Context, opts ...o
 
 // Returns the downtime reasons available when logging a stoppage.
 //
-// The list is the same for every account and is ordered for display.
+// The list is the same for every account and is ordered for display, so it can be
+// rendered straight into a reason picker. Each reason carries the OEE term its
+// stoppages charge, which is what makes the choice of reason matter beyond
+// labeling.
 //
 // This endpoint requires the permission: `machine_downtime:read`.
 func (r *OperationService) GetMachineDowntimeReasons(ctx context.Context, opts ...option.RequestOption) (res *ListMachineDowntimeReason, err error) {
@@ -91,6 +105,9 @@ func (r *OperationService) GetMachineDowntimeReasons(ctx context.Context, opts .
 
 // Returns what every machine is running right now, how much is left on it, and
 // what is queued behind that.
+//
+// The whole floor comes back in one response rather than a page at a time, so a
+// wall display can render it in a single call.
 //
 // Assembled from the published schedule, the batches the floor has scanned against
 // each campaign, and any open downtime. A campaign is `current` once its week is
@@ -127,13 +144,13 @@ func (r *OperationService) GetScheduleDeviationTypes(ctx context.Context, opts .
 
 // A way of adjusting planned demand.
 //
-// `absolute` replaces the forecast for the period, `delta_units` adds to it, and
-// `delta_percent` scales it. When several overrides land on the same month they
-// are applied in that order.
+// `absolute` replaces the forecast for each month an override covers,
+// `delta_units` adds to it, and `delta_percent` scales it. When several overrides
+// land on the same month they are applied in that order.
 type DemandOverrideType struct {
 	// Override type ID.
 	ID string `json:"id" api:"required"`
-	// Stable code used when creating an override.
+	// The value to send as an override's `adjustment`.
 	//
 	// Any of "absolute", "delta_units", "delta_percent".
 	Code DemandOverrideTypeCode `json:"code" api:"required"`
@@ -166,7 +183,7 @@ func (r *DemandOverrideType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Stable code used when creating an override.
+// The value to send as an override's `adjustment`.
 type DemandOverrideTypeCode string
 
 const (
@@ -182,7 +199,8 @@ const (
 	DemandOverrideTypeObjectDemandOverrideType DemandOverrideTypeObject = "demand_override_type"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListDemandOverrideType struct {
 	// Resources in this page.
 	Data []DemandOverrideType `json:"data" api:"required"`
@@ -190,7 +208,13 @@ type ListDemandOverrideType struct {
 	//
 	// Any of "list".
 	Object ListDemandOverrideTypeObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -215,7 +239,8 @@ const (
 	ListDemandOverrideTypeObjectList ListDemandOverrideTypeObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListMachineDowntimeReason struct {
 	// Resources in this page.
 	Data []MachineDowntimeReason `json:"data" api:"required"`
@@ -223,7 +248,13 @@ type ListMachineDowntimeReason struct {
 	//
 	// Any of "list".
 	Object ListMachineDowntimeReasonObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -248,7 +279,8 @@ const (
 	ListMachineDowntimeReasonObjectList ListMachineDowntimeReasonObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListMachineStatus struct {
 	// Resources in this page.
 	Data []MachineStatus `json:"data" api:"required"`
@@ -256,7 +288,13 @@ type ListMachineStatus struct {
 	//
 	// Any of "list".
 	Object ListMachineStatusObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -281,7 +319,8 @@ const (
 	ListMachineStatusObjectList ListMachineStatusObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListScheduleDeviationType struct {
 	// Resources in this page.
 	Data []ScheduleDeviationType `json:"data" api:"required"`
@@ -289,7 +328,13 @@ type ListScheduleDeviationType struct {
 	//
 	// Any of "list".
 	Object ListScheduleDeviationTypeObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -315,12 +360,16 @@ const (
 )
 
 // One campaign on a machine, with how far through it the floor is.
+//
+// A campaign is one item scheduled to run on one machine for one week. Progress is
+// taken from the batches the floor has scanned against it rather than reported by
+// hand, so it advances on its own as a shift runs.
 type MachineCampaign struct {
 	// Entity is a polymorphic reference to any resource in the system.
 	Item Entity `json:"item" api:"required"`
 	// Quantity the plan asked for.
 	PlannedQuantity float64 `json:"planned_quantity" api:"required"`
-	// Constraint hours the campaign consumes.
+	// Machine hours the plan allocates to the campaign.
 	PlannedRunHours float64 `json:"planned_run_hours" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	ProductionRun Entity `json:"production_run" api:"required"`
@@ -340,6 +389,13 @@ type MachineCampaign struct {
 	// SKU of the item.
 	SKU string `json:"sku" api:"required"`
 	// Where the campaign is in its lifecycle.
+	//
+	//   - `planned`: scheduled, but not yet released to the floor.
+	//   - `released`: issued to the floor as a production run, so batches can be scanned
+	//     against it.
+	//   - `in_progress`: being run.
+	//   - `complete`: finished.
+	//   - `cancelled`: will not be run.
 	//
 	// Any of "planned", "released", "in_progress", "complete", "cancelled".
 	Status MachineCampaignStatus `json:"status" api:"required"`
@@ -377,6 +433,13 @@ func (r *MachineCampaign) UnmarshalJSON(data []byte) error {
 }
 
 // Where the campaign is in its lifecycle.
+//
+//   - `planned`: scheduled, but not yet released to the floor.
+//   - `released`: issued to the floor as a production run, so batches can be scanned
+//     against it.
+//   - `in_progress`: being run.
+//   - `complete`: finished.
+//   - `cancelled`: will not be run.
 type MachineCampaignStatus string
 
 const (
@@ -397,6 +460,9 @@ type MachineDowntimeReason struct {
 	// Downtime reason ID.
 	ID string `json:"id" api:"required"`
 	// Stable code used when logging downtime.
+	//
+	// This is the value to send as `reason` when creating or updating a downtime
+	// event.
 	//
 	// Any of "breakdown", "changeover", "material_shortage", "no_operator",
 	// "planned_maintenance", "minor_stop", "quality_hold", "no_schedule".
@@ -444,6 +510,9 @@ func (r *MachineDowntimeReason) UnmarshalJSON(data []byte) error {
 }
 
 // Stable code used when logging downtime.
+//
+// This is the value to send as `reason` when creating or updating a downtime
+// event.
 type MachineDowntimeReasonCode string
 
 const (
@@ -588,6 +657,10 @@ func (r *MachineDowntimeSummary) UnmarshalJSON(data []byte) error {
 // whatever the plan says.
 type MachineStatus struct {
 	// One campaign on a machine, with how far through it the floor is.
+	//
+	// A campaign is one item scheduled to run on one machine for one week. Progress is
+	// taken from the batches the floor has scanned against it rather than reported by
+	// hand, so it advances on its own as a shift runs.
 	Current MachineCampaign `json:"current" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Department Entity `json:"department" api:"required"`
@@ -596,6 +669,10 @@ type MachineStatus struct {
 	// Entity is a polymorphic reference to any resource in the system.
 	Machine Entity `json:"machine" api:"required"`
 	// One campaign on a machine, with how far through it the floor is.
+	//
+	// A campaign is one item scheduled to run on one machine for one week. Progress is
+	// taken from the batches the floor has scanned against it rather than reported by
+	// hand, so it advances on its own as a shift runs.
 	Next MachineCampaign `json:"next" api:"required"`
 	// Resource type identifier.
 	//
@@ -611,11 +688,14 @@ type MachineStatus struct {
 	Status MachineStatusStatus `json:"status" api:"required"`
 	// Unit the week's quantities are counted in.
 	Unit string `json:"unit" api:"required"`
-	// Planned for this machine this week.
+	// Quantity planned on this machine for the current week.
+	//
+	// Summed across every campaign scheduled on the machine that week, not just the
+	// current one.
 	WeekPlannedQuantity float64 `json:"week_planned_quantity" api:"required"`
-	// Constraint hours planned on this machine this week.
+	// Machine hours the plan allocates on this machine for the current week.
 	WeekPlannedRunHours float64 `json:"week_planned_run_hours" api:"required"`
-	// Scanned on this machine this week.
+	// Quantity scanned on this machine so far in the current week.
 	WeekScannedQuantity float64 `json:"week_scanned_quantity" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -719,7 +799,11 @@ const (
 )
 
 type OperationGetMachineStatusParams struct {
-	// The moment to read the floor at. Defaults to now.
+	// The moment to read the floor at.
+	//
+	// Chooses the week the campaigns are read for, and the published schedule whose
+	// horizon covers that moment; open downtime and scan progress are always read as
+	// they stand now. Omit it to read the floor as it is at this instant.
 	AsOf param.Opt[time.Time] `query:"as_of,omitzero" format:"date-time" json:"-"`
 	// Only include machines in these departments.
 	DepartmentIDs []string `query:"department_ids,omitzero" json:"-"`

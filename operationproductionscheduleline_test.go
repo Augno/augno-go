@@ -27,11 +27,11 @@ func TestOperationProductionScheduleLineNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.ProductionSchedules.Lines.New(
 		context.TODO(),
-		"pnsc_0192a4c17b3e4f8a91c2d0",
+		"pnsc_m4zt3z8g8src",
 		augno.OperationProductionScheduleLineNewParams{
 			CreateProductionScheduleLineRequest: augno.CreateProductionScheduleLineRequestParam{
-				ItemID:     "it_0131e386ac683e8c29a71f6f1f",
-				MachineID:  "mc_0177d18f55a1615f783d3bf8d0",
+				ItemID:     "it_pej07ckhvu62",
+				MachineID:  "mc_ffcfk9dxixis",
 				Quantity:   600,
 				WeekIndex:  2,
 				Lots:       augno.Int(0),
@@ -64,9 +64,9 @@ func TestOperationProductionScheduleLineUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.ProductionSchedules.Lines.Update(
 		context.TODO(),
-		"orln_0142f9b74268973450b3a76ce3",
+		"orln_la01fxgrwcnr",
 		augno.OperationProductionScheduleLineUpdateParams{
-			ID: "pnsc_0192a4c17b3e4f8a91c2d0",
+			ID: "pnsc_m4zt3z8g8src",
 			UpdateProductionScheduleLineRequest: augno.UpdateProductionScheduleLineRequestParam{
 				Lots:          augno.Int(0),
 				MachineID:     augno.String("machine_id"),
@@ -103,7 +103,7 @@ func TestOperationProductionScheduleLineListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.ProductionSchedules.Lines.List(
 		context.TODO(),
-		"pnsc_0192a4c17b3e4f8a91c2d0",
+		"pnsc_m4zt3z8g8src",
 		augno.OperationProductionScheduleLineListParams{
 			MachineIDs: []string{"string"},
 			WeekIndex:  augno.Int(0),
@@ -132,9 +132,9 @@ func TestOperationProductionScheduleLineDeleteWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.ProductionSchedules.Lines.Delete(
 		context.TODO(),
-		"orln_0142f9b74268973450b3a76ce3",
+		"orln_la01fxgrwcnr",
 		augno.OperationProductionScheduleLineDeleteParams{
-			ID:         "pnsc_0192a4c17b3e4f8a91c2d0",
+			ID:         "pnsc_m4zt3z8g8src",
 			Reason:     augno.OperationProductionScheduleLineDeleteParamsReasonMachineDown,
 			ReasonNote: augno.String("reason_note"),
 		},

@@ -29,8 +29,8 @@ func TestOperationLocationNewWithOptionalParams(t *testing.T) {
 		CreateLocationRequest: augno.CreateLocationRequestParam{
 			Name:     "Warehouse A",
 			Type:     augno.LocationTypeCodeBuilding,
-			ChildIDs: []string{"lc_014d187d99b31926f0c74af9d8"},
-			ParentID: augno.String("lc_014d187d99b31926f0c74af9d8"),
+			ChildIDs: []string{"lc_yonnys0hx3ju"},
+			ParentID: augno.String("lc_yonnys0hx3ju"),
 		},
 		Include: []string{"parent"},
 	})
@@ -57,7 +57,7 @@ func TestOperationLocationGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.Locations.Get(
 		context.TODO(),
-		"lc_014d187d99b31926f0c74af9d8",
+		"lc_yonnys0hx3ju",
 		augno.OperationLocationGetParams{
 			Include: []string{"parent"},
 		},
@@ -85,13 +85,13 @@ func TestOperationLocationUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.Locations.Update(
 		context.TODO(),
-		"lc_014d187d99b31926f0c74af9d8",
+		"lc_yonnys0hx3ju",
 		augno.OperationLocationUpdateParams{
 			Include: []string{"parent"},
 			UpdateLocationRequest: augno.UpdateLocationRequestParam{
-				ChildIDs: []string{"lc_014d187d99b31926f0c74af9d8"},
+				ChildIDs: []string{"lc_yonnys0hx3ju"},
 				Name:     augno.String("Warehouse B"),
-				ParentID: augno.String("lc_014d187d99b31926f0c74af9d8"),
+				ParentID: augno.String("lc_yonnys0hx3ju"),
 				Type:     augno.LocationTypeCodeSection,
 			},
 		},
@@ -144,7 +144,7 @@ func TestOperationLocationDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.Locations.Delete(context.TODO(), "lc_014d187d99b31926f0c74af9d8")
+	_, err := client.Operations.Locations.Delete(context.TODO(), "lc_yonnys0hx3ju")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

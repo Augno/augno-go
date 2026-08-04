@@ -46,6 +46,10 @@ func NewCatalogPropertyService(opts ...option.RequestOption) (r CatalogPropertyS
 
 // Creates a property.
 //
+// The property starts with no attributes; add its selectable values afterwards
+// with the create attribute endpoint. Returns a conflict error if a property with
+// the same name already exists.
+//
 // This endpoint requires the permission: `properties:create`.
 func (r *CatalogPropertyService) New(ctx context.Context, params CatalogPropertyNewParams, opts ...option.RequestOption) (res *Property, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -84,6 +88,9 @@ func (r *CatalogPropertyService) Update(ctx context.Context, id string, params C
 
 // Returns a paginated list of properties for the target account.
 //
+// Properties come back newest first. The `q` search term is matched against the
+// property name.
+//
 // This endpoint requires the permission: `properties:read`.
 func (r *CatalogPropertyService) List(ctx context.Context, query CatalogPropertyListParams, opts ...option.RequestOption) (res *ListProperty, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -92,7 +99,9 @@ func (r *CatalogPropertyService) List(ctx context.Context, query CatalogProperty
 	return res, err
 }
 
-// Deletes a property and all associated attributes.
+// Deletes a property and every attribute defined under it.
+//
+// Items previously classified by those attributes lose that classification.
 //
 // This endpoint requires the permission: `properties:delete`.
 func (r *CatalogPropertyService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CatalogPropertyDeleteResponse, err error) {
@@ -194,6 +203,8 @@ const (
 // The property Name is required.
 type CreatePropertyRequestParam struct {
 	// Display name of the property, such as `Color` or `Size`.
+	//
+	// Must be unique within your account.
 	Name string `json:"name" api:"required"`
 	paramObj
 }
@@ -206,7 +217,8 @@ func (r *CreatePropertyRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListAttribute struct {
 	// Resources in this page.
 	Data []Attribute `json:"data" api:"required"`
@@ -214,7 +226,13 @@ type ListAttribute struct {
 	//
 	// Any of "list".
 	Object ListAttributeObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -239,7 +257,8 @@ const (
 	ListAttributeObjectList ListAttributeObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListProperty struct {
 	// Resources in this page.
 	Data []Property `json:"data" api:"required"`
@@ -247,7 +266,13 @@ type ListProperty struct {
 	//
 	// Any of "list".
 	Object ListPropertyObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -279,11 +304,14 @@ const (
 type Property struct {
 	// Property ID.
 	ID string `json:"id" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Attributes *ListAttribute `json:"attributes" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Display name of the property, such as `Color` or `Size`.
+	//
+	// Unique within the account.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -320,6 +348,8 @@ const (
 // Request to update a property.
 type UpdatePropertyRequestParam struct {
 	// Display name of the property, such as `Color` or `Size`.
+	//
+	// Must be unique within your account.
 	Name param.Opt[string] `json:"name,omitzero"`
 	paramObj
 }

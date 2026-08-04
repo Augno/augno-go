@@ -30,7 +30,7 @@ func TestCoreAnalyticsUpdateOeeWithOptionalParams(t *testing.T) {
 		AnalyzeOeeRequest: augno.AnalyzeOeeRequestParam{
 			EndDate:       time.Now(),
 			StartDate:     time.Now(),
-			DepartmentIDs: []string{"dp_01791c25ab59da4704cba61874"},
+			DepartmentIDs: []string{"dp_m0jayebxnkos"},
 			PlannedTime: []augno.OeeDepartmentPlannedTimeParam{{
 				DepartmentID: "department_id",
 				PlannedHours: 0,

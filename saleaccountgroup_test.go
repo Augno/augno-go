@@ -55,7 +55,7 @@ func TestSaleAccountGroupGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.AccountGroups.Get(context.TODO(), "acgp_018e88072d1320808dc979cfac")
+	_, err := client.Sales.AccountGroups.Get(context.TODO(), "acgp_6p4z57e9alaf")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -79,7 +79,7 @@ func TestSaleAccountGroupUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.AccountGroups.Update(
 		context.TODO(),
-		"acgp_018e88072d1320808dc979cfac",
+		"acgp_6p4z57e9alaf",
 		augno.SaleAccountGroupUpdateParams{
 			UpdateAccountGroupRequest: augno.UpdateAccountGroupRequestParam{
 				CommissionPolicy: augno.UpdateAccountGroupRequestCommissionPolicyCommissionExempt,
@@ -137,7 +137,7 @@ func TestSaleAccountGroupDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.AccountGroups.Delete(context.TODO(), "acgp_018e88072d1320808dc979cfac")
+	_, err := client.Sales.AccountGroups.Delete(context.TODO(), "acgp_6p4z57e9alaf")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

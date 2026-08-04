@@ -40,10 +40,10 @@ func TestSaleCustomerNewWithOptionalParams(t *testing.T) {
 				StreetLine2: augno.String("Suite 400"),
 				Type:        augno.AddressInputTypeStandard,
 			},
-			CustomerTypeGroupID:   "acgp_018e88072d1320808dc979cfac",
-			DefaultCarrierID:      "cr_01784fd54c9ba197bb4e42f0e6",
-			DefaultPaymentTermID:  "pytm_018694d6601ea771cd1b52e890",
-			DefaultShippingTermID: "shtm_014341ab4bb5bf94d5b6936f86",
+			CustomerTypeGroupID:   "acgp_6p4z57e9alaf",
+			DefaultCarrierID:      "cr_tv5vfjtgu1n3",
+			DefaultPaymentTermID:  "pytm_skssmsy21lem",
+			DefaultShippingTermID: "shtm_c5gxy05whw6r",
 			Name:                  "Acme Inc.",
 			ShipToAddress: augno.AddressInputParam{
 				Country:     "US",
@@ -61,13 +61,13 @@ func TestSaleCustomerNewWithOptionalParams(t *testing.T) {
 			CarrierBillingType:    augno.CreateCustomerRequestCarrierBillingTypeSender,
 			CommissionPolicy:      augno.CreateCustomerRequestCommissionPolicyCommissionApplied,
 			CreditLimit: augno.QuantityInputParam{
-				UnitID: "un_01966263f74a5a0cae356000a1",
+				UnitID: "un_82bd37dae5po",
 				Value:  "10000.00",
 			},
-			CustomerPriceGroupIDs: []string{"acgp_018e88072d1320808dc979cfac"},
+			CustomerPriceGroupIDs: []string{"acgp_6p4z57e9alaf"},
 			DefaultPriority:       augno.CreateCustomerRequestDefaultPriorityNormal,
-			DefaultSalesRepID:     augno.String("acus_01ea9983ddb41dacc44ecf997c"),
-			DefaultServiceLevelID: augno.String("crop_01cfaf03f104e90ef9680e2a30"),
+			DefaultSalesRepID:     augno.String("acus_e5zu8bde0z3h"),
+			DefaultServiceLevelID: augno.String("crop_4ilk9p6gccrx"),
 			EdiStatus:             augno.CreateCustomerRequestEdiStatusDisabled,
 			Email:                 augno.String("orders@acme.com"),
 			FreightPolicy:         augno.CreateCustomerRequestFreightPolicyBilledFreight,
@@ -102,7 +102,7 @@ func TestSaleCustomerGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.Customers.Get(
 		context.TODO(),
-		"ac_0170df1ac58e4d24c66fc89f5f",
+		"ac_opnlh43ymyee",
 		augno.SaleCustomerGetParams{
 			Include: []string{"bill_to_address"},
 		},
@@ -130,26 +130,26 @@ func TestSaleCustomerUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.Customers.Update(
 		context.TODO(),
-		"ac_0170df1ac58e4d24c66fc89f5f",
+		"ac_opnlh43ymyee",
 		augno.SaleCustomerUpdateParams{
 			Include: []string{"bill_to_address"},
 			UpdateCustomerRequest: augno.UpdateCustomerRequestParam{
-				BillToAddressID:       augno.String("ad_012c2e4aeeb20f56c1a3d06cc7"),
+				BillToAddressID:       augno.String("ad_npqa5y43q26z"),
 				CarrierBillingAccount: augno.String("123456789"),
 				CarrierBillingType:    augno.UpdateCustomerRequestCarrierBillingTypeSender,
 				CommissionPolicy:      augno.UpdateCustomerRequestCommissionPolicyCommissionApplied,
 				CreditLimit: augno.QuantityInputParam{
-					UnitID: "un_01966263f74a5a0cae356000a1",
+					UnitID: "un_82bd37dae5po",
 					Value:  "10000.00",
 				},
-				CustomerPriceGroupIDs: []string{"acgp_018e88072d1320808dc979cfac"},
-				CustomerTypeGroupID:   augno.String("acgp_018e88072d1320808dc979cfac"),
-				DefaultCarrierID:      augno.String("cr_01784fd54c9ba197bb4e42f0e6"),
-				DefaultPaymentTermID:  augno.String("pytm_018694d6601ea771cd1b52e890"),
+				CustomerPriceGroupIDs: []string{"acgp_6p4z57e9alaf"},
+				CustomerTypeGroupID:   augno.String("acgp_6p4z57e9alaf"),
+				DefaultCarrierID:      augno.String("cr_tv5vfjtgu1n3"),
+				DefaultPaymentTermID:  augno.String("pytm_skssmsy21lem"),
 				DefaultPriority:       augno.UpdateCustomerRequestDefaultPriorityNormal,
-				DefaultSalesRepID:     augno.String("acus_01ea9983ddb41dacc44ecf997c"),
-				DefaultServiceLevelID: augno.String("crop_01cfaf03f104e90ef9680e2a30"),
-				DefaultShippingTermID: augno.String("shtm_014341ab4bb5bf94d5b6936f86"),
+				DefaultSalesRepID:     augno.String("acus_e5zu8bde0z3h"),
+				DefaultServiceLevelID: augno.String("crop_4ilk9p6gccrx"),
+				DefaultShippingTermID: augno.String("shtm_c5gxy05whw6r"),
 				EdiStatus:             augno.UpdateCustomerRequestEdiStatusDisabled,
 				Email:                 augno.String("orders@acme.com"),
 				FreightPolicy:         augno.UpdateCustomerRequestFreightPolicyBilledFreight,
@@ -157,7 +157,7 @@ func TestSaleCustomerUpdateWithOptionalParams(t *testing.T) {
 				Note:                  augno.String("Updated account notes"),
 				Number:                augno.String("100042"),
 				Phone:                 augno.String("555-123-4567"),
-				ShipToAddressID:       augno.String("ad_012c2e4aeeb20f56c1a3d06cc7"),
+				ShipToAddressID:       augno.String("ad_npqa5y43q26z"),
 				Status:                augno.UpdateCustomerRequestStatusNormal,
 				URL:                   augno.String("https://acme.com"),
 			},
@@ -227,7 +227,7 @@ func TestSaleCustomerDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Customers.Delete(context.TODO(), "ac_0170df1ac58e4d24c66fc89f5f")
+	_, err := client.Sales.Customers.Delete(context.TODO(), "ac_opnlh43ymyee")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

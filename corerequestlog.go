@@ -40,7 +40,12 @@ func NewCoreRequestLogService(opts ...option.RequestOption) (r CoreRequestLogSer
 	return
 }
 
-// Returns a request log by ID.
+// Returns a single API request log by ID.
+//
+// The log is readable when your account is either the acting account or the
+// account that was acted upon. This is also the only endpoint that can return the
+// captured query parameters and request and response bodies, and the only way to
+// read the high-traffic-endpoint logs that are withheld from the list endpoint.
 //
 // This endpoint requires the permission: `request_logs:read`.
 func (r *CoreRequestLogService) Get(ctx context.Context, id string, query CoreRequestLogGetParams, opts ...option.RequestOption) (res *RequestLog, err error) {
@@ -54,7 +59,18 @@ func (r *CoreRequestLogService) Get(ctx context.Context, id string, query CoreRe
 	return res, err
 }
 
-// Returns a paginated list of request logs for the current account.
+// Returns a paginated list of API request logs, newest first.
+//
+// Results cover every request where your account is either the acting account or
+// the account that was acted upon, so requests a customer or supplier made against
+// your data appear alongside your own. The `q` parameter matches a log ID exactly
+// and otherwise searches the request path, the normalized route, and the error
+// message.
+//
+// Requests to a number of high-traffic endpoints — including these logging
+// endpoints themselves — are recorded but withheld from this listing so they do
+// not drown out the rest of your traffic. They can still be fetched individually
+// by ID.
 //
 // This endpoint requires the permission: `request_logs:read`.
 func (r *CoreRequestLogService) List(ctx context.Context, query CoreRequestLogListParams, opts ...option.RequestOption) (res *ListRequestLog, err error) {
@@ -142,7 +158,8 @@ const (
 	ActorTypeGroup  ActorType = "group"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListRequestLog struct {
 	// Resources in this page.
 	Data []RequestLog `json:"data" api:"required"`
@@ -150,7 +167,13 @@ type ListRequestLog struct {
 	//
 	// Any of "list".
 	Object ListRequestLogObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -176,27 +199,41 @@ const (
 )
 
 // A log of a single API request, capturing its route, outcome, latency, and actor.
+//
+// Logs are written after the response has been sent, so a new entry may take a
+// moment to become readable.
 type RequestLog struct {
 	// Request log ID.
 	ID string `json:"id" api:"required"`
-	// A customer account, including its branding and customer portal sub-resources.
+	// An organization on Augno, including its branding and customer portal
+	// sub-resources.
+	//
+	// Your own account and any customer or supplier account you trade with are both
+	// represented by this object.
 	Account Account `json:"account" api:"required"`
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
 	Actor Actor `json:"actor" api:"required"`
-	// API version used.
+	// The API version the request was served with.
+	//
+	// Taken from the `Augno-Version` header the caller sent; requests rejected for
+	// omitting that header record no version.
 	APIVersion string `json:"api_version" api:"required"`
-	// Client IP address.
+	// Client IP address the request came from.
+	//
+	// Not recorded for requests an Augno agent made on your behalf, since those
+	// originate inside Augno's own network.
 	ClientIP string `json:"client_ip" api:"required"`
-	// When the log entry was created.
+	// When the log entry was written.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Machine-readable API error code.
 	//
-	// Populated only for failed requests.
+	// Matches the `code` of the error response the caller received. Populated only for
+	// failed requests.
 	ErrorCode string `json:"error_code" api:"required"`
 	// Human-readable error message.
 	//
-	// Populated only for failed requests.
+	// The same message the caller received. Populated only for failed requests.
 	ErrorMessage string `json:"error_message" api:"required"`
 	// Request host.
 	//
@@ -205,6 +242,9 @@ type RequestLog struct {
 	// User-provided idempotency key.
 	IdempotencyKey string `json:"idempotency_key" api:"required"`
 	// Request latency in microseconds.
+	//
+	// Measured at the API edge, from the moment the request was received until the
+	// response was written, so it excludes network time between your client and Augno.
 	LatencyUs int64 `json:"latency_us" api:"required"`
 	// HTTP method.
 	Method string `json:"method" api:"required"`
@@ -219,20 +259,34 @@ type RequestLog struct {
 	//
 	// Any of "request_log".
 	Object RequestLogObject `json:"object" api:"required"`
-	// When the request occurred.
+	// When the request was received.
+	//
+	// Request logs are ordered and date-filtered by this timestamp rather than by
+	// `created_at`.
 	OccurredAt time.Time `json:"occurred_at" api:"required" format:"date-time"`
 	// The exact path the request was made to, including path parameter values.
 	Path string `json:"path" api:"required"`
-	// Query parameters. Encoded as a JSON value (object, array, string, number,
-	// boolean, or null), not a JSON-encoded string.
+	// Query-string parameters the request was made with, as a JSON object. Encoded as
+	// a JSON value (object, array, string, number, boolean, or null), not a
+	// JSON-encoded string.
 	QueryParams any `json:"query_params" api:"required"`
 	// Referrer header.
 	Referrer string `json:"referrer" api:"required"`
-	// Request body. Encoded as a JSON value (object, array, string, number, boolean,
-	// or null), not a JSON-encoded string.
+	// The JSON body the request was sent with.
+	//
+	// Sensitive values such as passwords, tokens, and secrets are redacted before the
+	// body is stored. Bodies larger than 256 KB are not stored in full; a small marker
+	// object with `_truncated` set to `true` is stored in their place. Encoded as a
+	// JSON value (object, array, string, number, boolean, or null), not a JSON-encoded
+	// string.
 	RequestBody any `json:"request_body" api:"required"`
-	// Response body. Encoded as a JSON value (object, array, string, number, boolean,
-	// or null), not a JSON-encoded string.
+	// The JSON body Augno responded with.
+	//
+	// Sensitive values such as generated API key secrets are redacted before the body
+	// is stored. Bodies larger than 256 KB are not stored in full; a small marker
+	// object with `_truncated` set to `true` is stored in their place. Encoded as a
+	// JSON value (object, array, string, number, boolean, or null), not a JSON-encoded
+	// string.
 	ResponseBody any `json:"response_body" api:"required"`
 	// HTTP response status code (e.g. `200`, `404`).
 	StatusCode int64 `json:"status_code" api:"required"`
@@ -330,10 +384,13 @@ type CoreRequestLogListParams struct {
 	ActorAccountIDs []string `query:"actor_account_ids,omitzero" json:"-"`
 	// Filter by the actor identifier.
 	//
-	// Matches the log's `actor.id`: a user ID for `user` actors or an API key ID for
-	// `api_key` actors.
+	// Matches the log's `actor.id`: a user ID for `user` actors, an API key ID for
+	// `api_key` actors, or an agent ID for `agent` actors.
 	ActorIDs []string `query:"actor_ids,omitzero" json:"-"`
 	// Filter by the actor type.
+	//
+	// Requests are recorded for actors of type `user`, `api_key`, and `agent` — the
+	// last covering calls an Augno agent made on your account's behalf.
 	//
 	// Any of "user", "api_key", "agent", "group".
 	ActorTypes []string `query:"actor_types,omitzero" json:"-"`
@@ -354,10 +411,10 @@ type CoreRequestLogListParams struct {
 	// Exclude request logs whose API error code is in this set.
 	//
 	// Applied as a negative filter after all other filters. Successful requests (which
-	// have no error code) are always kept. The dashboard uses this to hide routine
-	// `expired_token` 401s — the noise from short-lived access tokens expiring and
-	// clients silently refreshing — while still surfacing genuine auth failures like
-	// `invalid_credentials`.
+	// have no error code) are always kept. The Augno dashboard uses this to hide
+	// routine `expired_token` 401s — the noise from short-lived access tokens expiring
+	// and clients silently refreshing — while still surfacing genuine auth failures
+	// like `invalid_credentials`.
 	//
 	// Any of "expired_token", "api_key_expired", "api_key_revoked",
 	// "invalid_credentials", "insufficient_permissions", "payment_required",

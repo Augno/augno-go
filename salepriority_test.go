@@ -27,7 +27,7 @@ func TestSalePriorityGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.Priorities.Get(
 		context.TODO(),
-		"pi_01fc435701244bb3978bfb77ff",
+		"pi_dubkbqpnz45f",
 		augno.SalePriorityGetParams{
 			Include: []string{"owner"},
 		},

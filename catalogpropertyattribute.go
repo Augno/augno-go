@@ -42,6 +42,10 @@ func NewCatalogPropertyAttributeService(opts ...option.RequestOption) (r Catalog
 
 // Creates an attribute under a property.
 //
+// An attribute is one selectable value of the property, such as `Red` under
+// `Color`, and can then be assigned to items. Returns a conflict error if another
+// attribute in the account already uses the same value.
+//
 // This endpoint requires the permission: `properties:create`.
 func (r *CatalogPropertyAttributeService) New(ctx context.Context, propertyID string, body CatalogPropertyAttributeNewParams, opts ...option.RequestOption) (res *Attribute, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -74,6 +78,9 @@ func (r *CatalogPropertyAttributeService) Get(ctx context.Context, id string, qu
 
 // Partially updates an attribute.
 //
+// Items reference attributes by ID, so changing the value renames the attribute
+// everywhere it is already assigned.
+//
 // This endpoint requires the permission: `properties:update`.
 func (r *CatalogPropertyAttributeService) Update(ctx context.Context, id string, params CatalogPropertyAttributeUpdateParams, opts ...option.RequestOption) (res *Attribute, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -91,6 +98,9 @@ func (r *CatalogPropertyAttributeService) Update(ctx context.Context, id string,
 }
 
 // Returns a paginated list of attributes for a property.
+//
+// Attributes come back in the order they are arranged within the property, first
+// to last. The `q` search term is matched against the attribute value.
 //
 // This endpoint requires the permission: `properties:read`.
 func (r *CatalogPropertyAttributeService) List(ctx context.Context, propertyID string, query CatalogPropertyAttributeListParams, opts ...option.RequestOption) (res *ListAttribute, err error) {

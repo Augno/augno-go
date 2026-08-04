@@ -27,11 +27,11 @@ func TestMessagingConversationNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.New(context.TODO(), augno.MessagingConversationNewParams{
 		CreateConversationRequest: augno.CreateConversationRequestParam{
-			ParticipantAccountUserIDs: []string{"acus_01ea9983ddb41dacc44ecf997c"},
+			ParticipantAccountUserIDs: []string{"acus_e5zu8bde0z3h"},
 			Type:                      augno.CreateConversationRequestTypeGroup,
-			GroupID:                   augno.String("cvgp_018e88072d1320808dc97abc"),
+			GroupID:                   augno.String("cvgp_wjlypugna7s4"),
 			Title:                     augno.String("Order #1042 — shipping question"),
-			TopicResourceID:           augno.String("or_01d5034136c3ccc048abecc312"),
+			TopicResourceID:           augno.String("or_9lqo07quiwyb"),
 			TopicResourceType:         augno.CreateConversationRequestTopicResourceTypeSalesOrder,
 		},
 		Include: []string{"assignee"},
@@ -59,7 +59,7 @@ func TestMessagingConversationGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Get(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationGetParams{
 			Include: []string{"assignee"},
 		},
@@ -87,7 +87,7 @@ func TestMessagingConversationUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Update(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationUpdateParams{
 			Include: []string{"assignee"},
 			UpdateConversationRequest: augno.UpdateConversationRequestParam{

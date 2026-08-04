@@ -44,6 +44,11 @@ func NewAuthAPIKeyActionService(opts ...option.RequestOption) (r AuthAPIKeyActio
 // existing key and issuing a replacement with the same name, role, and expiration
 // (unless overridden).
 //
+// The replacement is a new key with its own ID; the rotated key keeps its ID and
+// stays in the list, moving to a `revoked` status once its revocation takes
+// effect. Use `revoke_at` to keep the old key working while you roll the new
+// secret out.
+//
 // The secret key is returned once and cannot be retrieved later, so you should
 // store it securely. We provide some
 // [recommendations](https://docs.augno.com/api/managing-api-keys) on how you can
@@ -63,15 +68,15 @@ func (r *AuthAPIKeyActionService) Rotate(ctx context.Context, id string, params 
 
 // Request to rotate an API key.
 type RotateAPIKeyRequestParam struct {
-	// Expiration timestamp override for the new key.
+	// When the replacement key should expire.
 	//
-	// If omitted, the previous key's expiration is used.
+	// If omitted, the replacement inherits the expiration of the key being rotated.
 	ExpiresAt param.Opt[time.Time] `json:"expires_at,omitzero" format:"date-time"`
-	// When to revoke the old key.
+	// When the old key should stop authenticating requests.
 	//
-	// If omitted, the old key is revoked immediately. A future timestamp schedules
-	// revocation (keeping the old key valid until then) up to a maximum of 30 days
-	// out.
+	// If omitted, the old key is revoked immediately. Set a future timestamp — up to
+	// 30 days out — to keep the old key working during a migration window; a timestamp
+	// in the past revokes it immediately.
 	RevokeAt param.Opt[time.Time] `json:"revoke_at,omitzero" format:"date-time"`
 	paramObj
 }

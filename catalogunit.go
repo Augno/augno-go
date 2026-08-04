@@ -41,7 +41,12 @@ func NewCatalogUnitService(opts ...option.RequestOption) (r CatalogUnitService) 
 	return
 }
 
-// Creates an account-owned unit.
+// Creates a unit of measurement owned by your account, in addition to the system
+// units the platform already provides.
+//
+// The name and abbreviation must each be unique within the account. A unit created
+// here is never a base unit, so its conversion ratio is interpreted relative to
+// the base unit of the chosen dimension.
 //
 // This endpoint requires the permission: `units:create`.
 func (r *CatalogUnitService) New(ctx context.Context, params CatalogUnitNewParams, opts ...option.RequestOption) (res *Unit, err error) {
@@ -65,7 +70,10 @@ func (r *CatalogUnitService) Get(ctx context.Context, id string, query CatalogUn
 	return res, err
 }
 
-// Partially updates an account-owned unit; system units cannot be updated.
+// Partially updates a unit owned by your account.
+//
+// System units cannot be modified, and a unit's dimension is fixed once it is
+// created.
 //
 // This endpoint requires the permission: `units:update`.
 func (r *CatalogUnitService) Update(ctx context.Context, id string, params CatalogUnitUpdateParams, opts ...option.RequestOption) (res *Unit, err error) {
@@ -90,10 +98,10 @@ func (r *CatalogUnitService) List(ctx context.Context, query CatalogUnitListPara
 	return res, err
 }
 
-// Deletes an account-owned unit.
+// Deletes a unit owned by your account.
 //
-// Associated unit group memberships are also removed, and system units cannot be
-// deleted.
+// The unit is also removed from every unit group it belongs to. System units,
+// which are shared across all accounts, cannot be deleted.
 //
 // This endpoint requires the permission: `units:delete`.
 func (r *CatalogUnitService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CatalogUnitDeleteResponse, err error) {
@@ -120,21 +128,32 @@ type CreateUnitRequestParam struct {
 	//
 	// Must be unique within the account.
 	Name string `json:"name" api:"required"`
-	// Conversion offset denominator.
+	// Denominator of the conversion offset.
 	//
-	// Must not be zero.
+	// Must not be zero, so send `1` when the unit has no offset.
 	OffsetDenominator string `json:"offset_denominator" api:"required" format:"decimal"`
-	// Conversion offset numerator, used for temperature-like conversions.
+	// Numerator of the conversion offset, applied after the ratio for scales that do
+	// not share a zero point, such as temperature.
+	//
+	// Send `0` for units that convert by ratio alone.
 	OffsetNumerator string `json:"offset_numerator" api:"required" format:"decimal"`
-	// Conversion ratio denominator relative to the base unit.
+	// Denominator of the ratio that converts a quantity in this unit into the
+	// dimension's base unit.
 	//
 	// Must not be zero.
 	RatioDenominator string `json:"ratio_denominator" api:"required" format:"decimal"`
-	// Conversion ratio numerator relative to the base unit.
-	RatioNumerator string `json:"ratio_numerator" api:"required" format:"decimal"`
-	// Unit dimension.
+	// Numerator of the ratio that converts a quantity in this unit into the
+	// dimension's base unit.
 	//
-	// Units can only be converted to other units of the same dimension.
+	// A quantity is converted with
+	// `value × (ratio_numerator / ratio_denominator) + (offset_numerator / offset_denominator)`,
+	// so a kilogram in a gram-based dimension has a numerator of `1000` and a
+	// denominator of `1`.
+	RatioNumerator string `json:"ratio_numerator" api:"required" format:"decimal"`
+	// The dimension this unit measures, such as mass, volume, or currency.
+	//
+	// Units can only be converted to other units of the same dimension, and the
+	// dimension cannot be changed after the unit is created.
 	//
 	// Any of "currency", "quantity", "time", "mass", "volume", "length",
 	// "temperature", "area".
@@ -150,9 +169,10 @@ func (r *CreateUnitRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Unit dimension.
+// The dimension this unit measures, such as mass, volume, or currency.
 //
-// Units can only be converted to other units of the same dimension.
+// Units can only be converted to other units of the same dimension, and the
+// dimension cannot be changed after the unit is created.
 type CreateUnitRequestType string
 
 const (
@@ -166,7 +186,8 @@ const (
 	CreateUnitRequestTypeArea        CreateUnitRequestType = "area"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListUnit struct {
 	// Resources in this page.
 	Data []Unit `json:"data" api:"required"`
@@ -174,7 +195,13 @@ type ListUnit struct {
 	//
 	// Any of "list".
 	Object ListUnitObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -209,8 +236,8 @@ type Unit struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Whether this is the base unit for its dimension.
 	//
-	// Conversion ratios are relative to this unit. Base units are platform-defined;
-	// account-created units always have this set to `false`.
+	// Every other unit's conversion ratio is expressed relative to the base unit. Base
+	// units are platform-defined; units created through the API are never base units.
 	IsBaseUnit bool `json:"is_base_unit" api:"required"`
 	// Display name of the unit (e.g. "Gram", "Kilogram").
 	Name string `json:"name" api:"required"`
@@ -218,23 +245,32 @@ type Unit struct {
 	//
 	// Any of "unit".
 	Object UnitObject `json:"object" api:"required"`
-	// Conversion offset denominator.
+	// Denominator of the conversion offset applied after the ratio.
 	//
-	// Typically 1. Cannot be zero.
+	// Never zero; a unit with no offset carries a numerator of `0` over a denominator
+	// of `1`.
 	OffsetDenominator string `json:"offset_denominator" api:"required" format:"decimal"`
-	// Conversion offset numerator, used for temperature-like conversions.
+	// Numerator of the conversion offset, applied after the ratio for scales that do
+	// not share a zero point, such as temperature.
 	//
-	// Zero for most unit types.
+	// Zero for units that convert by ratio alone.
 	OffsetNumerator string `json:"offset_numerator" api:"required" format:"decimal"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// Conversion ratio denominator relative to the base unit in the same dimension.
+	// Denominator of the ratio that converts a quantity in this unit into the
+	// dimension's base unit.
 	//
 	// Cannot be zero.
 	RatioDenominator string `json:"ratio_denominator" api:"required" format:"decimal"`
-	// Conversion ratio numerator relative to the base unit in the same dimension.
+	// Numerator of the ratio that converts a quantity in this unit into the
+	// dimension's base unit.
+	//
+	// A quantity is converted with
+	// `value × (ratio_numerator / ratio_denominator) + (offset_numerator / offset_denominator)`,
+	// so a kilogram in a gram-based dimension has a numerator of `1000` and a
+	// denominator of `1`.
 	RatioNumerator string `json:"ratio_numerator" api:"required" format:"decimal"`
-	// Physical dimension the unit measures, such as mass, volume, or currency.
+	// The dimension this unit measures, such as mass, volume, or currency.
 	//
 	// A unit can only be converted to another unit of the same dimension. The
 	// `quantity` dimension is for discrete countable items rather than a physical
@@ -278,7 +314,7 @@ const (
 	UnitObjectUnit UnitObject = "unit"
 )
 
-// Physical dimension the unit measures, such as mass, volume, or currency.
+// The dimension this unit measures, such as mass, volume, or currency.
 //
 // A unit can only be converted to another unit of the same dimension. The
 // `quantity` dimension is for discrete countable items rather than a physical
@@ -306,17 +342,23 @@ type UpdateUnitRequestParam struct {
 	//
 	// Must be unique within the account.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Conversion offset denominator.
+	// Denominator of the conversion offset.
 	//
 	// Must not be zero.
 	OffsetDenominator param.Opt[string] `json:"offset_denominator,omitzero" format:"decimal"`
-	// Conversion offset numerator, used for temperature-like conversions.
+	// Numerator of the conversion offset, applied after the ratio for scales that do
+	// not share a zero point, such as temperature.
 	OffsetNumerator param.Opt[string] `json:"offset_numerator,omitzero" format:"decimal"`
-	// Conversion ratio denominator relative to the base unit.
+	// Denominator of the ratio that converts a quantity in this unit into the
+	// dimension's base unit.
 	//
 	// Must not be zero.
 	RatioDenominator param.Opt[string] `json:"ratio_denominator,omitzero" format:"decimal"`
-	// Conversion ratio numerator relative to the base unit.
+	// Numerator of the ratio that converts a quantity in this unit into the
+	// dimension's base unit.
+	//
+	// A quantity is converted with
+	// `value × (ratio_numerator / ratio_denominator) + (offset_numerator / offset_denominator)`.
 	RatioNumerator param.Opt[string] `json:"ratio_numerator,omitzero" format:"decimal"`
 	paramObj
 }

@@ -27,7 +27,7 @@ func TestCatalogPropertyAttributeNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Properties.Attributes.New(
 		context.TODO(),
-		"pp_01e21344878064372f69e67093",
+		"pp_fhnnvtt3q3ov",
 		augno.CatalogPropertyAttributeNewParams{
 			CreateAttributeRequest: augno.CreateAttributeRequestParam{
 				Value:     "Red",
@@ -59,9 +59,9 @@ func TestCatalogPropertyAttributeGet(t *testing.T) {
 	)
 	_, err := client.Catalog.Properties.Attributes.Get(
 		context.TODO(),
-		"at_01c9493ec0c46bb0ed12708ae4",
+		"at_rf1w295jt5ia",
 		augno.CatalogPropertyAttributeGetParams{
-			PropertyID: "pp_01e21344878064372f69e67093",
+			PropertyID: "pp_fhnnvtt3q3ov",
 		},
 	)
 	if err != nil {
@@ -87,9 +87,9 @@ func TestCatalogPropertyAttributeUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Properties.Attributes.Update(
 		context.TODO(),
-		"at_01c9493ec0c46bb0ed12708ae4",
+		"at_rf1w295jt5ia",
 		augno.CatalogPropertyAttributeUpdateParams{
-			PropertyID: "pp_01e21344878064372f69e67093",
+			PropertyID: "pp_fhnnvtt3q3ov",
 			UpdateAttributeRequest: augno.UpdateAttributeRequestParam{
 				Color:     augno.UpdateAttributeRequestColorBlue,
 				SortOrder: augno.Int(2),
@@ -120,7 +120,7 @@ func TestCatalogPropertyAttributeListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Properties.Attributes.List(
 		context.TODO(),
-		"pp_01e21344878064372f69e67093",
+		"pp_fhnnvtt3q3ov",
 		augno.CatalogPropertyAttributeListParams{
 			Cursor: augno.String("cursor"),
 			Limit:  augno.Int(0),
@@ -150,9 +150,9 @@ func TestCatalogPropertyAttributeDelete(t *testing.T) {
 	)
 	_, err := client.Catalog.Properties.Attributes.Delete(
 		context.TODO(),
-		"at_01c9493ec0c46bb0ed12708ae4",
+		"at_rf1w295jt5ia",
 		augno.CatalogPropertyAttributeDeleteParams{
-			PropertyID: "pp_01e21344878064372f69e67093",
+			PropertyID: "pp_fhnnvtt3q3ov",
 		},
 	)
 	if err != nil {

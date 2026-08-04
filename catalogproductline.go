@@ -41,7 +41,12 @@ func NewCatalogProductLineService(opts ...option.RequestOption) (r CatalogProduc
 	return
 }
 
-// Creates an account-owned product line.
+// Creates a product line owned by your account.
+//
+// The new line starts with no products; assign products to it by setting their
+// product line. Customers and account groups can only be granted access to lines
+// your account owns, so this is the starting point for scoping a customer's
+// catalog.
 //
 // This endpoint requires the permission: `product_lines:create`.
 func (r *CatalogProductLineService) New(ctx context.Context, params CatalogProductLineNewParams, opts ...option.RequestOption) (res *ProductLine, err error) {
@@ -51,8 +56,10 @@ func (r *CatalogProductLineService) New(ctx context.Context, params CatalogProdu
 	return res, err
 }
 
-// Returns a product line by ID, including system-owned product lines accessible to
-// the account.
+// Returns a single product line by ID.
+//
+// Both the product lines your account owns and the shared system lines can be
+// retrieved.
 //
 // This endpoint requires the permissions: `product_lines:read`, `customers:read`,
 // `suppliers:read`.
@@ -67,10 +74,11 @@ func (r *CatalogProductLineService) Get(ctx context.Context, id string, query Ca
 	return res, err
 }
 
-// Partially updates an account-owned product line.
+// Partially updates a product line your account owns.
 //
-// Only the provided fields are changed. The reserved default product lines
-// (shipping, service, credit, tax) cannot be updated.
+// Only the provided fields are changed. The reserved `shipping`, `service`,
+// `credit`, and `tax` lines cannot be updated, and neither can the shared system
+// lines, which belong to no single account.
 //
 // This endpoint requires the permission: `product_lines:update`.
 func (r *CatalogProductLineService) Update(ctx context.Context, id string, params CatalogProductLineUpdateParams, opts ...option.RequestOption) (res *ProductLine, err error) {
@@ -84,8 +92,10 @@ func (r *CatalogProductLineService) Update(ctx context.Context, id string, param
 	return res, err
 }
 
-// Returns a paginated list of product lines, including account-owned and system
-// product lines.
+// Returns a paginated list of product lines, newest first.
+//
+// Covers both the product lines your account owns and the shared system lines. The
+// `q` search term is matched against the product line name.
 //
 // This endpoint requires the permissions: `product_lines:read`, `customers:read`,
 // `suppliers:read`.
@@ -96,10 +106,12 @@ func (r *CatalogProductLineService) List(ctx context.Context, query CatalogProdu
 	return res, err
 }
 
-// Permanently deletes an account-owned product line.
+// Permanently deletes a product line your account owns.
 //
-// The reserved default product lines (shipping, service, credit, tax) cannot be
-// deleted.
+// The reserved `shipping`, `service`, `credit`, and `tax` lines cannot be deleted,
+// and neither can the shared system lines, which belong to no single account.
+// Deleting a line that was already deleted returns an already-deleted error rather
+// than succeeding silently.
 //
 // This endpoint requires the permission: `product_lines:delete`.
 func (r *CatalogProductLineService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CatalogProductLineDeleteResponse, err error) {
@@ -133,17 +145,21 @@ type CreateProductLineRequestParam struct {
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy CreateProductLineRequestFreightPolicy `json:"freight_policy,omitzero" api:"required"`
-	// Display name.
+	// Display name of the product line.
 	//
-	// Must be unique among the account's product lines; a duplicate name returns a
-	// conflict error.
+	// Must be unique among the product lines visible to your account, including the
+	// shared system lines; a duplicate name returns a conflict error.
 	Name string `json:"name" api:"required"`
 	// ID of the unit group to associate with this product line.
 	//
 	// The unit group determines the set of units available to products in this product
-	// line.
+	// line. It must be a unit group your account owns or one of the shared system unit
+	// groups.
 	UnitGroupID string `json:"unit_group_id" api:"required"`
-	// A value with an associated unit, used in create and update requests.
+	// An amount together with the unit it is expressed in.
+	//
+	// The unit may be a currency, so money amounts such as a credit limit are written
+	// the same way as physical amounts like weights or counts.
 	DefaultLot QuantityInputParam `json:"default_lot,omitzero"`
 	paramObj
 }
@@ -180,7 +196,8 @@ const (
 	CreateProductLineRequestFreightPolicyBilledFreight CreateProductLineRequestFreightPolicy = "billed_freight"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListProductLine struct {
 	// Resources in this page.
 	Data []ProductLine `json:"data" api:"required"`
@@ -188,7 +205,13 @@ type ListProductLine struct {
 	//
 	// Any of "list".
 	Object ListProductLineObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -213,10 +236,12 @@ const (
 	ListProductLineObjectList ListProductLineObject = "list"
 )
 
-// Product line resource.
+// A named grouping of related products in your catalog.
 //
-// A product line groups related products in your catalog and carries the default
-// commission policy, freight policy, and unit group for those products.
+// A product line carries the default commission and freight policies for the
+// products assigned to it, along with the unit group that determines how those
+// products are measured. Product lines are also the unit that catalog access is
+// granted over, for both customers and account groups.
 type ProductLine struct {
 	// Product line ID.
 	ID string `json:"id" api:"required"`
@@ -230,7 +255,11 @@ type ProductLine struct {
 	CommissionPolicy ProductLineCommissionPolicy `json:"commission_policy" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	DefaultLot Quantity `json:"default_lot" api:"required"`
 	// Free-form description of the product line.
 	Description string `json:"description" api:"required"`
@@ -243,6 +272,9 @@ type ProductLine struct {
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy ProductLineFreightPolicy `json:"freight_policy" api:"required"`
 	// Display name of the product line.
+	//
+	// Unique among the product lines visible to your account, which includes the
+	// shared system lines.
 	Name string `json:"name" api:"required"`
 	// Free-form notes about the product line.
 	Notes string `json:"notes" api:"required"`
@@ -252,8 +284,12 @@ type ProductLine struct {
 	Object ProductLineObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// Named collection of units sharing one dimension, defining which units products
-	// can be ordered in along with per-unit discounts and customer portal visibility.
+	// A named collection of units that share one dimension, defining which units a
+	// product can be ordered in.
+	//
+	// Each associated unit carries its own discount and customer portal visibility,
+	// applied when an order line is priced in that unit. A product takes its unit
+	// group from its product line, falling back to its item category.
 	UnitGroup UnitGroup `json:"unit_group" api:"required"`
 	// Last-updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -313,7 +349,10 @@ const (
 	ProductLineObjectProductLine ProductLineObject = "product_line"
 )
 
-// A value with an associated unit, used in create and update requests.
+// An amount together with the unit it is expressed in.
+//
+// The unit may be a currency, so money amounts such as a credit limit are written
+// the same way as physical amounts like weights or counts.
 //
 // The properties UnitID, Value are required.
 type QuantityInputParam struct {
@@ -334,15 +373,17 @@ func (r *QuantityInputParam) UnmarshalJSON(data []byte) error {
 
 // Request to partially update a product line.
 type UpdateProductLineRequestParam struct {
-	// Display name.
+	// Display name of the product line.
 	//
-	// Must be unique among the account's product lines; a duplicate name returns a
-	// conflict error.
+	// Must be unique among the product lines visible to your account, including the
+	// shared system lines; a duplicate name returns a conflict error.
 	Name param.Opt[string] `json:"name,omitzero"`
 	// ID of the unit group to associate with this product line.
 	//
 	// The unit group determines the set of units available to products in this product
-	// line.
+	// line. It must be a unit group your account owns or one of the shared system unit
+	// groups. A lot already stored on the line is not rechecked when the group
+	// changes, so send `default_lot` alongside to keep the two consistent.
 	UnitGroupID param.Opt[string] `json:"unit_group_id,omitzero"`
 	// Default commission policy for products in this product line.
 	//
@@ -352,7 +393,10 @@ type UpdateProductLineRequestParam struct {
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy UpdateProductLineRequestCommissionPolicy `json:"commission_policy,omitzero"`
-	// A value with an associated unit, used in create and update requests.
+	// An amount together with the unit it is expressed in.
+	//
+	// The unit may be a currency, so money amounts such as a credit limit are written
+	// the same way as physical amounts like weights or counts.
 	DefaultLot QuantityInputParam `json:"default_lot,omitzero"`
 	// Default freight policy for products in this product line.
 	//

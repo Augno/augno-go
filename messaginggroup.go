@@ -47,6 +47,10 @@ func NewMessagingGroupService(opts ...option.RequestOption) (r MessagingGroupSer
 // Creates a reusable roster of members (users and/or agents) that can seed many
 // conversations.
 //
+// Every account user listed must exist; repeated ids are ignored. The caller is
+// recorded as the creator but is not added to the roster automatically — include
+// their own account user id to be a member.
+//
 // This endpoint requires the permission: `messaging:create`.
 func (r *MessagingGroupService) New(ctx context.Context, body MessagingGroupNewParams, opts ...option.RequestOption) (res *MessagingGroup, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -55,7 +59,7 @@ func (r *MessagingGroupService) New(ctx context.Context, body MessagingGroupNewP
 	return res, err
 }
 
-// Retrieves a reusable roster (with its members).
+// Retrieves a reusable roster together with its current members.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingGroupService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *MessagingGroup, err error) {
@@ -71,6 +75,9 @@ func (r *MessagingGroupService) Get(ctx context.Context, id string, opts ...opti
 
 // Renames a reusable roster.
 //
+// Members are managed through the add-member and remove-member endpoints, not
+// here.
+//
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingGroupService) Update(ctx context.Context, id string, body MessagingGroupUpdateParams, opts ...option.RequestOption) (res *MessagingGroup, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -83,8 +90,10 @@ func (r *MessagingGroupService) Update(ctx context.Context, id string, body Mess
 	return res, err
 }
 
-// Lists the reusable rosters in the caller's account (most-recently-updated
-// first).
+// Lists the reusable rosters in the caller's account, each with its members.
+//
+// Rosters come back most-recently-updated first, and adding or removing a member
+// counts as an update. The whole account's rosters are returned in one page.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingGroupService) List(ctx context.Context, opts ...option.RequestOption) (res *ListMessagingGroup, err error) {
@@ -132,7 +141,8 @@ func (r *CreateMessagingGroupRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListMessagingGroup struct {
 	// Resources in this page.
 	Data []MessagingGroup `json:"data" api:"required"`
@@ -140,7 +150,13 @@ type ListMessagingGroup struct {
 	//
 	// Any of "list".
 	Object ListMessagingGroupObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

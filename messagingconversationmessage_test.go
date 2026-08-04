@@ -28,7 +28,7 @@ func TestMessagingConversationMessageNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Messages.New(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationMessageNewParams{
 			SendMessageRequest: augno.SendMessageRequestParam{
 				Body:            "Sounds good — shipping it today.",
@@ -46,13 +46,13 @@ func TestMessagingConversationMessageNewWithOptionalParams(t *testing.T) {
 				Audience:              augno.SendMessageRequestAudienceCustomer,
 				Cc:                    []string{"ap@acme.com"},
 				Channel:               augno.SendMessageRequestChannelEmail,
-				LinkResourceID:        augno.String("or_01d5034136c3ccc048abecc312"),
+				LinkResourceID:        augno.String("or_9lqo07quiwyb"),
 				LinkResourceType:      augno.SendMessageRequestLinkResourceTypeSalesOrder,
-				Mentions:              []string{"acus_01ea9983ddb41dacc44ecf997c"},
+				Mentions:              []string{"acus_e5zu8bde0z3h"},
 				Mode:                  augno.SendMessageRequestModeSend,
-				ReplyToMessageID:      augno.String("mg_01h9z8q1w2e3r4t5y6u7i8mg"),
+				ReplyToMessageID:      augno.String("mg_fdny8633ebgw"),
 				ScheduledAt:           augno.Time(time.Now()),
-				SourceThreadMessageID: augno.String("mg_01h9z8q1w2e3r4t5y6u7i8mg"),
+				SourceThreadMessageID: augno.String("mg_fdny8633ebgw"),
 				Subject:               augno.String("Re: Order #1042"),
 			},
 			Include: []string{"sender"},
@@ -81,7 +81,7 @@ func TestMessagingConversationMessageListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Messages.List(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationMessageListParams{
 			AfterSequence: augno.Int(0),
 			Cursor:        augno.String("cursor"),

@@ -27,10 +27,10 @@ func TestMessagingConversationParticipantNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Participants.New(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationParticipantNewParams{
 			AddParticipantRequest: augno.AddParticipantRequestParam{
-				AccountUserID: "acus_01ea9983ddb41dacc44ecf997c",
+				AccountUserID: "acus_e5zu8bde0z3h",
 				Role:          augno.AddParticipantRequestRoleMember,
 			},
 			Include: []string{"participants"},
@@ -59,9 +59,9 @@ func TestMessagingConversationParticipantDelete(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Participants.Delete(
 		context.TODO(),
-		"cvpt_01h9z8q1w2e3r4t5y6u7cvpt",
+		"cvpt_be2h3ul14cts",
 		augno.MessagingConversationParticipantDeleteParams{
-			ID: "cv_01h9z8q1w2e3r4t5y6u7i8cv",
+			ID: "cv_w35z4ck68yq7",
 		},
 	)
 	if err != nil {

@@ -28,7 +28,7 @@ func TestIdentityAccountUserNewWithOptionalParams(t *testing.T) {
 	_, err := client.Identity.AccountUsers.New(context.TODO(), augno.IdentityAccountUserNewParams{
 		Include: []string{"user"},
 		CreateAccountUserRequest: augno.CreateAccountUserRequestParam{
-			DepartmentID: augno.String("dp_01791c25ab59da4704cba61874"),
+			DepartmentID: augno.String("dp_m0jayebxnkos"),
 			Email:        augno.String("jdoe@augno.com"),
 			Name:         augno.String("John Doe"),
 			Password:     augno.String("QgS7Z8Hhj3&1"),
@@ -36,7 +36,7 @@ func TestIdentityAccountUserNewWithOptionalParams(t *testing.T) {
 				Enabled:          true,
 				NotificationType: augno.NotificationPreferenceItemNotificationTypeOrderAcknowledgement,
 			}},
-			RoleID:   augno.String("rl_01c16d2eb637c0d1f3a372937c"),
+			RoleID:   augno.String("rl_3xknmfqflhvb"),
 			Username: augno.String("jdoe"),
 		},
 	})
@@ -63,7 +63,7 @@ func TestIdentityAccountUserGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Identity.AccountUsers.Get(
 		context.TODO(),
-		"acus_01ea9983ddb41dacc44ecf997c",
+		"acus_e5zu8bde0z3h",
 		augno.IdentityAccountUserGetParams{
 			Include: []string{"user"},
 		},
@@ -91,18 +91,18 @@ func TestIdentityAccountUserUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Identity.AccountUsers.Update(
 		context.TODO(),
-		"acus_01ea9983ddb41dacc44ecf997c",
+		"acus_e5zu8bde0z3h",
 		augno.IdentityAccountUserUpdateParams{
 			Include: []string{"user"},
 			UpdateAccountUserRequest: augno.UpdateAccountUserRequestParam{
-				DepartmentID: augno.String("dp_01791c25ab59da4704cba61874"),
+				DepartmentID: augno.String("dp_m0jayebxnkos"),
 				Email:        augno.String("jdoe@augno.com"),
 				Name:         augno.String("John Doe"),
 				Preferences: []augno.NotificationPreferenceItemParam{{
 					Enabled:          true,
 					NotificationType: augno.NotificationPreferenceItemNotificationTypeOrderAcknowledgement,
 				}},
-				RoleID:   augno.String("rl_01c16d2eb637c0d1f3a372937c"),
+				RoleID:   augno.String("rl_3xknmfqflhvb"),
 				Username: augno.String("jdoe"),
 			},
 		},

@@ -45,10 +45,15 @@ func NewMessagingEmailDomainService(opts ...option.RequestOption) (r MessagingEm
 	return
 }
 
-// Registers a customer-owned domain with the email bridge and returns the DKIM
-// records to publish.
+// Registers a domain you own with the email bridge and returns the DKIM tokens to
+// publish.
 //
-// The domain starts in `pending` until verified.
+// The domain starts in `pending`. Publish each returned token as a CNAME record in
+// the domain's DNS, then call the verify action to move it to `verified`; only
+// then can inboxes be created on it.
+//
+// A domain can only be registered once across the platform, so registering one
+// that is already in use returns a conflict error.
 //
 // This endpoint requires the permission: `messaging:create`.
 func (r *MessagingEmailDomainService) New(ctx context.Context, body MessagingEmailDomainNewParams, opts ...option.RequestOption) (res *EmailDomain, err error) {
@@ -74,6 +79,8 @@ func (r *MessagingEmailDomainService) Get(ctx context.Context, id string, opts .
 
 // Returns the account's registered email domains.
 //
+// Every domain is returned in a single response; this list is not paginated.
+//
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingEmailDomainService) List(ctx context.Context, opts ...option.RequestOption) (res *ListEmailDomain, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -82,10 +89,11 @@ func (r *MessagingEmailDomainService) List(ctx context.Context, opts ...option.R
 	return res, err
 }
 
-// Deregisters a customer-owned domain from the email bridge.
+// Deregisters a domain from the email bridge and removes its sending identity from
+// the mail provider.
 //
-// The domain's SES identity is removed. The domain must have no inboxes bound to
-// it.
+// Delete the domain's inboxes first: while any inbox still exists on it, this
+// returns a conflict error.
 //
 // This endpoint requires the permission: `messaging:delete`.
 func (r *MessagingEmailDomainService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *MessagingEmailDomainDeleteResponse, err error) {
@@ -104,6 +112,9 @@ func (r *MessagingEmailDomainService) Delete(ctx context.Context, id string, opt
 // The property Domain is required.
 type CreateEmailDomainRequestParam struct {
 	// The fully-qualified domain name to register (e.g. `support.acme.com`).
+	//
+	// Supply a bare domain, not an email address; the value is lowercased before it is
+	// stored.
 	Domain string `json:"domain" api:"required"`
 	paramObj
 }
@@ -125,7 +136,11 @@ type EmailDomain struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// The DKIM CNAME tokens the customer must publish in DNS to verify the domain.
+	// The DKIM tokens that must be published in your DNS before the domain can be
+	// verified.
+	//
+	// Publish each token as a CNAME record on the domain, then call the verify action
+	// to confirm them.
 	DkimTokens []string `json:"dkim_tokens" api:"required"`
 	// The fully-qualified domain name (e.g. `support.acme.com`).
 	Domain string `json:"domain" api:"required"`
@@ -136,8 +151,10 @@ type EmailDomain struct {
 	// Verification status.
 	//
 	// - `pending`: registered and awaiting DKIM confirmation.
-	// - `verified`: DKIM confirmed; the domain can send and receive mail.
+	// - `verified`: DKIM confirmed; the domain can send mail.
 	// - `failed`: verification could not be completed.
+	//
+	// Inboxes can only be created on a `verified` domain.
 	Status string `json:"status" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -171,7 +188,8 @@ const (
 	EmailDomainObjectEmailDomain EmailDomainObject = "email_domain"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListEmailDomain struct {
 	// Resources in this page.
 	Data []EmailDomain `json:"data" api:"required"`
@@ -179,7 +197,13 @@ type ListEmailDomain struct {
 	//
 	// Any of "list".
 	Object ListEmailDomainObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

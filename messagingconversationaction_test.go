@@ -28,7 +28,7 @@ func TestMessagingConversationActionArchiveWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.Archive(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionArchiveParams{
 			Include: []string{"assignee"},
 		},
@@ -56,11 +56,11 @@ func TestMessagingConversationActionAssignWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.Assign(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionAssignParams{
 			Include: []string{"assignee"},
 			AssignConversationRequest: augno.AssignConversationRequestParam{
-				AssigneeResourceID:   augno.String("acus_01ea9983ddb41dacc44ecf997c"),
+				AssigneeResourceID:   augno.String("acus_e5zu8bde0z3h"),
 				AssigneeResourceType: augno.String("account_user"),
 			},
 		},
@@ -88,7 +88,7 @@ func TestMessagingConversationActionHideWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.Hide(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionHideParams{
 			Include: []string{"assignee"},
 		},
@@ -116,7 +116,7 @@ func TestMessagingConversationActionLeaveWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.Leave(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionLeaveParams{
 			Include: []string{"assignee"},
 		},
@@ -144,7 +144,7 @@ func TestMessagingConversationActionMuteWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.Mute(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionMuteParams{
 			Include: []string{"assignee"},
 			MuteConversationRequest: augno.MuteConversationRequestParam{
@@ -175,7 +175,7 @@ func TestMessagingConversationActionReadWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.Read(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionReadParams{
 			MarkConversationReadRequest: augno.MarkConversationReadRequestParam{
 				UpToSequence: 42,
@@ -206,7 +206,7 @@ func TestMessagingConversationActionRedactWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.Redact(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionRedactParams{
 			Include: []string{"assignee"},
 		},
@@ -234,11 +234,11 @@ func TestMessagingConversationActionReportWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.Report(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionReportParams{
 			ReportConversationRequest: augno.ReportConversationRequestParam{
 				Reason:    "spam",
-				MessageID: augno.String("mg_01h9z8q1w2e3r4t5y6u7i8mg"),
+				MessageID: augno.String("mg_fdny8633ebgw"),
 			},
 			Include: []string{"assignee"},
 		},
@@ -266,7 +266,7 @@ func TestMessagingConversationActionSetLegalHoldWithOptionalParams(t *testing.T)
 	)
 	_, err := client.Messaging.Conversations.Actions.SetLegalHold(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionSetLegalHoldParams{
 			SetLegalHoldRequest: augno.SetLegalHoldRequestParam{
 				LegalHold: augno.SetLegalHoldRequestLegalHoldHeld,
@@ -297,7 +297,7 @@ func TestMessagingConversationActionSetStatusWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.SetStatus(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionSetStatusParams{
 			SetWorkflowStatusRequest: augno.SetWorkflowStatusRequestParam{
 				WorkflowStatus: augno.SetWorkflowStatusRequestWorkflowStatusOpen,
@@ -328,7 +328,7 @@ func TestMessagingConversationActionUnarchiveWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.Unarchive(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionUnarchiveParams{
 			Include: []string{"assignee"},
 		},
@@ -356,7 +356,7 @@ func TestMessagingConversationActionUnhideWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.Unhide(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionUnhideParams{
 			Include: []string{"assignee"},
 		},
@@ -384,7 +384,7 @@ func TestMessagingConversationActionUnmuteWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Actions.Unmute(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationActionUnmuteParams{
 			Include: []string{"assignee"},
 		},

@@ -28,27 +28,27 @@ func TestCatalogMaterialNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Materials.New(context.TODO(), augno.CatalogMaterialNewParams{
 		CreateMaterialRequest: augno.CreateMaterialRequestParam{
-			CategoryID:   "ic_01ae7bd7bfd21ca0ab81e1357e",
+			CategoryID:   "ic_d06g9c6yc9ck",
 			SKU:          "MAT-001",
-			AttributeIDs: []string{"at_01c9493ec0c46bb0ed12708ae4"},
+			AttributeIDs: []string{"at_rf1w295jt5ia"},
 			Description:  augno.String("Cold-rolled 304 stainless steel sheet, 1.5mm"),
 			LeadTime: augno.QuantityInputRequestParam{
-				UnitID: "un_01966263f74a5a0cae356000a1",
+				UnitID: "un_82bd37dae5po",
 				Value:  "7.00",
 			},
 			Notes: augno.String("Store flat in a dry area to avoid surface oxidation."),
 			OrderPoint: augno.QuantityInputRequestParam{
-				UnitID: "un_01966263f74a5a0cae356000a1",
+				UnitID: "un_82bd37dae5po",
 				Value:  "100.00",
 			},
 			UnitCost: augno.RateInputParam{
-				DenominatorUnitID: "un_01966263f74a5a0cae356000a1",
-				NumeratorUnitID:   "un_01966263f74a5a0cae356000a1",
+				DenominatorUnitID: "un_82bd37dae5po",
+				NumeratorUnitID:   "un_82bd37dae5po",
 				Value:             "8.25",
 			},
 			UnitPrice: augno.RateInputParam{
-				DenominatorUnitID: "un_01966263f74a5a0cae356000a1",
-				NumeratorUnitID:   "un_01966263f74a5a0cae356000a1",
+				DenominatorUnitID: "un_82bd37dae5po",
+				NumeratorUnitID:   "un_82bd37dae5po",
 				Value:             "12.50",
 			},
 		},
@@ -77,7 +77,7 @@ func TestCatalogMaterialGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Materials.Get(
 		context.TODO(),
-		"ml_014613b8f7959a091d8cc0cef4",
+		"ml_ow202v78slbl",
 		augno.CatalogMaterialGetParams{
 			Include: []string{"item"},
 		},
@@ -105,24 +105,24 @@ func TestCatalogMaterialUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Materials.Update(
 		context.TODO(),
-		"ml_014613b8f7959a091d8cc0cef4",
+		"ml_ow202v78slbl",
 		augno.CatalogMaterialUpdateParams{
 			Include: []string{"item"},
 			UpdateMaterialRequest: augno.UpdateMaterialRequestParam{
 				Description: augno.String("Cold-rolled 304 stainless steel sheet, 2.0mm"),
 				LeadTime: augno.QuantityInputRequestParam{
-					UnitID: "un_01966263f74a5a0cae356000a1",
+					UnitID: "un_82bd37dae5po",
 					Value:  "10.00",
 				},
 				Notes: augno.String("Reorder point raised after Q2 demand spike."),
 				OrderPoint: augno.QuantityInputRequestParam{
-					UnitID: "un_01966263f74a5a0cae356000a1",
+					UnitID: "un_82bd37dae5po",
 					Value:  "150.00",
 				},
 				SKU: augno.String("MAT-001-UPDATED"),
 				UnitCost: augno.RateInputParam{
-					DenominatorUnitID: "un_01966263f74a5a0cae356000a1",
-					NumeratorUnitID:   "un_01966263f74a5a0cae356000a1",
+					DenominatorUnitID: "un_82bd37dae5po",
+					NumeratorUnitID:   "un_82bd37dae5po",
 					Value:             "9.10",
 				},
 			},
@@ -180,7 +180,7 @@ func TestCatalogMaterialDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Materials.Delete(context.TODO(), "ml_014613b8f7959a091d8cc0cef4")
+	_, err := client.Catalog.Materials.Delete(context.TODO(), "ml_ow202v78slbl")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

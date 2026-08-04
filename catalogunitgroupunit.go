@@ -40,8 +40,12 @@ func NewCatalogUnitGroupUnitService(opts ...option.RequestOption) (r CatalogUnit
 	return
 }
 
-// Adds a unit to a unit group. If the unit is already in the group, its existing
-// association is updated with the provided settings instead.
+// Adds a unit to a unit group so that products using the group can be ordered in
+// it.
+//
+// A unit can appear in a group only once, so use the update endpoint to change the
+// discount or visibility of a unit that is already associated. Units cannot be
+// added to system unit groups.
 //
 // This endpoint requires the permission: `unit_groups:update`.
 func (r *CatalogUnitGroupUnitService) New(ctx context.Context, unitGroupID string, params CatalogUnitGroupUnitNewParams, opts ...option.RequestOption) (res *UnitGroupUnit, err error) {
@@ -55,7 +59,8 @@ func (r *CatalogUnitGroupUnitService) New(ctx context.Context, unitGroupID strin
 	return res, err
 }
 
-// Returns an associated unit within a unit group by ID.
+// Returns a single unit association within a unit group, including the discount
+// and customer portal visibility applied to it.
 //
 // This endpoint requires the permission: `unit_groups:read`.
 func (r *CatalogUnitGroupUnitService) Get(ctx context.Context, id string, params CatalogUnitGroupUnitGetParams, opts ...option.RequestOption) (res *UnitGroupUnit, err error) {
@@ -73,7 +78,10 @@ func (r *CatalogUnitGroupUnitService) Get(ctx context.Context, id string, params
 	return res, err
 }
 
-// Partially updates an associated unit within a unit group.
+// Partially updates a unit's association with a unit group, changing the discount
+// or customer portal visibility applied when ordering in that unit.
+//
+// Associations within system unit groups cannot be modified.
 //
 // This endpoint requires the permission: `unit_groups:update`.
 func (r *CatalogUnitGroupUnitService) Update(ctx context.Context, id string, params CatalogUnitGroupUnitUpdateParams, opts ...option.RequestOption) (res *UnitGroupUnit, err error) {
@@ -91,7 +99,11 @@ func (r *CatalogUnitGroupUnitService) Update(ctx context.Context, id string, par
 	return res, err
 }
 
-// Returns a list of associated units within a unit group.
+// Returns the units associated with a unit group, along with the discount and
+// customer portal visibility applied to each.
+//
+// Every association in the group is returned in a single response; this list is
+// not paginated.
 //
 // This endpoint requires the permission: `unit_groups:read`.
 func (r *CatalogUnitGroupUnitService) List(ctx context.Context, unitGroupID string, query CatalogUnitGroupUnitListParams, opts ...option.RequestOption) (res *ListUnitGroupUnit, err error) {
@@ -105,7 +117,11 @@ func (r *CatalogUnitGroupUnitService) List(ctx context.Context, unitGroupID stri
 	return res, err
 }
 
-// Removes a unit from a unit group. The unit itself is not deleted.
+// Removes a unit from a unit group so that products using the group can no longer
+// be ordered in it.
+//
+// Only the association is deleted; the unit itself remains available. Associations
+// cannot be removed from system unit groups.
 //
 // This endpoint requires the permission: `unit_groups:delete`.
 func (r *CatalogUnitGroupUnitService) Delete(ctx context.Context, id string, body CatalogUnitGroupUnitDeleteParams, opts ...option.RequestOption) (res *CatalogUnitGroupUnitDeleteResponse, err error) {
@@ -133,9 +149,14 @@ type CreateUnitGroupUnitRequestParam struct {
 	UnitID string `json:"unit_id" api:"required"`
 	// Flat amount subtracted from the unit's price when an order is placed in this
 	// unit.
+	//
+	// Subtracted before `discount_percentage` is applied.
 	DiscountFixed param.Opt[float64] `json:"discount_fixed,omitzero"`
-	// Percentage discount applied to the unit's price when an order is placed in this
-	// unit (e.g. `10` is a 10% discount).
+	// Share of the unit's price removed when an order is placed in this unit.
+	//
+	// Expressed as a decimal fraction rather than a whole number, so `0.1` is a 10%
+	// discount. Send `0` explicitly for no discount — omitting the field stores a
+	// discount of `1`, which removes the entire price.
 	DiscountPercentage param.Opt[float64] `json:"discount_percentage,omitzero"`
 	// Whether the unit is shown to customers in the customer portal.
 	//
@@ -164,13 +185,19 @@ const (
 type UpdateUnitGroupUnitRequestParam struct {
 	// Flat amount subtracted from the unit's price when an order is placed in this
 	// unit.
+	//
+	// Subtracted before `discount_percentage` is applied.
 	DiscountFixed param.Opt[float64] `json:"discount_fixed,omitzero"`
-	// Percentage discount applied to the unit's price when an order is placed in this
-	// unit (e.g. `10` is a 10% discount).
+	// Share of the unit's price removed when an order is placed in this unit.
+	//
+	// Expressed as a decimal fraction rather than a whole number, so `0.1` is a 10%
+	// discount and `0` is no discount.
 	DiscountPercentage param.Opt[float64] `json:"discount_percentage,omitzero"`
 	// ID of the unit this association refers to.
 	//
-	// The unit's dimension must match the group's `type`.
+	// Sending a different unit does not repoint the association; remove the
+	// association and add a new one instead. A unit sent here must still match the
+	// group's `type`.
 	UnitID param.Opt[string] `json:"unit_id,omitzero"`
 	// Whether the unit is shown to customers in the customer portal.
 	//

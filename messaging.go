@@ -67,7 +67,20 @@ func NewMessagingService(opts ...option.RequestOption) (r MessagingService) {
 	return
 }
 
-// Lists the caller's messageable contacts.
+// Lists the people the caller can start a conversation with.
+//
+// For a member of the account, this is everyone active in that account, including
+// themselves — messaging yourself is allowed. A customer signed in to the portal
+// instead gets one shared "Customer Service" contact rather than the individual
+// staff of the account they are dealing with; messages to it are routed by the
+// account's support routes.
+//
+// Blocking is not applied to the directory: someone you have blocked, or who has
+// blocked you, is still listed even though a direct message with them cannot be
+// opened.
+//
+// The directory is returned as a single unpaginated page capped at 100 names, so
+// narrow it with `q` in an account with many people.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingService) GetContacts(ctx context.Context, query MessagingGetContactsParams, opts ...option.RequestOption) (res *ListActor, err error) {
@@ -77,7 +90,8 @@ func (r *MessagingService) GetContacts(ctx context.Context, query MessagingGetCo
 	return res, err
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListActor struct {
 	// Resources in this page.
 	Data []Actor `json:"data" api:"required"`
@@ -85,7 +99,13 @@ type ListActor struct {
 	//
 	// Any of "list".
 	Object ListActorObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

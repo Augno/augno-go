@@ -54,6 +54,9 @@ func (r *FinancePaymentTermService) New(ctx context.Context, params FinancePayme
 
 // Returns a payment term by ID.
 //
+// Both payment terms created by your account and Augno-provided system defaults
+// can be retrieved.
+//
 // This endpoint requires the permission: `payment_terms:read`.
 func (r *FinancePaymentTermService) Get(ctx context.Context, id string, query FinancePaymentTermGetParams, opts ...option.RequestOption) (res *PaymentTerm, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -133,7 +136,8 @@ func (r *CreatePaymentTermRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListPaymentTerm struct {
 	// Resources in this page.
 	Data []PaymentTerm `json:"data" api:"required"`
@@ -141,7 +145,13 @@ type ListPaymentTerm struct {
 	//
 	// Any of "list".
 	Object ListPaymentTermObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

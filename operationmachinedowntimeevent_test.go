@@ -28,7 +28,7 @@ func TestOperationMachineDowntimeEventNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.MachineDowntimeEvents.New(context.TODO(), augno.OperationMachineDowntimeEventNewParams{
 		CreateMachineDowntimeEventRequest: augno.CreateMachineDowntimeEventRequestParam{
-			MachineID:       "mc_0177d18f55a1615f783d3bf8d0",
+			MachineID:       "mc_ffcfk9dxixis",
 			Reason:          augno.CreateMachineDowntimeEventRequestReasonBreakdown,
 			StartedAt:       time.Now(),
 			BatchID:         augno.String("batch_id"),
@@ -63,7 +63,7 @@ func TestOperationMachineDowntimeEventGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.MachineDowntimeEvents.Get(
 		context.TODO(),
-		"mcdt_0192a4c17b3e4f8a91c2d05e77",
+		"mcdt_ff5te1hqttco",
 		augno.OperationMachineDowntimeEventGetParams{
 			Include: []string{"machine"},
 		},
@@ -91,7 +91,7 @@ func TestOperationMachineDowntimeEventUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.MachineDowntimeEvents.Update(
 		context.TODO(),
-		"mcdt_0192a4c17b3e4f8a91c2d05e77",
+		"mcdt_ff5te1hqttco",
 		augno.OperationMachineDowntimeEventUpdateParams{
 			Include: []string{"machine"},
 			UpdateMachineDowntimeEventRequest: augno.UpdateMachineDowntimeEventRequestParam{
@@ -159,7 +159,7 @@ func TestOperationMachineDowntimeEventDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.MachineDowntimeEvents.Delete(context.TODO(), "mcdt_0192a4c17b3e4f8a91c2d05e77")
+	_, err := client.Operations.MachineDowntimeEvents.Delete(context.TODO(), "mcdt_ff5te1hqttco")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

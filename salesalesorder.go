@@ -48,8 +48,10 @@ func NewSaleSalesOrderService(opts ...option.RequestOption) (r SaleSalesOrderSer
 // Creates a sales order in `estimate` status.
 //
 // The order number is assigned automatically, and a sales rep is auto-assigned
-// when none is provided. A shipping line is always added to the order, plus a
-// discount line when an order discount is supplied.
+// when none is provided. Line prices and costs are resolved server-side from each
+// product. A shipping line carrying the estimated freight charge is added to the
+// order, plus a negative-priced discount line when an order discount is supplied.
+// The order is not committed for fulfillment until it is issued.
 //
 // This endpoint requires the permission: `sales_orders:create`.
 func (r *SaleSalesOrderService) New(ctx context.Context, params SaleSalesOrderNewParams, opts ...option.RequestOption) (res *SalesOrder, err error) {
@@ -76,6 +78,12 @@ func (r *SaleSalesOrderService) Get(ctx context.Context, id string, query SaleSa
 
 // Partially updates a sales order.
 //
+// Changing the carrier, service level, or ship-to address propagates to the
+// order's existing shipments, but never re-prices the freight line: request a
+// fresh estimate from the quote-freight endpoint and apply it to the shipping line
+// yourself. Order status is changed through the issue, unissue, close, and reopen
+// actions instead of this endpoint.
+//
 // This endpoint requires the permission: `sales_orders:update`.
 func (r *SaleSalesOrderService) Update(ctx context.Context, id string, params SaleSalesOrderUpdateParams, opts ...option.RequestOption) (res *SalesOrder, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -88,7 +96,11 @@ func (r *SaleSalesOrderService) Update(ctx context.Context, id string, params Sa
 	return res, err
 }
 
-// Returns a paginated list of sales orders for the current account.
+// Returns a paginated list of sales orders for the current account, newest first.
+//
+// A free-text search term (`q`) is matched as an exact value against the order
+// number and the customer purchase order number, and still respects the other
+// filters. Customer accounts calling this endpoint only ever see their own orders.
 //
 // This endpoint requires the permissions: `sales_orders:read`, `customers:read`,
 // `suppliers:read`.
@@ -101,7 +113,8 @@ func (r *SaleSalesOrderService) List(ctx context.Context, query SaleSalesOrderLi
 
 // Deletes a sales order and all its related records.
 //
-// Fulfilled orders cannot be deleted.
+// Removes the order's lines, pick, shipment and invoice lines, and email contacts,
+// and releases any inventory it had reserved. Fulfilled orders cannot be deleted.
 //
 // This endpoint requires the permission: `sales_orders:delete`.
 func (r *SaleSalesOrderService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *SaleSalesOrderDeleteResponse, err error) {
@@ -117,9 +130,11 @@ func (r *SaleSalesOrderService) Delete(ctx context.Context, id string, opts ...o
 
 // Creates a hosted payment checkout session for a sales order.
 //
-// Requires an active Stripe integration on the account. The checkout is built from
-// the order's lines, and the checkout link is emailed to the provided address.
-// Fails with a conflict if the order already has a payment.
+// Requires an active Stripe integration on the account and a customer that already
+// exists in Stripe. The customer is charged a single amount covering every line on
+// the order, including its freight and discount lines, and the checkout link is
+// emailed to the address provided. Fails with a conflict if the order already has
+// a payment.
 //
 // This endpoint requires the permission: `sales_orders:update`.
 func (r *SaleSalesOrderService) Checkout(ctx context.Context, id string, body SaleSalesOrderCheckoutParams, opts ...option.RequestOption) (res *CheckoutSalesOrderResponse, err error) {
@@ -148,7 +163,12 @@ func (r *SaleSalesOrderService) PriceQuote(ctx context.Context, body SaleSalesOr
 	return res, err
 }
 
-// Returns a paginated list of sales order statuses.
+// Lists the statuses a sales order can be in.
+//
+// The statuses are platform-provided and the same for every account, so the result
+// is small and stable enough to cache. Use it to label orders in your own
+// interface; an order moves between statuses through its issue, unissue, close,
+// and reopen actions rather than by being assigned a status.
 func (r *SaleSalesOrderService) GetStatuses(ctx context.Context, query SaleSalesOrderGetStatusesParams, opts ...option.RequestOption) (res *ListSalesOrderStatus, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/sales/sales-orders/statuses"
@@ -161,8 +181,6 @@ func (r *SaleSalesOrderService) GetStatuses(ctx context.Context, query SaleSales
 // The property Email is required.
 type CheckoutSalesOrderRequestParam struct {
 	// Email address to send the checkout link to.
-	//
-	// Also set as the customer email on the payment provider's checkout session.
 	Email string `json:"email" api:"required"`
 	paramObj
 }
@@ -215,7 +233,10 @@ const (
 type CreateSalesOrderLineInputParam struct {
 	// ID of the product being ordered.
 	ProductID string `json:"product_id" api:"required"`
-	// A value with an associated unit, used in create and update requests.
+	// An amount together with the unit it is expressed in.
+	//
+	// The unit may be a currency, so money amounts such as a credit limit are written
+	// the same way as physical amounts like weights or counts.
 	Quantity QuantityInputParam `json:"quantity,omitzero" api:"required"`
 	// Description recorded on the line.
 	//
@@ -225,8 +246,11 @@ type CreateSalesOrderLineInputParam struct {
 	//
 	// Defaults to the product's SKU when omitted.
 	ProductSKU param.Opt[string] `json:"product_sku,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitPrice RateInputParam `json:"unit_price,omitzero"`
 	paramObj
 }
@@ -250,7 +274,10 @@ type CreateSalesOrderRequestParam struct {
 	BillToAddressID string `json:"bill_to_address_id" api:"required"`
 	// ID of the customer account the order is for.
 	BuyerAccountID string `json:"buyer_account_id" api:"required"`
-	// Order lines to create.
+	// The line items to put on the order.
+	//
+	// The freight line, and the discount line when `order_discount_id` is supplied,
+	// are added on top of these automatically.
 	Lines []CreateSalesOrderLineInputParam `json:"lines,omitzero" api:"required"`
 	// Fulfillment priority used to rank the order on the shop floor.
 	PriorityCode string `json:"priority_code" api:"required"`
@@ -258,35 +285,53 @@ type CreateSalesOrderRequestParam struct {
 	//
 	// Must reference an existing address on the order's owner or buyer account.
 	ShipToAddressID string `json:"ship_to_address_id" api:"required"`
-	// Carrier billing account number.
+	// Carrier billing account number charged when `carrier_billing_type` is
+	// `third_party`.
 	CarrierBillingAccountNumber param.Opt[string] `json:"carrier_billing_account_number,omitzero"`
-	// Carrier ID.
+	// ID of the carrier that will ship the order.
+	//
+	// Falls back to the customer's default carrier; the order is rejected when neither
+	// is available.
 	CarrierID param.Opt[string] `json:"carrier_id,omitzero"`
 	// The customer's own purchase order number, for cross-referencing.
 	//
 	// Must be unique among your orders for this customer.
 	CustomerPurchaseOrderNumber param.Opt[string] `json:"customer_purchase_order_number,omitzero"`
-	// Order note.
+	// Free-form note about the order.
 	Note param.Opt[string] `json:"note,omitzero"`
-	// Order discount ID.
+	// The order-level discount to apply, given as either its ID or its unique code.
 	//
-	// When supplied, a discount line is added to the order automatically.
+	// The discount is realized as an extra negative-priced line on the order rather
+	// than as a separate total.
 	OrderDiscountID param.Opt[string] `json:"order_discount_id,omitzero"`
-	// Payment term ID.
+	// ID of the payment terms for the order.
+	//
+	// Falls back to the customer's default payment term; the order is rejected when
+	// neither is available.
 	PaymentTermID param.Opt[string] `json:"payment_term_id,omitzero"`
-	// Promised delivery date.
+	// Date delivery is promised to the customer.
 	PromisedAt param.Opt[time.Time] `json:"promised_at,omitzero" format:"date-time"`
-	// Sales rep ID.
+	// ID of the account user to credit as the order's sales rep.
 	//
 	// When omitted, a rep is assigned automatically: the customer's default sales rep
 	// first, then the sales territory matching the ship-to postal code, then the
-	// ship-to state.
+	// ship-to state. No rep is assigned when the customer is commission-exempt or
+	// every ordered product belongs to a commission-exempt product line.
 	SalesRepID param.Opt[string] `json:"sales_rep_id,omitzero"`
-	// Service level ID.
+	// ID of the carrier service level the order ships on.
+	//
+	// Falls back to the customer's default service level, but only when `carrier_id`
+	// is also omitted — supplying a carrier without a service level leaves the service
+	// level unset.
 	ServiceLevelID param.Opt[string] `json:"service_level_id,omitzero"`
-	// Shipping term ID.
+	// ID of the shipping terms for the order.
+	//
+	// Falls back to the customer's default shipping term; the order is rejected when
+	// neither is available.
 	ShippingTermID param.Opt[string] `json:"shipping_term_id,omitzero"`
-	// Account users who should receive order acknowledgement emails.
+	// Users who should receive order acknowledgement emails for this order.
+	//
+	// Each must be a user on the customer's account.
 	AcknowledgementEmailContacts []SalesOrderEmailContactInputParam `json:"acknowledgement_email_contacts,omitzero"`
 	// Who is billed for freight.
 	//
@@ -296,7 +341,9 @@ type CreateSalesOrderRequestParam struct {
 	//
 	// Any of "sender", "third_party".
 	CarrierBillingType CreateSalesOrderRequestCarrierBillingType `json:"carrier_billing_type,omitzero"`
-	// Account users who should receive invoice emails.
+	// Users who should receive invoice emails for this order.
+	//
+	// Each must be a user on the customer's account.
 	InvoiceEmailContacts []SalesOrderEmailContactInputParam `json:"invoice_email_contacts,omitzero"`
 	paramObj
 }
@@ -380,8 +427,7 @@ const (
 // Freight describes the carrier selection and freight billing for a record.
 //
 // It is a generic, reusable sub-resource shared by anything that carries shipping
-// configuration — for example a sales order's chosen freight, or a customer's
-// default freight preferences.
+// configuration — a sales order, a purchase order, or a shipment.
 type Freight struct {
 	// Carrier account number to bill, used when `billing_type` is `third_party`.
 	BillingAccountNumber string `json:"billing_account_number" api:"required"`
@@ -404,15 +450,20 @@ type Freight struct {
 	Object FreightObject `json:"object" api:"required"`
 	// How freight is arranged and billed for the record.
 	//
-	// Populated where a freight policy applies, such as a customer's default
-	// preferences.
-	//
 	// - `free_freight`: no shipping cost to the buyer.
 	// - `billed_freight`: freight is billed to the buyer.
 	//
+	// Sales orders, purchase orders, and shipments do not carry a policy of their own.
+	// Freight on those records is waived when the customer's freight preferences, the
+	// customer's type group, any of its pricing groups, the customer's shipping term,
+	// or any product line on the order is `free_freight`.
+	//
 	// Any of "free_freight", "billed_freight".
 	Policy FreightPolicy `json:"policy" api:"required"`
-	// Shipping service level for a carrier.
+	// A shipping speed or method offered by a carrier, such as ground or overnight.
+	//
+	// Carriers connected through Shippo have their service levels synced from the
+	// carrier itself; any carrier can also have service levels you create by hand.
 	ServiceLevel ServiceLevel `json:"service_level" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -453,11 +504,13 @@ const (
 
 // How freight is arranged and billed for the record.
 //
-// Populated where a freight policy applies, such as a customer's default
-// preferences.
-//
 // - `free_freight`: no shipping cost to the buyer.
 // - `billed_freight`: freight is billed to the buyer.
+//
+// Sales orders, purchase orders, and shipments do not carry a policy of their own.
+// Freight on those records is waived when the customer's freight preferences, the
+// customer's type group, any of its pricing groups, the customer's shipping term,
+// or any product line on the order is `free_freight`.
 type FreightPolicy string
 
 const (
@@ -465,7 +518,8 @@ const (
 	FreightPolicyBilledFreight FreightPolicy = "billed_freight"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListQuotedSalesOrderLine struct {
 	// Resources in this page.
 	Data []QuotedSalesOrderLine `json:"data" api:"required"`
@@ -473,7 +527,13 @@ type ListQuotedSalesOrderLine struct {
 	//
 	// Any of "list".
 	Object ListQuotedSalesOrderLineObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -498,7 +558,8 @@ const (
 	ListQuotedSalesOrderLineObjectList ListQuotedSalesOrderLineObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListRecord struct {
 	// Resources in this page.
 	Data []Record `json:"data" api:"required"`
@@ -506,7 +567,13 @@ type ListRecord struct {
 	//
 	// Any of "list".
 	Object ListRecordObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -531,7 +598,8 @@ const (
 	ListRecordObjectList ListRecordObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListSalesOrder struct {
 	// Resources in this page.
 	Data []SalesOrder `json:"data" api:"required"`
@@ -539,7 +607,13 @@ type ListSalesOrder struct {
 	//
 	// Any of "list".
 	Object ListSalesOrderObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -564,7 +638,8 @@ const (
 	ListSalesOrderObjectList ListSalesOrderObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListSalesOrderLine struct {
 	// Resources in this page.
 	Data []SalesOrderLine `json:"data" api:"required"`
@@ -572,7 +647,13 @@ type ListSalesOrderLine struct {
 	//
 	// Any of "list".
 	Object ListSalesOrderLineObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -597,7 +678,8 @@ const (
 	ListSalesOrderLineObjectList ListSalesOrderLineObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListSalesOrderStatus struct {
 	// Resources in this page.
 	Data []SalesOrderStatus `json:"data" api:"required"`
@@ -605,7 +687,13 @@ type ListSalesOrderStatus struct {
 	//
 	// Any of "list".
 	Object ListSalesOrderStatusObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -630,7 +718,7 @@ const (
 	ListSalesOrderStatusObjectList ListSalesOrderStatusObject = "list"
 )
 
-// OrderContact groups a sales order's email recipients by notification purpose.
+// A sales order's email recipients, grouped by the notification they receive.
 type OrderContact struct {
 	// Email addresses that receive order acknowledgements for this order.
 	Acknowledgement []string `json:"acknowledgement" api:"required"`
@@ -666,25 +754,26 @@ const (
 // A discount code that can be applied to a sales order.
 //
 // An order discount reduces the order total by either a percentage or a fixed
-// amount, depending on `discount_type`.
+// amount, depending on `discount_type`. The reduction is capped at the order total
+// and rounded to the nearest cent.
 type OrderDiscount struct {
 	// Order discount ID.
 	ID string `json:"id" api:"required"`
-	// Fixed amount off as a decimal string.
+	// The flat amount taken off the order total, as a decimal string.
 	//
-	// Applies when `discount_type` is `amount`; otherwise `0`.
+	// Only read when `discount_type` is `amount`.
 	Amount string `json:"amount" api:"required" format:"decimal"`
-	// The code entered to apply this discount to an order.
+	// The code a buyer enters to apply this discount to an order.
 	//
-	// Must be unique within the account.
+	// Codes are unique within your account and are matched without regard to letter
+	// case.
 	Code string `json:"code" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// How the discount is calculated, determining whether `percentage` or `amount` is
-	// used.
+	// How the discount is calculated.
 	//
-	// - `percentage`: the discount is a percent off, taken from `percentage`.
-	// - `amount`: the discount is a fixed amount off, taken from `amount`.
+	// - `percentage`: the order total is reduced by the fraction in `percentage`.
+	// - `amount`: the order total is reduced by the flat amount in `amount`.
 	//
 	// Any of "percentage", "amount".
 	DiscountType OrderDiscountDiscountType `json:"discount_type" api:"required"`
@@ -694,11 +783,12 @@ type OrderDiscount struct {
 	//
 	// Any of "order_discount".
 	Object OrderDiscountObject `json:"object" api:"required"`
-	// Number of orders currently using this discount.
+	// How many sales orders this discount has been applied to, across all buyers.
 	OrderCount int64 `json:"order_count" api:"required"`
-	// Percent off as a decimal string (e.g. `10` for 10%).
+	// The fraction of the order total taken off, as a decimal string.
 	//
-	// Applies when `discount_type` is `percentage`; otherwise `0`.
+	// This is a multiplier, not a whole percent: `0.1` takes 10% off. Only read when
+	// `discount_type` is `percentage`.
 	Percentage string `json:"percentage" api:"required" format:"decimal"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -725,11 +815,10 @@ func (r *OrderDiscount) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// How the discount is calculated, determining whether `percentage` or `amount` is
-// used.
+// How the discount is calculated.
 //
-// - `percentage`: the discount is a percent off, taken from `percentage`.
-// - `amount`: the discount is a fixed amount off, taken from `amount`.
+// - `percentage`: the order total is reduced by the fraction in `percentage`.
+// - `amount`: the order total is reduced by the flat amount in `amount`.
 type OrderDiscountDiscountType string
 
 const (
@@ -750,7 +839,10 @@ const (
 type QuoteSalesOrderLineInputParam struct {
 	// ID of the product to price.
 	ProductID string `json:"product_id" api:"required"`
-	// A value with an associated unit, used in create and update requests.
+	// An amount together with the unit it is expressed in.
+	//
+	// The unit may be a currency, so money amounts such as a credit limit are written
+	// the same way as physical amounts like weights or counts.
 	Quantity QuantityInputParam `json:"quantity,omitzero" api:"required"`
 	paramObj
 }
@@ -784,7 +876,8 @@ func (r *QuoteSalesOrderPricesRequestParam) UnmarshalJSON(data []byte) error {
 
 // Quoted unit prices for the requested lines, in request order.
 type QuoteSalesOrderPricesResponse struct {
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Lines ListQuotedSalesOrderLine `json:"lines" api:"required"`
 	// Resource type identifier.
 	//
@@ -818,8 +911,12 @@ type QuotedSalesOrderLine struct {
 	//
 	// Any of "sales_order_price_quote_line".
 	Object QuotedSalesOrderLineObject `json:"object" api:"required"`
-	// Product pairs an inventory item with how it is sold: its product type, optional
+	// A catalog entry as it is sold: an inventory item together with its product type,
 	// product line, and customer portal visibility.
+	//
+	// Every product is backed by exactly one item, which carries the SKU, description,
+	// pricing, attributes, and inventory position. Creating a product creates that
+	// item; deleting the product deletes it.
 	Product Product `json:"product" api:"required"`
 	// A per-unit rate on a sales-order quote.
 	//
@@ -852,10 +949,10 @@ const (
 // Record is a lightweight reference to a business record — a sales order, purchase
 // order, pick, shipment, production run, invoice, etc.
 //
-// Like Actor and Entity, it carries just enough to identify and label the
-// referenced record without embedding its full resource. The optional status and
-// metadata fields hold type-specific detail that varies by the kind of record
-// referenced.
+// Like the `actor` and `entity` references, it carries just enough to identify and
+// label the referenced record without embedding its full resource. The `status`
+// and `metadata` fields hold type-specific detail that varies by the kind of
+// record referenced.
 type Record struct {
 	// Unique identifier for the record.
 	ID string `json:"id" api:"required"`
@@ -946,11 +1043,15 @@ const (
 	RecordTypeSettlement     RecordType = "settlement"
 )
 
-// Full sales order resource.
+// An order placed by a customer, tracked from estimate through fulfillment.
 type SalesOrder struct {
 	// Sales order ID.
 	ID string `json:"id" api:"required"`
 	// Whether an order acknowledgment has been sent to the customer.
+	//
+	// Becomes `sent` when the order is issued with customer notification requested and
+	// the order has acknowledgement contacts to send to. It can also be set directly
+	// when an acknowledgement was sent outside Augno.
 	//
 	// Any of "not_sent", "sent".
 	AcknowledgmentStatus SalesOrderAcknowledgmentStatus `json:"acknowledgment_status" api:"required"`
@@ -959,7 +1060,7 @@ type SalesOrder struct {
 	BillToAddress Address `json:"bill_to_address" api:"required"`
 	// When the order was fulfilled and closed.
 	CompletedAt time.Time `json:"completed_at" api:"required" format:"date-time"`
-	// OrderContact groups a sales order's email recipients by notification purpose.
+	// A sales order's email recipients, grouped by the notification they receive.
 	Contacts OrderContact `json:"contacts" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
@@ -982,17 +1083,16 @@ type SalesOrder struct {
 	// Freight describes the carrier selection and freight billing for a record.
 	//
 	// It is a generic, reusable sub-resource shared by anything that carries shipping
-	// configuration — for example a sales order's chosen freight, or a customer's
-	// default freight preferences.
+	// configuration — a sales order, a purchase order, or a shipment.
 	Freight Freight `json:"freight" api:"required"`
 	// When the order was issued (moved out of `estimate`).
 	IssuedAt time.Time `json:"issued_at" api:"required" format:"date-time"`
-	// Number of order lines on this order, returned even when the `lines` list itself
-	// is not expanded.
+	// Number of lines on this order.
 	LineCount int64 `json:"line_count" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Lines ListSalesOrderLine `json:"lines" api:"required"`
-	// Order note.
+	// Free-form note about the order.
 	Note string `json:"note" api:"required"`
 	// Human-readable order number, e.g. `SO-001`.
 	//
@@ -1005,7 +1105,8 @@ type SalesOrder struct {
 	// A discount code that can be applied to a sales order.
 	//
 	// An order discount reduces the order total by either a percentage or a fixed
-	// amount, depending on `discount_type`.
+	// amount, depending on `discount_type`. The reduction is capped at the order total
+	// and rounded to the nearest cent.
 	OrderDiscount OrderDiscount `json:"order_discount" api:"required"`
 	// Stripe payment intent IDs recorded against this order.
 	PaymentIntentIDs []string `json:"payment_intent_ids" api:"required"`
@@ -1023,10 +1124,10 @@ type SalesOrder struct {
 	Priority SalesOrderPriority `json:"priority" api:"required"`
 	// Date promised to the customer for delivery, if one was committed.
 	PromisedAt time.Time `json:"promised_at" api:"required" format:"date-time"`
-	// SalesOrderRelated groups the records related to a sales order.
+	// The fulfillment records produced from a sales order.
 	//
-	// The members are individually expandable (e.g. include[]=related.pick). The group
-	// is null unless at least one of its members is expanded.
+	// The group itself is returned only when at least one of its members has been
+	// expanded.
 	Related SalesOrderRelated `json:"related" api:"required"`
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
@@ -1034,7 +1135,12 @@ type SalesOrder struct {
 	// A saved address that can be used for billing and shipping on sales orders,
 	// invoices, and shipments.
 	ShipToAddress Address `json:"ship_to_address" api:"required"`
-	// A shipping term defining how freight charges are calculated for an order.
+	// A named freight pricing rule that decides what a buyer pays for shipping.
+	//
+	// A customer's default shipping term is evaluated whenever freight is quoted for
+	// one of their orders. Freight exemptions on the customer, its type group, or any
+	// of its price groups are checked first and zero the freight charge before the
+	// shipping term is considered.
 	ShippingTerm ShippingTerm `json:"shipping_term" api:"required"`
 	// Order lifecycle status.
 	//
@@ -1048,10 +1154,11 @@ type SalesOrder struct {
 	//
 	// Any of "estimate", "issued", "fulfilled".
 	Status SalesOrderStatus `json:"status" api:"required"`
-	// SalesOrderTotals holds the derived monetary totals for a sales order or one of
-	// its lines, following the lifecycle ordered -> picked -> packed -> invoiced. Each
-	// downstream stage carries both its monetary amount and its completion progress
-	// against the ordered baseline.
+	// Derived monetary totals for a sales order or one of its lines.
+	//
+	// Fulfillment runs ordered -> picked -> packed -> invoiced, and each downstream
+	// stage reports both the money that has reached it and its progress against the
+	// ordered baseline.
 	Totals SalesOrderTotals `json:"totals" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -1100,6 +1207,10 @@ func (r *SalesOrder) UnmarshalJSON(data []byte) error {
 }
 
 // Whether an order acknowledgment has been sent to the customer.
+//
+// Becomes `sent` when the order is issued with customer notification requested and
+// the order has acknowledgement contacts to send to. It can also be set directly
+// when an acknowledgement was sent outside Augno.
 type SalesOrderAcknowledgmentStatus string
 
 const (
@@ -1150,12 +1261,11 @@ const (
 	SalesOrderStatusFulfilled SalesOrderStatus = "fulfilled"
 )
 
-// SalesOrderEmailContactInput represents an account user subscribed to a
-// sales-order email notification type.
+// A user subscribed to one of a sales order's email notifications.
 //
 // The property AccountUserID is required.
 type SalesOrderEmailContactInputParam struct {
-	// Account user ID to receive the notification.
+	// ID of the account user who should receive the notification.
 	AccountUserID string `json:"account_user_id" api:"required"`
 	paramObj
 }
@@ -1168,7 +1278,7 @@ func (r *SalesOrderEmailContactInputParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Full sales order line resource.
+// A single line item on a sales order.
 type SalesOrderLine struct {
 	// Sales order line ID.
 	ID string `json:"id" api:"required"`
@@ -1176,25 +1286,41 @@ type SalesOrderLine struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Position of the line on the order.
 	//
-	// Assigned automatically in sequence, starting at `1`.
+	// Assigned automatically in sequence, starting at `1`. Product lines are numbered
+	// first and the automatically generated freight and discount lines always sit at
+	// the bottom; removing a line renumbers the rest so the sequence stays contiguous.
 	LineItemNumber int64 `json:"line_item_number" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "sales_order_line".
 	Object SalesOrderLineObject `json:"object" api:"required"`
-	// Product pairs an inventory item with how it is sold: its product type, optional
+	// A catalog entry as it is sold: an inventory item together with its product type,
 	// product line, and customer portal visibility.
+	//
+	// Every product is backed by exactly one item, which carries the SKU, description,
+	// pricing, attributes, and inventory position. Creating a product creates that
+	// item; deleting the product deletes it.
 	Product Product `json:"product" api:"required"`
-	// Product description.
+	// Description recorded on this line, taken from the product unless the line
+	// supplies its own.
 	ProductDescription string `json:"product_description" api:"required"`
-	// Product SKU.
+	// SKU recorded on this line.
+	//
+	// Taken from the product unless the line supplies its own, and editable
+	// afterwards, so it preserves what was sold even if the product's SKU later
+	// changes.
 	ProductSKU string `json:"product_sku" api:"required"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	QuantityOrdered Quantity `json:"quantity_ordered" api:"required"`
-	// SalesOrderTotals holds the derived monetary totals for a sales order or one of
-	// its lines, following the lifecycle ordered -> picked -> packed -> invoiced. Each
-	// downstream stage carries both its monetary amount and its completion progress
-	// against the ordered baseline.
+	// Derived monetary totals for a sales order or one of its lines.
+	//
+	// Fulfillment runs ordered -> picked -> packed -> invoiced, and each downstream
+	// stage reports both the money that has reached it and its progress against the
+	// ordered baseline.
 	Totals SalesOrderTotals `json:"totals" api:"required"`
 	// Value expressed as a ratio of two units, such as a price per kilogram or a
 	// throughput per hour.
@@ -1276,12 +1402,13 @@ const (
 	SalesOrderQuoteRateObjectSalesOrderQuoteRate SalesOrderQuoteRateObject = "sales_order_quote_rate"
 )
 
-// SalesOrderRelated groups the records related to a sales order.
+// The fulfillment records produced from a sales order.
 //
-// The members are individually expandable (e.g. include[]=related.pick). The group
-// is null unless at least one of its members is expanded.
+// The group itself is returned only when at least one of its members has been
+// expanded.
 type SalesOrderRelated struct {
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Invoices ListRecord `json:"invoices" api:"required"`
 	// Resource type identifier.
 	//
@@ -1290,20 +1417,21 @@ type SalesOrderRelated struct {
 	// Record is a lightweight reference to a business record — a sales order, purchase
 	// order, pick, shipment, production run, invoice, etc.
 	//
-	// Like Actor and Entity, it carries just enough to identify and label the
-	// referenced record without embedding its full resource. The optional status and
-	// metadata fields hold type-specific detail that varies by the kind of record
-	// referenced.
+	// Like the `actor` and `entity` references, it carries just enough to identify and
+	// label the referenced record without embedding its full resource. The `status`
+	// and `metadata` fields hold type-specific detail that varies by the kind of
+	// record referenced.
 	Pick Record `json:"pick" api:"required"`
 	// Record is a lightweight reference to a business record — a sales order, purchase
 	// order, pick, shipment, production run, invoice, etc.
 	//
-	// Like Actor and Entity, it carries just enough to identify and label the
-	// referenced record without embedding its full resource. The optional status and
-	// metadata fields hold type-specific detail that varies by the kind of record
-	// referenced.
+	// Like the `actor` and `entity` references, it carries just enough to identify and
+	// label the referenced record without embedding its full resource. The `status`
+	// and `metadata` fields hold type-specific detail that varies by the kind of
+	// record referenced.
 	ProductionRun Record `json:"production_run" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Shipments ListRecord `json:"shipments" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -1330,14 +1458,17 @@ const (
 	SalesOrderRelatedObjectSalesOrderRelated SalesOrderRelatedObject = "sales_order_related"
 )
 
-// SalesOrderStageTotal pairs a fulfillment stage's monetary amount with its
-// completion progress.
+// The monetary amount that has reached one fulfillment stage, together with how
+// far that stage has progressed.
 type SalesOrderStageTotal struct {
-	// Amount for this stage as a decimal string (unit price x quantity at this stage).
+	// Amount that has reached this stage, as a decimal string (unit price times the
+	// quantity at this stage).
 	Amount string `json:"amount" api:"required" format:"decimal"`
-	// Progress to completion for this stage, as a fraction between 0 and 1: quantity
-	// at this stage divided by quantity ordered. `0` when nothing has reached this
-	// stage yet.
+	// Progress through this stage, as a fraction between 0 and 1.
+	//
+	// Calculated as the quantity that has reached this stage divided by the quantity
+	// ordered, so `1` means the whole order has cleared the stage and `0` means
+	// nothing has reached it yet.
 	Completion float64 `json:"completion" api:"required"`
 	// Resource type identifier.
 	//
@@ -1366,26 +1497,28 @@ const (
 	SalesOrderStageTotalObjectSalesOrderStageTotal SalesOrderStageTotalObject = "sales_order_stage_total"
 )
 
-// SalesOrderTotals holds the derived monetary totals for a sales order or one of
-// its lines, following the lifecycle ordered -> picked -> packed -> invoiced. Each
-// downstream stage carries both its monetary amount and its completion progress
-// against the ordered baseline.
+// Derived monetary totals for a sales order or one of its lines.
+//
+// Fulfillment runs ordered -> picked -> packed -> invoiced, and each downstream
+// stage reports both the money that has reached it and its progress against the
+// ordered baseline.
 type SalesOrderTotals struct {
-	// SalesOrderStageTotal pairs a fulfillment stage's monetary amount with its
-	// completion progress.
+	// The monetary amount that has reached one fulfillment stage, together with how
+	// far that stage has progressed.
 	Invoiced SalesOrderStageTotal `json:"invoiced" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "sales_order_totals".
 	Object SalesOrderTotalsObject `json:"object" api:"required"`
-	// Total ordered amount as a decimal string (unit price x quantity ordered). This
-	// is the baseline the stage completions are measured against.
+	// Total ordered amount as a decimal string (unit price times quantity ordered).
+	//
+	// This is the baseline the stage completions are measured against.
 	Ordered string `json:"ordered" api:"required" format:"decimal"`
-	// SalesOrderStageTotal pairs a fulfillment stage's monetary amount with its
-	// completion progress.
+	// The monetary amount that has reached one fulfillment stage, together with how
+	// far that stage has progressed.
 	Packed SalesOrderStageTotal `json:"packed" api:"required"`
-	// SalesOrderStageTotal pairs a fulfillment stage's monetary amount with its
-	// completion progress.
+	// The monetary amount that has reached one fulfillment stage, together with how
+	// far that stage has progressed.
 	Picked SalesOrderStageTotal `json:"picked" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -1414,30 +1547,37 @@ const (
 
 // Request to update a sales order.
 type UpdateSalesOrderRequestParam struct {
-	// Carrier billing account number. Send `null` to clear.
+	// Carrier billing account number charged when `carrier_billing_type` is
+	// `third_party`.
 	CarrierBillingAccountNumber param.Opt[string] `json:"carrier_billing_account_number,omitzero"`
-	// Customer's purchase order number. Send `null` to clear.
+	// The customer's own purchase order number, for cross-referencing.
 	CustomerPurchaseOrderNumber param.Opt[string] `json:"customer_purchase_order_number,omitzero"`
-	// Order note. Send `null` to clear.
+	// Free-form note about the order.
 	Note param.Opt[string] `json:"note,omitzero"`
-	// Order discount ID. Send `null` to clear.
+	// ID of the order-level discount recorded on the order.
+	//
+	// Changing this does not add, reprice, or remove the order's discount line; adjust
+	// that line directly.
 	OrderDiscountID param.Opt[string] `json:"order_discount_id,omitzero"`
-	// Promised delivery date. Send `null` to clear.
+	// Date delivery is promised to the customer.
 	PromisedAt param.Opt[time.Time] `json:"promised_at,omitzero" format:"date-time"`
-	// Sales rep ID. Send `null` to clear.
+	// ID of the account user to credit as the order's sales rep.
 	SalesRepID param.Opt[string] `json:"sales_rep_id,omitzero"`
-	// Service level ID. Send `null` to clear.
+	// ID of the carrier service level the order ships on.
 	ServiceLevelID param.Opt[string] `json:"service_level_id,omitzero"`
 	// Billing address ID.
 	//
 	// Re-points the order to an existing address. To change an address's contents, use
 	// the update-address endpoint.
 	BillingAddressID param.Opt[string] `json:"billing_address_id,omitzero"`
-	// Carrier ID.
+	// ID of the carrier that will ship the order.
 	CarrierID param.Opt[string] `json:"carrier_id,omitzero"`
-	// Customer ID.
+	// Moves the order to a different customer account.
+	//
+	// Existing lines keep the prices they were created with; they are not re-priced
+	// against the new customer.
 	CustomerID param.Opt[string] `json:"customer_id,omitzero"`
-	// Payment term ID.
+	// ID of the payment terms for the order.
 	PaymentTermID param.Opt[string] `json:"payment_term_id,omitzero"`
 	// New fulfillment priority for the order.
 	PriorityCode param.Opt[string] `json:"priority_code,omitzero"`
@@ -1446,9 +1586,9 @@ type UpdateSalesOrderRequestParam struct {
 	// Re-points the order to an existing address. To change an address's contents, use
 	// the update-address endpoint.
 	ShippingAddressID param.Opt[string] `json:"shipping_address_id,omitzero"`
-	// Shipping term ID.
+	// ID of the shipping terms for the order.
 	ShippingTermID param.Opt[string] `json:"shipping_term_id,omitzero"`
-	// Who is billed for freight. Send `null` to clear.
+	// Who is billed for freight.
 	//
 	//   - `sender`: the sender pays for shipping.
 	//   - `third_party`: a third party pays for shipping, using the carrier billing
@@ -1495,7 +1635,7 @@ const (
 	UpdateSalesOrderRequestAcknowledgmentStatusSent    UpdateSalesOrderRequestAcknowledgmentStatus = "sent"
 )
 
-// Who is billed for freight. Send `null` to clear.
+// Who is billed for freight.
 //
 //   - `sender`: the sender pays for shipping.
 //   - `third_party`: a third party pays for shipping, using the carrier billing
@@ -1628,7 +1768,11 @@ type SaleSalesOrderListParams struct {
 	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Latest order creation date to include, in `YYYY-MM-DD` format (inclusive).
+	// Latest order creation date to include, in `YYYY-MM-DD` format.
+	//
+	// Compared against the creation timestamp at the start of that day, so orders
+	// created later on the end date itself are excluded; pass the following day to
+	// include them.
 	EndDate param.Opt[string] `query:"end_date,omitzero" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
@@ -1636,11 +1780,12 @@ type SaleSalesOrderListParams struct {
 	//
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
-	// Earliest order creation date to include, in `YYYY-MM-DD` format (inclusive).
+	// Earliest order creation date to include, in `YYYY-MM-DD` format.
 	StartDate param.Opt[string] `query:"start_date,omitzero" json:"-"`
-	// Filter by customer group IDs.
+	// Restricts results to orders placed by customers belonging to any of these
+	// account groups.
 	CustomerGroupIDs []string `query:"customer_group_ids,omitzero" json:"-"`
-	// Filter by customer IDs.
+	// Restricts results to orders placed by any of these customers.
 	CustomerIDs []string `query:"customer_ids,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -1661,13 +1806,18 @@ type SaleSalesOrderListParams struct {
 	// "lines.unit_cost", "lines.unit_cost.numerator_unit",
 	// "lines.unit_cost.denominator_unit", "lines.totals".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Filter by item IDs.
+	// Restricts results to orders that have at least one line for any of these
+	// inventory items.
 	ItemIDs []string `query:"item_ids,omitzero" json:"-"`
-	// Filter by product line IDs.
+	// Restricts results to orders that have at least one line whose product belongs to
+	// any of these product lines.
 	ProductLineIDs []string `query:"product_line_ids,omitzero" json:"-"`
-	// Filter by sales rep IDs.
+	// Restricts results to orders credited to any of these sales reps.
+	//
+	// These are account user IDs, matching the `sales_rep` on the order.
 	SalesRepIDs []string `query:"sales_rep_ids,omitzero" json:"-"`
-	// Filter by status codes.
+	// Restricts results to orders in any of these lifecycle statuses (`estimate`,
+	// `issued`, `fulfilled`).
 	StatusCodes []string `query:"status_codes,omitzero" json:"-"`
 	paramObj
 }

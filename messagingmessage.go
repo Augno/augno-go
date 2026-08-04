@@ -42,7 +42,11 @@ func NewMessagingMessageService(opts ...option.RequestOption) (r MessagingMessag
 	return
 }
 
-// Edits a still-open customer-reply draft.
+// Revises a reply draft before it is sent to the customer.
+//
+// Only a draft that is still awaiting approval can be edited; once it has been
+// approved, rejected, or superseded the request fails. Nothing reaches the
+// customer until the draft is approved.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingMessageService) Update(ctx context.Context, id string, params MessagingMessageUpdateParams, opts ...option.RequestOption) (res *Message, err error) {
@@ -60,9 +64,11 @@ func (r *MessagingMessageService) Update(ctx context.Context, id string, params 
 //
 // The property Body is required.
 type UpdateDraftRequestParam struct {
-	// The revised reply body.
+	// The revised reply body, replacing what the draft said before.
 	Body string `json:"body" api:"required"`
-	// The revised email subject, for the email channel.
+	// The revised subject line for a draft that will be sent by email.
+	//
+	// Leaving it out keeps the draft's current subject.
 	Subject param.Opt[string] `json:"subject,omitzero"`
 	paramObj
 }

@@ -49,10 +49,19 @@ func NewOperationProductionScheduleService(opts ...option.RequestOption) (r Oper
 
 // Generates and saves a new production schedule.
 //
-// The plan is saved as a draft: nothing is frozen and every line is editable until
-// the version is published. Generating again creates a new version rather than
-// replacing this one, because attainment is measured against whichever version was
-// live at the time.
+// The plan is saved as a draft: nothing is frozen yet, so campaigns can be added,
+// changed and removed without having to give a reason. Generating again creates a
+// new version rather than replacing this one, because attainment is measured
+// against whichever version was live at the time.
+//
+// The solver plans the constraint department — the room that sets the pace of the
+// factory — so production schedule settings must name one and it must have
+// machines that are included in planning. Without that there is nothing to
+// schedule and the request is rejected rather than returning an empty plan.
+//
+// Alongside the campaigns, the version stores the assumptions it was solved with,
+// the per-item policies behind each campaign, and the downstream department work
+// implied by the plan.
 //
 // This endpoint requires the permission: `production_schedules:create`.
 func (r *OperationProductionScheduleService) New(ctx context.Context, body OperationProductionScheduleNewParams, opts ...option.RequestOption) (res *ProductionSchedule, err error) {
@@ -86,7 +95,8 @@ func (r *OperationProductionScheduleService) List(ctx context.Context, query Ope
 	return res, err
 }
 
-// Deletes a draft schedule and everything derived from it.
+// Deletes a draft schedule along with its planned campaigns and its item policy
+// snapshot.
 //
 // Only drafts can be deleted. A published version is the baseline attainment is
 // measured against, so removing it would erase the record of what was promised —
@@ -107,7 +117,12 @@ func (r *OperationProductionScheduleService) Delete(ctx context.Context, id stri
 // Returns the published schedule covering today.
 //
 // Responds 404 when no published version covers today, which is the normal state
-// before the first schedule is published.
+// before the first schedule is published. Drafts are never returned here — a plan
+// nobody has committed to is not the current plan.
+//
+// At most one version is ever current: publishing a new one supersedes every
+// published version its horizon overlaps, so republishing mid-horizon takes over
+// immediately.
 //
 // This endpoint requires the permission: `production_schedules:read`.
 func (r *OperationProductionScheduleService) GetCurrent(ctx context.Context, opts ...option.RequestOption) (res *ProductionSchedule, err error) {
@@ -211,6 +226,10 @@ func (r *OperationProductionScheduleService) GetItemPolicies(ctx context.Context
 // `blocked_reason` saying which; `existing_production_run_id` names the run a
 // released week is already tied to.
 //
+// Cancelled campaigns and campaigns planned at zero are excluded here exactly as
+// the release excludes them, so a week holding nothing but those previews as
+// empty.
+//
 // This endpoint requires the permission: `production_schedules:read`.
 func (r *OperationProductionScheduleService) GetWeekReleasePreview(ctx context.Context, id string, query OperationProductionScheduleGetWeekReleasePreviewParams, opts ...option.RequestOption) (res *ReleaseScheduleWeekPreview, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -225,13 +244,27 @@ func (r *OperationProductionScheduleService) GetWeekReleasePreview(ctx context.C
 
 // Request to generate a production schedule.
 type GenerateProductionScheduleRequestParam struct {
-	// Overrides the configured horizon for this version only.
+	// Number of weeks the plan should cover, overriding the account's configured
+	// horizon for this version only.
 	HorizonWeeks param.Opt[int64] `json:"horizon_weeks,omitzero"`
-	// Label for the version.
+	// Human-readable label for the version, such as the week it was cut for.
+	//
+	// Purely for recognising the version in a list; versions are numbered
+	// automatically and the number is what identifies them.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// The instant to plan against. Defaults to now.
+	// The instant to plan against, which is what stock, demand history and active
+	// demand overrides are read as of.
+	//
+	// Left unset, the plan is solved against the moment the request arrives. The
+	// horizon starts on the account's configured week-start day on or before this
+	// instant, so backdating this shifts the whole week grid.
 	PlanningAsOf param.Opt[time.Time] `json:"planning_as_of,omitzero" format:"date-time"`
-	// Overrides the configured demand basis for this version only.
+	// How future demand is derived, overriding the account's configured basis for this
+	// version only.
+	//
+	//   - `trailing_12`: demand is the trailing twelve months of orders.
+	//   - `seasonal_ema`: demand is a seasonal exponential moving average, which follows
+	//     a season arriving early or late rather than flattening it.
 	//
 	// Any of "trailing_12", "seasonal_ema".
 	DemandBasis GenerateProductionScheduleRequestDemandBasis `json:"demand_basis,omitzero"`
@@ -246,7 +279,12 @@ func (r *GenerateProductionScheduleRequestParam) UnmarshalJSON(data []byte) erro
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Overrides the configured demand basis for this version only.
+// How future demand is derived, overriding the account's configured basis for this
+// version only.
+//
+//   - `trailing_12`: demand is the trailing twelve months of orders.
+//   - `seasonal_ema`: demand is a seasonal exponential moving average, which follows
+//     a season arriving early or late rather than flattening it.
 type GenerateProductionScheduleRequestDemandBasis string
 
 const (
@@ -254,7 +292,8 @@ const (
 	GenerateProductionScheduleRequestDemandBasisSeasonalEma GenerateProductionScheduleRequestDemandBasis = "seasonal_ema"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListProductionSchedule struct {
 	// Resources in this page.
 	Data []ProductionSchedule `json:"data" api:"required"`
@@ -262,7 +301,13 @@ type ListProductionSchedule struct {
 	//
 	// Any of "list".
 	Object ListProductionScheduleObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -287,7 +332,8 @@ const (
 	ListProductionScheduleObjectList ListProductionScheduleObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListProductionScheduleDerivedLine struct {
 	// Resources in this page.
 	Data []ProductionScheduleDerivedLine `json:"data" api:"required"`
@@ -295,7 +341,13 @@ type ListProductionScheduleDerivedLine struct {
 	//
 	// Any of "list".
 	Object ListProductionScheduleDerivedLineObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -320,7 +372,8 @@ const (
 	ListProductionScheduleDerivedLineObjectList ListProductionScheduleDerivedLineObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListProductionScheduleDeviation struct {
 	// Resources in this page.
 	Data []ProductionScheduleDeviation `json:"data" api:"required"`
@@ -328,7 +381,13 @@ type ListProductionScheduleDeviation struct {
 	//
 	// Any of "list".
 	Object ListProductionScheduleDeviationObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -353,7 +412,8 @@ const (
 	ListProductionScheduleDeviationObjectList ListProductionScheduleDeviationObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListProductionScheduleFinishedPolicy struct {
 	// Resources in this page.
 	Data []ProductionScheduleFinishedPolicy `json:"data" api:"required"`
@@ -361,7 +421,13 @@ type ListProductionScheduleFinishedPolicy struct {
 	//
 	// Any of "list".
 	Object ListProductionScheduleFinishedPolicyObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -386,7 +452,8 @@ const (
 	ListProductionScheduleFinishedPolicyObjectList ListProductionScheduleFinishedPolicyObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListProductionScheduleItemPolicy struct {
 	// Resources in this page.
 	Data []ProductionScheduleItemPolicy `json:"data" api:"required"`
@@ -394,7 +461,13 @@ type ListProductionScheduleItemPolicy struct {
 	//
 	// Any of "list".
 	Object ListProductionScheduleItemPolicyObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -419,7 +492,8 @@ const (
 	ListProductionScheduleItemPolicyObjectList ListProductionScheduleItemPolicyObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListReleaseScheduleBatch struct {
 	// Resources in this page.
 	Data []ReleaseScheduleBatch `json:"data" api:"required"`
@@ -427,7 +501,13 @@ type ListReleaseScheduleBatch struct {
 	//
 	// Any of "list".
 	Object ListReleaseScheduleBatchObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -452,7 +532,8 @@ const (
 	ListReleaseScheduleBatchObjectList ListReleaseScheduleBatchObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListReleasedScheduleLine struct {
 	// Resources in this page.
 	Data []ReleasedScheduleLine `json:"data" api:"required"`
@@ -460,7 +541,13 @@ type ListReleasedScheduleLine struct {
 	//
 	// Any of "list".
 	Object ListReleasedScheduleLineObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -485,7 +572,8 @@ const (
 	ListReleasedScheduleLineObjectList ListReleasedScheduleLineObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListScheduleAppliedOverride struct {
 	// Resources in this page.
 	Data []ScheduleAppliedOverride `json:"data" api:"required"`
@@ -493,7 +581,13 @@ type ListScheduleAppliedOverride struct {
 	//
 	// Any of "list".
 	Object ListScheduleAppliedOverrideObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -520,9 +614,10 @@ const (
 
 // A saved production schedule.
 //
-// Versions are immutable history: generating again creates a new version, and
-// publishing supersedes the previous one rather than editing it, because
-// attainment is measured against whichever version was live at the time.
+// A published version is a record rather than a document that keeps being edited:
+// generating again creates a new version, and publishing supersedes the previous
+// one rather than changing it, because attainment is measured against whichever
+// version was live at the time.
 type ProductionSchedule struct {
 	// Schedule ID.
 	ID string `json:"id" api:"required"`
@@ -530,25 +625,37 @@ type ProductionSchedule struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Which demand basis produced the plan.
 	//
+	//   - `trailing_12`: demand is taken from the trailing twelve months of orders.
+	//   - `seasonal_ema`: demand is a seasonal exponential moving average, which follows
+	//     a season arriving earlier or later than usual.
+	//
 	// Any of "trailing_12", "seasonal_ema".
 	DemandBasis ProductionScheduleDemandBasis `json:"demand_basis" api:"required"`
 	// What the solver could not do, and why the plan differs from raw history.
 	Diagnostics ScheduleDiagnostics `json:"diagnostics" api:"required"`
 	// Why generation failed, when it did.
 	ErrorMessage string `json:"error_message" api:"required"`
-	// Number of lines that were frozen at publish. Captured once and never recomputed,
-	// because frozen-week adherence measures against what was committed to.
+	// Number of lines that were frozen at publish.
+	//
+	// Captured once and never recomputed, because frozen-week adherence measures
+	// against what was committed to.
 	FrozenLineCount int64 `json:"frozen_line_count" api:"required"`
 	// Total quantity frozen at publish.
 	FrozenPlannedQuantity float64 `json:"frozen_planned_quantity" api:"required"`
-	// Last instant covered by the frozen window, set when the version is published.
+	// The last day the frozen window covers, set when the version is published.
 	FrozenThroughAt time.Time `json:"frozen_through_at" api:"required" format:"date-time"`
 	// How many leading weeks freeze on publish.
+	//
+	// Publishing freezes every campaign that starts inside the window; changing one
+	// afterwards requires a reason and is recorded in the deviation log.
 	FrozenWeeks int64 `json:"frozen_weeks" api:"required"`
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
 	GeneratedBy Actor `json:"generated_by" api:"required"`
 	// What triggered the generation.
+	//
+	// - `manual`: someone asked for this version.
+	// - `scheduled`: the account's generation cadence produced it on its own.
 	//
 	// Any of "manual", "scheduled".
 	GenerationSource ProductionScheduleGenerationSource `json:"generation_source" api:"required"`
@@ -558,7 +665,7 @@ type ProductionSchedule struct {
 	HorizonStartsAt time.Time `json:"horizon_starts_at" api:"required" format:"date-time"`
 	// Length of the horizon in weeks.
 	HorizonWeeks int64 `json:"horizon_weeks" api:"required"`
-	// Optional label for the version.
+	// Label for the version, such as the planning cycle it was generated for.
 	Name string `json:"name" api:"required"`
 	// Resource type identifier.
 	//
@@ -578,6 +685,13 @@ type ProductionSchedule struct {
 	SolverVersion string `json:"solver_version" api:"required"`
 	// Where this version is in its lifecycle.
 	//
+	// - `draft`: still editable and commits to nothing.
+	// - `generating`: a scheduled solve is still building this version.
+	// - `published`: live, with its leading weeks frozen as a commitment to the floor.
+	// - `superseded`: a later version was published over an overlapping horizon.
+	// - `archived`: retired without being replaced.
+	// - `failed`: the solver could not produce a plan; `error_message` says why.
+	//
 	// Any of "draft", "generating", "published", "superseded", "archived", "failed".
 	Status ProductionScheduleStatus `json:"status" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
@@ -585,6 +699,9 @@ type ProductionSchedule struct {
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Sequential version number within the account.
+	//
+	// Regenerating a draft re-solves it in place and keeps its number; only generating
+	// a new plan takes the next one.
 	Version int64 `json:"version" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -625,6 +742,10 @@ func (r *ProductionSchedule) UnmarshalJSON(data []byte) error {
 }
 
 // Which demand basis produced the plan.
+//
+//   - `trailing_12`: demand is taken from the trailing twelve months of orders.
+//   - `seasonal_ema`: demand is a seasonal exponential moving average, which follows
+//     a season arriving earlier or later than usual.
 type ProductionScheduleDemandBasis string
 
 const (
@@ -633,6 +754,9 @@ const (
 )
 
 // What triggered the generation.
+//
+// - `manual`: someone asked for this version.
+// - `scheduled`: the account's generation cadence produced it on its own.
 type ProductionScheduleGenerationSource string
 
 const (
@@ -648,6 +772,13 @@ const (
 )
 
 // Where this version is in its lifecycle.
+//
+// - `draft`: still editable and commits to nothing.
+// - `generating`: a scheduled solve is still building this version.
+// - `published`: live, with its leading weeks frozen as a commitment to the floor.
+// - `superseded`: a later version was published over an overlapping horizon.
+// - `archived`: retired without being replaced.
+// - `failed`: the solver could not produce a plan; `error_message` says why.
 type ProductionScheduleStatus string
 
 const (
@@ -696,7 +827,11 @@ type ProductionScheduleDerivedLine struct {
 	Quantity float64 `json:"quantity" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	SourceLine Entity `json:"source_line" api:"required"`
-	// Progress of the derived work.
+	// State of the derived work.
+	//
+	// Derived rows are discarded and rebuilt from the constraint plan every time the
+	// version is solved, and are only ever written as `planned`, so they report what
+	// the plan implies rather than what the floor has done.
 	//
 	// Any of "planned", "released", "in_progress", "complete", "cancelled".
 	Status ProductionScheduleDerivedLineStatus `json:"status" api:"required"`
@@ -742,7 +877,11 @@ const (
 	ProductionScheduleDerivedLineObjectProductionScheduleDerivedLine ProductionScheduleDerivedLineObject = "production_schedule_derived_line"
 )
 
-// Progress of the derived work.
+// State of the derived work.
+//
+// Derived rows are discarded and rebuilt from the constraint plan every time the
+// version is solved, and are only ever written as `planned`, so they report what
+// the plan implies rather than what the floor has done.
 type ProductionScheduleDerivedLineStatus string
 
 const (
@@ -760,7 +899,7 @@ const (
 // the first time. `before` and `after` are full snapshots of the line, so a
 // deviation stays readable after the line it describes is deleted.
 //
-// `is_frozen_week` is recorded when the change is made, from the freeze window as
+// `freeze_status` is recorded when the change is made, from the freeze window as
 // it stood at that moment. It is never re-derived, so a later publish cannot
 // retroactively reclassify a past edit.
 type ProductionScheduleDeviation struct {
@@ -781,6 +920,11 @@ type ProductionScheduleDeviation struct {
 	DeltaRunHours float64 `json:"delta_run_hours" api:"required"`
 	// What kind of change this was.
 	//
+	// Derived from the change itself rather than supplied by the person making it. An
+	// edit that both moves a campaign to another machine and changes its quantity is
+	// recorded as the machine change, because that is what a planner has to react to
+	// first.
+	//
 	// Any of "line_added", "line_removed", "quantity_changed", "machine_changed",
 	// "resequenced", "week_moved".
 	DeviationType ProductionScheduleDeviationDeviationType `json:"deviation_type" api:"required"`
@@ -800,7 +944,21 @@ type ProductionScheduleDeviation struct {
 	Object ProductionScheduleDeviationObject `json:"object" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	ProductionSchedule Entity `json:"production_schedule" api:"required"`
-	// Why the change was made. Required for changes inside a frozen week.
+	// Why the change was made.
+	//
+	// A change inside a frozen week has to supply one; outside it a reason is left to
+	// the planner.
+	//
+	//   - `machine_down`: the machine the campaign was on stopped running.
+	//   - `material_shortage`: the material the campaign needs did not arrive.
+	//   - `rush_order`: demand that could not wait for the next plan.
+	//   - `quality_hold`: the work was stopped over a quality problem.
+	//   - `over_run`: the floor produced more than the plan asked for.
+	//   - `under_run`: the floor produced less than the plan asked for.
+	//   - `capacity_change`: the available machine time changed, such as a shutdown or
+	//     an added shift.
+	//   - `other`: something outside the list, which should be spelled out in
+	//     `reason_note`.
 	//
 	// Any of "machine_down", "material_shortage", "rush_order", "quality_hold",
 	// "over_run", "under_run", "capacity_change", "other".
@@ -840,6 +998,11 @@ func (r *ProductionScheduleDeviation) UnmarshalJSON(data []byte) error {
 }
 
 // What kind of change this was.
+//
+// Derived from the change itself rather than supplied by the person making it. An
+// edit that both moves a campaign to another machine and changes its quantity is
+// recorded as the machine change, because that is what a planner has to react to
+// first.
 type ProductionScheduleDeviationDeviationType string
 
 const (
@@ -866,7 +1029,21 @@ const (
 	ProductionScheduleDeviationObjectProductionScheduleDeviation ProductionScheduleDeviationObject = "production_schedule_deviation"
 )
 
-// Why the change was made. Required for changes inside a frozen week.
+// Why the change was made.
+//
+// A change inside a frozen week has to supply one; outside it a reason is left to
+// the planner.
+//
+//   - `machine_down`: the machine the campaign was on stopped running.
+//   - `material_shortage`: the material the campaign needs did not arrive.
+//   - `rush_order`: demand that could not wait for the next plan.
+//   - `quality_hold`: the work was stopped over a quality problem.
+//   - `over_run`: the floor produced more than the plan asked for.
+//   - `under_run`: the floor produced less than the plan asked for.
+//   - `capacity_change`: the available machine time changed, such as a shutdown or
+//     an added shift.
+//   - `other`: something outside the list, which should be spelled out in
+//     `reason_note`.
 type ProductionScheduleDeviationReason string
 
 const (
@@ -918,8 +1095,10 @@ type ProductionScheduleFinishedPolicy struct {
 	ReorderPoint float64 `json:"reorder_point" api:"required"`
 	// Buffer held as this finished good, covering the finishing lead time.
 	SafetyStock float64 `json:"safety_stock" api:"required"`
-	// This SKU's own weekly demand variability. The constraint buffer pools these as
-	// the root of the sum of squares; these targets use them one at a time.
+	// This SKU's own weekly demand variability.
+	//
+	// The constraint buffer pools these as the root of the sum of squares; these
+	// targets use them one at a time.
 	SigmaWeekly float64 `json:"sigma_weekly" api:"required"`
 	// SKU of the finished good.
 	SKU string `json:"sku" api:"required"`
@@ -975,6 +1154,10 @@ type ProductionScheduleItemPolicy struct {
 	ID string `json:"id" api:"required"`
 	// ABC class by share of constraint run hours.
 	//
+	// - `a`: consumes the largest share of constraint capacity.
+	// - `b`: moderate constraint consumption.
+	// - `c`: consumes little constraint capacity.
+	//
 	// Any of "a", "b", "c".
 	AbcClass ProductionScheduleItemPolicyAbcClass `json:"abc_class" api:"required"`
 	// Demand used for planning, annualized.
@@ -986,14 +1169,21 @@ type ProductionScheduleItemPolicy struct {
 	AverageGreigeInventory float64 `json:"average_greige_inventory" api:"required"`
 	// Observed or default lead time at the constraint.
 	ConstraintLeadTimeWeeks float64 `json:"constraint_lead_time_weeks" api:"required"`
-	// Limits the solver hit while sizing this item's campaigns. Empty when the policy
+	// Limits the solver hit while sizing this item's campaigns, empty when the policy
 	// was applied as calculated.
+	//
+	//   - `eoq_capped`: the economic lot size did not fit one machine-week and was cut
+	//     back to what does, so campaigns run shorter and more often than the cost
+	//     calculation alone would ask for.
+	//   - `capacity_starved`: the item was already below its trigger point and never won
+	//     a slot in the horizon, so the plan does not replenish it.
 	//
 	// Any of "eoq_capped", "capacity_starved".
 	Constraints []string `json:"constraints" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Economic order quantity.
+	// Economic order quantity: the campaign size that balances the cost of a
+	// changeover against the cost of holding what it produces.
 	EoqUnits float64 `json:"eoq_units" api:"required"`
 	// Lead time from the constraint to sellable stock.
 	FinishLeadTimeWeeks float64 `json:"finish_lead_time_weeks" api:"required"`
@@ -1007,12 +1197,15 @@ type ProductionScheduleItemPolicy struct {
 	//
 	// Any of "production_schedule_item_policy".
 	Object ProductionScheduleItemPolicyObject `json:"object" api:"required"`
-	// Stock at the constraint plus everything downstream of it. This is what the build
-	// decision is made against — stock already finished still counts against building
-	// more.
+	// Stock at the constraint plus everything downstream of it.
+	//
+	// This is what the build decision is made against — stock already finished still
+	// counts against building more.
 	OnHandEchelon float64 `json:"on_hand_echelon" api:"required"`
-	// Stock sitting at the constraint stage on its own, which the echelon figure
-	// cannot be decomposed back into once summed.
+	// Stock sitting at the constraint stage on its own.
+	//
+	// Kept alongside the echelon total because that total cannot be decomposed back
+	// into its stages once summed.
 	OnHandGreige float64 `json:"on_hand_greige" api:"required"`
 	// Ceiling on how far ahead this item is built.
 	OrderUpTo float64 `json:"order_up_to" api:"required"`
@@ -1023,9 +1216,10 @@ type ProductionScheduleItemPolicy struct {
 	// Entity is a polymorphic reference to any resource in the system.
 	ProductionStep Entity `json:"production_step" api:"required"`
 	// The echelon position at the end of each horizon week, after that week's
-	// campaigns land and its demand is drawn down. A run of weeks with no campaign is
-	// stock draining toward `reorder_point`; this is what makes that visible rather
-	// than looking like the solver did nothing.
+	// campaigns land and its demand is drawn down.
+	//
+	// A run of weeks with no campaign is stock draining toward `reorder_point`; this
+	// is what makes that visible rather than looking like the solver did nothing.
 	ProjectedOnHand []float64 `json:"projected_on_hand" api:"required"`
 	// Stock position at which a campaign is triggered.
 	ReorderPoint float64 `json:"reorder_point" api:"required"`
@@ -1108,6 +1302,10 @@ func (r *ProductionScheduleItemPolicy) UnmarshalJSON(data []byte) error {
 }
 
 // ABC class by share of constraint run hours.
+//
+// - `a`: consumes the largest share of constraint capacity.
+// - `b`: moderate constraint consumption.
+// - `c`: consumes little constraint capacity.
 type ProductionScheduleItemPolicyAbcClass string
 
 const (
@@ -1130,8 +1328,10 @@ type ReleaseScheduleBatch struct {
 	Batch Entity `json:"batch" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Item Entity `json:"item" api:"required"`
-	// Units in this lot. The last lot of a campaign is short when the planned quantity
-	// is not a whole number of lots.
+	// Units in this lot.
+	//
+	// The last lot of a campaign is short when the planned quantity is not a whole
+	// number of lots.
 	Quantity float64 `json:"quantity" api:"required"`
 	// The item's SKU, as it stood when the plan was generated.
 	SKU string `json:"sku" api:"required"`
@@ -1160,7 +1360,10 @@ func (r *ReleaseScheduleBatch) UnmarshalJSON(data []byte) error {
 type ReleaseScheduleWeekPreview struct {
 	// How many batches would be created.
 	BatchCount int64 `json:"batch_count" api:"required"`
-	// Why the week cannot be released.
+	// Why the week cannot be released, phrased for display.
+	//
+	// A week is blocked when it has already been released to the floor, or when it
+	// holds nothing to release.
 	BlockedReason string `json:"blocked_reason" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	ExistingProductionRun Entity `json:"existing_production_run" api:"required"`
@@ -1168,7 +1371,8 @@ type ReleaseScheduleWeekPreview struct {
 	IsReleasable bool `json:"is_releasable" api:"required"`
 	// How many campaigns would be released.
 	LineCount int64 `json:"line_count" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Lines ListReleasedScheduleLine `json:"lines" api:"required"`
 	// Resource type identifier.
 	//
@@ -1214,7 +1418,8 @@ const (
 type ReleasedScheduleLine struct {
 	// How many batches the campaign broke into.
 	BatchCount int64 `json:"batch_count" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Batches ListReleaseScheduleBatch `json:"batches" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Item Entity `json:"item" api:"required"`
@@ -1259,6 +1464,10 @@ func (r *ReleasedScheduleLine) UnmarshalJSON(data []byte) error {
 type ScheduleAppliedOverride struct {
 	// How the override was expressed.
 	//
+	// - `absolute`: the override replaced the forecast for the month outright.
+	// - `delta_units`: the override was added to the forecast.
+	// - `delta_percent`: the override scaled the forecast.
+	//
 	// Any of "absolute", "delta_units", "delta_percent".
 	Adjustment ScheduleAppliedOverrideAdjustment `json:"adjustment" api:"required"`
 	// Demand after the override.
@@ -1297,6 +1506,10 @@ func (r *ScheduleAppliedOverride) UnmarshalJSON(data []byte) error {
 }
 
 // How the override was expressed.
+//
+// - `absolute`: the override replaced the forecast for the month outright.
+// - `delta_units`: the override was added to the forecast.
+// - `delta_percent`: the override scaled the forecast.
 type ScheduleAppliedOverrideAdjustment string
 
 const (
@@ -1321,14 +1534,21 @@ const (
 
 // What the solver could not do, and why the plan differs from raw history.
 type ScheduleDiagnostics struct {
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	AppliedOverrides ListScheduleAppliedOverride `json:"applied_overrides" api:"required"`
 	// Average inputs a product transition introduces, measured from history.
 	AverageInputsAdded float64 `json:"average_inputs_added" api:"required"`
-	// Items below their reorder point that never won a slot in the horizon. This is
-	// the signal that the plant is short of capacity.
+	// Items below their reorder point that never won a slot in the horizon.
+	//
+	// This is the signal that the plant is short of capacity.
 	CapacityStarvedSKUs []string `json:"capacity_starved_skus" api:"required"`
-	// Calibrated changeover minutes per additional input.
+	// Minutes of changeover the model adds for each new input a product transition
+	// introduces.
+	//
+	// Calibrated from measured production against `average_inputs_added`, so the
+	// modelled changeover lands on the time the floor actually reports rather than on
+	// a fixed allowance.
 	ChangeoverSlopeMinutes float64 `json:"changeover_slope_minutes" api:"required"`
 	// Machines the constraint department contributed to this solve.
 	ConstraintMachineCount int64 `json:"constraint_machine_count" api:"required"`
@@ -1340,12 +1560,14 @@ type ScheduleDiagnostics struct {
 	// Items with no measured run rate, which cannot be scheduled because their machine
 	// time is unknown.
 	ItemsWithoutRunRate []string `json:"items_without_run_rate" api:"required"`
-	// Machines in the constraint department with no production step. Their campaigns
-	// derive no downstream department work.
+	// Machines in the constraint department with no production step.
+	//
+	// Their campaigns derive no downstream department work.
 	MachinesWithoutStep int64 `json:"machines_without_step" api:"required"`
-	// Batches found on those machines in the demand window. Zero means nothing has
-	// been scanned there, which is why a plan can be empty even with machines
-	// configured.
+	// Batches found on those machines in the demand window.
+	//
+	// Zero means nothing has been scanned there, which is why a plan can be empty even
+	// with machines configured.
 	MeasuredBatchCount int64 `json:"measured_batch_count" api:"required"`
 	// Items that cannot fit even a single lot into a machine-week and are therefore
 	// never scheduled.
@@ -1416,6 +1638,14 @@ type OperationProductionScheduleListParams struct {
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Only return versions in these lifecycle states.
 	//
+	//   - `draft`: still editable and committed to nothing.
+	//   - `generating`: the solver is still building the version.
+	//   - `published`: live, with its first weeks frozen as a commitment to the floor.
+	//   - `superseded`: a later version was published over the same horizon and replaced
+	//     this one.
+	//   - `archived`: retired without being replaced.
+	//   - `failed`: the solver could not produce a plan.
+	//
 	// Any of "draft", "generating", "published", "superseded", "archived", "failed".
 	Statuses []string `query:"statuses,omitzero" json:"-"`
 	paramObj
@@ -1454,7 +1684,10 @@ type OperationProductionScheduleGetDeviationsParams struct {
 	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Only return changes that fell inside the frozen window.
+	// Whether the change fell inside the frozen window.
+	//
+	// Judged against the freeze as it stood when the change was made, not as it stands
+	// now, so a later publish cannot reclassify history.
 	Frozen param.Opt[bool] `query:"frozen,omitzero" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`

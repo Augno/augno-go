@@ -40,6 +40,10 @@ func NewMessagingNotificationActionService(opts ...option.RequestOption) (r Mess
 
 // Dismisses a notification, removing it from the active feed.
 //
+// The notification is not deleted: it can still be retrieved by ID and listed with
+// the `dismissed` status filter. Dismissing an already-dismissed notification
+// keeps the original dismissal time.
+//
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingNotificationActionService) Dismiss(ctx context.Context, id string, body MessagingNotificationActionDismissParams, opts ...option.RequestOption) (res *Notification, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -52,7 +56,11 @@ func (r *MessagingNotificationActionService) Dismiss(ctx context.Context, id str
 	return res, err
 }
 
-// Marks every one of the caller's unseen notifications as seen.
+// Marks every one of the caller's unseen notifications as seen in a single call.
+//
+// The notifications stay in the feed and are not marked read. Account
+// announcements are unaffected and are cleared individually, so the unread total
+// can remain above zero afterwards.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingNotificationActionService) MarkAllSeen(ctx context.Context, opts ...option.RequestOption) (res *MessagingNotificationActionMarkAllSeenResponse, err error) {
@@ -62,9 +70,10 @@ func (r *MessagingNotificationActionService) MarkAllSeen(ctx context.Context, op
 	return res, err
 }
 
-// Marks a notification as read.
+// Marks a notification as read, as when the user opens it.
 //
-// Reading also marks the notification seen if it was not already.
+// Reading also marks the notification seen if it was not already, and leaves it in
+// the feed until it is dismissed. Repeating the call keeps the original read time.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingNotificationActionService) Read(ctx context.Context, id string, body MessagingNotificationActionReadParams, opts ...option.RequestOption) (res *Notification, err error) {
@@ -78,7 +87,11 @@ func (r *MessagingNotificationActionService) Read(ctx context.Context, id string
 	return res, err
 }
 
-// Marks a notification as seen.
+// Marks a notification as seen, as when it is surfaced to the user without being
+// opened.
+//
+// Seeing a notification removes it from the unread count but leaves it in the
+// feed. Repeating the call keeps the original seen time.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingNotificationActionService) Seen(ctx context.Context, id string, body MessagingNotificationActionSeenParams, opts ...option.RequestOption) (res *Notification, err error) {

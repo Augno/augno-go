@@ -27,13 +27,13 @@ func TestSaleSalesOrderLineNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.SalesOrders.Lines.New(
 		context.TODO(),
-		"or_01d5034136c3ccc048abecc312",
+		"or_9lqo07quiwyb",
 		augno.SaleSalesOrderLineNewParams{
 			CreateSalesOrderLineRequest: augno.CreateSalesOrderLineRequestParam{
-				ProductID:  "pd_013c29ab3f1518d0004094c316",
+				ProductID:  "pd_07oe0r7adh2w",
 				ProductSKU: "WIDGET-001",
 				Quantity: augno.QuantityInputParam{
-					UnitID: "un_01966263f74a5a0cae356000a1",
+					UnitID: "un_82bd37dae5po",
 					Value:  "10",
 				},
 				ProductDescription: augno.String("product_description"),
@@ -71,13 +71,13 @@ func TestSaleSalesOrderLineUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"example",
 		augno.SaleSalesOrderLineUpdateParams{
-			ID:      "or_01d5034136c3ccc048abecc312",
+			ID:      "or_9lqo07quiwyb",
 			Include: []string{"product"},
 			UpdateSalesOrderLineRequest: augno.UpdateSalesOrderLineRequestParam{
 				ProductDescription: augno.String("product_description"),
 				ProductSKU:         augno.String("product_sku"),
 				Quantity: augno.QuantityInputParam{
-					UnitID: "un_01966263f74a5a0cae356000a1",
+					UnitID: "un_82bd37dae5po",
 					Value:  "20",
 				},
 				UnitCost: augno.RateInputParam{
@@ -86,8 +86,8 @@ func TestSaleSalesOrderLineUpdateWithOptionalParams(t *testing.T) {
 					Value:             "value",
 				},
 				UnitPrice: augno.RateInputParam{
-					DenominatorUnitID: "un_01966263f74a5a0cae356000a1",
-					NumeratorUnitID:   "un_01966263f74a5a0cae356000a1",
+					DenominatorUnitID: "un_82bd37dae5po",
+					NumeratorUnitID:   "un_82bd37dae5po",
 					Value:             "30.00",
 				},
 			},
@@ -118,7 +118,7 @@ func TestSaleSalesOrderLineDelete(t *testing.T) {
 		context.TODO(),
 		"example",
 		augno.SaleSalesOrderLineDeleteParams{
-			ID: "or_01d5034136c3ccc048abecc312",
+			ID: "or_9lqo07quiwyb",
 		},
 	)
 	if err != nil {

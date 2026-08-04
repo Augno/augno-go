@@ -30,7 +30,7 @@ func TestCatalogProductLineNewWithOptionalParams(t *testing.T) {
 			CommissionPolicy: augno.CreateProductLineRequestCommissionPolicyCommissionExempt,
 			FreightPolicy:    augno.CreateProductLineRequestFreightPolicyBilledFreight,
 			Name:             "Industrial Fasteners",
-			UnitGroupID:      "ug_01aad07abb8e41fd392d2d7013",
+			UnitGroupID:      "ug_andst6m79n41",
 			DefaultLot: augno.QuantityInputParam{
 				UnitID: "unit_id",
 				Value:  "value",
@@ -61,7 +61,7 @@ func TestCatalogProductLineGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.ProductLines.Get(
 		context.TODO(),
-		"pdln_01996357326a0d3f7b129542ea",
+		"pdln_k9bnlgvxhxjh",
 		augno.CatalogProductLineGetParams{
 			Include: []string{"owner"},
 		},
@@ -89,7 +89,7 @@ func TestCatalogProductLineUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.ProductLines.Update(
 		context.TODO(),
-		"pdln_01996357326a0d3f7b129542ea",
+		"pdln_k9bnlgvxhxjh",
 		augno.CatalogProductLineUpdateParams{
 			Include: []string{"owner"},
 			UpdateProductLineRequest: augno.UpdateProductLineRequestParam{
@@ -100,7 +100,7 @@ func TestCatalogProductLineUpdateWithOptionalParams(t *testing.T) {
 				},
 				FreightPolicy: augno.UpdateProductLineRequestFreightPolicyBilledFreight,
 				Name:          augno.String("Updated Product Line"),
-				UnitGroupID:   augno.String("ug_01aad07abb8e41fd392d2d7013"),
+				UnitGroupID:   augno.String("ug_andst6m79n41"),
 			},
 		},
 	)
@@ -152,7 +152,7 @@ func TestCatalogProductLineDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.ProductLines.Delete(context.TODO(), "pdln_01996357326a0d3f7b129542ea")
+	_, err := client.Catalog.ProductLines.Delete(context.TODO(), "pdln_k9bnlgvxhxjh")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

@@ -28,7 +28,7 @@ func TestCoreRequestLogGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Core.RequestLogs.Get(
 		context.TODO(),
-		"rq_01304bffe90e8cce9690cbefd4",
+		"rq_0lhl3kkhme40",
 		augno.CoreRequestLogGetParams{
 			Include: []string{"account"},
 		},

@@ -78,7 +78,11 @@ func (r *OperationLocationService) Update(ctx context.Context, id string, params
 	return res, err
 }
 
-// Returns a paginated list of locations in your account.
+// Returns a paginated list of locations in your account, newest first.
+//
+// Every location is returned regardless of its depth in the hierarchy, so
+// top-level locations and their descendants appear side by side. The `q` search
+// term matches on location name.
 //
 // This endpoint requires the permission: `locations:read`.
 func (r *OperationLocationService) List(ctx context.Context, query OperationLocationListParams, opts ...option.RequestOption) (res *ListLocation, err error) {
@@ -113,24 +117,23 @@ type CreateLocationRequestParam struct {
 	//
 	// Maximum 255 characters.
 	Name string `json:"name" api:"required"`
-	// Location type code, identifying this location's level in the storage hierarchy.
+	// This location's level in the storage hierarchy.
 	//
-	// - `building`: a building-level location.
-	// - `section`: a section within a building.
-	// - `aisle`: an aisle within a section.
-	// - `rack`: a rack within an aisle.
-	// - `shelf`: a shelf within a rack.
-	// - `bin`: a bin within a shelf.
+	// The levels run from largest to smallest: `building`, `section`, `aisle`, `rack`,
+	// `shelf`, `bin`. They are descriptive labels rather than a rule — the parent you
+	// choose is not required to be the next level up.
 	//
 	// Any of "building", "section", "aisle", "rack", "shelf", "bin".
 	Type LocationTypeCode `json:"type,omitzero" api:"required"`
-	// ID of the parent location.
+	// The location this one sits under in the storage hierarchy.
 	//
-	// Omit for top-level locations.
+	// Must be an existing location in your account. Omit to create a top-level
+	// location.
 	ParentID param.Opt[string] `json:"parent_id,omitzero"`
-	// IDs of existing locations to attach as children of the new location.
+	// Existing locations to attach beneath the new location.
 	//
-	// Listed locations are moved from their current parent, if any.
+	// Each listed location is reparented onto the new location, detaching it from its
+	// current parent. Every ID must belong to your account.
 	ChildIDs []string `json:"child_ids,omitzero"`
 	paramObj
 }
@@ -145,28 +148,28 @@ func (r *CreateLocationRequestParam) UnmarshalJSON(data []byte) error {
 
 // Request to partially update a location.
 type UpdateLocationRequestParam struct {
-	// ID of the parent location.
+	// The location this one sits under in the storage hierarchy.
 	//
-	// Send `null` to clear the parent and make this a top-level location.
+	// Must be an existing location in your account, and cannot be the location being
+	// updated. Send `null` to detach it from its parent and make it a top-level
+	// location.
 	ParentID param.Opt[string] `json:"parent_id,omitzero"`
 	// Display name of the location.
 	//
 	// Maximum 255 characters.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// IDs of locations to set as this location's children.
+	// The locations that sit directly beneath this one.
 	//
-	// When provided, replaces the full set of children: current children not listed
-	// are detached, and listed locations are moved from their current parent. Send
-	// `null` to detach all children.
+	// This replaces the full set of children: current children that are not listed are
+	// detached and become top-level locations, and listed locations are reparented
+	// onto this location. Send `null` to detach every child. Omit the field to leave
+	// the existing children untouched.
 	ChildIDs []string `json:"child_ids,omitzero"`
-	// Location type code, identifying this location's level in the storage hierarchy.
+	// This location's level in the storage hierarchy.
 	//
-	// - `building`: a building-level location.
-	// - `section`: a section within a building.
-	// - `aisle`: an aisle within a section.
-	// - `rack`: a rack within an aisle.
-	// - `shelf`: a shelf within a rack.
-	// - `bin`: a bin within a shelf.
+	// The levels run from largest to smallest: `building`, `section`, `aisle`, `rack`,
+	// `shelf`, `bin`. They are descriptive labels rather than a rule — the parent is
+	// not required to be the next level up.
 	//
 	// Any of "building", "section", "aisle", "rack", "shelf", "bin".
 	Type LocationTypeCode `json:"type,omitzero"`

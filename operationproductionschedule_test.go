@@ -55,7 +55,7 @@ func TestOperationProductionScheduleGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ProductionSchedules.Get(context.TODO(), "pnsc_0192a4c17b3e4f8a91c2d0")
+	_, err := client.Operations.ProductionSchedules.Get(context.TODO(), "pnsc_m4zt3z8g8src")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -104,7 +104,7 @@ func TestOperationProductionScheduleDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ProductionSchedules.Delete(context.TODO(), "pnsc_0192a4c17b3e4f8a91c2d0")
+	_, err := client.Operations.ProductionSchedules.Delete(context.TODO(), "pnsc_m4zt3z8g8src")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -150,7 +150,7 @@ func TestOperationProductionScheduleGetDerivedLinesWithOptionalParams(t *testing
 	)
 	_, err := client.Operations.ProductionSchedules.GetDerivedLines(
 		context.TODO(),
-		"pnsc_0192a4c17b3e4f8a91c2d0",
+		"pnsc_m4zt3z8g8src",
 		augno.OperationProductionScheduleGetDerivedLinesParams{
 			DepartmentIDs: []string{"string"},
 			WeekIndex:     augno.Int(0),
@@ -179,7 +179,7 @@ func TestOperationProductionScheduleGetDeviationsWithOptionalParams(t *testing.T
 	)
 	_, err := client.Operations.ProductionSchedules.GetDeviations(
 		context.TODO(),
-		"pnsc_0192a4c17b3e4f8a91c2d0",
+		"pnsc_m4zt3z8g8src",
 		augno.OperationProductionScheduleGetDeviationsParams{
 			Cursor: augno.String("cursor"),
 			Frozen: augno.Bool(true),
@@ -208,7 +208,7 @@ func TestOperationProductionScheduleGetFinishedPolicies(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ProductionSchedules.GetFinishedPolicies(context.TODO(), "pnsc_0192a4c17b3e4f8a91c2d0")
+	_, err := client.Operations.ProductionSchedules.GetFinishedPolicies(context.TODO(), "pnsc_m4zt3z8g8src")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -230,7 +230,7 @@ func TestOperationProductionScheduleGetItemPolicies(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ProductionSchedules.GetItemPolicies(context.TODO(), "pnsc_0192a4c17b3e4f8a91c2d0")
+	_, err := client.Operations.ProductionSchedules.GetItemPolicies(context.TODO(), "pnsc_m4zt3z8g8src")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -254,7 +254,7 @@ func TestOperationProductionScheduleGetWeekReleasePreviewWithOptionalParams(t *t
 	)
 	_, err := client.Operations.ProductionSchedules.GetWeekReleasePreview(
 		context.TODO(),
-		"pnsc_0192a4c17b3e4f8a91c2d0",
+		"pnsc_m4zt3z8g8src",
 		augno.OperationProductionScheduleGetWeekReleasePreviewParams{
 			WeekIndex: augno.Int(0),
 		},

@@ -27,10 +27,10 @@ func TestSaleSalesOrderLineActionReorder(t *testing.T) {
 	)
 	_, err := client.Sales.SalesOrders.Lines.Actions.Reorder(
 		context.TODO(),
-		"or_01d5034136c3ccc048abecc312",
+		"or_9lqo07quiwyb",
 		augno.SaleSalesOrderLineActionReorderParams{
 			ReorderSalesOrderLinesRequest: augno.ReorderSalesOrderLinesRequestParam{
-				LineIDs: []string{"orln_0142f9b74268973450b3a76ce3", "orln_0142f9b74268973450b3a76ce4"},
+				LineIDs: []string{"orln_la01fxgrwcnr", "orln_vwp43e1rq2zb"},
 			},
 		},
 	)

@@ -55,7 +55,11 @@ func NewMessagingConversationService(opts ...option.RequestOption) (r MessagingC
 	return
 }
 
-// Starts a conversation between participants.
+// Starts a direct message or group conversation.
+//
+// Requesting a direct message that already exists returns the existing thread
+// instead of creating a duplicate, and a direct message is refused when either
+// user has blocked the other. Conversation creation is rate limited per user.
 //
 // This endpoint requires the permission: `messaging:create`.
 func (r *MessagingConversationService) New(ctx context.Context, params MessagingConversationNewParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -65,7 +69,11 @@ func (r *MessagingConversationService) New(ctx context.Context, params Messaging
 	return res, err
 }
 
-// Returns one conversation (with participants) the caller belongs to.
+// Returns a single conversation the caller participates in.
+//
+// Someone who has left the conversation can still read it back; it comes back
+// marked hidden for them. A team member who opens a customer-facing case they are
+// not yet part of is seated in it as a participant.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingConversationService) Get(ctx context.Context, id string, query MessagingConversationGetParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -79,7 +87,10 @@ func (r *MessagingConversationService) Get(ctx context.Context, id string, query
 	return res, err
 }
 
-// Renames a conversation.
+// Renames a group conversation.
+//
+// Only an owner or admin of the conversation can rename it, and direct messages
+// cannot be renamed.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationService) Update(ctx context.Context, id string, params MessagingConversationUpdateParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -93,7 +104,10 @@ func (r *MessagingConversationService) Update(ctx context.Context, id string, pa
 	return res, err
 }
 
-// Returns the caller's conversations, most-recently-active first.
+// Returns the caller's conversations, most recently active first.
+//
+// A customer portal user sees only their own support case with the vendor, and an
+// empty list until they have contacted support.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingConversationService) List(ctx context.Context, query MessagingConversationListParams, opts ...option.RequestOption) (res *ListConversation, err error) {
@@ -102,749 +116,6 @@ func (r *MessagingConversationService) List(ctx context.Context, query Messaging
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
-
-// A single tool invocation performed by an agent during a run.
-//
-// Each action records the tool that was called, its input and output, and any
-// human review decision.
-type AgentAction struct {
-	// Agent action ID.
-	ID string `json:"id" api:"required"`
-	// When this action was created.
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Longer description of what the action does.
-	Description string `json:"description" api:"required"`
-	// Entity is a polymorphic reference to any resource in the system.
-	Entity Entity `json:"entity" api:"required"`
-	// Error message if the action failed.
-	ErrorMessage string `json:"error_message" api:"required"`
-	// When the action was executed.
-	ExecutedAt time.Time `json:"executed_at" api:"required" format:"date-time"`
-	// Arguments passed to the tool, as JSON.
-	//
-	// Shape depends on `tool`. Encoded as a JSON value (object, array, string, number,
-	// boolean, or null), not a JSON-encoded string.
-	Input any `json:"input" api:"required"`
-	// Short human-readable label summarizing the action.
-	Label string `json:"label" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "agent_action".
-	Object AgentActionObject `json:"object" api:"required"`
-	// Result returned by the tool, as JSON.
-	//
-	// Recorded when the tool runs, so it is present even while the action is still
-	// `pending_review` or `auto_approved`; the shape depends on `tool`, and it is `{}`
-	// when the tool returned no output. Encoded as a JSON value (object, array,
-	// string, number, boolean, or null), not a JSON-encoded string.
-	Output any `json:"output" api:"required"`
-	// Whether this action must be reviewed by a human before it can execute.
-	//
-	// Any of "not_required", "required".
-	ReviewRequirement AgentActionReviewRequirement `json:"review_requirement" api:"required"`
-	// When a human review decision was recorded for the action.
-	ReviewedAt time.Time `json:"reviewed_at" api:"required" format:"date-time"`
-	// Reference to an actor — the user, API key, agent, or group identity associated
-	// with an action.
-	ReviewedBy Actor `json:"reviewed_by" api:"required"`
-	// A single execution of an agent, from trigger through completion.
-	Run *AgentRun `json:"run" api:"required"`
-	// Current action status.
-	//
-	// - `pending_review`: awaiting human review before it can execute.
-	// - `auto_approved`: automatically approved by policy.
-	// - `approved`: manually approved by a user.
-	// - `rejected`: rejected by a user; will not execute.
-	// - `executed`: successfully executed.
-	// - `failed`: errored during execution; see `error_message`.
-	//
-	// Any of "pending_review", "auto_approved", "approved", "rejected", "executed",
-	// "failed".
-	Status AgentActionStatus `json:"status" api:"required"`
-	// The tool the agent invoked for this action.
-	//
-	//   - `create_artifact`: create an artifact such as a report, document, or data
-	//     export.
-	//   - `read_doc`: read Augno documentation pages.
-	//   - `fetch_url`: fetch content from a public URL.
-	//   - `draft_reply`: propose a reply to the case's external party as a draft held
-	//     for human approval (not sent).
-	//   - `send_email`: send an email reply through the conversation's bound inbox.
-	//
-	// Any of "create_artifact", "read_doc", "fetch_url", "send_email", "draft_reply".
-	Tool AgentActionTool `json:"tool" api:"required"`
-	// When this action was last updated.
-	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                respjson.Field
-		CreatedAt         respjson.Field
-		Description       respjson.Field
-		Entity            respjson.Field
-		ErrorMessage      respjson.Field
-		ExecutedAt        respjson.Field
-		Input             respjson.Field
-		Label             respjson.Field
-		Object            respjson.Field
-		Output            respjson.Field
-		ReviewRequirement respjson.Field
-		ReviewedAt        respjson.Field
-		ReviewedBy        respjson.Field
-		Run               respjson.Field
-		Status            respjson.Field
-		Tool              respjson.Field
-		UpdatedAt         respjson.Field
-		ExtraFields       map[string]respjson.Field
-		raw               string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AgentAction) RawJSON() string { return r.JSON.raw }
-func (r *AgentAction) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type AgentActionObject string
-
-const (
-	AgentActionObjectAgentAction AgentActionObject = "agent_action"
-)
-
-// Whether this action must be reviewed by a human before it can execute.
-type AgentActionReviewRequirement string
-
-const (
-	AgentActionReviewRequirementNotRequired AgentActionReviewRequirement = "not_required"
-	AgentActionReviewRequirementRequired    AgentActionReviewRequirement = "required"
-)
-
-// Current action status.
-//
-// - `pending_review`: awaiting human review before it can execute.
-// - `auto_approved`: automatically approved by policy.
-// - `approved`: manually approved by a user.
-// - `rejected`: rejected by a user; will not execute.
-// - `executed`: successfully executed.
-// - `failed`: errored during execution; see `error_message`.
-type AgentActionStatus string
-
-const (
-	AgentActionStatusPendingReview AgentActionStatus = "pending_review"
-	AgentActionStatusAutoApproved  AgentActionStatus = "auto_approved"
-	AgentActionStatusApproved      AgentActionStatus = "approved"
-	AgentActionStatusRejected      AgentActionStatus = "rejected"
-	AgentActionStatusExecuted      AgentActionStatus = "executed"
-	AgentActionStatusFailed        AgentActionStatus = "failed"
-)
-
-// The tool the agent invoked for this action.
-//
-//   - `create_artifact`: create an artifact such as a report, document, or data
-//     export.
-//   - `read_doc`: read Augno documentation pages.
-//   - `fetch_url`: fetch content from a public URL.
-//   - `draft_reply`: propose a reply to the case's external party as a draft held
-//     for human approval (not sent).
-//   - `send_email`: send an email reply through the conversation's bound inbox.
-type AgentActionTool string
-
-const (
-	AgentActionToolCreateArtifact AgentActionTool = "create_artifact"
-	AgentActionToolReadDoc        AgentActionTool = "read_doc"
-	AgentActionToolFetchURL       AgentActionTool = "fetch_url"
-	AgentActionToolSendEmail      AgentActionTool = "send_email"
-	AgentActionToolDraftReply     AgentActionTool = "draft_reply"
-)
-
-// An AI agent available to the account.
-//
-// The definition describes what the agent does, how its runs are triggered, the
-// tools it can use, and whether it is currently enabled for the account.
-type AgentDefinition struct {
-	// Agent definition ID.
-	ID string `json:"id" api:"required"`
-	// Category grouping for the agent (e.g. `order_processing`), used to organize
-	// agents in the UI.
-	CategoryCode string `json:"category_code" api:"required"`
-	// Agent-level configuration controlling LLM behavior and trigger settings.
-	//
-	// Distinct from per-tool configuration (`tools[].config`), which configures
-	// individual tools attached to the agent.
-	Config AgentDefinitionConfig `json:"config" api:"required"`
-	// Creation timestamp.
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Whether the agent is provided by Augno or created in this account.
-	//
-	// - `system`: provided by Augno; cannot be edited or deleted.
-	// - `custom`: created by a user in this account.
-	//
-	// Any of "system", "custom".
-	DefinitionType AgentDefinitionDefinitionType `json:"definition_type" api:"required"`
-	// Description of what the agent does.
-	Description string `json:"description" api:"required"`
-	// Whether the current user can edit this agent definition.
-	//
-	// Always `read_only` for `system` definitions.
-	//
-	// Any of "editable", "read_only".
-	Editability AgentDefinitionEditability `json:"editability" api:"required"`
-	// Human-readable name of the agent.
-	Name string `json:"name" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "agent_definition".
-	Object AgentDefinitionObject `json:"object" api:"required"`
-	// A named set of permissions that can be assigned to users to control what they
-	// can access.
-	Role Role `json:"role" api:"required"`
-	// URL-friendly identifier for the agent.
-	Slug string `json:"slug" api:"required"`
-	// Whether this agent is enabled for the current account.
-	//
-	// Activation is per-account: a `system` agent shared across accounts can be
-	// `active` for one account and `inactive` for another. An `inactive` agent does
-	// not run.
-	//
-	// Any of "active", "inactive".
-	Status AgentDefinitionStatus `json:"status" api:"required"`
-	// List represents a paginated list of resources.
-	Tools ListAgentDefinitionTool `json:"tools" api:"required"`
-	// How runs of this agent are initiated.
-	//
-	//   - `scheduled`: runs on a cron schedule (see
-	//     `config.trigger_config.cron_schedule`).
-	//   - `event`: runs in response to platform events (see
-	//     `config.trigger_config.event_filters`).
-	//   - `manual`: runs only when explicitly invoked.
-	//   - `chat`: runs in response to a chat message; the run is linked to a
-	//     conversation and posts its reply back into it.
-	//
-	// Any of "scheduled", "manual", "event", "chat".
-	TriggerType AgentDefinitionTriggerType `json:"trigger_type" api:"required"`
-	// Last updated timestamp.
-	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID             respjson.Field
-		CategoryCode   respjson.Field
-		Config         respjson.Field
-		CreatedAt      respjson.Field
-		DefinitionType respjson.Field
-		Description    respjson.Field
-		Editability    respjson.Field
-		Name           respjson.Field
-		Object         respjson.Field
-		Role           respjson.Field
-		Slug           respjson.Field
-		Status         respjson.Field
-		Tools          respjson.Field
-		TriggerType    respjson.Field
-		UpdatedAt      respjson.Field
-		ExtraFields    map[string]respjson.Field
-		raw            string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AgentDefinition) RawJSON() string { return r.JSON.raw }
-func (r *AgentDefinition) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Whether the agent is provided by Augno or created in this account.
-//
-// - `system`: provided by Augno; cannot be edited or deleted.
-// - `custom`: created by a user in this account.
-type AgentDefinitionDefinitionType string
-
-const (
-	AgentDefinitionDefinitionTypeSystem AgentDefinitionDefinitionType = "system"
-	AgentDefinitionDefinitionTypeCustom AgentDefinitionDefinitionType = "custom"
-)
-
-// Whether the current user can edit this agent definition.
-//
-// Always `read_only` for `system` definitions.
-type AgentDefinitionEditability string
-
-const (
-	AgentDefinitionEditabilityEditable AgentDefinitionEditability = "editable"
-	AgentDefinitionEditabilityReadOnly AgentDefinitionEditability = "read_only"
-)
-
-// Resource type identifier.
-type AgentDefinitionObject string
-
-const (
-	AgentDefinitionObjectAgentDefinition AgentDefinitionObject = "agent_definition"
-)
-
-// Whether this agent is enabled for the current account.
-//
-// Activation is per-account: a `system` agent shared across accounts can be
-// `active` for one account and `inactive` for another. An `inactive` agent does
-// not run.
-type AgentDefinitionStatus string
-
-const (
-	AgentDefinitionStatusActive   AgentDefinitionStatus = "active"
-	AgentDefinitionStatusInactive AgentDefinitionStatus = "inactive"
-)
-
-// How runs of this agent are initiated.
-//
-//   - `scheduled`: runs on a cron schedule (see
-//     `config.trigger_config.cron_schedule`).
-//   - `event`: runs in response to platform events (see
-//     `config.trigger_config.event_filters`).
-//   - `manual`: runs only when explicitly invoked.
-//   - `chat`: runs in response to a chat message; the run is linked to a
-//     conversation and posts its reply back into it.
-type AgentDefinitionTriggerType string
-
-const (
-	AgentDefinitionTriggerTypeScheduled AgentDefinitionTriggerType = "scheduled"
-	AgentDefinitionTriggerTypeManual    AgentDefinitionTriggerType = "manual"
-	AgentDefinitionTriggerTypeEvent     AgentDefinitionTriggerType = "event"
-	AgentDefinitionTriggerTypeChat      AgentDefinitionTriggerType = "chat"
-)
-
-// Agent-level configuration controlling LLM behavior and trigger settings.
-//
-// Distinct from per-tool configuration (`tools[].config`), which configures
-// individual tools attached to the agent.
-type AgentDefinitionConfig struct {
-	// Per-endpoint-tool human-review overrides, keyed by tool slug.
-	//
-	// When an entry is `true`, the run pauses in `awaiting_approval` each time the
-	// agent calls that endpoint-tool until it is approved via the Continue Agent Run
-	// endpoint. Slugs absent from the map do not require review.
-	EndpointToolReview map[string]bool `json:"endpoint_tool_review" api:"required"`
-	// API-endpoint tools the agent may discover and use, by slug (e.g.
-	// `create_account_group`).
-	//
-	// These correspond to tools listed by the List Tools endpoint with category
-	// `api_endpoint`. A single entry `*` grants the entire endpoint-tool catalog.
-	EndpointToolSlugs []string `json:"endpoint_tool_slugs" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "agent_definition_config".
-	Object AgentDefinitionConfigObject `json:"object" api:"required"`
-	// System prompt / instructions for the agent.
-	SystemPrompt string `json:"system_prompt" api:"required"`
-	// LLM sampling temperature between 0 and 1.
-	Temperature float64 `json:"temperature" api:"required"`
-	// Intelligence and cost tier for the agent's reasoning.
-	//
-	// Selects how capable and expensive a model the agent uses without pinning a
-	// specific model; higher tiers reason better but cost more. Leaving it unset uses
-	// the default tier.
-	//
-	//   - `frontier`: the most capable tier, for multi-step planning, ambiguous agent
-	//     work, and hard coding or architecture tasks.
-	//   - `high`: the default tier, for normal planning, code edits, synthesis, and
-	//     customer-facing reasoning.
-	//   - `balanced`: for research, summarization, classification, structured
-	//     extraction, and light tool use.
-	//   - `cheap`: for simple transforms, validation, formatting, and routing.
-	//
-	// Any of "frontier", "high", "balanced", "cheap", "legacy".
-	Tier AgentDefinitionConfigTier `json:"tier" api:"required"`
-	// Trigger-type-specific configuration.
-	//
-	// Which fields are populated depends on the agent's `trigger_type`:
-	//
-	// - `scheduled`: `cron_schedule` (and optionally `timezone`) is set.
-	// - `event`: `event_filters` is set.
-	// - `manual`: all fields are empty.
-	TriggerConfig TriggerConfig `json:"trigger_config" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		EndpointToolReview respjson.Field
-		EndpointToolSlugs  respjson.Field
-		Object             respjson.Field
-		SystemPrompt       respjson.Field
-		Temperature        respjson.Field
-		Tier               respjson.Field
-		TriggerConfig      respjson.Field
-		ExtraFields        map[string]respjson.Field
-		raw                string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AgentDefinitionConfig) RawJSON() string { return r.JSON.raw }
-func (r *AgentDefinitionConfig) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type AgentDefinitionConfigObject string
-
-const (
-	AgentDefinitionConfigObjectAgentDefinitionConfig AgentDefinitionConfigObject = "agent_definition_config"
-)
-
-// Intelligence and cost tier for the agent's reasoning.
-//
-// Selects how capable and expensive a model the agent uses without pinning a
-// specific model; higher tiers reason better but cost more. Leaving it unset uses
-// the default tier.
-//
-//   - `frontier`: the most capable tier, for multi-step planning, ambiguous agent
-//     work, and hard coding or architecture tasks.
-//   - `high`: the default tier, for normal planning, code edits, synthesis, and
-//     customer-facing reasoning.
-//   - `balanced`: for research, summarization, classification, structured
-//     extraction, and light tool use.
-//   - `cheap`: for simple transforms, validation, formatting, and routing.
-type AgentDefinitionConfigTier string
-
-const (
-	AgentDefinitionConfigTierFrontier AgentDefinitionConfigTier = "frontier"
-	AgentDefinitionConfigTierHigh     AgentDefinitionConfigTier = "high"
-	AgentDefinitionConfigTierBalanced AgentDefinitionConfigTier = "balanced"
-	AgentDefinitionConfigTierCheap    AgentDefinitionConfigTier = "cheap"
-	AgentDefinitionConfigTierLegacy   AgentDefinitionConfigTier = "legacy"
-)
-
-// Tool attached to an agent definition.
-//
-// Pairs an AvailableTool with agent-specific config values.
-type AgentDefinitionTool struct {
-	// Agent definition tool ID.
-	ID string `json:"id" api:"required"`
-	// Instance-specific configuration for this tool.
-	//
-	// Must conform to the tool's `config_schema`. Encoded as a JSON value (object,
-	// array, string, number, boolean, or null), not a JSON-encoded string.
-	Config any `json:"config" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "agent_definition_tool".
-	Object AgentDefinitionToolObject `json:"object" api:"required"`
-	// Whether calls to this tool must be approved by a user before they execute.
-	//
-	// When `required`, the run pauses in the `awaiting_approval` status each time the
-	// agent invokes this tool; approve or allow the tool via the Continue Agent Run
-	// endpoint to proceed.
-	//
-	// Any of "not_required", "required".
-	ReviewRequirement AgentDefinitionToolReviewRequirement `json:"review_requirement" api:"required"`
-	// Sort order within the agent.
-	SortOrder int64 `json:"sort_order" api:"required"`
-	// Platform tool that can be attached to agents.
-	Tool AvailableTool `json:"tool" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                respjson.Field
-		Config            respjson.Field
-		Object            respjson.Field
-		ReviewRequirement respjson.Field
-		SortOrder         respjson.Field
-		Tool              respjson.Field
-		ExtraFields       map[string]respjson.Field
-		raw               string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AgentDefinitionTool) RawJSON() string { return r.JSON.raw }
-func (r *AgentDefinitionTool) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type AgentDefinitionToolObject string
-
-const (
-	AgentDefinitionToolObjectAgentDefinitionTool AgentDefinitionToolObject = "agent_definition_tool"
-)
-
-// Whether calls to this tool must be approved by a user before they execute.
-//
-// When `required`, the run pauses in the `awaiting_approval` status each time the
-// agent invokes this tool; approve or allow the tool via the Continue Agent Run
-// endpoint to proceed.
-type AgentDefinitionToolReviewRequirement string
-
-const (
-	AgentDefinitionToolReviewRequirementNotRequired AgentDefinitionToolReviewRequirement = "not_required"
-	AgentDefinitionToolReviewRequirementRequired    AgentDefinitionToolReviewRequirement = "required"
-)
-
-// A single execution of an agent, from trigger through completion.
-type AgentRun struct {
-	// Agent run ID.
-	ID string `json:"id" api:"required"`
-	// List represents a paginated list of resources.
-	Actions *ListAgentAction `json:"actions" api:"required"`
-	// When the run completed.
-	CompletedAt time.Time `json:"completed_at" api:"required" format:"date-time"`
-	// When this run was created.
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// An AI agent available to the account.
-	//
-	// The definition describes what the agent does, how its runs are triggered, the
-	// tools it can use, and whether it is currently enabled for the account.
-	Definition AgentDefinition `json:"definition" api:"required"`
-	// Duration in milliseconds.
-	DurationMs int64 `json:"duration_ms" api:"required"`
-	// Error message if the run failed.
-	ErrorMessage string `json:"error_message" api:"required"`
-	// Input provided to the agent at the start of the run, as JSON. Encoded as a JSON
-	// value (object, array, string, number, boolean, or null), not a JSON-encoded
-	// string.
-	Input any `json:"input" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "agent_run".
-	Object AgentRunObject `json:"object" api:"required"`
-	// Final output produced by the agent, as JSON.
-	//
-	// Populated only once the run has completed successfully. Encoded as a JSON value
-	// (object, array, string, number, boolean, or null), not a JSON-encoded string.
-	Output any `json:"output" api:"required"`
-	// When the run started executing.
-	StartedAt time.Time `json:"started_at" api:"required" format:"date-time"`
-	// Current run status.
-	//
-	// - `pending`: queued but not yet started.
-	// - `running`: currently executing.
-	// - `awaiting_input`: paused, waiting for user input before continuing.
-	// - `awaiting_approval`: paused, waiting for a pending action to be approved.
-	// - `completed`: finished successfully.
-	// - `failed`: stopped after an error; see `error_message`.
-	// - `cancelled`: stopped before completion by a user.
-	//
-	// Any of "pending", "running", "completed", "failed", "cancelled",
-	// "awaiting_input", "awaiting_approval".
-	Status AgentRunStatus `json:"status" api:"required"`
-	// List represents a paginated list of resources.
-	Steps ListAgentRunStep `json:"steps" api:"required"`
-	// How this run was initiated.
-	//
-	//   - `scheduled`: started by the agent's cron schedule.
-	//   - `event`: started in response to a platform event.
-	//   - `manual`: started by an explicit request; see `triggered_by`.
-	//   - `chat`: started by a message in a conversation, with the agent's reply posted
-	//     back into that conversation.
-	//
-	// Any of "scheduled", "manual", "event", "chat".
-	TriggerType AgentRunTriggerType `json:"trigger_type" api:"required"`
-	// Reference to an actor — the user, API key, agent, or group identity associated
-	// with an action.
-	TriggeredBy Actor `json:"triggered_by" api:"required"`
-	// When this run was last updated.
-	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID           respjson.Field
-		Actions      respjson.Field
-		CompletedAt  respjson.Field
-		CreatedAt    respjson.Field
-		Definition   respjson.Field
-		DurationMs   respjson.Field
-		ErrorMessage respjson.Field
-		Input        respjson.Field
-		Object       respjson.Field
-		Output       respjson.Field
-		StartedAt    respjson.Field
-		Status       respjson.Field
-		Steps        respjson.Field
-		TriggerType  respjson.Field
-		TriggeredBy  respjson.Field
-		UpdatedAt    respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AgentRun) RawJSON() string { return r.JSON.raw }
-func (r *AgentRun) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type AgentRunObject string
-
-const (
-	AgentRunObjectAgentRun AgentRunObject = "agent_run"
-)
-
-// Current run status.
-//
-// - `pending`: queued but not yet started.
-// - `running`: currently executing.
-// - `awaiting_input`: paused, waiting for user input before continuing.
-// - `awaiting_approval`: paused, waiting for a pending action to be approved.
-// - `completed`: finished successfully.
-// - `failed`: stopped after an error; see `error_message`.
-// - `cancelled`: stopped before completion by a user.
-type AgentRunStatus string
-
-const (
-	AgentRunStatusPending          AgentRunStatus = "pending"
-	AgentRunStatusRunning          AgentRunStatus = "running"
-	AgentRunStatusCompleted        AgentRunStatus = "completed"
-	AgentRunStatusFailed           AgentRunStatus = "failed"
-	AgentRunStatusCancelled        AgentRunStatus = "cancelled"
-	AgentRunStatusAwaitingInput    AgentRunStatus = "awaiting_input"
-	AgentRunStatusAwaitingApproval AgentRunStatus = "awaiting_approval"
-)
-
-// How this run was initiated.
-//
-//   - `scheduled`: started by the agent's cron schedule.
-//   - `event`: started in response to a platform event.
-//   - `manual`: started by an explicit request; see `triggered_by`.
-//   - `chat`: started by a message in a conversation, with the agent's reply posted
-//     back into that conversation.
-type AgentRunTriggerType string
-
-const (
-	AgentRunTriggerTypeScheduled AgentRunTriggerType = "scheduled"
-	AgentRunTriggerTypeManual    AgentRunTriggerType = "manual"
-	AgentRunTriggerTypeEvent     AgentRunTriggerType = "event"
-	AgentRunTriggerTypeChat      AgentRunTriggerType = "chat"
-)
-
-// A single event in an agent run's execution timeline.
-type AgentRunStep struct {
-	// Agent run step ID.
-	ID string `json:"id" api:"required"`
-	// Reference to an actor — the user, API key, agent, or group identity associated
-	// with an action.
-	Actor Actor `json:"actor" api:"required"`
-	// Text payload for the step, such as a message body or a tool result.
-	Content string `json:"content" api:"required"`
-	// When this step was created.
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Duration in milliseconds.
-	DurationMs int64 `json:"duration_ms" api:"required"`
-	// Additional structured data for the step, as JSON. Encoded as a JSON value
-	// (object, array, string, number, boolean, or null), not a JSON-encoded string.
-	Metadata any `json:"metadata" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "agent_run_step".
-	Object AgentRunStepObject `json:"object" api:"required"`
-	// Zero-based position of this step within the run's timeline.
-	Sequence int64 `json:"sequence" api:"required"`
-	// The kind of timeline event (e.g. `trigger_received`, `user_message`,
-	// `assistant_message`, `tool_call`, `tool_result`, `awaiting_approval`,
-	// `completion`, `error`).
-	StepType string `json:"step_type" api:"required"`
-	// Short title for the step.
-	Title string `json:"title" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		Actor       respjson.Field
-		Content     respjson.Field
-		CreatedAt   respjson.Field
-		DurationMs  respjson.Field
-		Metadata    respjson.Field
-		Object      respjson.Field
-		Sequence    respjson.Field
-		StepType    respjson.Field
-		Title       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AgentRunStep) RawJSON() string { return r.JSON.raw }
-func (r *AgentRunStep) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type AgentRunStepObject string
-
-const (
-	AgentRunStepObjectAgentRunStep AgentRunStepObject = "agent_run_step"
-)
-
-// Platform tool that can be attached to agents.
-type AvailableTool struct {
-	// Category grouping for the tool (e.g. `built_in`).
-	Category string `json:"category" api:"required"`
-	// JSON schema describing the configuration options this tool accepts.
-	//
-	// Defines the shape of the `config` field on AgentDefinitionTool.
-	//
-	// For example:
-	//
-	// ````json
-	//
-	//	{
-	//	  "type": "object",
-	//	  "properties": {
-	//	    "max_results": {
-	//	      "type": "integer",
-	//	      "default": 10
-	//	    }
-	//	  }
-	//	}
-	//
-	// ``` Encoded as a JSON value (object, array, string, number, boolean, or null), not a JSON-encoded string.
-	// ````
-	ConfigSchema any `json:"config_schema" api:"required"`
-	// Tool description.
-	Description string `json:"description" api:"required"`
-	// Whether invoking this tool changes server state.
-	//
-	// True for any `api_endpoint` tool whose underlying operation is not a read
-	// (non-GET); always false for `built_in` tools. The agent-configuration UI uses
-	// this to default such tools to requiring human review.
-	Mutating bool `json:"mutating" api:"required"`
-	// Tool name.
-	Name string `json:"name" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "available_tool".
-	Object AvailableToolObject `json:"object" api:"required"`
-	// Permission scopes the agent's role must hold for this tool to be usable (e.g.
-	// `products:read`).
-	RequiredPermissions []string `json:"required_permissions" api:"required"`
-	// Role type the caller must have for this tool, when the operation is gated by
-	// role rather than a permission (e.g. `admin`).
-	RequiredRoleType string `json:"required_role_type" api:"required"`
-	// A stable identifier used when attaching the tool to an agent.
-	Slug string `json:"slug" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Category            respjson.Field
-		ConfigSchema        respjson.Field
-		Description         respjson.Field
-		Mutating            respjson.Field
-		Name                respjson.Field
-		Object              respjson.Field
-		RequiredPermissions respjson.Field
-		RequiredRoleType    respjson.Field
-		Slug                respjson.Field
-		ExtraFields         map[string]respjson.Field
-		raw                 string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AvailableTool) RawJSON() string { return r.JSON.raw }
-func (r *AvailableTool) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type AvailableToolObject string
-
-const (
-	AvailableToolObjectAvailableTool AvailableToolObject = "available_tool"
-)
 
 // A conversation thread the caller participates in.
 type Conversation struct {
@@ -855,6 +126,10 @@ type Conversation struct {
 	Assignee Actor `json:"assignee" api:"required"`
 	// Whether this is a team-only conversation (`internal`) or a customer-facing case
 	// (`customer`).
+	//
+	// A customer never sees an `internal` conversation, even one that is about them;
+	// within a `customer` case they see only the messages that were sent to them, not
+	// the team's internal notes on the case.
 	//
 	// Any of "internal", "customer".
 	Audience ConversationAudience `json:"audience" api:"required"`
@@ -869,14 +144,17 @@ type Conversation struct {
 	// it.
 	Group MessagingGroup `json:"group" api:"required"`
 	// A chat message within a conversation.
+	//
+	// One resource covers every stage of a message's life: a delivered timeline
+	// message, a message queued for a future send, and a customer-reply draft awaiting
+	// approval. Read `status` to tell them apart.
 	LastMessage *Message `json:"last_message" api:"required"`
 	// When the most recent message was sent.
-	//
-	// `null` when the conversation has no messages yet.
 	LastMessageAt time.Time `json:"last_message_at" api:"required" format:"date-time"`
 	// Whether the conversation is under legal hold.
 	//
-	// Exempts the conversation from retention purging and redaction.
+	// While held, the conversation is exempt from automatic retention purging and from
+	// redaction until the hold is released.
 	//
 	// Any of "released", "held".
 	LegalHold ConversationLegalHold `json:"legal_hold" api:"required"`
@@ -884,19 +162,22 @@ type Conversation struct {
 	//
 	// Any of "conversation".
 	Object ConversationObject `json:"object" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Participants ListConversationParticipant `json:"participants" api:"required"`
-	// The caller's effective status.
+	// The conversation's state from the caller's point of view.
 	//
-	// - `hidden` when the caller has hidden the conversation
-	// - otherwise the account-level lifecycle state
+	//   - `active`: a normal, visible conversation.
+	//   - `archived`: archived for the whole account.
+	//   - `hidden`: the caller dismissed the conversation from their own list while
+	//     everyone else still sees it, which takes precedence over an account-level
+	//     archive.
 	//
 	// Any of "active", "archived", "hidden".
 	Status ConversationStatus `json:"status" api:"required"`
 	// The display title of a group conversation.
 	//
-	// `null` for direct messages, where the client derives a title from the
-	// participants.
+	// Direct messages carry no stored title; clients derive one from the participants.
 	Title string `json:"title" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Topic Entity `json:"topic" api:"required"`
@@ -915,7 +196,9 @@ type Conversation struct {
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// The triage lane of a customer-facing case.
 	//
-	// Only set for customer-audience conversations.
+	// Only conversations with a `customer` audience have a triage lane. It drives the
+	// support inbox and is independent of `status`, which is about visibility rather
+	// than progress.
 	//
 	// - `new`: opened but not yet triaged.
 	// - `open`: actively being worked.
@@ -959,6 +242,10 @@ func (r *Conversation) UnmarshalJSON(data []byte) error {
 
 // Whether this is a team-only conversation (`internal`) or a customer-facing case
 // (`customer`).
+//
+// A customer never sees an `internal` conversation, even one that is about them;
+// within a `customer` case they see only the messages that were sent to them, not
+// the team's internal notes on the case.
 type ConversationAudience string
 
 const (
@@ -968,7 +255,8 @@ const (
 
 // Whether the conversation is under legal hold.
 //
-// Exempts the conversation from retention purging and redaction.
+// While held, the conversation is exempt from automatic retention purging and from
+// redaction until the hold is released.
 type ConversationLegalHold string
 
 const (
@@ -983,10 +271,13 @@ const (
 	ConversationObjectConversation ConversationObject = "conversation"
 )
 
-// The caller's effective status.
+// The conversation's state from the caller's point of view.
 //
-// - `hidden` when the caller has hidden the conversation
-// - otherwise the account-level lifecycle state
+//   - `active`: a normal, visible conversation.
+//   - `archived`: archived for the whole account.
+//   - `hidden`: the caller dismissed the conversation from their own list while
+//     everyone else still sees it, which takes precedence over an account-level
+//     archive.
 type ConversationStatus string
 
 const (
@@ -1011,7 +302,9 @@ const (
 
 // The triage lane of a customer-facing case.
 //
-// Only set for customer-audience conversations.
+// Only conversations with a `customer` audience have a triage lane. It drives the
+// support inbox and is independent of `status`, which is about visibility rather
+// than progress.
 //
 // - `new`: opened but not yet triaged.
 // - `open`: actively being worked.
@@ -1037,12 +330,15 @@ type ConversationParticipant struct {
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
 	Actor Actor `json:"actor" api:"required"`
-	// For agent participants with a keyword/mention policy, the keywords that trigger
-	// it.
+	// For agent participants with a keyword or mention policy, the keywords that
+	// trigger it.
+	//
+	// Matching is case-insensitive and looks anywhere in the message body: under
+	// `keyword` the bare word is matched, under `mention` it must appear as
+	// `@keyword`. Replying directly to one of the agent's own messages always reaches
+	// it, so an agent with no keywords still answers replies but nothing else.
 	AgentTriggerKeywords []string `json:"agent_trigger_keywords" api:"required"`
 	// For agent participants, when the agent is invoked in response to messages.
-	//
-	// `null` for non-agent participants.
 	//
 	// - `mention`: only when the agent is @mentioned.
 	// - `keyword`: when a message contains one of the agent's trigger keywords.
@@ -1057,12 +353,18 @@ type ConversationParticipant struct {
 	// - `removed`: removed by an admin.
 	// - `hidden`: still a member but has hidden the conversation from their own list.
 	//
+	// Membership records are kept rather than deleted, so re-adding someone who left
+	// or was removed reactivates their original record and their earlier messages stay
+	// attributed to them.
+	//
 	// Any of "active", "left", "removed", "hidden".
 	Membership ConversationParticipantMembership `json:"membership" api:"required"`
 	// The participant's notification preference for the conversation.
 	//
-	// - `unmuted`: receives normal notifications.
-	// - `muted`: notifications are suppressed (mentions may still pierce the mute).
+	//   - `unmuted`: receives notifications for new messages.
+	//   - `muted`: new-message notifications are suppressed, though a direct @mention
+	//     still raises an in-app alert (never an email), and the conversation still
+	//     counts toward the unread total.
 	//
 	// Any of "unmuted", "muted".
 	Notifications ConversationParticipantNotifications `json:"notifications" api:"required"`
@@ -1117,8 +419,6 @@ func (r *ConversationParticipant) UnmarshalJSON(data []byte) error {
 
 // For agent participants, when the agent is invoked in response to messages.
 //
-// `null` for non-agent participants.
-//
 // - `mention`: only when the agent is @mentioned.
 // - `keyword`: when a message contains one of the agent's trigger keywords.
 // - `always`: on every human message in the conversation.
@@ -1136,6 +436,10 @@ const (
 // - `left`: voluntarily left the conversation.
 // - `removed`: removed by an admin.
 // - `hidden`: still a member but has hidden the conversation from their own list.
+//
+// Membership records are kept rather than deleted, so re-adding someone who left
+// or was removed reactivates their original record and their earlier messages stay
+// attributed to them.
 type ConversationParticipantMembership string
 
 const (
@@ -1147,8 +451,10 @@ const (
 
 // The participant's notification preference for the conversation.
 //
-// - `unmuted`: receives normal notifications.
-// - `muted`: notifications are suppressed (mentions may still pierce the mute).
+//   - `unmuted`: receives notifications for new messages.
+//   - `muted`: new-message notifications are suppressed, though a direct @mention
+//     still raises an in-app alert (never an email), and the conversation still
+//     counts toward the unread total.
 type ConversationParticipantNotifications string
 
 const (
@@ -1198,13 +504,23 @@ const (
 //
 // The properties ParticipantAccountUserIDs, Type are required.
 type CreateConversationRequestParam struct {
-	// The other participant(s).
+	// The other participants to add.
 	//
-	// For a direct message, exactly one account_user ID. For a group, the members to
-	// add — optional when `group_id` seeds the roster or the conversation is anchored
-	// to a `topic_resource` (a record discussion can start solo).
+	// For a direct message, exactly one account user. For a group, the members to seed
+	// — these can be omitted when `group_id` supplies a roster, or when the
+	// conversation is anchored to a topic resource, since a record discussion may
+	// start solo and pull people in later.
+	//
+	// The caller is always a participant and does not need to be listed; on a group
+	// they become its owner and every other member seeded at creation is notified.
 	ParticipantAccountUserIDs []string `json:"participant_account_user_ids,omitzero" api:"required"`
 	// The kind of conversation to create.
+	//
+	//   - `direct_message`: a 1:1 thread with exactly one other user. Addressing
+	//     yourself is allowed and gives you a private notes thread.
+	//   - `group`: a named thread with any number of user and agent members.
+	//
+	// `system` channels are created by the platform and cannot be requested here.
 	//
 	// Any of "direct_message", "group", "system".
 	Type CreateConversationRequestType `json:"type,omitzero" api:"required"`
@@ -1216,11 +532,14 @@ type CreateConversationRequestParam struct {
 	GroupID param.Opt[string] `json:"group_id,omitzero"`
 	// Title for a group conversation.
 	//
-	// Ignored for direct messages.
+	// A direct message is identified by its participants rather than by a title.
 	Title param.Opt[string] `json:"title,omitzero"`
 	// The id of the business record to anchor this conversation to.
 	TopicResourceID param.Opt[string] `json:"topic_resource_id,omitzero"`
 	// The type of business record to anchor this conversation to.
+	//
+	// An anchored conversation is returned when conversations are listed for that
+	// record, which is how a discussion shows up on an order or invoice.
 	//
 	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
 	// "sales_order_stage_total", "sales_order_related", "order_contact", "user",
@@ -1317,6 +636,12 @@ func (r *CreateConversationRequestParam) UnmarshalJSON(data []byte) error {
 }
 
 // The kind of conversation to create.
+//
+//   - `direct_message`: a 1:1 thread with exactly one other user. Addressing
+//     yourself is allowed and gives you a private notes thread.
+//   - `group`: a named thread with any number of user and agent members.
+//
+// `system` channels are created by the platform and cannot be requested here.
 type CreateConversationRequestType string
 
 const (
@@ -1326,6 +651,9 @@ const (
 )
 
 // The type of business record to anchor this conversation to.
+//
+// An anchored conversation is returned when conversations are listed for that
+// record, which is how a discussion shows up on an order or invoice.
 type CreateConversationRequestTopicResourceType string
 
 const (
@@ -1606,106 +934,8 @@ const (
 	CreateConversationRequestTopicResourceTypePackListCase                         CreateConversationRequestTopicResourceType = "pack_list_case"
 )
 
-// List represents a paginated list of resources.
-type ListAgentAction struct {
-	// Resources in this page.
-	Data []AgentAction `json:"data" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "list".
-	Object ListAgentActionObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
-	PageInfo PageInfo `json:"page_info" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		Object      respjson.Field
-		PageInfo    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r ListAgentAction) RawJSON() string { return r.JSON.raw }
-func (r *ListAgentAction) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type ListAgentActionObject string
-
-const (
-	ListAgentActionObjectList ListAgentActionObject = "list"
-)
-
-// List represents a paginated list of resources.
-type ListAgentDefinitionTool struct {
-	// Resources in this page.
-	Data []AgentDefinitionTool `json:"data" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "list".
-	Object ListAgentDefinitionToolObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
-	PageInfo PageInfo `json:"page_info" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		Object      respjson.Field
-		PageInfo    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r ListAgentDefinitionTool) RawJSON() string { return r.JSON.raw }
-func (r *ListAgentDefinitionTool) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type ListAgentDefinitionToolObject string
-
-const (
-	ListAgentDefinitionToolObjectList ListAgentDefinitionToolObject = "list"
-)
-
-// List represents a paginated list of resources.
-type ListAgentRunStep struct {
-	// Resources in this page.
-	Data []AgentRunStep `json:"data" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "list".
-	Object ListAgentRunStepObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
-	PageInfo PageInfo `json:"page_info" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		Object      respjson.Field
-		PageInfo    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r ListAgentRunStep) RawJSON() string { return r.JSON.raw }
-func (r *ListAgentRunStep) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type ListAgentRunStepObject string
-
-const (
-	ListAgentRunStepObjectList ListAgentRunStepObject = "list"
-)
-
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListConversation struct {
 	// Resources in this page.
 	Data []Conversation `json:"data" api:"required"`
@@ -1713,7 +943,13 @@ type ListConversation struct {
 	//
 	// Any of "list".
 	Object ListConversationObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -1738,7 +974,8 @@ const (
 	ListConversationObjectList ListConversationObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListConversationParticipant struct {
 	// Resources in this page.
 	Data []ConversationParticipant `json:"data" api:"required"`
@@ -1746,7 +983,13 @@ type ListConversationParticipant struct {
 	//
 	// Any of "list".
 	Object ListConversationParticipantObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -1771,7 +1014,8 @@ const (
 	ListConversationParticipantObjectList ListConversationParticipantObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListMessageAttachment struct {
 	// Resources in this page.
 	Data []MessageAttachment `json:"data" api:"required"`
@@ -1779,7 +1023,13 @@ type ListMessageAttachment struct {
 	//
 	// Any of "list".
 	Object ListMessageAttachmentObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -1804,7 +1054,8 @@ const (
 	ListMessageAttachmentObjectList ListMessageAttachmentObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListMessagingGroupMember struct {
 	// Resources in this page.
 	Data []MessagingGroupMember `json:"data" api:"required"`
@@ -1812,7 +1063,13 @@ type ListMessagingGroupMember struct {
 	//
 	// Any of "list".
 	Object ListMessagingGroupMemberObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -1838,55 +1095,68 @@ const (
 )
 
 // A chat message within a conversation.
+//
+// One resource covers every stage of a message's life: a delivered timeline
+// message, a message queued for a future send, and a customer-reply draft awaiting
+// approval. Read `status` to tell them apart.
 type Message struct {
 	// Message ID.
 	ID string `json:"id" api:"required"`
-	// Machine-readable error code for a failed agent reply (e.g.
-	// `agent_spending_cap_reached`).
+	// Machine-readable reason an agent reply failed.
 	//
-	// `null` when the reply did not fail or carried no specific code.
+	// A client can react to the specific code rather than just showing the body —
+	// `agent_spending_cap_reached`, for example, is a cue to offer raising the agent
+	// spending limit.
 	AgentErrorCode string `json:"agent_error_code" api:"required"`
 	// A single execution of an agent, from trigger through completion.
 	AgentRun AgentRun `json:"agent_run" api:"required"`
-	// Whether this message is an agent reply that resolved a failed run.
+	// Whether this message is an agent reply reporting that the agent's run failed.
+	//
+	// The body explains the failure to the reader rather than answering the request.
 	AgentRunFailed bool `json:"agent_run_failed" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Attachments ListMessageAttachment `json:"attachments" api:"required"`
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
 	Author Actor `json:"author" api:"required"`
 	// Message body.
 	//
-	// `null` for templated or deleted messages.
+	// A message made up of nothing but attachments or a linked record carries no body,
+	// and a deleted message has its body cleared.
 	Body string `json:"body" api:"required"`
-	// How the message was delivered (or, for a draft, how it will be on approve).
+	// How the message reached its audience, or how a draft will be sent once it is
+	// approved.
 	//
-	// - `message`: delivered as an in-conversation chat message.
-	// - `email`: delivered as email through the conversation's bridged inbox.
+	// - `message`: appears in the conversation itself.
+	// - `email`: goes out as email on the thread of the inbox the case is bridged to.
 	//
 	// Any of "message", "email".
 	Channel MessageChannel `json:"channel" api:"required"`
-	// The client-supplied dedupe key echoed back for optimistic-UI reconciliation.
-	//
-	// `null` for server-generated messages.
+	// The dedupe key the client supplied when sending, echoed back so an optimistic
+	// local copy can be matched to the stored message.
 	ClientMessageID string `json:"client_message_id" api:"required"`
 	// A conversation thread the caller participates in.
 	Conversation *Conversation `json:"conversation" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// When the message was deleted (tombstone).
+	// When the message was deleted.
+	//
+	// A deleted message keeps its place in the timeline with its body cleared, so
+	// surrounding ordering and replies stay intact.
 	DeletedAt time.Time `json:"deleted_at" api:"required" format:"date-time"`
 	// When the message was last edited.
 	EditedAt time.Time `json:"edited_at" api:"required" format:"date-time"`
-	// The kind of message.
+	// What this message represents.
 	//
-	//   - `chat`: a user-authored chat message.
-	//   - `system_event`: a system-generated event message.
-	//   - `agent`: a message authored by an AI agent participant.
-	//   - `scheduled`: a message materialized from a scheduled send.
-	//   - `alert`: a system or producer alert rendered as a message.
-	//   - `email`: an inbound email materialized into the conversation by the email
-	//     bridge.
+	//   - `chat`: written by a person.
+	//   - `system_event`: a record of something that happened in the conversation, such
+	//     as someone joining or a record being linked.
+	//   - `agent`: written by an AI agent taking part in the conversation.
+	//   - `scheduled`: came from a send queued ahead of time.
+	//   - `alert`: an automated alert surfaced in the conversation.
+	//   - `email`: a message carried over the case's bridged email thread, either one
+	//     that arrived from the customer or a reply sent back out to them.
 	//
 	// Any of "chat", "system_event", "agent", "scheduled", "alert", "email".
 	Kind MessageKind `json:"kind" api:"required"`
@@ -1895,53 +1165,62 @@ type Message struct {
 	// Any of "chat_message".
 	Object MessageObject `json:"object" api:"required"`
 	// A chat message within a conversation.
+	//
+	// One resource covers every stage of a message's life: a delivered timeline
+	// message, a message queued for a future send, and a customer-reply draft awaiting
+	// approval. Read `status` to tell them apart.
 	ReplyTo *Message `json:"reply_to" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Resource Entity `json:"resource" api:"required"`
-	// When a `scheduled` message is due to be delivered.
+	// When a message queued for a future send is due to go out.
 	ScheduledAt time.Time `json:"scheduled_at" api:"required" format:"date-time"`
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
 	Sender Actor `json:"sender" api:"required"`
-	// Monotonic per-conversation ordering sequence.
-	Sequence int64 `json:"sequence" api:"required"`
-	// The lifecycle state of the message.
+	// The message's position in the conversation timeline, counting up from the first
+	// message.
 	//
-	//   - `draft`: an editable customer-reply draft awaiting approval; not in the
-	//     timeline.
-	//   - `scheduled`: queued for delivery at a future time; not yet in the timeline.
-	//   - `sent`: a delivered timeline message; only `sent` messages carry a `sequence`.
-	//   - `canceled`: a scheduled message canceled before delivery.
-	//   - `rejected`: a draft discarded without sending.
-	//   - `failed`: a scheduled message that exhausted delivery attempts.
-	//   - `superseded`: a draft replaced by a newer one for the same source thread.
+	// A sequence is assigned only when a message is delivered, so a draft or a
+	// not-yet-sent scheduled message reports `0`. Listing a conversation's messages
+	// pages backwards through this ordering.
+	Sequence int64 `json:"sequence" api:"required"`
+	// Where the message stands in its life.
+	//
+	//   - `draft`: a proposed reply to the customer, still editable and waiting for
+	//     approval before anyone outside sees it.
+	//   - `scheduled`: queued to go out at a future time.
+	//   - `sent`: delivered, and part of the conversation everyone reads.
+	//   - `canceled`: a scheduled message stopped before it went out.
+	//   - `rejected`: a draft discarded instead of being sent.
+	//   - `failed`: a scheduled message that could not be delivered.
+	//   - `superseded`: a draft replaced by a newer one for the same thread.
+	//
+	// Only a `sent` message occupies a place in the conversation; the others are
+	// records of messages that never reached it.
 	//
 	// Any of "draft", "scheduled", "sent", "canceled", "rejected", "failed",
 	// "superseded".
 	Status MessageStatus `json:"status" api:"required"`
-	// The streaming state of a reply.
+	// The streaming state of an agent reply.
 	//
-	// `streaming` while the body is still being generated (it fills in via realtime
-	// updates); `complete` once finalized.
-	//
-	// `null` for ordinary messages.
+	// `streaming` means the body is still being generated and keeps growing as
+	// realtime updates arrive; `complete` means it is final.
 	StreamingState string `json:"streaming_state" api:"required"`
-	// The email subject line
+	// The email subject line.
 	//
-	// On an email-bridged case, the original subject of an inbound email, or the
-	// subject a customer-reply `draft`/outbound message is sent with.
+	// On an email-bridged case, this is the subject of the inbound email, or the
+	// subject a customer reply is sent out with.
 	Subject string `json:"subject" api:"required"`
 	// Last update timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Who can see this message.
 	//
-	//   - `internal`: a team-only note.
-	//   - `external`: sent to or received from an external party (e.g. the customer on a
-	//     support case).
-	//   - `system`: an event shown to both the team and the customer.
+	//   - `internal`: a note only your team can see.
+	//   - `external`: sent to or received from an outside party, such as the customer on
+	//     a support case, and part of the official record of that exchange.
+	//   - `system`: an event both your team and the customer see.
 	//
-	// On a customer-facing conversation, customer payloads only ever carry `external`
-	// and `system` messages.
+	// A customer reading their own case is never served `internal` messages.
 	//
 	// Any of "internal", "external", "system".
 	Visibility MessageVisibility `json:"visibility" api:"required"`
@@ -1983,10 +1262,11 @@ func (r *Message) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// How the message was delivered (or, for a draft, how it will be on approve).
+// How the message reached its audience, or how a draft will be sent once it is
+// approved.
 //
-// - `message`: delivered as an in-conversation chat message.
-// - `email`: delivered as email through the conversation's bridged inbox.
+// - `message`: appears in the conversation itself.
+// - `email`: goes out as email on the thread of the inbox the case is bridged to.
 type MessageChannel string
 
 const (
@@ -1994,15 +1274,16 @@ const (
 	MessageChannelEmail   MessageChannel = "email"
 )
 
-// The kind of message.
+// What this message represents.
 //
-//   - `chat`: a user-authored chat message.
-//   - `system_event`: a system-generated event message.
-//   - `agent`: a message authored by an AI agent participant.
-//   - `scheduled`: a message materialized from a scheduled send.
-//   - `alert`: a system or producer alert rendered as a message.
-//   - `email`: an inbound email materialized into the conversation by the email
-//     bridge.
+//   - `chat`: written by a person.
+//   - `system_event`: a record of something that happened in the conversation, such
+//     as someone joining or a record being linked.
+//   - `agent`: written by an AI agent taking part in the conversation.
+//   - `scheduled`: came from a send queued ahead of time.
+//   - `alert`: an automated alert surfaced in the conversation.
+//   - `email`: a message carried over the case's bridged email thread, either one
+//     that arrived from the customer or a reply sent back out to them.
 type MessageKind string
 
 const (
@@ -2021,16 +1302,19 @@ const (
 	MessageObjectChatMessage MessageObject = "chat_message"
 )
 
-// The lifecycle state of the message.
+// Where the message stands in its life.
 //
-//   - `draft`: an editable customer-reply draft awaiting approval; not in the
-//     timeline.
-//   - `scheduled`: queued for delivery at a future time; not yet in the timeline.
-//   - `sent`: a delivered timeline message; only `sent` messages carry a `sequence`.
-//   - `canceled`: a scheduled message canceled before delivery.
-//   - `rejected`: a draft discarded without sending.
-//   - `failed`: a scheduled message that exhausted delivery attempts.
-//   - `superseded`: a draft replaced by a newer one for the same source thread.
+//   - `draft`: a proposed reply to the customer, still editable and waiting for
+//     approval before anyone outside sees it.
+//   - `scheduled`: queued to go out at a future time.
+//   - `sent`: delivered, and part of the conversation everyone reads.
+//   - `canceled`: a scheduled message stopped before it went out.
+//   - `rejected`: a draft discarded instead of being sent.
+//   - `failed`: a scheduled message that could not be delivered.
+//   - `superseded`: a draft replaced by a newer one for the same thread.
+//
+// Only a `sent` message occupies a place in the conversation; the others are
+// records of messages that never reached it.
 type MessageStatus string
 
 const (
@@ -2045,13 +1329,12 @@ const (
 
 // Who can see this message.
 //
-//   - `internal`: a team-only note.
-//   - `external`: sent to or received from an external party (e.g. the customer on a
-//     support case).
-//   - `system`: an event shown to both the team and the customer.
+//   - `internal`: a note only your team can see.
+//   - `external`: sent to or received from an outside party, such as the customer on
+//     a support case, and part of the official record of that exchange.
+//   - `system`: an event both your team and the customer see.
 //
-// On a customer-facing conversation, customer payloads only ever carry `external`
-// and `system` messages.
+// A customer reading their own case is never served `internal` messages.
 type MessageVisibility string
 
 const (
@@ -2064,15 +1347,15 @@ const (
 type MessageAttachment struct {
 	// Attachment ID.
 	ID string `json:"id" api:"required"`
-	// The MIME content type for uploaded attachments.
+	// The MIME type of the uploaded content.
 	//
-	// `null` for link/resource attachments.
+	// Carried only by `file` and `image` attachments.
 	ContentType string `json:"content_type" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// The original filename for uploaded attachments.
+	// The filename the attachment was uploaded under.
 	//
-	// `null` for link/resource attachments.
+	// Carried only by `file` and `image` attachments.
 	Filename string `json:"filename" api:"required"`
 	// The kind of attachment, which determines how it is stored and which of the
 	// fields below are populated.
@@ -2090,14 +1373,17 @@ type MessageAttachment struct {
 	Object MessageAttachmentObject `json:"object" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Resource Entity `json:"resource" api:"required"`
-	// The size in bytes for uploaded attachments.
+	// The size of the uploaded content in bytes.
 	//
-	// `null` when unknown or for link/resource attachments.
+	// Carried only by `file` and `image` attachments, and only when the sender
+	// supplied it with the message.
 	SizeBytes int64 `json:"size_bytes" api:"required"`
-	// A time-limited download URL for uploaded (file/image) attachments, or the link
-	// URL.
+	// Where to fetch the attachment: a signed download URL for `file` and `image`
+	// attachments, or the target address for `link` attachments.
 	//
-	// `null` for resource attachments.
+	// Download URLs are signed for one hour and regenerated each time the message is
+	// read, so follow the URL promptly instead of persisting it. `resource`
+	// attachments have no URL — use `resource` to resolve them.
 	URL string `json:"url" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -2156,7 +1442,8 @@ type MessagingGroup struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Members ListMessagingGroupMember `json:"members" api:"required"`
 	// The roster's display name.
 	Name string `json:"name" api:"required"`
@@ -2195,7 +1482,10 @@ const (
 // A member of a reusable roster: either a user or an agent, represented by its
 // actor.
 type MessagingGroupMember struct {
-	// Membership ID (used to remove the member from the roster).
+	// Membership ID.
+	//
+	// This identifies the member's place on the roster, not the user or agent
+	// themselves; it is the id to pass when removing them from the roster.
 	ID string `json:"id" api:"required"`
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
@@ -2231,16 +1521,12 @@ const (
 // ("who has seen this").
 type ReadCursor struct {
 	// The id of the last message the participant has read.
-	//
-	// `null` if they have not read any message yet.
 	MessageID string `json:"message_id" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "read_cursor".
 	Object ReadCursorObject `json:"object" api:"required"`
 	// When the participant last advanced their read cursor.
-	//
-	// `null` if they have not read any message yet.
 	ReadAt time.Time `json:"read_at" api:"required" format:"date-time"`
 	// The sequence number of the last message the participant has read in the
 	// conversation.
@@ -2272,54 +1558,11 @@ const (
 	ReadCursorObjectReadCursor ReadCursorObject = "read_cursor"
 )
 
-// Trigger-type-specific configuration.
-//
-// Which fields are populated depends on the agent's `trigger_type`:
-//
-// - `scheduled`: `cron_schedule` (and optionally `timezone`) is set.
-// - `event`: `event_filters` is set.
-// - `manual`: all fields are empty.
-type TriggerConfig struct {
-	// Cron expression for scheduled triggers (e.g. `0 9 * * *`).
-	CronSchedule string `json:"cron_schedule" api:"required"`
-	// Event types that trigger this agent (e.g.
-	// `["email.received", "order.created"]`).
-	EventFilters []string `json:"event_filters" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "trigger_config".
-	Object TriggerConfigObject `json:"object" api:"required"`
-	// IANA timezone for the cron schedule (e.g. `America/New_York`).
-	Timezone string `json:"timezone" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		CronSchedule respjson.Field
-		EventFilters respjson.Field
-		Object       respjson.Field
-		Timezone     respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r TriggerConfig) RawJSON() string { return r.JSON.raw }
-func (r *TriggerConfig) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type TriggerConfigObject string
-
-const (
-	TriggerConfigObjectTriggerConfig TriggerConfigObject = "trigger_config"
-)
-
-// Request to rename a conversation (owner/admin; groups only).
+// Request to rename a conversation.
 type UpdateConversationRequestParam struct {
-	// New group title.
+	// The group conversation's new display title.
 	//
-	// Send `null` to clear the title; omit to leave it unchanged.
+	// Send `null` to clear the title and leave the conversation unnamed.
 	Title param.Opt[string] `json:"title,omitzero"`
 	paramObj
 }
@@ -2389,7 +1632,7 @@ type MessagingConversationUpdateParams struct {
 	// "last_message.sender", "last_message.author", "last_message.resource",
 	// "last_message.attachments", "last_message.attachments.resource".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Request to rename a conversation (owner/admin; groups only).
+	// Request to rename a conversation.
 	UpdateConversationRequest UpdateConversationRequestParam
 	paramObj
 }
@@ -2411,8 +1654,8 @@ func (r MessagingConversationUpdateParams) URLQuery() (v url.Values, err error) 
 }
 
 type MessagingConversationListParams struct {
-	// Support inbox: filter to cases owned by this assignee (a user or a team),
-	// matched by id.
+	// Filter the support inbox to cases owned by this assignee, an account user or an
+	// account group.
 	AssigneeResourceID param.Opt[string] `query:"assignee_resource_id,omitzero" json:"-"`
 	// Opaque cursor token identifying where the page of results starts.
 	//
@@ -2420,7 +1663,10 @@ type MessagingConversationListParams struct {
 	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Support inbox: include archived (resolved-and-closed) cases.
+	// Return the archived support inbox instead of the working one.
+	//
+	// This swaps the view rather than widening it: archived cases are returned and
+	// unarchived ones are left out.
 	IncludeArchived param.Opt[bool] `query:"include_archived,omitzero" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
@@ -2428,11 +1674,16 @@ type MessagingConversationListParams struct {
 	//
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
-	// The id of the anchoring business record (with `topic_resource_type`).
+	// The id of the business record, together with `topic_resource_type`.
 	TopicResourceID param.Opt[string] `query:"topic_resource_id,omitzero" json:"-"`
-	// Support inbox: restrict to cases with no assignee.
+	// Restrict the support inbox to cases nobody has been assigned yet.
 	Unassigned param.Opt[bool] `query:"unassigned,omitzero" json:"-"`
-	// Filter by conversation audience direction.
+	// Filter by whether the conversation is team-only or customer-facing.
+	//
+	//   - `internal`: threads the customer never sees — direct messages, group threads,
+	//     and record discussions.
+	//   - `customer`: external customer-service cases the customer takes part in, from
+	//     the portal or a bridged email thread.
 	//
 	// Any of "internal", "customer".
 	Audience MessagingConversationListParamsAudience `query:"audience,omitzero" json:"-"`
@@ -2443,12 +1694,15 @@ type MessagingConversationListParams struct {
 	// "last_message.sender", "last_message.author", "last_message.resource",
 	// "last_message.attachments", "last_message.attachments.resource".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Filter by conversation visibility.
+	// Filter by whether the caller has hidden the conversation from their own list.
 	//
 	// Any of "active", "hidden".
 	Status MessagingConversationListParamsStatus `query:"status,omitzero" json:"-"`
-	// Restrict to conversations anchored to a business record of this type (with
-	// `topic_resource_id`).
+	// Restrict to conversations attached to a business record of this type, together
+	// with `topic_resource_id`.
+	//
+	// Matches both conversations anchored to the record and conversations that merely
+	// link it, which is what powers the "discussions on this record" view.
 	//
 	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
 	// "sales_order_stage_total", "sales_order_related", "order_contact", "user",
@@ -2537,7 +1791,16 @@ type MessagingConversationListParams struct {
 	//
 	// Any of "direct_message", "group", "system".
 	Type MessagingConversationListParamsType `query:"type,omitzero" json:"-"`
-	// Support inbox: filter external cases to a single triage lane.
+	// Filter the support inbox to a single triage lane.
+	//
+	// - `new`: opened but nobody has triaged it yet.
+	// - `open`: actively being worked.
+	// - `waiting_internal`: blocked on the internal team.
+	// - `waiting_external`: blocked on a reply from the customer.
+	// - `needs_approval`: a drafted reply is waiting for a human to approve it.
+	// - `resolved`: closed out.
+	//
+	// The working inbox hides resolved cases unless you ask for this lane explicitly.
 	//
 	// Any of "new", "open", "waiting_internal", "waiting_external", "needs_approval",
 	// "resolved".
@@ -2554,7 +1817,12 @@ func (r MessagingConversationListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Filter by conversation audience direction.
+// Filter by whether the conversation is team-only or customer-facing.
+//
+//   - `internal`: threads the customer never sees — direct messages, group threads,
+//     and record discussions.
+//   - `customer`: external customer-service cases the customer takes part in, from
+//     the portal or a bridged email thread.
 type MessagingConversationListParamsAudience string
 
 const (
@@ -2562,7 +1830,7 @@ const (
 	MessagingConversationListParamsAudienceCustomer MessagingConversationListParamsAudience = "customer"
 )
 
-// Filter by conversation visibility.
+// Filter by whether the caller has hidden the conversation from their own list.
 type MessagingConversationListParamsStatus string
 
 const (
@@ -2570,8 +1838,11 @@ const (
 	MessagingConversationListParamsStatusHidden MessagingConversationListParamsStatus = "hidden"
 )
 
-// Restrict to conversations anchored to a business record of this type (with
-// `topic_resource_id`).
+// Restrict to conversations attached to a business record of this type, together
+// with `topic_resource_id`.
+//
+// Matches both conversations anchored to the record and conversations that merely
+// link it, which is what powers the "discussions on this record" view.
 type MessagingConversationListParamsTopicResourceType string
 
 const (
@@ -2861,7 +2132,16 @@ const (
 	MessagingConversationListParamsTypeSystem        MessagingConversationListParamsType = "system"
 )
 
-// Support inbox: filter external cases to a single triage lane.
+// Filter the support inbox to a single triage lane.
+//
+// - `new`: opened but nobody has triaged it yet.
+// - `open`: actively being worked.
+// - `waiting_internal`: blocked on the internal team.
+// - `waiting_external`: blocked on a reply from the customer.
+// - `needs_approval`: a drafted reply is waiting for a human to approve it.
+// - `resolved`: closed out.
+//
+// The working inbox hides resolved cases unless you ask for this lane explicitly.
 type MessagingConversationListParamsWorkflowStatus string
 
 const (

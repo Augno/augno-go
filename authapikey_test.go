@@ -29,7 +29,7 @@ func TestAuthAPIKeyNewWithOptionalParams(t *testing.T) {
 	_, err := client.Auth.APIKeys.New(context.TODO(), augno.AuthAPIKeyNewParams{
 		CreateAPIKeyRequest: augno.CreateAPIKeyRequestParam{
 			Name:      "Production API Key",
-			RoleID:    "rl_01c16d2eb637c0d1f3a372937c",
+			RoleID:    "rl_3xknmfqflhvb",
 			ExpiresAt: augno.Time(time.Now()),
 		},
 		Include: []string{"role"},
@@ -57,7 +57,7 @@ func TestAuthAPIKeyGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Auth.APIKeys.Get(
 		context.TODO(),
-		"apke_01fba3a7db3996e3b3b1a07e00",
+		"apke_eiylmwr6q7oz",
 		augno.AuthAPIKeyGetParams{
 			Include: []string{"role"},
 		},
@@ -111,7 +111,7 @@ func TestAuthAPIKeyDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Auth.APIKeys.Delete(context.TODO(), "apke_01fba3a7db3996e3b3b1a07e00")
+	_, err := client.Auth.APIKeys.Delete(context.TODO(), "apke_eiylmwr6q7oz")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

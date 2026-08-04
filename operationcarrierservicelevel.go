@@ -40,7 +40,11 @@ func NewOperationCarrierServiceLevelService(opts ...option.RequestOption) (r Ope
 	return
 }
 
-// Creates a service level for a carrier.
+// Adds a shipping service level to a carrier.
+//
+// Use this for self-managed carriers, or to add a service a connected carrier does
+// not publish. Service levels created here are never removed by a later sync of
+// the carrier's services.
 //
 // This endpoint requires the permission: `carriers:create`.
 func (r *OperationCarrierServiceLevelService) New(ctx context.Context, carrierID string, params OperationCarrierServiceLevelNewParams, opts ...option.RequestOption) (res *ServiceLevel, err error) {
@@ -73,9 +77,11 @@ func (r *OperationCarrierServiceLevelService) Get(ctx context.Context, id string
 	return res, err
 }
 
-// Partially updates a service level.
+// Updates a service level's name, code, customer portal visibility, or default
+// status.
 //
-// System-owned service levels cannot be updated.
+// Only the fields you send are changed. System-owned service levels cannot be
+// updated.
 //
 // This endpoint requires the permission: `carriers:update`.
 func (r *OperationCarrierServiceLevelService) Update(ctx context.Context, id string, params OperationCarrierServiceLevelUpdateParams, opts ...option.RequestOption) (res *ServiceLevel, err error) {
@@ -93,7 +99,10 @@ func (r *OperationCarrierServiceLevelService) Update(ctx context.Context, id str
 	return res, err
 }
 
-// Returns a paginated list of service levels for a carrier.
+// Returns a paginated list of the service levels a carrier offers.
+//
+// Use this rather than the `service_levels` field on the carrier itself when a
+// carrier has more than a handful of services, since that inline list is capped.
 //
 // This endpoint requires the permissions: `carriers:read`, `customers:read`,
 // `suppliers:read`.
@@ -108,10 +117,12 @@ func (r *OperationCarrierServiceLevelService) List(ctx context.Context, carrierI
 	return res, err
 }
 
-// Permanently deletes a service level.
+// Permanently deletes a service level so it can no longer be selected on
+// shipments.
 //
 // System-owned service levels and the carrier's default service level cannot be
-// deleted; unset `is_default` first to delete a default.
+// deleted; to remove a default, first clear its `is_default` flag or promote
+// another service level in its place.
 //
 // This endpoint requires the permission: `carriers:delete`.
 func (r *OperationCarrierServiceLevelService) Delete(ctx context.Context, id string, body OperationCarrierServiceLevelDeleteParams, opts ...option.RequestOption) (res *OperationCarrierServiceLevelDeleteResponse, err error) {
@@ -135,7 +146,8 @@ func (r *OperationCarrierServiceLevelService) Delete(ctx context.Context, id str
 type CreateServiceLevelRequestParam struct {
 	// Carrier-specific code identifying this service level (e.g. `fedex_ground`).
 	//
-	// Must be unique among the carrier's service levels.
+	// Must be unique among the carrier's service levels, and is returned as the
+	// service level's `service_level_token`.
 	Code string `json:"code" api:"required"`
 	// Whether this becomes the carrier's default service level, pre-selected when the
 	// carrier is chosen.
@@ -146,11 +158,8 @@ type CreateServiceLevelRequestParam struct {
 	// Human-readable name for the service level, shown to customers at checkout when
 	// the service level is visible.
 	Name string `json:"name" api:"required"`
-	// Service level visibility in the customer portal.
-	//
-	// A `visible` service level can be selected by your customers at checkout; a
-	// `hidden` one is not offered there. New service levels are visible unless set to
-	// `hidden`.
+	// Whether customers can see and select this service level at checkout in the
+	// customer portal.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility CreateServiceLevelRequestCustomerPortalVisibility `json:"customer_portal_visibility,omitzero"`
@@ -165,11 +174,8 @@ func (r *CreateServiceLevelRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Service level visibility in the customer portal.
-//
-// A `visible` service level can be selected by your customers at checkout; a
-// `hidden` one is not offered there. New service levels are visible unless set to
-// `hidden`.
+// Whether customers can see and select this service level at checkout in the
+// customer portal.
 type CreateServiceLevelRequestCustomerPortalVisibility string
 
 const (
@@ -181,7 +187,10 @@ const (
 type UpdateServiceLevelRequestParam struct {
 	// Carrier-specific code identifying this service level (e.g. `fedex_ground`).
 	//
-	// Must be unique among the carrier's service levels.
+	// Must be unique among the carrier's service levels. For a service level synced
+	// from a connected carrier the `service_level_token` used for rating is fixed by
+	// the carrier and a code change does not affect it; for one you created yourself,
+	// the token follows the code.
 	Code param.Opt[string] `json:"code,omitzero"`
 	// Whether this is the carrier's default service level, pre-selected when the
 	// carrier is chosen.
@@ -192,7 +201,7 @@ type UpdateServiceLevelRequestParam struct {
 	// Human-readable name for the service level, shown to customers at checkout when
 	// the service level is visible.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Whether this service level will be available for customers to select in the
+	// Whether customers can see and select this service level at checkout in the
 	// customer portal.
 	//
 	// Any of "visible", "hidden".
@@ -208,7 +217,7 @@ func (r *UpdateServiceLevelRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Whether this service level will be available for customers to select in the
+// Whether customers can see and select this service level at checkout in the
 // customer portal.
 type UpdateServiceLevelRequestCustomerPortalVisibility string
 

@@ -27,11 +27,11 @@ func TestCatalogUnitGroupNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.UnitGroups.New(context.TODO(), augno.CatalogUnitGroupNewParams{
 		CreateUnitGroupRequest: augno.CreateUnitGroupRequestParam{
-			BaseUnitID: "un_01966263f74a5a0cae356000a1",
+			BaseUnitID: "un_82bd37dae5po",
 			Name:       "Weight Units",
 			Type:       augno.CreateUnitGroupRequestTypeMass,
 			AssociatedUnits: []augno.CreateUnitGroupUnitParam{{
-				UnitID:                   "un_01966263f74a5a0cae356000a1",
+				UnitID:                   "un_82bd37dae5po",
 				CustomerPortalVisibility: augno.CreateUnitGroupUnitParamCustomerPortalVisibilityVisible,
 				DiscountFixed:            augno.Float(0),
 				DiscountPercentage:       augno.Float(1),
@@ -63,7 +63,7 @@ func TestCatalogUnitGroupGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.UnitGroups.Get(
 		context.TODO(),
-		"ug_01aad07abb8e41fd392d2d7013",
+		"ug_andst6m79n41",
 		augno.CatalogUnitGroupGetParams{
 			Include: []string{"owner"},
 		},
@@ -91,17 +91,17 @@ func TestCatalogUnitGroupUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.UnitGroups.Update(
 		context.TODO(),
-		"ug_01aad07abb8e41fd392d2d7013",
+		"ug_andst6m79n41",
 		augno.CatalogUnitGroupUpdateParams{
 			Include: []string{"owner"},
 			UpdateUnitGroupRequest: augno.UpdateUnitGroupRequestParam{
 				AssociatedUnits: []augno.CreateUnitGroupUnitParam{{
-					UnitID:                   "un_01966263f74a5a0cae356000a1",
+					UnitID:                   "un_82bd37dae5po",
 					CustomerPortalVisibility: augno.CreateUnitGroupUnitParamCustomerPortalVisibilityVisible,
 					DiscountFixed:            augno.Float(0),
 					DiscountPercentage:       augno.Float(1),
 				}},
-				BaseUnitID: augno.String("un_01966263f74a5a0cae356000a1"),
+				BaseUnitID: augno.String("un_82bd37dae5po"),
 				Name:       augno.String("Weight Units (Updated)"),
 				Notes:      augno.String("Added kilogram association for metric orders."),
 			},
@@ -156,7 +156,7 @@ func TestCatalogUnitGroupDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.UnitGroups.Delete(context.TODO(), "ug_01aad07abb8e41fd392d2d7013")
+	_, err := client.Catalog.UnitGroups.Delete(context.TODO(), "ug_andst6m79n41")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

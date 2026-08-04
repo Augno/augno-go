@@ -42,14 +42,16 @@ func NewOperationDemandOverrideService(opts ...option.RequestOption) (r Operatio
 	return
 }
 
-// Creates a demand override.
+// Creates a demand override, telling the planner about demand the sales history
+// cannot see.
 //
-// The scope reference is validated against the account's items or product lines,
+// The scope reference is validated against the account's items and product lines,
 // so an override can never silently match nothing. An `account`-scoped override
-// applies to every planned item and takes no scope reference; it must be a delta,
-// not an absolute value. An `absolute` value replaces the forecast for the period,
-// `delta_units` adds to it, and `delta_percent` scales it; a percent override
-// cannot reduce demand by more than 100%.
+// takes no scope reference and must be a delta rather than an absolute value,
+// since one number fanned out across every item would flatten the whole plan.
+//
+// Schedules that have already been generated are unaffected; the override is
+// picked up by the next one.
 //
 // This endpoint requires the permission: `demand_overrides:create`.
 func (r *OperationDemandOverrideService) New(ctx context.Context, params OperationDemandOverrideNewParams, opts ...option.RequestOption) (res *DemandOverride, err error) {
@@ -75,9 +77,14 @@ func (r *OperationDemandOverrideService) Get(ctx context.Context, id string, que
 
 // Updates a demand override.
 //
-// The type and value are validated as a pair against the resulting override, so
-// switching an existing units adjustment to `delta_percent` is checked as a
-// percent even when only the type is sent.
+// Only the fields sent are changed. The adjustment and value are validated as a
+// pair against the resulting override, so switching a stored unit adjustment to
+// `delta_percent` is checked as a percentage even when only the adjustment is
+// sent; the period is checked the same way.
+//
+// What an override targets cannot be changed — create a new override to adjust a
+// different item, product line, or the account as a whole. Schedules that have
+// already been generated are unaffected; the change is picked up by the next one.
 //
 // This endpoint requires the permission: `demand_overrides:update`.
 func (r *OperationDemandOverrideService) Update(ctx context.Context, id string, params OperationDemandOverrideUpdateParams, opts ...option.RequestOption) (res *DemandOverride, err error) {
@@ -94,7 +101,8 @@ func (r *OperationDemandOverrideService) Update(ctx context.Context, id string, 
 // Returns a paginated list of demand overrides, most recently created first.
 //
 // The period filters match on overlap rather than containment, so an override
-// spanning a quarter is returned when querying a single month inside it.
+// spanning a quarter is returned when querying a single month inside it. The `q`
+// search term matches the override's note.
 //
 // This endpoint requires the permission: `demand_overrides:read`.
 func (r *OperationDemandOverrideService) List(ctx context.Context, query OperationDemandOverrideListParams, opts ...option.RequestOption) (res *ListDemandOverride, err error) {
@@ -104,10 +112,12 @@ func (r *OperationDemandOverrideService) List(ctx context.Context, query Operati
 	return res, err
 }
 
-// Deletes a demand override.
+// Deletes a demand override permanently.
 //
-// Schedules already generated are unaffected: a version snapshots the overrides it
-// applied, so deleting one changes future solves only.
+// Schedules that have already been generated are unaffected: each one records the
+// overrides it applied, so deleting an override changes only schedules generated
+// from now on. To stop an override applying while keeping it on file, deactivate
+// it instead.
 //
 // This endpoint requires the permission: `demand_overrides:delete`.
 func (r *OperationDemandOverrideService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *OperationDemandOverrideDeleteResponse, err error) {
@@ -128,33 +138,73 @@ func (r *OperationDemandOverrideService) Delete(ctx context.Context, id string, 
 type CreateDemandOverrideRequestParam struct {
 	// How the value adjusts the forecast.
 	//
+	// - `absolute`: replaces the forecast for each month in the period.
+	// - `delta_units`: adds the value to each month in the period.
+	// - `delta_percent`: scales each month in the period by the value as a percentage.
+	//
+	// When several overrides land on the same month they are applied in that order, so
+	// a percentage always acts on the already-adjusted number.
+	//
 	// Any of "absolute", "delta_units", "delta_percent".
 	Adjustment CreateDemandOverrideRequestAdjustment `json:"adjustment,omitzero" api:"required"`
 	// Last day of the demand period the override applies to.
+	//
+	// Must fall on or after `period_starts_at`.
 	PeriodEndsAt time.Time `json:"period_ends_at" api:"required" format:"date-time"`
 	// First day of the demand period the override applies to.
+	//
+	// Overrides are applied month by month, so every calendar month the period touches
+	// is adjusted and any time of day is ignored.
 	PeriodStartsAt time.Time `json:"period_starts_at" api:"required" format:"date-time"`
-	// ID of the item or product line the override targets. Omit for an `account`-wide
-	// override, which targets every planned item.
+	// ID of the item or product line the override targets.
+	//
+	// Omit it for an `account`-wide override, which targets every planned item rather
+	// than one thing. The ID is checked against the account's items and product lines,
+	// so an override cannot be created against something that does not exist.
 	ScopeRefID string `json:"scope_ref_id" api:"required"`
 	// What the override targets.
 	//
+	//   - `item`: a single item.
+	//   - `product_line`: every item sold under one product line.
+	//   - `account`: every item in the plan, which is how a blanket assumption such as
+	//     "plan for double demand" is expressed.
+	//
 	// Any of "item", "product_line", "account".
 	ScopeType CreateDemandOverrideRequestScopeType `json:"scope_type,omitzero" api:"required"`
-	// The adjustment, interpreted according to `adjustment`.
+	// The amount of the adjustment, interpreted according to `adjustment`.
+	//
+	// A `delta_percent` value is a number of percent, so `-25` plans a quarter less
+	// than the forecast; it cannot go below `-100`. An `absolute` value cannot be
+	// negative, while a `delta_units` value can, so that a cancelled program removes
+	// demand.
 	Value float64 `json:"value" api:"required"`
-	// Whether the override is applied to solves at all. Defaults to true.
+	// Whether the override is taken into account when a schedule is generated.
+	//
+	// Send `false` to stage an adjustment that should not affect schedules yet; an
+	// override is otherwise created ready to apply.
 	Active param.Opt[bool] `json:"active,omitzero"`
-	// When the override starts being applied to solves. Defaults to now.
+	// When the override starts being applied to newly generated schedules.
+	//
+	// When omitted, the override starts applying straight away.
 	EffectiveAt param.Opt[time.Time] `json:"effective_at,omitzero" format:"date-time"`
-	// When the override stops being applied to solves. Omit for an override with no
-	// end.
+	// When the override stops being applied to newly generated schedules.
+	//
+	// When omitted, the override keeps applying until it is deactivated or deleted.
 	ExpiresAt param.Opt[time.Time] `json:"expires_at,omitzero" format:"date-time"`
 	// Free-form notes about the adjustment.
+	//
+	// This is the text the free-text search on the list endpoint matches against.
 	Note param.Opt[string] `json:"note,omitzero"`
 	// ID of the unit the value is expressed in.
+	//
+	// Recorded for context only: the value is applied to the planned demand without
+	// unit conversion, so a unit adjustment should be stated in the unit the item is
+	// planned in.
 	UnitID param.Opt[string] `json:"unit_id,omitzero"`
 	// Why the adjustment was made.
+	//
+	// The reason is carried into each schedule the override changes, so a plan can
+	// explain why a month departs from history.
 	//
 	// Any of "new_customer", "lost_account", "promotion", "seasonal_shift",
 	// "new_product", "discontinued", "market_intelligence", "other".
@@ -171,6 +221,13 @@ func (r *CreateDemandOverrideRequestParam) UnmarshalJSON(data []byte) error {
 }
 
 // How the value adjusts the forecast.
+//
+// - `absolute`: replaces the forecast for each month in the period.
+// - `delta_units`: adds the value to each month in the period.
+// - `delta_percent`: scales each month in the period by the value as a percentage.
+//
+// When several overrides land on the same month they are applied in that order, so
+// a percentage always acts on the already-adjusted number.
 type CreateDemandOverrideRequestAdjustment string
 
 const (
@@ -180,6 +237,11 @@ const (
 )
 
 // What the override targets.
+//
+//   - `item`: a single item.
+//   - `product_line`: every item sold under one product line.
+//   - `account`: every item in the plan, which is how a blanket assumption such as
+//     "plan for double demand" is expressed.
 type CreateDemandOverrideRequestScopeType string
 
 const (
@@ -189,6 +251,9 @@ const (
 )
 
 // Why the adjustment was made.
+//
+// The reason is carried into each schedule the override changes, so a plan can
+// explain why a month departs from history.
 type CreateDemandOverrideRequestReason string
 
 const (
@@ -202,23 +267,27 @@ const (
 	CreateDemandOverrideRequestReasonOther              CreateDemandOverrideRequestReason = "other"
 )
 
-// An adjustment to the demand a production schedule plans against.
+// An adjustment to the demand a production schedule is planned against.
 //
 // Sales history cannot see a large customer that is about to order, a promotion,
 // or a line that is being discontinued. An override is how management tells the
-// planner about it. The period names the months the demand will occur in — months
-// of the coming planning year; a period entirely in the past adjusts nothing,
-// because the plan is solved for the year ahead. `effective_from` and `expires_at`
-// bound when the override is consulted at all, which is a different question — an
-// override for next quarter typically stops applying once the real orders arrive.
-//
-// A product-line override applies to each of the line's items; an account-wide
-// override applies to every planned item, which is how a global growth assumption
-// (e.g. "plan for double demand") is expressed.
+// planner about it. The period names the months the demand will occur in, and only
+// months of the coming planning year are adjusted — a period entirely in the past
+// changes nothing, because the plan covers the year ahead. `effective_at` and
+// `expires_at` answer a different question: how long the override is consulted at
+// all, so an adjustment can be retired on a date without deleting it.
 type DemandOverride struct {
 	// Demand override ID.
 	ID string `json:"id" api:"required"`
 	// How the value adjusts the forecast.
+	//
+	// - `absolute`: replaces the forecast for each month in the period.
+	// - `delta_units`: adds the value to each month in the period.
+	// - `delta_percent`: scales each month in the period by the value as a percentage.
+	//
+	// When several overrides land on the same month they are applied in that order, so
+	// a percentage always acts on the already-adjusted number. An adjusted month is
+	// never taken below zero.
 	//
 	// Any of "absolute", "delta_units", "delta_percent".
 	Adjustment DemandOverrideAdjustment `json:"adjustment" api:"required"`
@@ -227,9 +296,11 @@ type DemandOverride struct {
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
 	CreatedBy Actor `json:"created_by" api:"required"`
-	// When the override starts being applied to solves.
+	// When the override starts being applied to newly generated schedules.
 	EffectiveAt time.Time `json:"effective_at" api:"required" format:"date-time"`
-	// When the override stops being applied to solves.
+	// When the override stops being applied to newly generated schedules.
+	//
+	// An override with no expiry keeps applying until it is deactivated or deleted.
 	ExpiresAt time.Time `json:"expires_at" api:"required" format:"date-time"`
 	// Free-form notes about the adjustment.
 	Note string `json:"note" api:"required"`
@@ -240,20 +311,33 @@ type DemandOverride struct {
 	// Last day of the demand period the override applies to.
 	PeriodEndsAt time.Time `json:"period_ends_at" api:"required" format:"date-time"`
 	// First day of the demand period the override applies to.
+	//
+	// Overrides are applied month by month, so every calendar month the period touches
+	// is adjusted and any time of day is ignored.
 	PeriodStartsAt time.Time `json:"period_starts_at" api:"required" format:"date-time"`
 	// Why the adjustment was made.
+	//
+	// The reason is carried into each schedule the override changes, so a plan can
+	// explain why a month departs from history.
 	//
 	// Any of "new_customer", "lost_account", "promotion", "seasonal_shift",
 	// "new_product", "discontinued", "market_intelligence", "other".
 	Reason DemandOverrideReason `json:"reason" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Scope Entity `json:"scope" api:"required"`
-	// What kind of resource the override targets. Mirrors `scope.type`, which is only
-	// present when the scope is expanded.
+	// What the override targets.
+	//
+	//   - `item`: a single item.
+	//   - `product_line`: every item sold under one product line.
+	//   - `account`: every item in the plan, which is how a blanket assumption such as
+	//     "plan for double demand" is expressed.
 	//
 	// Any of "item", "product_line", "account".
 	ScopeType DemandOverrideScopeType `json:"scope_type" api:"required"`
-	// Whether the override is applied to solves at all.
+	// Whether the override is taken into account when a schedule is generated.
+	//
+	// An inactive override is skipped whatever its effective window says, which is how
+	// a prepared adjustment is parked without losing it.
 	//
 	// Any of "active", "inactive".
 	Status DemandOverrideStatus `json:"status" api:"required"`
@@ -261,7 +345,10 @@ type DemandOverride struct {
 	Unit Unit `json:"unit" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// The adjustment, interpreted according to `adjustment`.
+	// The amount of the adjustment, interpreted according to `adjustment`.
+	//
+	// A `delta_percent` value is a number of percent, so `-25` plans a quarter less
+	// than the forecast.
 	Value float64 `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -294,6 +381,14 @@ func (r *DemandOverride) UnmarshalJSON(data []byte) error {
 }
 
 // How the value adjusts the forecast.
+//
+// - `absolute`: replaces the forecast for each month in the period.
+// - `delta_units`: adds the value to each month in the period.
+// - `delta_percent`: scales each month in the period by the value as a percentage.
+//
+// When several overrides land on the same month they are applied in that order, so
+// a percentage always acts on the already-adjusted number. An adjusted month is
+// never taken below zero.
 type DemandOverrideAdjustment string
 
 const (
@@ -310,6 +405,9 @@ const (
 )
 
 // Why the adjustment was made.
+//
+// The reason is carried into each schedule the override changes, so a plan can
+// explain why a month departs from history.
 type DemandOverrideReason string
 
 const (
@@ -323,8 +421,12 @@ const (
 	DemandOverrideReasonOther              DemandOverrideReason = "other"
 )
 
-// What kind of resource the override targets. Mirrors `scope.type`, which is only
-// present when the scope is expanded.
+// What the override targets.
+//
+//   - `item`: a single item.
+//   - `product_line`: every item sold under one product line.
+//   - `account`: every item in the plan, which is how a blanket assumption such as
+//     "plan for double demand" is expressed.
 type DemandOverrideScopeType string
 
 const (
@@ -333,7 +435,10 @@ const (
 	DemandOverrideScopeTypeAccount     DemandOverrideScopeType = "account"
 )
 
-// Whether the override is applied to solves at all.
+// Whether the override is taken into account when a schedule is generated.
+//
+// An inactive override is skipped whatever its effective window says, which is how
+// a prepared adjustment is parked without losing it.
 type DemandOverrideStatus string
 
 const (
@@ -341,7 +446,8 @@ const (
 	DemandOverrideStatusInactive DemandOverrideStatus = "inactive"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListDemandOverride struct {
 	// Resources in this page.
 	Data []DemandOverride `json:"data" api:"required"`
@@ -349,7 +455,13 @@ type ListDemandOverride struct {
 	//
 	// Any of "list".
 	Object ListDemandOverrideObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -376,27 +488,51 @@ const (
 
 // Request to update a demand override.
 type UpdateDemandOverrideRequestParam struct {
-	// When the override stops being applied to solves. Clear it to make the override
-	// permanent.
+	// When the override stops being applied to newly generated schedules.
+	//
+	// Clear it to keep the override applying until it is deactivated or deleted.
 	ExpiresAt param.Opt[time.Time] `json:"expires_at,omitzero" format:"date-time"`
 	// Free-form notes about the adjustment.
 	Note param.Opt[string] `json:"note,omitzero"`
 	// ID of the unit the value is expressed in.
+	//
+	// Recorded for context only: the value is applied to the planned demand without
+	// unit conversion.
 	UnitID param.Opt[string] `json:"unit_id,omitzero"`
-	// Whether the override is applied to solves at all.
+	// Whether the override is taken into account when a schedule is generated.
+	//
+	// Deactivating parks the override without losing it; it is skipped whatever its
+	// effective window says, and can be reactivated later.
 	Active param.Opt[bool] `json:"active,omitzero"`
 	// Last day of the demand period the override applies to.
+	//
+	// Must fall on or after the override's start, whether that is sent here or already
+	// stored.
 	PeriodEndsAt param.Opt[time.Time] `json:"period_ends_at,omitzero" format:"date-time"`
 	// First day of the demand period the override applies to.
+	//
+	// Overrides are applied month by month, so every calendar month the period touches
+	// is adjusted and any time of day is ignored.
 	PeriodStartsAt param.Opt[time.Time] `json:"period_starts_at,omitzero" format:"date-time"`
-	// The adjustment, interpreted according to `adjustment`.
+	// The amount of the adjustment, interpreted according to `adjustment`.
+	//
+	// It is validated against the adjustment the override ends up with, so switching a
+	// stored unit delta to `delta_percent` without sending a new value requires the
+	// existing value to be a legal percentage.
 	Value param.Opt[float64] `json:"value,omitzero"`
 	// Why the adjustment was made.
+	//
+	// The reason is carried into each schedule the override changes, so a plan can
+	// explain why a month departs from history.
 	//
 	// Any of "new_customer", "lost_account", "promotion", "seasonal_shift",
 	// "new_product", "discontinued", "market_intelligence", "other".
 	Reason UpdateDemandOverrideRequestReason `json:"reason,omitzero"`
 	// How the value adjusts the forecast.
+	//
+	// - `absolute`: replaces the forecast for each month in the period.
+	// - `delta_units`: adds the value to each month in the period.
+	// - `delta_percent`: scales each month in the period by the value as a percentage.
 	//
 	// Any of "absolute", "delta_units", "delta_percent".
 	Adjustment UpdateDemandOverrideRequestAdjustment `json:"adjustment,omitzero"`
@@ -412,6 +548,10 @@ func (r *UpdateDemandOverrideRequestParam) UnmarshalJSON(data []byte) error {
 }
 
 // How the value adjusts the forecast.
+//
+// - `absolute`: replaces the forecast for each month in the period.
+// - `delta_units`: adds the value to each month in the period.
+// - `delta_percent`: scales each month in the period by the value as a percentage.
 type UpdateDemandOverrideRequestAdjustment string
 
 const (
@@ -421,6 +561,9 @@ const (
 )
 
 // Why the adjustment was made.
+//
+// The reason is carried into each schedule the override changes, so a plan can
+// explain why a month departs from history.
 type UpdateDemandOverrideRequestReason string
 
 const (
@@ -550,7 +693,7 @@ type OperationDemandOverrideListParams struct {
 	Include []string `query:"include,omitzero" json:"-"`
 	// Only return overrides targeting these items or product lines.
 	ScopeRefIDs []string `query:"scope_ref_ids,omitzero" json:"-"`
-	// Only return overrides targeting these kinds of resource.
+	// Only return overrides with these kinds of target.
 	//
 	// Any of "item", "product_line", "account".
 	ScopeTypes []string `query:"scope_types,omitzero" json:"-"`

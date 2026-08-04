@@ -43,6 +43,10 @@ func NewCoreSandboxService(opts ...option.RequestOption) (r CoreSandboxService) 
 
 // Creates a sandbox account owned by your production account.
 //
+// The creating user is added to the new sandbox as an administrator, so it can be
+// switched into right away. When the owner's plan limits how many sandboxes it may
+// have, the request fails once that limit is reached.
+//
 // When `mode` is `seeded`, sample data is populated asynchronously and may not be
 // available immediately after the sandbox is created. Sandboxes cannot be created
 // while acting in a sandbox.
@@ -55,7 +59,11 @@ func (r *CoreSandboxService) New(ctx context.Context, params CoreSandboxNewParam
 	return res, err
 }
 
-// Returns a sandbox by ID.
+// Returns a single sandbox by ID.
+//
+// Only sandboxes owned by your production account are visible; any other sandbox
+// is reported as not found. Sandboxes cannot be retrieved while acting in a
+// sandbox.
 //
 // This endpoint requires the permission: `sandboxes:read`.
 func (r *CoreSandboxService) Get(ctx context.Context, id string, query CoreSandboxGetParams, opts ...option.RequestOption) (res *Sandbox, err error) {
@@ -69,7 +77,11 @@ func (r *CoreSandboxService) Get(ctx context.Context, id string, query CoreSandb
 	return res, err
 }
 
-// Returns a paginated list of sandboxes.
+// Returns a paginated list of the sandboxes owned by your production account,
+// newest first.
+//
+// The `q` search term matches the sandbox name. Sandboxes cannot be listed while
+// acting in a sandbox.
 //
 // This endpoint requires the permission: `sandboxes:read`.
 func (r *CoreSandboxService) List(ctx context.Context, query CoreSandboxListParams, opts ...option.RequestOption) (res *ListSandbox, err error) {
@@ -79,10 +91,12 @@ func (r *CoreSandboxService) List(ctx context.Context, query CoreSandboxListPara
 	return res, err
 }
 
-// Deletes a sandbox account.
+// Deletes a sandbox account and everything inside it.
 //
-// The sandbox's data is purged asynchronously, so it may persist briefly after
-// this call returns.
+// The sandbox becomes inaccessible as soon as this call returns, but its data is
+// purged asynchronously and may persist briefly. Deletion is permanent: the
+// sandbox cannot be restored, and deleting it again reports that it has already
+// been deleted. Sandboxes cannot be deleted while acting in a sandbox.
 //
 // This endpoint requires the permission: `sandboxes:delete`.
 func (r *CoreSandboxService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *CoreSandboxDeleteResponse, err error) {
@@ -133,7 +147,8 @@ const (
 	CreateSandboxRequestModeSeeded CreateSandboxRequestMode = "seeded"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListSandbox struct {
 	// Resources in this page.
 	Data []Sandbox `json:"data" api:"required"`
@@ -141,7 +156,13 @@ type ListSandbox struct {
 	//
 	// Any of "list".
 	Object ListSandboxObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -166,7 +187,10 @@ const (
 	ListSandboxObjectList ListSandboxObject = "list"
 )
 
-// Sandbox account for isolated testing.
+// An isolated test account owned by a production account.
+//
+// A sandbox is a full account with its own data, so anything created or changed
+// inside it leaves your production data untouched.
 type Sandbox struct {
 	// Sandbox ID.
 	ID string `json:"id" api:"required"`
@@ -178,7 +202,11 @@ type Sandbox struct {
 	//
 	// Any of "sandbox".
 	Object SandboxObject `json:"object" api:"required"`
-	// A customer account, including its branding and customer portal sub-resources.
+	// An organization on Augno, including its branding and customer portal
+	// sub-resources.
+	//
+	// Your own account and any customer or supplier account you trade with are both
+	// represented by this object.
 	OwnerAccount Account `json:"owner_account" api:"required"`
 	// When this sandbox was last updated.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`

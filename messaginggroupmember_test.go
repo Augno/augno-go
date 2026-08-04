@@ -27,12 +27,12 @@ func TestMessagingGroupMemberNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Groups.Members.New(
 		context.TODO(),
-		"cvgp_018e88072d1320808dc97abc",
+		"cvgp_wjlypugna7s4",
 		augno.MessagingGroupMemberNewParams{
 			AddMessagingGroupMemberRequest: augno.AddMessagingGroupMemberRequestParam{
 				MemberType:    augno.AddMessagingGroupMemberRequestMemberTypeUser,
-				AccountUserID: augno.String("acus_01ea9983ddb41dacc44ecf997c"),
-				AgentConfigID: augno.String("agdf_01b9ef28feb99e6954201aca63"),
+				AccountUserID: augno.String("acus_e5zu8bde0z3h"),
+				AgentConfigID: augno.String("agdf_ah7tkyfxk8jl"),
 			},
 		},
 	)
@@ -59,9 +59,9 @@ func TestMessagingGroupMemberDelete(t *testing.T) {
 	)
 	_, err := client.Messaging.Groups.Members.Delete(
 		context.TODO(),
-		"cvgppt_018e88072d1320808dc9def",
+		"cvgppt_obu4df48t1xx",
 		augno.MessagingGroupMemberDeleteParams{
-			ID: "cvgp_018e88072d1320808dc97abc",
+			ID: "cvgp_wjlypugna7s4",
 		},
 	)
 	if err != nil {

@@ -27,10 +27,10 @@ func TestSaleCustomerActionMergeWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.Customers.Actions.Merge(
 		context.TODO(),
-		"ac_0170df1ac58e4d24c66fc89f5f",
+		"ac_opnlh43ymyee",
 		augno.SaleCustomerActionMergeParams{
 			MergeCustomersRequest: augno.MergeCustomersRequestParam{
-				SourceCustomerIDs: []string{"ac_0170df1ac58e4d24c66fc89f5f"},
+				SourceCustomerIDs: []string{"ac_opnlh43ymyee"},
 			},
 			Include: []string{"bill_to_address"},
 		},

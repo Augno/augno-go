@@ -41,7 +41,11 @@ func NewFinanceService(opts ...option.RequestOption) (r FinanceService) {
 	return
 }
 
-// Returns a paginated list of adjustment types.
+// Returns a paginated list of the adjustment categories that can be recorded on an
+// adjustment transaction, such as discounts, fees, and write-offs.
+//
+// Adjustment types are platform-provided and identical for every account.
+// Free-text search matches the display name.
 func (r *FinanceService) GetAdjustmentTypes(ctx context.Context, query FinanceGetAdjustmentTypesParams, opts ...option.RequestOption) (res *ListAdjustmentType, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/finance/adjustment-types"
@@ -49,7 +53,12 @@ func (r *FinanceService) GetAdjustmentTypes(ctx context.Context, query FinanceGe
 	return res, err
 }
 
-// Returns a paginated list of transaction methods.
+// Returns the payment methods that can be recorded on a transaction, such as cash,
+// check, and ACH.
+//
+// The set is fixed by the platform and identical for every account, so the results
+// come back in one page; supplying a pagination cursor returns a validation error.
+// Free-text search matches the display name.
 func (r *FinanceService) GetTransactionMethods(ctx context.Context, query FinanceGetTransactionMethodsParams, opts ...option.RequestOption) (res *ListTransactionMethod, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/finance/transaction-methods"
@@ -57,7 +66,12 @@ func (r *FinanceService) GetTransactionMethods(ctx context.Context, query Financ
 	return res, err
 }
 
-// Returns a paginated list of transaction types.
+// Returns the transaction types that can be recorded against a customer: payments,
+// credit memos, adjustments, and rebates.
+//
+// The set is fixed by the platform and identical for every account, so the results
+// come back in one page; supplying a pagination cursor returns a validation error.
+// Free-text search matches the display name.
 func (r *FinanceService) GetTransactionTypes(ctx context.Context, query FinanceGetTransactionTypesParams, opts ...option.RequestOption) (res *ListTransactionType, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/finance/transaction-types"
@@ -67,8 +81,8 @@ func (r *FinanceService) GetTransactionTypes(ctx context.Context, query FinanceG
 
 // A category of financial adjustment, such as a discount, fee, or write-off.
 //
-// Adjustment types classify adjustment transactions recorded against customer
-// invoices.
+// Adjustment types classify the `adjustment` transactions recorded against a
+// customer.
 type AdjustmentType struct {
 	// Adjustment type ID.
 	ID string `json:"id" api:"required"`
@@ -144,7 +158,8 @@ const (
 	AdjustmentTypeObjectAdjustmentType AdjustmentTypeObject = "adjustment_type"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListAdjustmentType struct {
 	// Resources in this page.
 	Data []AdjustmentType `json:"data" api:"required"`
@@ -152,7 +167,13 @@ type ListAdjustmentType struct {
 	//
 	// Any of "list".
 	Object ListAdjustmentTypeObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -177,7 +198,8 @@ const (
 	ListAdjustmentTypeObjectList ListAdjustmentTypeObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListTransactionMethod struct {
 	// Resources in this page.
 	Data []TransactionMethod `json:"data" api:"required"`
@@ -185,7 +207,13 @@ type ListTransactionMethod struct {
 	//
 	// Any of "list".
 	Object ListTransactionMethodObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -210,7 +238,8 @@ const (
 	ListTransactionMethodObjectList ListTransactionMethodObject = "list"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListTransactionType struct {
 	// Resources in this page.
 	Data []TransactionType `json:"data" api:"required"`
@@ -218,7 +247,13 @@ type ListTransactionType struct {
 	//
 	// Any of "list".
 	Object ListTransactionTypeObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

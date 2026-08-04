@@ -29,7 +29,7 @@ func TestOperationProductionScheduleSettingResourceUpdateWithOptionalParams(t *t
 		UpsertResourceSettingRequest: augno.UpsertResourceSettingRequestParam{
 			LeadTimeOffsetWeeks: 0,
 			ParticipationStatus: augno.UpsertResourceSettingRequestParticipationStatusExcluded,
-			ScopeRefID:          "mc_0177d18f55a1615f783d3bf8d0",
+			ScopeRefID:          "mc_ffcfk9dxixis",
 			ScopeType:           augno.UpsertResourceSettingRequestScopeTypeMachine,
 			LeadTimeWeeks:       augno.Float(0),
 		},

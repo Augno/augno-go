@@ -28,19 +28,19 @@ func TestCatalogPartNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Parts.New(context.TODO(), augno.CatalogPartNewParams{
 		CreatePartRequest: augno.CreatePartRequestParam{
-			CategoryID:   "ic_01ae7bd7bfd21ca0ab81e1357e",
+			CategoryID:   "ic_d06g9c6yc9ck",
 			SKU:          "BRG-6204-2RS",
-			AttributeIDs: []string{"at_01c9493ec0c46bb0ed12708ae4"},
+			AttributeIDs: []string{"at_rf1w295jt5ia"},
 			Description:  augno.String("Deep groove ball bearing, 20x47x14mm"),
 			Notes:        augno.String("OEM-equivalent; verify shielding type before substitution."),
 			UnitCost: augno.RateInputParam{
-				DenominatorUnitID: "un_01966263f74a5a0cae356000a1",
-				NumeratorUnitID:   "un_01966263f74a5a0cae356000a1",
+				DenominatorUnitID: "un_82bd37dae5po",
+				NumeratorUnitID:   "un_82bd37dae5po",
 				Value:             "9.40",
 			},
 			UnitPrice: augno.RateInputParam{
-				DenominatorUnitID: "un_01966263f74a5a0cae356000a1",
-				NumeratorUnitID:   "un_01966263f74a5a0cae356000a1",
+				DenominatorUnitID: "un_82bd37dae5po",
+				NumeratorUnitID:   "un_82bd37dae5po",
 				Value:             "14.99",
 			},
 		},
@@ -69,7 +69,7 @@ func TestCatalogPartGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Parts.Get(
 		context.TODO(),
-		"pt_018d7bab53e864351f4c693a21",
+		"pt_coba9fgvd84c",
 		augno.CatalogPartGetParams{
 			Include: []string{"item"},
 		},
@@ -97,7 +97,7 @@ func TestCatalogPartUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Parts.Update(
 		context.TODO(),
-		"pt_018d7bab53e864351f4c693a21",
+		"pt_coba9fgvd84c",
 		augno.CatalogPartUpdateParams{
 			Include: []string{"item"},
 			UpdatePartRequest: augno.UpdatePartRequestParam{
@@ -159,7 +159,7 @@ func TestCatalogPartDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Parts.Delete(context.TODO(), "pt_018d7bab53e864351f4c693a21")
+	_, err := client.Catalog.Parts.Delete(context.TODO(), "pt_coba9fgvd84c")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

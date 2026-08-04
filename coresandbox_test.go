@@ -55,7 +55,7 @@ func TestCoreSandboxGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Core.Sandboxes.Get(
 		context.TODO(),
-		"sbac_01ebd87c707b138806f060b9ae",
+		"sbac_d8ci32xggml9",
 		augno.CoreSandboxGetParams{
 			Include: []string{"owner_account"},
 		},
@@ -108,7 +108,7 @@ func TestCoreSandboxDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Sandboxes.Delete(context.TODO(), "sbac_01ebd87c707b138806f060b9ae")
+	_, err := client.Core.Sandboxes.Delete(context.TODO(), "sbac_d8ci32xggml9")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

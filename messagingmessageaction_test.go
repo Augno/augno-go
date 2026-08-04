@@ -27,7 +27,7 @@ func TestMessagingMessageActionApproveSendWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Messages.Actions.ApproveSend(
 		context.TODO(),
-		"mg_01h9z8q1w2e3r4t5y6u7i8mg",
+		"mg_fdny8633ebgw",
 		augno.MessagingMessageActionApproveSendParams{
 			ApproveSendDraftRequest: augno.ApproveSendDraftRequestParam{
 				ClientMessageID: "client_msg_approve_7b1c",
@@ -58,7 +58,7 @@ func TestMessagingMessageActionCancelWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Messages.Actions.Cancel(
 		context.TODO(),
-		"mg_01h9z8q1w2e3r4t5y6u7i8mg",
+		"mg_fdny8633ebgw",
 		augno.MessagingMessageActionCancelParams{
 			Include: []string{"sender"},
 		},
@@ -86,7 +86,7 @@ func TestMessagingMessageActionRejectWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Messages.Actions.Reject(
 		context.TODO(),
-		"mg_01h9z8q1w2e3r4t5y6u7i8mg",
+		"mg_fdny8633ebgw",
 		augno.MessagingMessageActionRejectParams{
 			Include: []string{"sender"},
 		},

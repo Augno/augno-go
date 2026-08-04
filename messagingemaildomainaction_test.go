@@ -25,7 +25,7 @@ func TestMessagingEmailDomainActionVerify(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Messaging.EmailDomains.Actions.Verify(context.TODO(), "emdom_018e88072d1320808dc9aaa01")
+	_, err := client.Messaging.EmailDomains.Actions.Verify(context.TODO(), "emdom_2rk3omr8vshb")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

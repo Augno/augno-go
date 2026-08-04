@@ -40,8 +40,11 @@ func NewMessagingConversationActionService(opts ...option.RequestOption) (r Mess
 	return
 }
 
-// Archives a conversation at the account level so it drops out of active lists for
-// everyone until it is unarchived.
+// Archives a conversation for the whole account rather than just for the caller.
+//
+// Only an owner or admin of the conversation can archive it, and direct messages
+// cannot be archived. An archived customer-facing case leaves the working support
+// inbox and is returned only by the archived view.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationActionService) Archive(ctx context.Context, id string, body MessagingConversationActionArchiveParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -58,6 +61,10 @@ func (r *MessagingConversationActionService) Archive(ctx context.Context, id str
 // Assigns an external customer-service case to an owner — a user or a team — or
 // clears the assignment.
 //
+// Only customer-facing cases can be assigned; assigning an internal conversation
+// is rejected. The support inbox can then be filtered to a single assignee, or to
+// the cases nobody owns yet.
+//
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationActionService) Assign(ctx context.Context, id string, params MessagingConversationActionAssignParams, opts ...option.RequestOption) (res *Conversation, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -73,6 +80,10 @@ func (r *MessagingConversationActionService) Assign(ctx context.Context, id stri
 // Hides a conversation from the caller's own list without affecting other
 // participants.
 //
+// The caller stays a member and keeps receiving notifications; the conversation
+// simply stops appearing in their list until they unhide it, and new messages do
+// not bring it back on their own. The owner of a conversation cannot hide it.
+//
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationActionService) Hide(ctx context.Context, id string, body MessagingConversationActionHideParams, opts ...option.RequestOption) (res *Conversation, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -85,7 +96,11 @@ func (r *MessagingConversationActionService) Hide(ctx context.Context, id string
 	return res, err
 }
 
-// Removes the caller from a conversation, marking their membership as left.
+// Removes the caller from a conversation.
+//
+// An owner cannot leave — hand ownership to someone else first. Leaving posts a
+// "left the conversation" note to the thread and hides the conversation for the
+// caller, who can still read it back but can no longer post.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationActionService) Leave(ctx context.Context, id string, body MessagingConversationActionLeaveParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -99,7 +114,12 @@ func (r *MessagingConversationActionService) Leave(ctx context.Context, id strin
 	return res, err
 }
 
-// Mutes a conversation for the calling actor.
+// Mutes a conversation's notifications for the caller only, leaving the other
+// participants unaffected.
+//
+// While muted the caller gets no notification or email for new messages, though
+// the conversation still accumulates an unread count. A direct @mention pierces
+// the mute and still raises a notification.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationActionService) Mute(ctx context.Context, id string, params MessagingConversationActionMuteParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -113,8 +133,11 @@ func (r *MessagingConversationActionService) Mute(ctx context.Context, id string
 	return res, err
 }
 
-// Advances the caller's read cursor and returns the refreshed conversation (with
-// new unread count).
+// Advances the caller's read position in a conversation and returns it with the
+// recalculated unread count.
+//
+// Reading also dismisses the caller's outstanding notifications for this
+// conversation, and updates the read receipt the other participants see.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationActionService) Read(ctx context.Context, id string, params MessagingConversationActionReadParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -128,8 +151,12 @@ func (r *MessagingConversationActionService) Read(ctx context.Context, id string
 	return res, err
 }
 
-// Permanently redacts the content of every message in a conversation (GDPR
-// right-to-erasure).
+// Permanently erases the content of every message in a conversation, for
+// right-to-erasure requests.
+//
+// Message bodies are cleared and attachments are deleted from storage, leaving the
+// messages behind as an empty audit shell. This cannot be undone, and it is
+// refused while the conversation is under legal hold.
 //
 // This endpoint requires the permission: `messaging:delete`.
 func (r *MessagingConversationActionService) Redact(ctx context.Context, id string, body MessagingConversationActionRedactParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -143,8 +170,12 @@ func (r *MessagingConversationActionService) Redact(ctx context.Context, id stri
 	return res, err
 }
 
-// Files an abuse report against a conversation (optionally a specific message) and
-// returns the conversation.
+// Files an abuse report against a conversation, or against one message within it,
+// and returns the conversation.
+//
+// Only an active participant can report a conversation. The report is recorded for
+// review and changes nothing about the conversation itself — it is not hidden,
+// muted, or removed.
 //
 // This endpoint requires the permission: `messaging:create`.
 func (r *MessagingConversationActionService) Report(ctx context.Context, id string, params MessagingConversationActionReportParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -160,6 +191,9 @@ func (r *MessagingConversationActionService) Report(ctx context.Context, id stri
 
 // Places a conversation under legal hold or releases it.
 //
+// Holding it exempts the conversation from automatic retention purging, and any
+// attempt to redact it is refused until the hold is released.
+//
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationActionService) SetLegalHold(ctx context.Context, id string, params MessagingConversationActionSetLegalHoldParams, opts ...option.RequestOption) (res *Conversation, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -172,7 +206,13 @@ func (r *MessagingConversationActionService) SetLegalHold(ctx context.Context, i
 	return res, err
 }
 
-// Sets the triage lane of an external customer-service case.
+// Moves a customer-service case to a triage lane in the support inbox.
+//
+// Only customer-facing cases have a triage lane; an internal conversation is
+// rejected. The lane also advances on its own as the case progresses — an inbound
+// customer message moves it to `waiting_internal`, a drafted reply to
+// `needs_approval`, and an approved reply to `waiting_external` — so a lane set by
+// hand can be overtaken by later activity.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationActionService) SetStatus(ctx context.Context, id string, params MessagingConversationActionSetStatusParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -186,8 +226,12 @@ func (r *MessagingConversationActionService) SetStatus(ctx context.Context, id s
 	return res, err
 }
 
-// Returns an archived conversation to the active state so it appears in active
-// lists again.
+// Returns an archived conversation to the active state for the whole account.
+//
+// Only an owner or admin of the conversation can unarchive it. An unarchived
+// customer-facing case comes back to the working support inbox, and participants
+// who had separately hidden the conversation still see it hidden until they unhide
+// it themselves.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationActionService) Unarchive(ctx context.Context, id string, body MessagingConversationActionUnarchiveParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -239,8 +283,10 @@ type AssignConversationRequestParam struct {
 	//
 	// Omit this and `assignee_resource_type` to clear the assignment.
 	AssigneeResourceID param.Opt[string] `json:"assignee_resource_id,omitzero"`
-	// The owner's resource type: `account_user` (a teammate) or `account_group` (a
-	// team).
+	// What kind of owner the case is being assigned to.
+	//
+	// - `account_user`: an individual teammate takes the case.
+	// - `account_group`: a team takes the case, so anyone on it can pick it up.
 	AssigneeResourceType param.Opt[string] `json:"assignee_resource_type,omitzero"`
 	paramObj
 }
@@ -257,7 +303,10 @@ func (r *AssignConversationRequestParam) UnmarshalJSON(data []byte) error {
 //
 // The property UpToSequence is required.
 type MarkConversationReadRequestParam struct {
-	// Mark all messages up to and including this sequence as read.
+	// Mark every message up to and including this sequence number as read.
+	//
+	// A sequence past the conversation's latest message is clamped to it, and the read
+	// position never moves backwards, so replaying an older value is harmless.
 	UpToSequence int64 `json:"up_to_sequence" api:"required"`
 	paramObj
 }
@@ -291,7 +340,7 @@ func (r *MuteConversationRequestParam) UnmarshalJSON(data []byte) error {
 //
 // The property Reason is required.
 type ReportConversationRequestParam struct {
-	// The reason the conversation/message is being reported.
+	// Why the conversation or message is being reported, in free-form text.
 	Reason string `json:"reason" api:"required"`
 	// The specific message being reported.
 	//
@@ -310,12 +359,13 @@ func (r *ReportConversationRequestParam) UnmarshalJSON(data []byte) error {
 
 // Request to place a conversation under legal hold or release it.
 //
-// While held, the conversation is exempt from automatic retention purging and from
-// GDPR redaction.
-//
 // The property LegalHold is required.
 type SetLegalHoldRequestParam struct {
-	// The legal-hold status to set.
+	// Whether to place the conversation under legal hold or release it.
+	//
+	//   - `held`: the conversation is preserved — exempt from automatic retention
+	//     purging and from redaction.
+	//   - `released`: normal retention and redaction apply again.
 	//
 	// Any of "released", "held".
 	LegalHold SetLegalHoldRequestLegalHold `json:"legal_hold,omitzero" api:"required"`
@@ -330,7 +380,11 @@ func (r *SetLegalHoldRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The legal-hold status to set.
+// Whether to place the conversation under legal hold or release it.
+//
+//   - `held`: the conversation is preserved — exempt from automatic retention
+//     purging and from redaction.
+//   - `released`: normal retention and redaction apply again.
 type SetLegalHoldRequestLegalHold string
 
 const (
@@ -343,6 +397,13 @@ const (
 // The property WorkflowStatus is required.
 type SetWorkflowStatusRequestParam struct {
 	// The triage lane to move the case to.
+	//
+	// - `new`: opened but nobody has triaged it yet.
+	// - `open`: actively being worked.
+	// - `waiting_internal`: blocked on the internal team.
+	// - `waiting_external`: blocked on a reply from the customer.
+	// - `needs_approval`: a drafted reply is waiting for a human to approve it.
+	// - `resolved`: closed out.
 	//
 	// Any of "new", "open", "waiting_internal", "waiting_external", "needs_approval",
 	// "resolved".
@@ -359,6 +420,13 @@ func (r *SetWorkflowStatusRequestParam) UnmarshalJSON(data []byte) error {
 }
 
 // The triage lane to move the case to.
+//
+// - `new`: opened but nobody has triaged it yet.
+// - `open`: actively being worked.
+// - `waiting_internal`: blocked on the internal team.
+// - `waiting_external`: blocked on a reply from the customer.
+// - `needs_approval`: a drafted reply is waiting for a human to approve it.
+// - `resolved`: closed out.
 type SetWorkflowStatusRequestWorkflowStatus string
 
 const (
@@ -571,9 +639,6 @@ func (r MessagingConversationActionReportParams) URLQuery() (v url.Values, err e
 
 type MessagingConversationActionSetLegalHoldParams struct {
 	// Request to place a conversation under legal hold or release it.
-	//
-	// While held, the conversation is exempt from automatic retention purging and from
-	// GDPR redaction.
 	SetLegalHoldRequest SetLegalHoldRequestParam
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

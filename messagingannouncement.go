@@ -43,7 +43,12 @@ func NewMessagingAnnouncementService(opts ...option.RequestOption) (r MessagingA
 	return
 }
 
-// Returns one active announcement by ID.
+// Retrieves a single announcement by ID, with the calling user's own read state.
+//
+// Only announcements the caller can see are returned: one published to another
+// account, one that has not reached its publish time, or one that has expired is
+// reported as not found. An announcement the caller has dismissed stays
+// retrievable even though it no longer appears in their feed.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingAnnouncementService) Get(ctx context.Context, id string, query MessagingAnnouncementGetParams, opts ...option.RequestOption) (res *Announcement, err error) {
@@ -57,8 +62,12 @@ func (r *MessagingAnnouncementService) Get(ctx context.Context, id string, query
 	return res, err
 }
 
-// Returns the broadcast announcements currently active for the caller, most recent
-// first.
+// Lists the announcements currently active for the caller, newest first.
+//
+// The feed covers announcements broadcast to the account being acted in together
+// with platform-wide announcements from Augno. Announcements the caller has
+// dismissed are left out, as are any that are scheduled for later or have already
+// expired.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingAnnouncementService) List(ctx context.Context, query MessagingAnnouncementListParams, opts ...option.RequestOption) (res *ListAnnouncement, err error) {
@@ -68,58 +77,80 @@ func (r *MessagingAnnouncementService) List(ctx context.Context, query Messaging
 	return res, err
 }
 
-// A broadcast announcement shown in the bell feed, with the caller's per-user read
-// state.
+// A broadcast announcement shown in the notification (bell) feed, carrying the
+// calling user's own read state.
+//
+// A single announcement is published to everyone in an account, or to every user
+// on the platform, and each user keeps their own seen, read, and dismissed state
+// for it. The status and timestamps you read are therefore always the caller's,
+// and never reflect what anyone else has done with the same announcement.
+// Notifications addressed to one user are a separate resource.
 type Announcement struct {
 	// Announcement ID.
 	ID string `json:"id" api:"required"`
-	// Preview/body text.
+	// Supporting detail shown beneath the title.
 	Body string `json:"body" api:"required"`
-	// Category of the announcement.
+	// The kind of event the announcement is about.
+	//
+	// Announcements draw on the same categories as notifications, such as
+	// `system.broadcast` or `order.updated`, and the category is chosen by whoever
+	// publishes the announcement. The set is open-ended and may grow over time, so
+	// clients should tolerate values they do not recognize.
 	//
 	// Any of "chat.message", "chat.mention", "chat.added", "order.updated",
 	// "agent.run_completed", "agent.alert", "system.broadcast", "customer.registered".
 	Category AnnouncementCategory `json:"category" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// When the calling actor dismissed the announcement.
+	// When the calling user dismissed the announcement.
 	DismissedAt time.Time `json:"dismissed_at" api:"required" format:"date-time"`
 	// When the announcement stops being shown.
+	//
+	// Once it expires the announcement leaves every user's feed and can no longer be
+	// retrieved; an announcement with no expiry stays until each user dismisses it.
 	ExpiresAt time.Time `json:"expires_at" api:"required" format:"date-time"`
 	// Resource type identifier.
 	//
 	// Any of "announcement".
 	Object AnnouncementObject `json:"object" api:"required"`
-	// Delivery priority.
+	// How prominently the announcement should be surfaced, from `low` through
+	// `urgent`.
 	//
 	// Any of "low", "normal", "high", "urgent".
 	Priority AnnouncementPriority `json:"priority" api:"required"`
 	// When the announcement becomes visible in the feed.
+	//
+	// An announcement scheduled for the future is not returned by the announcement
+	// endpoints until this time passes.
 	PublishAt time.Time `json:"publish_at" api:"required" format:"date-time"`
-	// When the calling actor opened the announcement.
+	// When the calling user opened the announcement.
 	ReadAt time.Time `json:"read_at" api:"required" format:"date-time"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Resource Entity `json:"resource" api:"required"`
-	// Reach of the announcement.
+	// Who the announcement reaches.
 	//
-	// - `account`: shown only to users within this account.
-	// - `platform`: shown to every user across all accounts.
+	//   - `account`: published to a single account and shown only to that account's
+	//     users.
+	//   - `platform`: published by Augno and shown to every user across all accounts.
 	//
 	// Any of "account", "platform".
 	Scope AnnouncementScope `json:"scope" api:"required"`
-	// When the calling actor first saw the announcement.
+	// When the calling user first saw the announcement.
 	SeenAt time.Time `json:"seen_at" api:"required" format:"date-time"`
-	// Lifecycle status of the announcement for the calling actor, derived from their
-	// seen/read/dismissed receipt.
+	// Where the announcement is in its lifecycle for the calling user.
 	//
-	// - `unseen`: not yet surfaced in the caller's feed.
-	// - `seen`: surfaced in the feed but not yet opened.
-	// - `read`: opened by the caller.
-	// - `dismissed`: dismissed by the caller.
+	// - `unseen`: not yet surfaced to the caller.
+	// - `seen`: surfaced in the caller's feed but not opened.
+	// - `read`: explicitly opened by the caller.
+	// - `dismissed`: removed from the caller's feed.
+	//
+	// The status is derived from the caller's own seen, read, and dismissed timestamps
+	// and only ever moves forward, so the same announcement can show a different
+	// status for each user in the account.
 	//
 	// Any of "unseen", "seen", "read", "dismissed".
 	Status AnnouncementStatus `json:"status" api:"required"`
-	// Human-readable title.
+	// Short headline shown in the feed.
 	Title string `json:"title" api:"required"`
 	// Last update timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -152,7 +183,12 @@ func (r *Announcement) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Category of the announcement.
+// The kind of event the announcement is about.
+//
+// Announcements draw on the same categories as notifications, such as
+// `system.broadcast` or `order.updated`, and the category is chosen by whoever
+// publishes the announcement. The set is open-ended and may grow over time, so
+// clients should tolerate values they do not recognize.
 type AnnouncementCategory string
 
 const (
@@ -173,7 +209,8 @@ const (
 	AnnouncementObjectAnnouncement AnnouncementObject = "announcement"
 )
 
-// Delivery priority.
+// How prominently the announcement should be surfaced, from `low` through
+// `urgent`.
 type AnnouncementPriority string
 
 const (
@@ -183,10 +220,11 @@ const (
 	AnnouncementPriorityUrgent AnnouncementPriority = "urgent"
 )
 
-// Reach of the announcement.
+// Who the announcement reaches.
 //
-// - `account`: shown only to users within this account.
-// - `platform`: shown to every user across all accounts.
+//   - `account`: published to a single account and shown only to that account's
+//     users.
+//   - `platform`: published by Augno and shown to every user across all accounts.
 type AnnouncementScope string
 
 const (
@@ -194,13 +232,16 @@ const (
 	AnnouncementScopePlatform AnnouncementScope = "platform"
 )
 
-// Lifecycle status of the announcement for the calling actor, derived from their
-// seen/read/dismissed receipt.
+// Where the announcement is in its lifecycle for the calling user.
 //
-// - `unseen`: not yet surfaced in the caller's feed.
-// - `seen`: surfaced in the feed but not yet opened.
-// - `read`: opened by the caller.
-// - `dismissed`: dismissed by the caller.
+// - `unseen`: not yet surfaced to the caller.
+// - `seen`: surfaced in the caller's feed but not opened.
+// - `read`: explicitly opened by the caller.
+// - `dismissed`: removed from the caller's feed.
+//
+// The status is derived from the caller's own seen, read, and dismissed timestamps
+// and only ever moves forward, so the same announcement can show a different
+// status for each user in the account.
 type AnnouncementStatus string
 
 const (
@@ -210,7 +251,8 @@ const (
 	AnnouncementStatusDismissed AnnouncementStatus = "dismissed"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListAnnouncement struct {
 	// Resources in this page.
 	Data []Announcement `json:"data" api:"required"`
@@ -218,7 +260,13 @@ type ListAnnouncement struct {
 	//
 	// Any of "list".
 	Object ListAnnouncementObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

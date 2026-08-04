@@ -29,7 +29,7 @@ func TestCatalogItemCategoryNewWithOptionalParams(t *testing.T) {
 		CreateItemCategoryRequest: augno.CreateItemCategoryRequestParam{
 			Name:        "Electronics",
 			Type:        augno.CreateItemCategoryRequestTypeMaterialCategory,
-			UnitGroupID: "ug_01aad07abb8e41fd392d2d7013",
+			UnitGroupID: "ug_andst6m79n41",
 		},
 		Include: []string{"owner"},
 	})
@@ -56,7 +56,7 @@ func TestCatalogItemCategoryGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.ItemCategories.Get(
 		context.TODO(),
-		"ic_01ae7bd7bfd21ca0ab81e1357e",
+		"ic_d06g9c6yc9ck",
 		augno.CatalogItemCategoryGetParams{
 			Include: []string{"owner"},
 		},
@@ -84,7 +84,7 @@ func TestCatalogItemCategoryUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.ItemCategories.Update(
 		context.TODO(),
-		"ic_01ae7bd7bfd21ca0ab81e1357e",
+		"ic_d06g9c6yc9ck",
 		augno.CatalogItemCategoryUpdateParams{
 			Include: []string{"owner"},
 			UpdateItemCategoryRequest: augno.UpdateItemCategoryRequestParam{
@@ -142,7 +142,7 @@ func TestCatalogItemCategoryDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.ItemCategories.Delete(context.TODO(), "ic_01ae7bd7bfd21ca0ab81e1357e")
+	_, err := client.Catalog.ItemCategories.Delete(context.TODO(), "ic_d06g9c6yc9ck")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -166,9 +166,9 @@ func TestCatalogItemCategoryChangeUnitGroup(t *testing.T) {
 	)
 	_, err := client.Catalog.ItemCategories.ChangeUnitGroup(
 		context.TODO(),
-		"ug_01aad07abb8e41fd392d2d7013",
+		"ug_andst6m79n41",
 		augno.CatalogItemCategoryChangeUnitGroupParams{
-			ID: "ic_01ae7bd7bfd21ca0ab81e1357e",
+			ID: "ic_d06g9c6yc9ck",
 		},
 	)
 	if err != nil {

@@ -29,12 +29,12 @@ func TestMessagingNotificationNewWithOptionalParams(t *testing.T) {
 		SendNotificationRequest: augno.SendNotificationRequestParam{
 			Category: augno.SendNotificationRequestCategoryOrderUpdated,
 			Target: augno.NotificationTargetInputParam{
-				ID:   "acus_01ea9983ddb41dacc44ecf997c",
+				ID:   "acus_e5zu8bde0z3h",
 				Type: augno.NotificationTargetInputTypeAccountUser,
 			},
 			Title:            "Order updated",
 			Body:             augno.String("Order #1042 was updated."),
-			LinkResourceID:   augno.String("or_01d5034136c3ccc048abecc312"),
+			LinkResourceID:   augno.String("or_9lqo07quiwyb"),
 			LinkResourceType: augno.SendNotificationRequestLinkResourceTypeSalesOrder,
 			Priority:         augno.SendNotificationRequestPriorityHigh,
 		},
@@ -62,7 +62,7 @@ func TestMessagingNotificationGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Notifications.Get(
 		context.TODO(),
-		"nf_01h9z8q1w2e3r4t5y6u7i8o9",
+		"nf_yvw2bfj2guyn",
 		augno.MessagingNotificationGetParams{
 			Include: []string{"sender"},
 		},

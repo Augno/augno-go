@@ -43,11 +43,14 @@ func NewOperationCarrierService(opts ...option.RequestOption) (r OperationCarrie
 	return
 }
 
-// Creates a carrier.
+// Creates a shipping carrier your account can ship orders with.
 //
-// If a Shippo-supported code (`fedex`, `ups`, `usps`) is provided, the carrier is
-// connected through Shippo and its service levels are auto-synced, initially
-// hidden from the customer portal. Sandbox accounts skip the Shippo connection.
+// Supplying a Shippo-supported code (`fedex`, `ups`, `usps`) connects a Shippo
+// carrier account and creates a service level for every service that carrier
+// offers, each hidden from the customer portal until you make it visible. This
+// requires an active Shippo integration on the account and is skipped entirely for
+// sandbox accounts, which get a carrier record with no service levels and no live
+// rating.
 //
 // This endpoint requires the permission: `carriers:create`.
 func (r *OperationCarrierService) New(ctx context.Context, params OperationCarrierNewParams, opts ...option.RequestOption) (res *Carrier, err error) {
@@ -72,7 +75,10 @@ func (r *OperationCarrierService) Get(ctx context.Context, id string, query Oper
 	return res, err
 }
 
-// Partially updates a carrier's name and portal visibility.
+// Updates a carrier's name and customer portal visibility.
+//
+// Only these two attributes can change: a carrier's code and account number are
+// fixed at creation, and system-owned carriers cannot be updated at all.
 //
 // This endpoint requires the permission: `carriers:update`.
 func (r *OperationCarrierService) Update(ctx context.Context, id string, params OperationCarrierUpdateParams, opts ...option.RequestOption) (res *Carrier, err error) {
@@ -86,7 +92,10 @@ func (r *OperationCarrierService) Update(ctx context.Context, id string, params 
 	return res, err
 }
 
-// Returns a paginated list of carriers for the current account.
+// Returns a paginated list of the carriers available to the current account.
+//
+// This covers the carriers you have created plus the platform-provided system
+// carriers that every account shares.
 //
 // This endpoint requires the permissions: `carriers:read`, `customers:read`,
 // `suppliers:read`.
@@ -120,25 +129,28 @@ func (r *OperationCarrierService) Delete(ctx context.Context, id string, opts ..
 type CreateCarrierRequestParam struct {
 	// Human-readable name for the carrier.
 	//
-	// Must be unique among your account's carriers.
+	// Must not match another carrier already visible to your account, including the
+	// system-provided ones.
 	Name string `json:"name" api:"required"`
 	// Your account number with this carrier.
 	//
-	// Required when `code` is `ups` or `usps`, which connect to Shippo using this
-	// number; FedEx connects via OAuth instead.
+	// Required when `code` is `ups` or `usps`, whose carrier accounts are connected to
+	// Shippo using this number; FedEx authorizes through OAuth instead, so no account
+	// number is needed.
 	AccountNumber param.Opt[string] `json:"account_number,omitzero"`
 	// Well-known carrier code.
 	//
-	// Omit for a custom carrier. Providing a Shippo-supported code (`fedex`, `ups`,
-	// `usps`) connects the carrier through Shippo and auto-syncs its service levels.
+	// Providing a Shippo-supported code (`fedex`, `ups`, `usps`) connects the carrier
+	// through Shippo and syncs its service levels; the other codes, such as
+	// `will_call` and `delivery`, simply describe a self-managed shipping method. Omit
+	// the code entirely when none of them fit. The code cannot be changed after the
+	// carrier is created.
 	//
 	// Any of "fedex", "ups", "usps", "will_call", "delivery", "ltl", "ltl1",
 	// "freight_collect".
 	Code CreateCarrierRequestCode `json:"code,omitzero"`
-	// Carrier visibility in the customer portal.
-	//
-	// A `visible` carrier can be selected by your customers at checkout; a `hidden`
-	// carrier is not offered there. New carriers are visible unless set to `hidden`.
+	// Whether customers can see and select this carrier at checkout in the customer
+	// portal.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility CreateCarrierRequestCustomerPortalVisibility `json:"customer_portal_visibility,omitzero"`
@@ -155,8 +167,11 @@ func (r *CreateCarrierRequestParam) UnmarshalJSON(data []byte) error {
 
 // Well-known carrier code.
 //
-// Omit for a custom carrier. Providing a Shippo-supported code (`fedex`, `ups`,
-// `usps`) connects the carrier through Shippo and auto-syncs its service levels.
+// Providing a Shippo-supported code (`fedex`, `ups`, `usps`) connects the carrier
+// through Shippo and syncs its service levels; the other codes, such as
+// `will_call` and `delivery`, simply describe a self-managed shipping method. Omit
+// the code entirely when none of them fit. The code cannot be changed after the
+// carrier is created.
 type CreateCarrierRequestCode string
 
 const (
@@ -170,10 +185,8 @@ const (
 	CreateCarrierRequestCodeFreightCollect CreateCarrierRequestCode = "freight_collect"
 )
 
-// Carrier visibility in the customer portal.
-//
-// A `visible` carrier can be selected by your customers at checkout; a `hidden`
-// carrier is not offered there. New carriers are visible unless set to `hidden`.
+// Whether customers can see and select this carrier at checkout in the customer
+// portal.
 type CreateCarrierRequestCustomerPortalVisibility string
 
 const (
@@ -181,7 +194,8 @@ const (
 	CreateCarrierRequestCustomerPortalVisibilityHidden  CreateCarrierRequestCustomerPortalVisibility = "hidden"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListCarrier struct {
 	// Resources in this page.
 	Data []Carrier `json:"data" api:"required"`
@@ -189,7 +203,13 @@ type ListCarrier struct {
 	//
 	// Any of "list".
 	Object ListCarrierObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -216,12 +236,16 @@ const (
 
 // Request to update a carrier.
 type UpdateCarrierRequestParam struct {
-	// Human-readable name for the carrier, unique among your account's carriers.
-	Name param.Opt[string] `json:"name,omitzero"`
-	// Carrier visibility in the customer portal.
+	// Human-readable name for the carrier.
 	//
-	// A `visible` carrier can be selected by your customers at checkout; a `hidden`
-	// carrier is not offered there.
+	// Must not match another carrier already visible to your account, including the
+	// system-provided ones.
+	Name param.Opt[string] `json:"name,omitzero"`
+	// Whether customers can see and select this carrier at checkout in the customer
+	// portal.
+	//
+	// Each of the carrier's service levels carries its own customer portal visibility,
+	// which this does not change.
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility UpdateCarrierRequestCustomerPortalVisibility `json:"customer_portal_visibility,omitzero"`
@@ -236,10 +260,11 @@ func (r *UpdateCarrierRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Carrier visibility in the customer portal.
+// Whether customers can see and select this carrier at checkout in the customer
+// portal.
 //
-// A `visible` carrier can be selected by your customers at checkout; a `hidden`
-// carrier is not offered there.
+// Each of the carrier's service levels carries its own customer portal visibility,
+// which this does not change.
 type UpdateCarrierRequestCustomerPortalVisibility string
 
 const (

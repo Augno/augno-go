@@ -40,9 +40,10 @@ func NewIdentityRoleService(opts ...option.RequestOption) (r IdentityRoleService
 	return
 }
 
-// Creates a custom role with the specified permissions.
+// Creates a custom role that can then be assigned to users in your account.
 //
-// Roles created through the API always have type `user`.
+// Roles created through the API are always owned by your account and have the type
+// `user`. Returns a conflict error if a role with the same name already exists.
 //
 // This endpoint requires the permission: `roles:create`.
 func (r *IdentityRoleService) New(ctx context.Context, params IdentityRoleNewParams, opts ...option.RequestOption) (res *Role, err error) {
@@ -52,7 +53,10 @@ func (r *IdentityRoleService) New(ctx context.Context, params IdentityRoleNewPar
 	return res, err
 }
 
-// Returns a role by ID, including its permissions.
+// Retrieves a single role by ID.
+//
+// Both the roles your account owns and the system-owned roles shared by every
+// account can be retrieved.
 //
 // This endpoint requires the permission: `roles:read`.
 func (r *IdentityRoleService) Get(ctx context.Context, id string, query IdentityRoleGetParams, opts ...option.RequestOption) (res *Role, err error) {
@@ -66,9 +70,11 @@ func (r *IdentityRoleService) Get(ctx context.Context, id string, query Identity
 	return res, err
 }
 
-// Partially updates a custom role's name or permissions.
+// Updates a role's name or the set of permissions it grants.
 //
-// Provided permissions replace all existing ones; global roles cannot be modified.
+// Only roles owned by your account can be updated; the system-owned roles shared
+// across all accounts are rejected. Permission changes apply to every user already
+// assigned the role, starting with their next request.
 //
 // This endpoint requires the permission: `roles:update`.
 func (r *IdentityRoleService) Update(ctx context.Context, id string, params IdentityRoleUpdateParams, opts ...option.RequestOption) (res *Role, err error) {
@@ -82,8 +88,10 @@ func (r *IdentityRoleService) Update(ctx context.Context, id string, params Iden
 	return res, err
 }
 
-// Returns a paginated list of roles for the target account, including global
-// roles.
+// Lists the roles that can be assigned to users in your account, newest first.
+//
+// Results combine the roles your account owns with the system-owned roles shared
+// by every account. Text search matches the role name.
 //
 // This endpoint requires the permission: `roles:read`.
 func (r *IdentityRoleService) List(ctx context.Context, query IdentityRoleListParams, opts ...option.RequestOption) (res *ListRole, err error) {
@@ -93,10 +101,11 @@ func (r *IdentityRoleService) List(ctx context.Context, query IdentityRoleListPa
 	return res, err
 }
 
-// Deletes a role and its associated permissions.
+// Deletes a role along with the permissions granted through it.
 //
-// Global roles and roles currently assigned to one or more users cannot be
-// deleted.
+// Only roles owned by your account can be deleted; the system-owned roles shared
+// across all accounts cannot. A role that is still assigned to at least one user
+// is rejected, so move those users to another role first.
 //
 // This endpoint requires the permission: `roles:delete`.
 func (r *IdentityRoleService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *IdentityRoleDeleteResponse, err error) {
@@ -110,16 +119,21 @@ func (r *IdentityRoleService) Delete(ctx context.Context, id string, opts ...opt
 	return res, err
 }
 
-// CreateRoleRequest is a request to create a role.
+// Request to create a role.
 //
 // The property Name is required.
 type CreateRoleRequestParam struct {
-	// Display name for the role, unique within the account.
-	Name string `json:"name" api:"required"`
-	// Permissions to grant, in `{domain}:{action}` format, such as `customers:read`.
+	// Display name for the role, such as "Warehouse Manager".
 	//
-	// The action must be one of `create`, `read`, `update`, or `delete`. Omit to
-	// create a role with no permissions.
+	// Must be unique within your account.
+	Name string `json:"name" api:"required"`
+	// Permissions to grant, in `{permission}:{action}` format, such as
+	// `customers:read`.
+	//
+	// The first half is a permission code such as `customers` or `sales_orders`, and
+	// the action must be one of `create`, `read`, `update`, or `delete`. List each
+	// action separately to grant more than one action on the same permission. A role
+	// created without any permissions grants no access until permissions are added.
 	Permissions []string `json:"permissions,omitzero"`
 	paramObj
 }
@@ -132,7 +146,8 @@ func (r *CreateRoleRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListRole struct {
 	// Resources in this page.
 	Data []Role `json:"data" api:"required"`
@@ -140,7 +155,13 @@ type ListRole struct {
 	//
 	// Any of "list".
 	Object ListRoleObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -165,17 +186,19 @@ const (
 	ListRoleObjectList ListRoleObject = "list"
 )
 
-// UpdateRoleRequest is a request to update a role.
+// Request to update a role.
 type UpdateRoleRequestParam struct {
-	// New display name for the role, unique within the account.
+	// New display name for the role.
 	//
-	// Omit to leave unchanged.
+	// Returns a conflict error if another role in your account already uses this name.
 	Name param.Opt[string] `json:"name,omitzero"`
-	// Full replacement set of permissions, in `{domain}:{action}` format, such as
+	// Full replacement set of permissions, in `{permission}:{action}` format, such as
 	// `customers:read`.
 	//
-	// Replaces all existing permissions on the role. Pass an empty array to remove all
-	// permissions, or omit to leave them unchanged.
+	// The role's existing permissions are discarded and replaced with exactly what you
+	// send, so include every permission the role should keep. Sending an empty array
+	// strips the role of all access, while leaving the field out keeps the current
+	// permissions untouched.
 	Permissions []string `json:"permissions,omitzero"`
 	paramObj
 }
@@ -203,7 +226,7 @@ func (r *IdentityRoleDeleteResponse) UnmarshalJSON(data []byte) error {
 }
 
 type IdentityRoleNewParams struct {
-	// CreateRoleRequest is a request to create a role.
+	// Request to create a role.
 	CreateRoleRequest CreateRoleRequestParam
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -251,7 +274,7 @@ type IdentityRoleUpdateParams struct {
 	//
 	// Any of "owner", "owner.account", "permissions".
 	Include []string `query:"include,omitzero" json:"-"`
-	// UpdateRoleRequest is a request to update a role.
+	// Request to update a role.
 	UpdateRoleRequest UpdateRoleRequestParam
 	paramObj
 }

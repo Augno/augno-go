@@ -40,7 +40,17 @@ func NewMessagingConversationParticipantActionService(opts ...option.RequestOpti
 	return
 }
 
-// Changes a participant's role within a group conversation.
+// Changes a participant's role in a conversation and returns the updated
+// conversation.
+//
+// Only the conversation's owner can change roles, and agent and system
+// participants are rejected — they hold no role that can be changed. This is also
+// the only way to grant `owner`: the promoted member gains full control while the
+// caller keeps their own owner role, so a conversation can have more than one
+// owner.
+//
+// A change of role posts a system event to the thread; setting a participant to
+// the role they already hold is a no-op.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingConversationParticipantActionService) SetRole(ctx context.Context, pid string, params MessagingConversationParticipantActionSetRoleParams, opts ...option.RequestOption) (res *Conversation, err error) {
@@ -58,7 +68,7 @@ func (r *MessagingConversationParticipantActionService) SetRole(ctx context.Cont
 	return res, err
 }
 
-// Request to change a participant's role (owner only).
+// Request to change a participant's role in a conversation.
 //
 // The property Role is required.
 type UpdateParticipantRoleRequestParam struct {
@@ -99,7 +109,7 @@ const (
 
 type MessagingConversationParticipantActionSetRoleParams struct {
 	ID string `path:"id" api:"required" json:"-"`
-	// Request to change a participant's role (owner only).
+	// Request to change a participant's role in a conversation.
 	UpdateParticipantRoleRequest UpdateParticipantRoleRequestParam
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

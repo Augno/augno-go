@@ -43,7 +43,7 @@ func NewCatalogItemService(opts ...option.RequestOption) (r CatalogItemService) 
 	return
 }
 
-// Returns an item by ID.
+// Returns a single item by ID.
 //
 // This endpoint requires the permission: `items:read`.
 func (r *CatalogItemService) Get(ctx context.Context, id string, query CatalogItemGetParams, opts ...option.RequestOption) (res *Item, err error) {
@@ -57,7 +57,12 @@ func (r *CatalogItemService) Get(ctx context.Context, id string, query CatalogIt
 	return res, err
 }
 
-// Returns a paginated list of items.
+// Returns a paginated list of items, newest first.
+//
+// Items backed by a non-sale product — the service, shipping, tax, credit, and
+// return products that carry charges on orders — are left out, so this reflects
+// the catalog you sell and stock rather than every item row. `q` matches against
+// SKU and description, with closer SKU matches ranked first.
 //
 // This endpoint requires the permission: `items:read`.
 func (r *CatalogItemService) List(ctx context.Context, query CatalogItemListParams, opts ...option.RequestOption) (res *ListItem, err error) {
@@ -67,11 +72,15 @@ func (r *CatalogItemService) List(ctx context.Context, query CatalogItemListPara
 	return res, err
 }
 
-// Moves an item to a different category.
+// Moves an item to a different category and returns the updated item.
 //
 // The item's rate units (unit value, unit cost, burn rate) and any related
-// order-point, consumption, and production quantity units are updated to the new
-// category's base unit. Re-assigning the item's current category is a no-op.
+// order-point, consumption, and production quantity units are switched to the new
+// category's base unit. Only the units change — the numbers attached to them are
+// carried over as they were, so review any figure whose meaning depends on the
+// unit after moving between categories that count differently.
+//
+// Re-assigning the item's current category succeeds and changes nothing.
 //
 // This endpoint requires the permission: `items:update`.
 func (r *CatalogItemService) ChangeCategory(ctx context.Context, categoryID string, params CatalogItemChangeCategoryParams, opts ...option.RequestOption) (res *Item, err error) {
@@ -89,8 +98,12 @@ func (r *CatalogItemService) ChangeCategory(ctx context.Context, categoryID stri
 	return res, err
 }
 
-// Returns inventory quantities for an item, including on-hand, reserved,
-// available-to-promise, and short amounts.
+// Returns the stock position for an item: what is on hand, what is reserved
+// against existing orders, what is free to promise, and what is short.
+//
+// Stock your account either owns or holds counts toward the on-hand figure, so
+// customer-supplied material sitting in your facility is included. All four
+// quantities are reported in the base unit of the item's category.
 //
 // This endpoint requires the permission: `items:read`.
 func (r *CatalogItemService) GetInventory(ctx context.Context, id string, query CatalogItemGetInventoryParams, opts ...option.RequestOption) (res *ItemInventory, err error) {
@@ -131,11 +144,12 @@ func (r *CatalogItemService) GetLotDefault(ctx context.Context, id string, query
 	return res, err
 }
 
-// Item is an inventory item (product, material, or part).
+// An entry in your catalog: something you sell, consume, or build with.
 type Item struct {
 	// Item ID.
 	ID string `json:"id" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Attributes ListAttribute `json:"attributes" api:"required"`
 	// Value expressed as a ratio of two units, such as a price per kilogram or a
 	// throughput per hour.
@@ -234,21 +248,27 @@ type ItemCategory struct {
 	Object ItemCategoryObject `json:"object" api:"required"`
 	// Owner describes the provenance of a resource.
 	Owner Owner `json:"owner" api:"required"`
-	// List represents a paginated list of resources.
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
 	Properties ListProperty `json:"properties" api:"required"`
 	// What kind of items this category groups.
-	//
-	// An item can only be assigned to a category whose type matches the item's `type`.
 	//
 	//   - `material_category`: groups raw materials and components (items of type
 	//     `material`).
 	//   - `product_category`: groups finished products and parts (items of type
 	//     `product` or `part`).
 	//
+	// An item can only be assigned to a category whose type matches the item's `type`,
+	// and the category's type is fixed at creation.
+	//
 	// Any of "material_category", "product_category".
 	Type ItemCategoryType `json:"type" api:"required"`
-	// Named collection of units sharing one dimension, defining which units products
-	// can be ordered in along with per-unit discounts and customer portal visibility.
+	// A named collection of units that share one dimension, defining which units a
+	// product can be ordered in.
+	//
+	// Each associated unit carries its own discount and customer portal visibility,
+	// applied when an order line is priced in that unit. A product takes its unit
+	// group from its product line, falling back to its item category.
 	UnitGroup UnitGroup `json:"unit_group" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -284,12 +304,13 @@ const (
 
 // What kind of items this category groups.
 //
-// An item can only be assigned to a category whose type matches the item's `type`.
-//
 //   - `material_category`: groups raw materials and components (items of type
 //     `material`).
 //   - `product_category`: groups finished products and parts (items of type
 //     `product` or `part`).
+//
+// An item can only be assigned to a category whose type matches the item's `type`,
+// and the category's type is fixed at creation.
 type ItemCategoryType string
 
 const (
@@ -297,19 +318,39 @@ const (
 	ItemCategoryTypeProductCategory  ItemCategoryType = "product_category"
 )
 
-// ItemInventory contains inventory quantities for an item.
+// The stock position for an item: what is in stock, what is already committed, and
+// what is still free to sell.
+//
+// All four quantities are reported in the same unit — the base unit of the item's
+// category.
 type ItemInventory struct {
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	AvailableToPromise Quantity `json:"available_to_promise" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "item_inventory".
 	Object ItemInventoryObject `json:"object" api:"required"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	OnHand Quantity `json:"on_hand" api:"required"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	Reserved Quantity `json:"reserved" api:"required"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	Short Quantity `json:"short" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -362,6 +403,9 @@ type ItemLotDefault struct {
 	//     becomes, for intermediates that are not themselves sold.
 	//   - `account_default`: the account-wide fallback.
 	//
+	// Empty when no rule in the chain supplies a lot, which is the same case
+	// `quantity` reports as `0`.
+	//
 	// Any of "item_override", "product_line", "downstream_product_line",
 	// "account_default", "".
 	Source ItemLotDefaultSource `json:"source" api:"required"`
@@ -400,6 +444,9 @@ const (
 //   - `downstream_product_line`: inherited from the finished goods this item
 //     becomes, for intermediates that are not themselves sold.
 //   - `account_default`: the account-wide fallback.
+//
+// Empty when no rule in the chain supplies a lot, which is the same case
+// `quantity` reports as `0`.
 type ItemLotDefaultSource string
 
 const (
@@ -410,7 +457,8 @@ const (
 	ItemLotDefaultSourceEmpty                 ItemLotDefaultSource = ""
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListItem struct {
 	// Resources in this page.
 	Data []Item `json:"data" api:"required"`
@@ -418,7 +466,13 @@ type ListItem struct {
 	//
 	// Any of "list".
 	Object ListItemObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -443,7 +497,11 @@ const (
 	ListItemObjectList ListItemObject = "list"
 )
 
-// Value with an associated unit.
+// A measured amount: a numeric value together with the unit it is expressed in.
+//
+// Quantities are shared building blocks rather than standalone records — other
+// resources point at them to report stock levels, ordered and packed amounts,
+// money, weights, and durations.
 type Quantity struct {
 	// Quantity ID.
 	ID string `json:"id" api:"required"`
@@ -563,7 +621,7 @@ type CatalogItemListParams struct {
 	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Filter items created on or before this date.
+	// Filter to items created on or before this date.
 	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
@@ -571,16 +629,22 @@ type CatalogItemListParams struct {
 	//
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
-	// Filter items created on or after this date.
+	// Filter to items created on or after this date.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
-	// Filter by supplier ID.
+	// Filter to materials this supplier account supplies to you.
+	//
+	// Only materials can have suppliers, so combining this with a `types` filter that
+	// excludes `material` returns nothing.
 	SupplierID param.Opt[string] `query:"supplier_id,omitzero" json:"-"`
-	// Filter by attribute IDs.
+	// Filter to items carrying any of these attributes.
 	AttributeIDs []string `query:"attribute_ids,omitzero" json:"-"`
-	// Filter by category IDs.
+	// Filter to items in any of these categories.
 	CategoryIDs []string `query:"category_ids,omitzero" json:"-"`
-	// Filter by customer account IDs (only items whose product line is accessible to
-	// any of these customers).
+	// Filter to items any of these customers are allowed to order.
+	//
+	// A customer qualifies when its relationship, its account group, or its price
+	// group grants access to the product line the item's product sits in. Items with
+	// no product line, including materials and parts, never match.
 	CustomerIDs []string `query:"customer_ids,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.
@@ -590,8 +654,7 @@ type CatalogItemListParams struct {
 	// "category.unit_group.associated_units",
 	// "category.unit_group.associated_units.unit".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Filter by product line IDs (only items whose product belongs to one of these
-	// lines).
+	// Filter to items whose product belongs to any of these product lines.
 	ProductLineIDs []string `query:"product_line_ids,omitzero" json:"-"`
 	// Restricts results based on where the item is produced in its production flow.
 	//

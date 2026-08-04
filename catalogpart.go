@@ -72,7 +72,9 @@ func (r *CatalogPartService) Get(ctx context.Context, id string, query CatalogPa
 
 // Partially updates a part.
 //
-// Fields not provided retain their current values.
+// Fields not provided retain their current values. Only the SKU, description, and
+// notes are editable here; the part's category and attributes are changed through
+// the item endpoints.
 //
 // This endpoint requires the permissions: `parts:update`, `customers:update`,
 // `suppliers:update`.
@@ -87,7 +89,12 @@ func (r *CatalogPartService) Update(ctx context.Context, id string, params Catal
 	return res, err
 }
 
-// Returns a paginated list of parts for the current account.
+// Returns a paginated list of parts for the current account, most recently created
+// first.
+//
+// The `q` search term matches the part's SKU or description. When it is supplied,
+// the parts whose SKU matches it most closely are returned first, ordered by
+// creation time within each level of match.
 //
 // This endpoint requires the permissions: `parts:read`, `customers:read`,
 // `suppliers:read`.
@@ -137,11 +144,17 @@ type CreatePartRequestParam struct {
 	Notes param.Opt[string] `json:"notes,omitzero"`
 	// IDs of existing attributes to link to the part at creation time.
 	AttributeIDs []string `json:"attribute_ids,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitCost RateInputParam `json:"unit_cost,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitPrice RateInputParam `json:"unit_price,omitzero"`
 	paramObj
 }
@@ -154,7 +167,8 @@ func (r *CreatePartRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListPart struct {
 	// Resources in this page.
 	Data []Part `json:"data" api:"required"`
@@ -162,7 +176,13 @@ type ListPart struct {
 	//
 	// Any of "list".
 	Object ListPartObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -196,7 +216,7 @@ type Part struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Item is an inventory item (product, material, or part).
+	// An entry in your catalog: something you sell, consume, or build with.
 	Item Item `json:"item" api:"required"`
 	// Resource type identifier.
 	//
@@ -231,13 +251,9 @@ const (
 
 // Request to partially update a part.
 type UpdatePartRequestParam struct {
-	// New description for the part.
-	//
-	// Set to a string to replace the current description, or `null` to clear it.
+	// New free-form description of the part.
 	Description param.Opt[string] `json:"description,omitzero"`
-	// New notes for the part.
-	//
-	// Set to a string to replace the current notes, or `null` to clear them.
+	// New free-form notes about the part.
 	Notes param.Opt[string] `json:"notes,omitzero"`
 	// New stock keeping unit code for the part.
 	//
@@ -336,7 +352,7 @@ type CatalogPartListParams struct {
 	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
-	// Filter parts created on or before this date.
+	// Only return parts created at or before this time.
 	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
@@ -344,11 +360,11 @@ type CatalogPartListParams struct {
 	//
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
-	// Filter parts created on or after this date.
+	// Only return parts created at or after this time.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
-	// Filter by attribute IDs.
+	// Only return parts carrying at least one of these attributes.
 	AttributeIDs []string `query:"attribute_ids,omitzero" json:"-"`
-	// Filter by category IDs.
+	// Only return parts belonging to any of these item categories.
 	CategoryIDs []string `query:"category_ids,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

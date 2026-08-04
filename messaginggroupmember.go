@@ -39,7 +39,13 @@ func NewMessagingGroupMemberService(opts ...option.RequestOption) (r MessagingGr
 	return
 }
 
-// Adds a member (a user or an agent) to a reusable roster.
+// Adds a member (a user or an agent) to a reusable roster and returns the updated
+// roster.
+//
+// Adding someone who is already on the roster does not create a second entry for
+// them. The new member is picked up only by conversations started from the roster
+// afterwards; conversations already created from it keep the members they were
+// seeded with.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingGroupMemberService) New(ctx context.Context, id string, body MessagingGroupMemberNewParams, opts ...option.RequestOption) (res *MessagingGroup, err error) {
@@ -53,7 +59,10 @@ func (r *MessagingGroupMemberService) New(ctx context.Context, id string, body M
 	return res, err
 }
 
-// Removes a member from a reusable roster.
+// Removes a member from a reusable roster and returns the updated roster.
+//
+// Only conversations started from the roster afterwards are affected; the member
+// stays in every conversation that was already seeded from it.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingGroupMemberService) Delete(ctx context.Context, memberID string, body MessagingGroupMemberDeleteParams, opts ...option.RequestOption) (res *MessagingGroup, err error) {
@@ -75,7 +84,8 @@ func (r *MessagingGroupMemberService) Delete(ctx context.Context, memberID strin
 //
 // The property MemberType is required.
 type AddMessagingGroupMemberRequestParam struct {
-	// The kind of member being added.
+	// The kind of member being added, which decides whether `account_user_id` or
+	// `agent_config_id` is expected.
 	//
 	// Any of "user", "agent".
 	MemberType AddMessagingGroupMemberRequestMemberType `json:"member_type,omitzero" api:"required"`
@@ -94,7 +104,8 @@ func (r *AddMessagingGroupMemberRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The kind of member being added.
+// The kind of member being added, which decides whether `account_user_id` or
+// `agent_config_id` is expected.
 type AddMessagingGroupMemberRequestMemberType string
 
 const (

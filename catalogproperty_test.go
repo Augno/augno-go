@@ -54,7 +54,7 @@ func TestCatalogPropertyGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Properties.Get(
 		context.TODO(),
-		"pp_01e21344878064372f69e67093",
+		"pp_fhnnvtt3q3ov",
 		augno.CatalogPropertyGetParams{
 			Include: []string{"attributes"},
 		},
@@ -82,7 +82,7 @@ func TestCatalogPropertyUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Properties.Update(
 		context.TODO(),
-		"pp_01e21344878064372f69e67093",
+		"pp_fhnnvtt3q3ov",
 		augno.CatalogPropertyUpdateParams{
 			Include: []string{"attributes"},
 			UpdatePropertyRequest: augno.UpdatePropertyRequestParam{
@@ -138,7 +138,7 @@ func TestCatalogPropertyDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Properties.Delete(context.TODO(), "pp_01e21344878064372f69e67093")
+	_, err := client.Catalog.Properties.Delete(context.TODO(), "pp_fhnnvtt3q3ov")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

@@ -36,9 +36,10 @@ func NewCatalogItemAttributeService(opts ...option.RequestOption) (r CatalogItem
 	return
 }
 
-// Adds an attribute to an item and returns the updated item.
+// Assigns an attribute to an item and returns the updated item.
 //
-// If the attribute is already associated with the item, this is a no-op.
+// Adding an attribute the item already carries succeeds and changes nothing, so
+// the call is safe to repeat.
 //
 // This endpoint requires the permission: `items:update`.
 func (r *CatalogItemAttributeService) Update(ctx context.Context, attributeID string, params CatalogItemAttributeUpdateParams, opts ...option.RequestOption) (res *Item, err error) {
@@ -56,7 +57,11 @@ func (r *CatalogItemAttributeService) Update(ctx context.Context, attributeID st
 	return res, err
 }
 
-// Removes an attribute from an item.
+// Unassigns an attribute from an item and returns the updated item.
+//
+// Returns a not-found error if the attribute is not currently assigned to the
+// item, so unlike adding an attribute, this call is not safe to repeat blindly.
+// The attribute itself is not deleted and stays available for other items.
 //
 // This endpoint requires the permission: `items:update`.
 func (r *CatalogItemAttributeService) Delete(ctx context.Context, attributeID string, params CatalogItemAttributeDeleteParams, opts ...option.RequestOption) (res *Item, err error) {

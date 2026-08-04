@@ -27,10 +27,10 @@ func TestCatalogUnitGroupUnitNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.UnitGroups.Units.New(
 		context.TODO(),
-		"ug_01aad07abb8e41fd392d2d7013",
+		"ug_andst6m79n41",
 		augno.CatalogUnitGroupUnitNewParams{
 			CreateUnitGroupUnitRequest: augno.CreateUnitGroupUnitRequestParam{
-				UnitID:                   "un_01966263f74a5a0cae356000a1",
+				UnitID:                   "un_82bd37dae5po",
 				CustomerPortalVisibility: augno.CreateUnitGroupUnitRequestCustomerPortalVisibilityVisible,
 				DiscountFixed:            augno.Float(0),
 				DiscountPercentage:       augno.Float(1),
@@ -61,9 +61,9 @@ func TestCatalogUnitGroupUnitGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.UnitGroups.Units.Get(
 		context.TODO(),
-		"un_01966263f74a5a0cae356000a1",
+		"un_82bd37dae5po",
 		augno.CatalogUnitGroupUnitGetParams{
-			UnitGroupID: "ug_01aad07abb8e41fd392d2d7013",
+			UnitGroupID: "ug_andst6m79n41",
 			Include:     []string{"unit"},
 		},
 	)
@@ -90,15 +90,15 @@ func TestCatalogUnitGroupUnitUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.UnitGroups.Units.Update(
 		context.TODO(),
-		"un_01966263f74a5a0cae356000a1",
+		"un_82bd37dae5po",
 		augno.CatalogUnitGroupUnitUpdateParams{
-			UnitGroupID: "ug_01aad07abb8e41fd392d2d7013",
+			UnitGroupID: "ug_andst6m79n41",
 			Include:     []string{"unit"},
 			UpdateUnitGroupUnitRequest: augno.UpdateUnitGroupUnitRequestParam{
 				CustomerPortalVisibility: augno.UpdateUnitGroupUnitRequestCustomerPortalVisibilityVisible,
 				DiscountFixed:            augno.Float(2.5),
 				DiscountPercentage:       augno.Float(0.9),
-				UnitID:                   augno.String("un_01966263f74a5a0cae356000a1"),
+				UnitID:                   augno.String("un_82bd37dae5po"),
 			},
 		},
 	)
@@ -125,7 +125,7 @@ func TestCatalogUnitGroupUnitListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.UnitGroups.Units.List(
 		context.TODO(),
-		"ug_01aad07abb8e41fd392d2d7013",
+		"ug_andst6m79n41",
 		augno.CatalogUnitGroupUnitListParams{
 			Include: []string{"unit"},
 		},
@@ -153,9 +153,9 @@ func TestCatalogUnitGroupUnitDelete(t *testing.T) {
 	)
 	_, err := client.Catalog.UnitGroups.Units.Delete(
 		context.TODO(),
-		"un_01966263f74a5a0cae356000a1",
+		"un_82bd37dae5po",
 		augno.CatalogUnitGroupUnitDeleteParams{
-			UnitGroupID: "ug_01aad07abb8e41fd392d2d7013",
+			UnitGroupID: "ug_andst6m79n41",
 		},
 	)
 	if err != nil {

@@ -26,7 +26,7 @@ func TestOperationProductionScheduleActionArchive(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ProductionSchedules.Actions.Archive(context.TODO(), "pnsc_0192a4c17b3e4f8a91c2d0")
+	_, err := client.Operations.ProductionSchedules.Actions.Archive(context.TODO(), "pnsc_m4zt3z8g8src")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -78,7 +78,7 @@ func TestOperationProductionScheduleActionPreviewRegenerateWithOptionalParams(t 
 	)
 	_, err := client.Operations.ProductionSchedules.Actions.PreviewRegenerate(
 		context.TODO(),
-		"pnsc_0192a4c17b3e4f8a91c2d0",
+		"pnsc_m4zt3z8g8src",
 		augno.OperationProductionScheduleActionPreviewRegenerateParams{
 			PreviewRegenerateProductionScheduleRequest: augno.PreviewRegenerateProductionScheduleRequestParam{
 				DemandBasis:  augno.PreviewRegenerateProductionScheduleRequestDemandBasisTrailing12,
@@ -108,7 +108,7 @@ func TestOperationProductionScheduleActionPublish(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ProductionSchedules.Actions.Publish(context.TODO(), "pnsc_0192a4c17b3e4f8a91c2d0")
+	_, err := client.Operations.ProductionSchedules.Actions.Publish(context.TODO(), "pnsc_m4zt3z8g8src")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -132,7 +132,7 @@ func TestOperationProductionScheduleActionRegenerateWithOptionalParams(t *testin
 	)
 	_, err := client.Operations.ProductionSchedules.Actions.Regenerate(
 		context.TODO(),
-		"pnsc_0192a4c17b3e4f8a91c2d0",
+		"pnsc_m4zt3z8g8src",
 		augno.OperationProductionScheduleActionRegenerateParams{
 			RegenerateProductionScheduleRequest: augno.RegenerateProductionScheduleRequestParam{
 				DemandBasis:  augno.RegenerateProductionScheduleRequestDemandBasisTrailing12,
@@ -165,10 +165,10 @@ func TestOperationProductionScheduleActionReleaseWeekWithOptionalParams(t *testi
 	)
 	_, err := client.Operations.ProductionSchedules.Actions.ReleaseWeek(
 		context.TODO(),
-		"pnsc_0192a4c17b3e4f8a91c2d0",
+		"pnsc_m4zt3z8g8src",
 		augno.OperationProductionScheduleActionReleaseWeekParams{
 			ReleaseProductionScheduleWeekRequest: augno.ReleaseProductionScheduleWeekRequestParam{
-				ResponsibleUserID: "us_0151164dcaea4cbded27b50aae",
+				ResponsibleUserID: "us_43irtlt2ajz6",
 				WeekIndex:         0,
 				ScanningStationID: augno.String("scanning_station_id"),
 			},

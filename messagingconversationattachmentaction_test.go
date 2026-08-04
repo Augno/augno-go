@@ -27,7 +27,7 @@ func TestMessagingConversationAttachmentActionUploadURLWithOptionalParams(t *tes
 	)
 	_, err := client.Messaging.Conversations.Attachments.Actions.UploadURL(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationAttachmentActionUploadURLParams{
 			CreateAttachmentUploadURLRequest: augno.CreateAttachmentUploadURLRequestParam{
 				Filename:    "diagram.png",

@@ -60,7 +60,7 @@ func TestCatalogUnitGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Units.Get(
 		context.TODO(),
-		"un_01966263f74a5a0cae356000a1",
+		"un_82bd37dae5po",
 		augno.CatalogUnitGetParams{
 			Include: []string{"owner"},
 		},
@@ -88,7 +88,7 @@ func TestCatalogUnitUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Units.Update(
 		context.TODO(),
-		"un_01966263f74a5a0cae356000a1",
+		"un_82bd37dae5po",
 		augno.CatalogUnitUpdateParams{
 			Include: []string{"owner"},
 			UpdateUnitRequest: augno.UpdateUnitRequestParam{
@@ -151,7 +151,7 @@ func TestCatalogUnitDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Units.Delete(context.TODO(), "un_01966263f74a5a0cae356000a1")
+	_, err := client.Catalog.Units.Delete(context.TODO(), "un_82bd37dae5po")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

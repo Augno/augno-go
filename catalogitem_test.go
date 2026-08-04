@@ -28,7 +28,7 @@ func TestCatalogItemGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Items.Get(
 		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
+		"it_pej07ckhvu62",
 		augno.CatalogItemGetParams{
 			Include: []string{"category"},
 		},
@@ -92,9 +92,9 @@ func TestCatalogItemChangeCategoryWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Items.ChangeCategory(
 		context.TODO(),
-		"ic_01ae7bd7bfd21ca0ab81e1357e",
+		"ic_d06g9c6yc9ck",
 		augno.CatalogItemChangeCategoryParams{
-			ID:      "it_0131e386ac683e8c29a71f6f1f",
+			ID:      "it_pej07ckhvu62",
 			Include: []string{"category"},
 		},
 	)
@@ -121,7 +121,7 @@ func TestCatalogItemGetInventoryWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Items.GetInventory(
 		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
+		"it_pej07ckhvu62",
 		augno.CatalogItemGetInventoryParams{
 			Include: []string{"on_hand"},
 		},
@@ -149,7 +149,7 @@ func TestCatalogItemGetLotDefaultWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Catalog.Items.GetLotDefault(
 		context.TODO(),
-		"it_0131e386ac683e8c29a71f6f1f",
+		"it_pej07ckhvu62",
 		augno.CatalogItemGetLotDefaultParams{
 			Include: []string{"unit"},
 		},

@@ -70,7 +70,11 @@ func (r *SaleAccountGroupService) Get(ctx context.Context, id string, opts ...op
 // Partially updates an account group.
 //
 // Only the provided fields are changed. The account group's `type` cannot be
-// changed after creation.
+// changed after creation, and renaming the group to a name another group in your
+// account already uses returns a conflict error.
+//
+// A new commission or freight policy takes effect for every account already in the
+// group, not just accounts added afterwards.
 //
 // This endpoint requires the permission: `customer_groups:update`.
 func (r *SaleAccountGroupService) Update(ctx context.Context, id string, body SaleAccountGroupUpdateParams, opts ...option.RequestOption) (res *AccountGroup, err error) {
@@ -84,7 +88,9 @@ func (r *SaleAccountGroupService) Update(ctx context.Context, id string, body Sa
 	return res, err
 }
 
-// Returns a paginated list of account groups.
+// Returns a paginated list of account groups, newest first.
+//
+// The `q` search term matches the group's name and description.
 //
 // This endpoint requires the permission: `customer_groups:read`.
 func (r *SaleAccountGroupService) List(ctx context.Context, query SaleAccountGroupListParams, opts ...option.RequestOption) (res *ListAccountGroup, err error) {
@@ -96,9 +102,13 @@ func (r *SaleAccountGroupService) List(ctx context.Context, query SaleAccountGro
 
 // Deletes an account group.
 //
-// Deletion fails with a validation error while the account group is still in use —
-// for example by customer records, product line access, volume discounts, pricing
-// assignments, or an active registration flow.
+// Deletion fails with a validation error while the group is still in use: a
+// `type_group` that is set as a customer's type cannot be deleted, and no group
+// can be deleted while it grants product line access, backs a volume discount, or
+// is attached to a customer registration flow.
+//
+// Deleting a `pricing_group` first unassigns it from every customer it was applied
+// to, so those customers immediately stop receiving its pricing.
 //
 // This endpoint requires the permission: `customer_groups:delete`.
 func (r *SaleAccountGroupService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *SaleAccountGroupDeleteResponse, err error) {
@@ -114,6 +124,11 @@ func (r *SaleAccountGroupService) Delete(ctx context.Context, id string, opts ..
 
 // A named grouping of customer accounts, used for pricing rules or to categorize
 // accounts.
+//
+// A customer carries at most one group of type `type_group` as its customer type,
+// plus any number of groups of type `pricing_group`. Membership of either kind can
+// scope a volume discount to the customer and open up product lines for it to
+// order from.
 type AccountGroup struct {
 	// Account group ID.
 	ID string `json:"id" api:"required"`
@@ -152,6 +167,8 @@ type AccountGroup struct {
 	//     receives a special discount.
 	//   - `type_group`: used to categorize accounts, such as "Consumers" or
 	//     "Distributors".
+	//
+	// A group's type is fixed when it is created and cannot be changed afterwards.
 	//
 	// Any of "pricing_group", "type_group".
 	Type AccountGroupType `json:"type" api:"required"`
@@ -217,6 +234,8 @@ const (
 //     receives a special discount.
 //   - `type_group`: used to categorize accounts, such as "Consumers" or
 //     "Distributors".
+//
+// A group's type is fixed when it is created and cannot be changed afterwards.
 type AccountGroupType string
 
 const (
@@ -230,7 +249,7 @@ const (
 type CreateAccountGroupRequestParam struct {
 	// Display name of the account group.
 	//
-	// Must be unique within your account; maximum 255 characters.
+	// Must be unique within your account.
 	Name string `json:"name" api:"required"`
 	// How this account group will be used.
 	//
@@ -251,6 +270,9 @@ type CreateAccountGroupRequestParam struct {
 	//     in this group.
 	//   - `commission_exempt`: orders from accounts in this group are exempt from
 	//     commission.
+	//
+	// Leave this out and the group is created commission-exempt, so orders from its
+	// accounts earn no sales commission until you change it.
 	//
 	// Any of "commission_applied", "commission_exempt".
 	CommissionPolicy CreateAccountGroupRequestCommissionPolicy `json:"commission_policy,omitzero"`
@@ -294,6 +316,9 @@ const (
 //     in this group.
 //   - `commission_exempt`: orders from accounts in this group are exempt from
 //     commission.
+//
+// Leave this out and the group is created commission-exempt, so orders from its
+// accounts earn no sales commission until you change it.
 type CreateAccountGroupRequestCommissionPolicy string
 
 const (
@@ -313,7 +338,8 @@ const (
 	CreateAccountGroupRequestFreightPolicyBilledFreight CreateAccountGroupRequestFreightPolicy = "billed_freight"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListAccountGroup struct {
 	// Resources in this page.
 	Data []AccountGroup `json:"data" api:"required"`
@@ -321,7 +347,13 @@ type ListAccountGroup struct {
 	//
 	// Any of "list".
 	Object ListAccountGroupObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -352,7 +384,7 @@ type UpdateAccountGroupRequestParam struct {
 	Description param.Opt[string] `json:"description,omitzero"`
 	// Display name of the account group.
 	//
-	// Must be unique within your account; maximum 255 characters.
+	// Must be unique within your account.
 	Name param.Opt[string] `json:"name,omitzero"`
 	// How sales commission applies to accounts in this group.
 	//

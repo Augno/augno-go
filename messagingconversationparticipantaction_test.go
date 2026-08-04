@@ -27,9 +27,9 @@ func TestMessagingConversationParticipantActionSetRoleWithOptionalParams(t *test
 	)
 	_, err := client.Messaging.Conversations.Participants.Actions.SetRole(
 		context.TODO(),
-		"cvpt_01h9z8q1w2e3r4t5y6u7cvpt",
+		"cvpt_be2h3ul14cts",
 		augno.MessagingConversationParticipantActionSetRoleParams{
-			ID: "cv_01h9z8q1w2e3r4t5y6u7i8cv",
+			ID: "cv_w35z4ck68yq7",
 			UpdateParticipantRoleRequest: augno.UpdateParticipantRoleRequestParam{
 				Role: augno.UpdateParticipantRoleRequestRoleAdmin,
 			},

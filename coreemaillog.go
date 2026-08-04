@@ -54,7 +54,10 @@ func (r *CoreEmailLogService) Get(ctx context.Context, id string, query CoreEmai
 	return res, err
 }
 
-// Returns a paginated list of email logs for the current account.
+// Returns a paginated list of email logs for the current account, most recently
+// created first.
+//
+// The `q` search term matches the subject line or any recipient address.
 //
 // This endpoint requires the permission: `email_logs:read`.
 func (r *CoreEmailLogService) List(ctx context.Context, query CoreEmailLogListParams, opts ...option.RequestOption) (res *ListEmailLog, err error) {
@@ -64,14 +67,17 @@ func (r *CoreEmailLogService) List(ctx context.Context, query CoreEmailLogListPa
 	return res, err
 }
 
-// A record of an email sent on the account's behalf, such as an invoice or a user
-// invitation.
+// A record of an email the platform sent on the account's behalf, such as an order
+// acknowledgement or a user invitation.
+//
+// An email that never reached the delivery provider is recorded here too, rather
+// than disappearing.
 type EmailLog struct {
 	// Email log ID.
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Filename of the attached document.
+	// Filename of the document attached to the email.
 	Filename string `json:"filename" api:"required"`
 	// Resource type identifier.
 	//
@@ -79,10 +85,12 @@ type EmailLog struct {
 	Object EmailLogObject `json:"object" api:"required"`
 	// Recipient email addresses.
 	Recipients []string `json:"recipients" api:"required"`
-	// Email send status.
+	// Whether the email was handed off to the delivery provider.
 	//
-	// - `pending`: the email is queued and has not been sent yet.
-	// - `sent`: the email has been handed off for delivery.
+	//   - `sent`: the provider accepted the email for delivery. It does not confirm that
+	//     the recipient's mail server accepted it.
+	//   - `pending`: the email was never handed off — the send attempt failed, or it was
+	//     suppressed because the account is in sandbox mode.
 	//
 	// Any of "sent", "pending".
 	SendStatus EmailLogSendStatus `json:"send_status" api:"required"`
@@ -122,10 +130,12 @@ const (
 	EmailLogObjectEmailLog EmailLogObject = "email_log"
 )
 
-// Email send status.
+// Whether the email was handed off to the delivery provider.
 //
-// - `pending`: the email is queued and has not been sent yet.
-// - `sent`: the email has been handed off for delivery.
+//   - `sent`: the provider accepted the email for delivery. It does not confirm that
+//     the recipient's mail server accepted it.
+//   - `pending`: the email was never handed off — the send attempt failed, or it was
+//     suppressed because the account is in sandbox mode.
 type EmailLogSendStatus string
 
 const (
@@ -133,7 +143,8 @@ const (
 	EmailLogSendStatusPending EmailLogSendStatus = "pending"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListEmailLog struct {
 	// Resources in this page.
 	Data []EmailLog `json:"data" api:"required"`
@@ -141,7 +152,13 @@ type ListEmailLog struct {
 	//
 	// Any of "list".
 	Object ListEmailLogObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {

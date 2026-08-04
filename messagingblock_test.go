@@ -27,7 +27,7 @@ func TestMessagingBlockNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Blocks.New(context.TODO(), augno.MessagingBlockNewParams{
 		BlockRequest: augno.BlockRequestParam{
-			BlockedAccountUserID: "acus_01ea9983ddb41dacc44ecf997c",
+			BlockedAccountUserID: "acus_e5zu8bde0z3h",
 		},
 		Include: []string{"blocked_user"},
 	})

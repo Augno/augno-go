@@ -42,8 +42,11 @@ func NewOperationScanningStationService(opts ...option.RequestOption) (r Operati
 
 // Creates a scanning station and assigns it to a department.
 //
+// The new station has no production steps connected to it; use Connect Production
+// Steps to Scanning Station to attach them.
+//
 // Returns a conflict error if a scanning station with the same name already
-// exists.
+// exists, and a not-found error if the department does not exist in your account.
 //
 // This endpoint requires the permission: `scanners:create`.
 func (r *OperationScanningStationService) New(ctx context.Context, params OperationScanningStationNewParams, opts ...option.RequestOption) (res *ScanningStation, err error) {
@@ -86,6 +89,8 @@ func (r *OperationScanningStationService) Update(ctx context.Context, id string,
 
 // Returns a paginated list of scanning stations in your account.
 //
+// The `q` search term matches the station name.
+//
 // This endpoint requires the permission: `scanners:read`.
 func (r *OperationScanningStationService) List(ctx context.Context, query OperationScanningStationListParams, opts ...option.RequestOption) (res *ListScanningStation, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -95,6 +100,11 @@ func (r *OperationScanningStationService) List(ctx context.Context, query Operat
 }
 
 // Deletes a scanning station.
+//
+// Production steps connected to the station are not deleted, but they are left
+// without a station to scan at until you connect them to another one. Deleting a
+// station that was already deleted returns an already-deleted error rather than a
+// not-found error.
 //
 // This endpoint requires the permission: `scanners:delete`.
 func (r *OperationScanningStationService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (res *OperationScanningStationDeleteResponse, err error) {
@@ -113,6 +123,8 @@ func (r *OperationScanningStationService) Delete(ctx context.Context, id string,
 // The properties DepartmentID, Name, OperatorRequirement, Type are required.
 type CreateScanningStationRequestParam struct {
 	// ID of the department this station belongs to.
+	//
+	// Must be a department in your account, and cannot be changed after creation.
 	DepartmentID string `json:"department_id" api:"required"`
 	// Display name of the scanning station.
 	//
@@ -125,12 +137,14 @@ type CreateScanningStationRequestParam struct {
 	//
 	// Any of "none", "material_check".
 	OperatorRequirement CreateScanningStationRequestOperatorRequirement `json:"operator_requirement,omitzero" api:"required"`
-	// Scanning station type, determining which batch operation the station performs.
+	// Scanning station type, determining which batch operation an operator performs
+	// when they scan here.
 	//
-	// - `init_batch`: initializes a new batch.
-	// - `merge_batch`: merges multiple batches into one.
-	// - `move_batch`: moves a batch to another location or step.
-	// - `split_batch`: splits a batch into multiple batches.
+	//   - `init_batch`: starts a new batch at the beginning of a production flow.
+	//   - `merge_batch`: combines several scanned batches into one.
+	//   - `move_batch`: advances a batch through a production step connected to this
+	//     station.
+	//   - `split_batch`: divides a batch into several batches.
 	//
 	// The type cannot be changed after creation.
 	//
@@ -173,12 +187,14 @@ const (
 	CreateScanningStationRequestOperatorRequirementMaterialCheck CreateScanningStationRequestOperatorRequirement = "material_check"
 )
 
-// Scanning station type, determining which batch operation the station performs.
+// Scanning station type, determining which batch operation an operator performs
+// when they scan here.
 //
-// - `init_batch`: initializes a new batch.
-// - `merge_batch`: merges multiple batches into one.
-// - `move_batch`: moves a batch to another location or step.
-// - `split_batch`: splits a batch into multiple batches.
+//   - `init_batch`: starts a new batch at the beginning of a production flow.
+//   - `merge_batch`: combines several scanned batches into one.
+//   - `move_batch`: advances a batch through a production step connected to this
+//     station.
+//   - `split_batch`: divides a batch into several batches.
 //
 // The type cannot be changed after creation.
 type CreateScanningStationRequestType string
@@ -214,6 +230,9 @@ const (
 )
 
 // Request to partially update a scanning station.
+//
+// The station's type and department are set at creation and cannot be changed
+// here.
 type UpdateScanningStationRequestParam struct {
 	// Free-form notes about the scanning station.
 	//
@@ -354,6 +373,9 @@ type OperationScanningStationUpdateParams struct {
 	// Any of "department", "production_steps".
 	Include []string `query:"include,omitzero" json:"-"`
 	// Request to partially update a scanning station.
+	//
+	// The station's type and department are set at creation and cannot be changed
+	// here.
 	UpdateScanningStationRequest UpdateScanningStationRequestParam
 	paramObj
 }

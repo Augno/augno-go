@@ -28,7 +28,7 @@ func TestCoreAuditEventGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Core.AuditEvents.Get(
 		context.TODO(),
-		"ae_01b1c07dc3085bbd84111edcbd",
+		"ae_emripvn8t1xl",
 		augno.CoreAuditEventGetParams{
 			Include: []string{"account"},
 		},

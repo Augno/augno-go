@@ -43,11 +43,16 @@ func NewMessagingConversationMessageService(opts ...option.RequestOption) (r Mes
 
 // Posts a message to a conversation.
 //
-// With `mode` = `send` (the default) the message is delivered — immediately, or
-// queued when `scheduled_at` is set — and the request is idempotent on
-// `client_message_id`. With `mode` = `draft` a customer-reply draft is proposed on
-// an external case: it is held at status `draft` for human approval rather than
-// sent, and `channel` is required.
+// With `mode` = `send` the message is delivered — immediately, or queued when
+// `scheduled_at` is set — and a retry of an immediate send with the same
+// `client_message_id` returns the original message rather than posting it twice.
+// With `mode` = `draft` the message is proposed as a reply to the customer and
+// held for a teammate to approve instead of being sent, and `channel` is required.
+//
+// Sending requires you to be an active participant allowed to post: view-only
+// participants cannot post, and in a direct message neither side of a block can.
+// On a customer-facing case, replying to the customer moves the case to waiting on
+// the customer, and proposing a draft moves it to awaiting approval.
 //
 // This endpoint requires the permission: `messaging:create`.
 func (r *MessagingConversationMessageService) New(ctx context.Context, id string, params MessagingConversationMessageNewParams, opts ...option.RequestOption) (res *Message, err error) {
@@ -61,7 +66,10 @@ func (r *MessagingConversationMessageService) New(ctx context.Context, id string
 	return res, err
 }
 
-// Returns a conversation's messages, newest first, keyset-paginated by sequence.
+// Returns the messages in a conversation, newest first.
+//
+// You must be an active participant. A customer reading their own case receives
+// only the messages meant for them — internal team notes are never included.
 //
 // This endpoint requires the permission: `messaging:read`.
 func (r *MessagingConversationMessageService) List(ctx context.Context, id string, query MessagingConversationMessageListParams, opts ...option.RequestOption) (res *ListMessage, err error) {
@@ -75,7 +83,8 @@ func (r *MessagingConversationMessageService) List(ctx context.Context, id strin
 	return res, err
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListMessage struct {
 	// Resources in this page.
 	Data []Message `json:"data" api:"required"`
@@ -83,7 +92,13 @@ type ListMessage struct {
 	//
 	// Any of "list".
 	Object ListMessageObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -110,29 +125,38 @@ const (
 
 // A single attachment supplied when sending a message.
 //
-// For uploaded kinds (`file`/`image`) supply the `s3_key` returned by the
-// upload-url endpoint; for `link` supply `url`; for `resource` supply
-// `resource_type` and `resource_id`.
+// For an uploaded file or image, supply the `s3_key` you uploaded to; for a link,
+// supply `url`; for a resource reference, supply `resource_type` and
+// `resource_id`.
 //
 // The property Kind is required.
 type MessageAttachmentInputParam struct {
-	// The kind of attachment.
+	// What is being attached.
+	//
+	// - `file`: a document you uploaded to object storage first.
+	// - `image`: an uploaded image, rendered inline in the conversation.
+	// - `link`: an external web address, with nothing stored on our side.
+	// - `resource`: a reference to an in-app record, such as an order.
 	//
 	// Any of "file", "image", "link", "resource".
 	Kind MessageAttachmentInputKind `json:"kind,omitzero" api:"required"`
-	// The MIME content type (file/image).
+	// The MIME content type of the uploaded file (file and image).
 	ContentType param.Opt[string] `json:"content_type,omitzero"`
-	// The original filename (file/image).
+	// The filename to display for the attachment (file and image).
 	Filename param.Opt[string] `json:"filename,omitzero"`
-	// The linked resource id (required for resource).
+	// The id of the record being referenced, paired with `resource_type` (resource).
 	ResourceID param.Opt[string] `json:"resource_id,omitzero"`
-	// The linked resource type (required for resource).
+	// The type of the record being referenced, paired with `resource_id` (resource).
 	ResourceType param.Opt[string] `json:"resource_type,omitzero"`
-	// The object-storage key from the upload-url response (required for file/image).
+	// The key you uploaded the file to, taken from the upload-url response (file and
+	// image).
+	//
+	// The key must be one minted for this conversation and the file must already be
+	// uploaded, otherwise the send is rejected.
 	S3Key param.Opt[string] `json:"s3_key,omitzero"`
-	// The size in bytes (file/image).
+	// The size of the uploaded file in bytes (file and image).
 	SizeBytes param.Opt[int64] `json:"size_bytes,omitzero"`
-	// The external URL (required for link).
+	// The web address being shared (link).
 	URL param.Opt[string] `json:"url,omitzero"`
 	paramObj
 }
@@ -145,7 +169,12 @@ func (r *MessageAttachmentInputParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The kind of attachment.
+// What is being attached.
+//
+// - `file`: a document you uploaded to object storage first.
+// - `image`: an uploaded image, rendered inline in the conversation.
+// - `link`: an external web address, with nothing stored on our side.
+// - `resource`: a reference to an in-app record, such as an order.
 type MessageAttachmentInputKind string
 
 const (
@@ -165,46 +194,61 @@ type SendMessageRequestParam struct {
 	Body string `json:"body" api:"required"`
 	// Client-supplied dedupe key.
 	//
-	// A resend with the same value returns the original message. Required when sending
-	// (`mode` = `send`); ignored for drafts.
+	// Repeating an immediate send with the same value returns the message created by
+	// the first request instead of posting a second one, so a retry after a network
+	// failure is safe. Required when sending (`mode` = `send`); ignored for drafts.
 	ClientMessageID string `json:"client_message_id" api:"required"`
 	// ID of a resource to link in the message, paired with `link_resource_type`.
 	LinkResourceID param.Opt[string] `json:"link_resource_id,omitzero"`
 	// The message this one is a reply to.
 	ReplyToMessageID param.Opt[string] `json:"reply_to_message_id,omitzero"`
-	// When set, queue the message for delivery at this future time instead of sending
-	// now.
+	// When set, hold the message and deliver it at this future time instead of sending
+	// it now.
 	//
-	// The created message has status `scheduled`.
+	// Only the body is carried into a scheduled send — attachments, mentions, copied
+	// recipients, resource links, replies, and audience are dropped, and it is
+	// delivered as an ordinary team-visible message. If you are no longer an active
+	// participant when it comes due, it is canceled instead of sent.
 	ScheduledAt param.Opt[time.Time] `json:"scheduled_at,omitzero" format:"date-time"`
 	// The internal thread message a draft is composed from, when drafting from a
 	// thread (`mode` = `draft`).
 	SourceThreadMessageID param.Opt[string] `json:"source_thread_message_id,omitzero"`
-	// The email subject for a customer reply on an email-bridged case (`audience` =
-	// `customer`).
+	// The subject line for a customer reply sent by email.
+	//
+	// When omitted, the reply goes out as "Re:" the case title.
 	Subject param.Opt[string] `json:"subject,omitzero"`
 	// Attachments to include with the message.
 	Attachments []MessageAttachmentInputParam `json:"attachments,omitzero"`
-	// Who the message is addressed to on an external case.
+	// Who the message is addressed to on a customer-facing case.
 	//
-	//   - `customer`: sends a customer-visible reply, branded "Customer Service" and
-	//     delivered by email on an email-bridged case.
-	//   - `internal`: posts a team-only note that the customer never sees.
+	//   - `customer`: a reply the customer sees, shown to them as coming from "Customer
+	//     Service" and delivered as email when the case is bridged to an inbox.
+	//   - `internal`: a team-only note the customer never sees.
 	//
-	// When omitted, the message is posted as an internal team-only note.
+	// Messages are team-only unless you ask for `customer`, so an internal note can
+	// never leak by omission. Asking for `customer` on a conversation that has no
+	// customer is rejected.
+	//
+	// On a case bridged to an email inbox, a customer reply goes out as mail carrying
+	// only the body, subject, and copied recipients — attachments, mentions, resource
+	// links, and replies are dropped.
 	//
 	// Any of "internal", "customer".
 	Audience SendMessageRequestAudience `json:"audience,omitzero"`
-	// Additional email recipients to copy on a customer reply (email channel).
+	// Additional email addresses to copy on a customer reply sent by email.
 	Cc []string `json:"cc,omitzero"`
-	// The channel a draft will be sent over when approved (`mode` = `draft`).
+	// The channel a draft will be sent over once it is approved (`mode` = `draft`).
 	//
-	// - `message`: delivered as an in-conversation chat message.
-	// - `email`: delivered as an outbound email from the conversation's bridged inbox.
+	//   - `message`: appears in the customer's conversation timeline.
+	//   - `email`: goes out as an email from the inbox the case is bridged to. Falls
+	//     back to the conversation timeline if the case has no bridged inbox.
 	//
 	// Any of "message", "email".
 	Channel SendMessageRequestChannel `json:"channel,omitzero"`
 	// Type of a resource to link in the message, paired with `link_resource_id`.
+	//
+	// Linking a record lets clients render the message as a reference to it. A link
+	// counts in place of text, so a message may consist of nothing but the link.
 	//
 	// Any of "account", "actor", "entity", "record", "freight", "sales_order_totals",
 	// "sales_order_stage_total", "sales_order_related", "order_contact", "user",
@@ -291,15 +335,17 @@ type SendMessageRequestParam struct {
 	LinkResourceType SendMessageRequestLinkResourceType `json:"link_resource_type,omitzero"`
 	// Account user ids explicitly @mentioned in the message.
 	//
-	// A mention delivers a notification even when the recipient has muted the
-	// conversation.
+	// A mention notifies the person even when they have muted the conversation.
 	Mentions []string `json:"mentions,omitzero"`
 	// Whether to deliver the message now or hold it as a customer-reply draft.
 	//
-	//   - `send`: delivers the message (immediately, or at `scheduled_at`). This is the
-	//     default.
-	//   - `draft`: proposes a customer-reply draft on an external case, held for human
-	//     approval rather than sent. Requires `channel`.
+	//   - `send`: delivers the message, immediately or at `scheduled_at`.
+	//   - `draft`: proposes a reply to the customer on a customer-facing case and holds
+	//     it for a teammate to approve before it goes out. Requires `channel`.
+	//
+	// A draft is built from `body`, `subject`, `channel`, and
+	// `source_thread_message_id` only — attachments, mentions, copied recipients,
+	// resource links, replies, and scheduling are not carried onto it.
 	//
 	// Any of "send", "draft".
 	Mode SendMessageRequestMode `json:"mode,omitzero"`
@@ -314,13 +360,19 @@ func (r *SendMessageRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Who the message is addressed to on an external case.
+// Who the message is addressed to on a customer-facing case.
 //
-//   - `customer`: sends a customer-visible reply, branded "Customer Service" and
-//     delivered by email on an email-bridged case.
-//   - `internal`: posts a team-only note that the customer never sees.
+//   - `customer`: a reply the customer sees, shown to them as coming from "Customer
+//     Service" and delivered as email when the case is bridged to an inbox.
+//   - `internal`: a team-only note the customer never sees.
 //
-// When omitted, the message is posted as an internal team-only note.
+// Messages are team-only unless you ask for `customer`, so an internal note can
+// never leak by omission. Asking for `customer` on a conversation that has no
+// customer is rejected.
+//
+// On a case bridged to an email inbox, a customer reply goes out as mail carrying
+// only the body, subject, and copied recipients — attachments, mentions, resource
+// links, and replies are dropped.
 type SendMessageRequestAudience string
 
 const (
@@ -328,10 +380,11 @@ const (
 	SendMessageRequestAudienceCustomer SendMessageRequestAudience = "customer"
 )
 
-// The channel a draft will be sent over when approved (`mode` = `draft`).
+// The channel a draft will be sent over once it is approved (`mode` = `draft`).
 //
-// - `message`: delivered as an in-conversation chat message.
-// - `email`: delivered as an outbound email from the conversation's bridged inbox.
+//   - `message`: appears in the customer's conversation timeline.
+//   - `email`: goes out as an email from the inbox the case is bridged to. Falls
+//     back to the conversation timeline if the case has no bridged inbox.
 type SendMessageRequestChannel string
 
 const (
@@ -340,6 +393,9 @@ const (
 )
 
 // Type of a resource to link in the message, paired with `link_resource_id`.
+//
+// Linking a record lets clients render the message as a reference to it. A link
+// counts in place of text, so a message may consist of nothing but the link.
 type SendMessageRequestLinkResourceType string
 
 const (
@@ -622,10 +678,13 @@ const (
 
 // Whether to deliver the message now or hold it as a customer-reply draft.
 //
-//   - `send`: delivers the message (immediately, or at `scheduled_at`). This is the
-//     default.
-//   - `draft`: proposes a customer-reply draft on an external case, held for human
-//     approval rather than sent. Requires `channel`.
+//   - `send`: delivers the message, immediately or at `scheduled_at`.
+//   - `draft`: proposes a reply to the customer on a customer-facing case and holds
+//     it for a teammate to approve before it goes out. Requires `channel`.
+//
+// A draft is built from `body`, `subject`, `channel`, and
+// `source_thread_message_id` only — attachments, mentions, copied recipients,
+// resource links, replies, and scheduling are not carried onto it.
 type SendMessageRequestMode string
 
 const (
@@ -664,9 +723,10 @@ func (r MessagingConversationMessageNewParams) URLQuery() (v url.Values, err err
 }
 
 type MessagingConversationMessageListParams struct {
-	// Catch-up bound.
+	// Return only messages that come after this position in the timeline.
 	//
-	// Only return messages with a sequence greater than this (reconnect sync).
+	// Use it to catch up after a dropped realtime connection: pass the sequence of the
+	// last message you already have to fetch everything since.
 	AfterSequence param.Opt[int64] `query:"after_sequence,omitzero" json:"-"`
 	// Opaque cursor token identifying where the page of results starts.
 	//
@@ -688,11 +748,12 @@ type MessagingConversationMessageListParams struct {
 	// "reply_to", "reply_to.sender", "reply_to.author", "reply_to.attachments",
 	// "agent_run".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Filter by lifecycle state.
+	// Which set of the conversation's messages to return.
 	//
-	// Defaults to `sent` (the conversation timeline); pass `draft` to list the case's
-	// open customer-reply drafts, or `scheduled` to list your not-yet-sent scheduled
-	// messages in this conversation.
+	// Left unset, you get the delivered timeline. Pass `draft` for the case's reply
+	// drafts awaiting approval, or `scheduled` for the messages you yourself have
+	// queued for a future send, soonest first. Those two ignore paging and come back
+	// in a single response.
 	//
 	// Any of "draft", "scheduled", "sent", "canceled", "rejected", "failed",
 	// "superseded".
@@ -709,11 +770,12 @@ func (r MessagingConversationMessageListParams) URLQuery() (v url.Values, err er
 	})
 }
 
-// Filter by lifecycle state.
+// Which set of the conversation's messages to return.
 //
-// Defaults to `sent` (the conversation timeline); pass `draft` to list the case's
-// open customer-reply drafts, or `scheduled` to list your not-yet-sent scheduled
-// messages in this conversation.
+// Left unset, you get the delivered timeline. Pass `draft` for the case's reply
+// drafts awaiting approval, or `scheduled` for the messages you yourself have
+// queued for a future send, soonest first. Those two ignore paging and come back
+// in a single response.
 type MessagingConversationMessageListParamsStatus string
 
 const (

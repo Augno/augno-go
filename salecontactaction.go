@@ -40,10 +40,12 @@ func NewSaleContactActionService(opts ...option.RequestOption) (r SaleContactAct
 
 // Finds the contacts that match an email address.
 //
-// Only people on accounts you have a relationship with are returned — your
+// Only active people on accounts you have a relationship with are returned — your
 // customers, your suppliers, or your own account. A match's `relationship` says
-// how you relate to the account it belongs to. Several accounts can share an
-// email, so this can return more than one match.
+// how you relate to the account it belongs to. The same person can be set up on
+// several accounts under one email, so this can return more than one match, and an
+// email that belongs to no one you deal with simply returns no matches rather than
+// an error.
 //
 // This endpoint requires the permission: `customers:read`.
 func (r *SaleContactActionService) FindByEmail(ctx context.Context, params SaleContactActionFindByEmailParams, opts ...option.RequestOption) (res *ListContactMatch, err error) {
@@ -57,21 +59,26 @@ func (r *SaleContactActionService) FindByEmail(ctx context.Context, params SaleC
 // your customers, your suppliers, or your own account.
 //
 // The same email can be a contact on many accounts across the platform; only
-// accounts you relate to are returned. The matched person is available through
-// `account_user` (and the shared profile through `account_user.user`), and the
-// account they belong to through `account`.
+// accounts you relate to are returned.
+//
+// Only active people are matched — someone who has been disabled or removed on an
+// account never produces a match for that account.
 type ContactMatch struct {
-	// Resource ID.
+	// Contact match ID.
 	//
 	// This is the matched account user's ID, so the same value also appears as
 	// `account_user.id`.
 	ID string `json:"id" api:"required"`
-	// A customer account, including its branding and customer portal sub-resources.
+	// An organization on Augno, including its branding and customer portal
+	// sub-resources.
+	//
+	// Your own account and any customer or supplier account you trade with are both
+	// represented by this object.
 	Account Account `json:"account" api:"required"`
 	// A user's membership in an account, carrying the account-specific status, role,
 	// and department.
 	//
-	// Profile fields (name, email, username, image URL) live on the expandable `user`
+	// Profile fields (name, email, username, image URL) live on the `user`
 	// sub-resource, which is shared across every account the user belongs to.
 	AccountUser AccountUser `json:"account_user" api:"required"`
 	// The email address that was matched.
@@ -82,9 +89,9 @@ type ContactMatch struct {
 	Object ContactMatchObject `json:"object" api:"required"`
 	// How you relate to the account this contact belongs to.
 	//
-	// - `customer` — the account is one of your customers.
-	// - `supplier` — the account is one of your suppliers.
-	// - `self` — the account is your own.
+	// - `customer`: the account is one of your customers.
+	// - `supplier`: the account is one of your suppliers.
+	// - `self`: the account is your own.
 	//
 	// Any of "customer", "supplier", "self".
 	Relationship ContactMatchRelationship `json:"relationship" api:"required"`
@@ -116,9 +123,9 @@ const (
 
 // How you relate to the account this contact belongs to.
 //
-// - `customer` — the account is one of your customers.
-// - `supplier` — the account is one of your suppliers.
-// - `self` — the account is your own.
+// - `customer`: the account is one of your customers.
+// - `supplier`: the account is one of your suppliers.
+// - `self`: the account is your own.
 type ContactMatchRelationship string
 
 const (
@@ -144,7 +151,8 @@ func (r *FindContactByEmailRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListContactMatch struct {
 	// Resources in this page.
 	Data []ContactMatch `json:"data" api:"required"`
@@ -152,7 +160,13 @@ type ListContactMatch struct {
 	//
 	// Any of "list".
 	Object ListContactMatchObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -186,7 +200,10 @@ type SaleContactActionFindByEmailParams struct {
 	// Any of "account_user", "account_user.user", "account_user.role",
 	// "account_user.department", "account".
 	Include []string `query:"include,omitzero" json:"-"`
-	// Filter to contacts whose relationship to you is one of these.
+	// Restricts the results to matches whose relationship to your account is one of
+	// these.
+	//
+	// Leaving it out returns matches of every relationship.
 	//
 	// Any of "customer", "supplier", "self".
 	Relationships []string `query:"relationships,omitzero" json:"-"`

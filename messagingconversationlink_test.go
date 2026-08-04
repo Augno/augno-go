@@ -27,10 +27,10 @@ func TestMessagingConversationLinkNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Links.New(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationLinkNewParams{
 			AddConversationLinkRequest: augno.AddConversationLinkRequestParam{
-				ResourceID:   "or_01d5034136c3ccc048abecc312",
+				ResourceID:   "or_9lqo07quiwyb",
 				ResourceType: augno.AddConversationLinkRequestResourceTypeSalesOrder,
 			},
 			Include: []string{"conversation"},
@@ -59,7 +59,7 @@ func TestMessagingConversationLinkListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.Conversations.Links.List(
 		context.TODO(),
-		"cv_01h9z8q1w2e3r4t5y6u7i8cv",
+		"cv_w35z4ck68yq7",
 		augno.MessagingConversationLinkListParams{
 			Include: []string{"conversation"},
 		},
@@ -89,7 +89,7 @@ func TestMessagingConversationLinkDelete(t *testing.T) {
 		context.TODO(),
 		"example",
 		augno.MessagingConversationLinkDeleteParams{
-			ID: "cv_01h9z8q1w2e3r4t5y6u7i8cv",
+			ID: "cv_w35z4ck68yq7",
 		},
 	)
 	if err != nil {

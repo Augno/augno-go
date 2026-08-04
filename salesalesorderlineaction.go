@@ -39,9 +39,10 @@ func NewSaleSalesOrderLineActionService(opts ...option.RequestOption) (r SaleSal
 	return
 }
 
-// Reorders the product lines on a sales order to match the supplied order. Credit
-// and freight lines always stay at the bottom of the list regardless of the order
-// given here.
+// Reorders the product lines on a sales order to match the sequence supplied.
+//
+// The lines are renumbered from `1` in the given order. Discount and freight lines
+// always stay at the bottom of the list regardless of the sequence given here.
 //
 // This endpoint requires the permissions: `customers:update`, `suppliers:update`,
 // `sales_orders:update`.
@@ -60,9 +61,11 @@ func (r *SaleSalesOrderLineActionService) Reorder(ctx context.Context, id string
 //
 // The property LineIDs is required.
 type ReorderSalesOrderLinesRequestParam struct {
-	// The order's product-line IDs in the desired display order. Every product line on
-	// the order must be listed exactly once; credit and freight lines are kept at the
-	// bottom of the list and must not be included.
+	// The order's product-line IDs in the desired display order.
+	//
+	// Every product line on the order must be listed exactly once. The automatically
+	// generated discount and freight lines are kept at the bottom of the list and must
+	// not be included.
 	LineIDs []string `json:"line_ids,omitzero" api:"required"`
 	paramObj
 }

@@ -41,10 +41,13 @@ func NewCatalogMaterialService(opts ...option.RequestOption) (r CatalogMaterialS
 	return
 }
 
-// Creates a material with the specified SKU and category.
+// Creates a material together with the catalog item that carries its SKU,
+// description, category, pricing, and attributes.
 //
 // Inventory tracking for the new material starts at a zero on-hand quantity in the
-// category's base unit.
+// category's base unit. The item's consumption rate (`burn_rate`) also starts at
+// zero and cannot be supplied here — it is derived from recorded consumption as
+// production happens.
 //
 // This endpoint requires the permissions: `materials:create`, `customers:update`,
 // `suppliers:update`.
@@ -72,7 +75,10 @@ func (r *CatalogMaterialService) Get(ctx context.Context, id string, query Catal
 
 // Partially updates a material.
 //
-// Fields not provided retain their current values.
+// Fields not provided retain their current values. Only the cost side of pricing
+// can be changed here; the selling price set at creation is not editable through
+// this endpoint. Use the Change Item Category endpoint to move the material to a
+// different category.
 //
 // This endpoint requires the permissions: `materials:update`, `customers:update`,
 // `suppliers:update`.
@@ -87,7 +93,9 @@ func (r *CatalogMaterialService) Update(ctx context.Context, id string, params C
 	return res, err
 }
 
-// Returns a paginated list of materials.
+// Returns a paginated list of materials, newest first.
+//
+// `q` matches against SKU and description, with closer SKU matches ranked first.
 //
 // This endpoint requires the permissions: `materials:read`, `customers:read`,
 // `suppliers:read`.
@@ -100,9 +108,10 @@ func (r *CatalogMaterialService) List(ctx context.Context, query CatalogMaterial
 
 // Deletes a material.
 //
-// This is a soft delete: the material is marked deleted and no longer returned by
-// other endpoints, but the record is retained. Deleting an already-deleted
-// material returns an error.
+// This is a soft delete: the material and the catalog item behind it stop being
+// returned by other endpoints, but the records are retained. The response is the
+// material as it stood immediately before deletion, and deleting an
+// already-deleted material returns an error.
 //
 // This endpoint requires the permissions: `materials:delete`, `customers:update`,
 // `suppliers:update`.
@@ -141,11 +150,17 @@ type CreateMaterialRequestParam struct {
 	LeadTime QuantityInputRequestParam `json:"lead_time,omitzero"`
 	// A quantity, given as a decimal value and the unit it is measured in.
 	OrderPoint QuantityInputRequestParam `json:"order_point,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitCost RateInputParam `json:"unit_cost,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitPrice RateInputParam `json:"unit_price,omitzero"`
 	paramObj
 }
@@ -158,7 +173,8 @@ func (r *CreateMaterialRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListMaterial struct {
 	// Resources in this page.
 	Data []Material `json:"data" api:"required"`
@@ -166,7 +182,13 @@ type ListMaterial struct {
 	//
 	// Any of "list".
 	Object ListMaterialObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -202,15 +224,23 @@ type Material struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Item is an inventory item (product, material, or part).
+	// An entry in your catalog: something you sell, consume, or build with.
 	Item Item `json:"item" api:"required"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	LeadTime Quantity `json:"lead_time" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "material".
 	Object MaterialObject `json:"object" api:"required"`
-	// Value with an associated unit.
+	// A measured amount: a numeric value together with the unit it is expressed in.
+	//
+	// Quantities are shared building blocks rather than standalone records — other
+	// resources point at them to report stock levels, ordered and packed amounts,
+	// money, weights, and durations.
 	OrderPoint Quantity `json:"order_point" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -260,8 +290,11 @@ func (r *QuantityInputRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// A rate value with its numerator and denominator units, used in create and update
+// A value expressed as a ratio of two units, supplied on create and update
 // requests.
+//
+// A unit price, for example, has a currency as its numerator unit and the unit the
+// product is bought or sold by as its denominator.
 //
 // The properties DenominatorUnitID, NumeratorUnitID, Value are required.
 type RateInputParam struct {
@@ -298,8 +331,11 @@ type UpdateMaterialRequestParam struct {
 	LeadTime QuantityInputRequestParam `json:"lead_time,omitzero"`
 	// A quantity, given as a decimal value and the unit it is measured in.
 	OrderPoint QuantityInputRequestParam `json:"order_point,omitzero"`
-	// A rate value with its numerator and denominator units, used in create and update
+	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.
+	//
+	// A unit price, for example, has a currency as its numerator unit and the unit the
+	// product is bought or sold by as its denominator.
 	UnitCost RateInputParam `json:"unit_cost,omitzero"`
 	paramObj
 }
@@ -407,9 +443,9 @@ type CatalogMaterialListParams struct {
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Filter to materials created on or after this date.
 	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
-	// Filter by attribute IDs.
+	// Filter to materials carrying any of these attributes.
 	AttributeIDs []string `query:"attribute_ids,omitzero" json:"-"`
-	// Filter by category IDs.
+	// Filter to materials in any of these categories.
 	CategoryIDs []string `query:"category_ids,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

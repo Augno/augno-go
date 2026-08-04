@@ -27,7 +27,7 @@ func TestOperationScanningStationNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.ScanningStations.New(context.TODO(), augno.OperationScanningStationNewParams{
 		CreateScanningStationRequest: augno.CreateScanningStationRequestParam{
-			DepartmentID:        "dp_01791c25ab59da4704cba61874",
+			DepartmentID:        "dp_m0jayebxnkos",
 			Name:                "Packaging Line 1",
 			OperatorRequirement: augno.CreateScanningStationRequestOperatorRequirementNone,
 			Type:                augno.CreateScanningStationRequestTypeInitBatch,
@@ -60,7 +60,7 @@ func TestOperationScanningStationGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.ScanningStations.Get(
 		context.TODO(),
-		"scst_0129335dd6286056a97024fcc1",
+		"scst_t71bn7lq5yov",
 		augno.OperationScanningStationGetParams{
 			Include: []string{"department"},
 		},
@@ -88,7 +88,7 @@ func TestOperationScanningStationUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.ScanningStations.Update(
 		context.TODO(),
-		"scst_0129335dd6286056a97024fcc1",
+		"scst_t71bn7lq5yov",
 		augno.OperationScanningStationUpdateParams{
 			Include: []string{"department"},
 			UpdateScanningStationRequest: augno.UpdateScanningStationRequestParam{
@@ -148,7 +148,7 @@ func TestOperationScanningStationDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ScanningStations.Delete(context.TODO(), "scst_0129335dd6286056a97024fcc1")
+	_, err := client.Operations.ScanningStations.Delete(context.TODO(), "scst_t71bn7lq5yov")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

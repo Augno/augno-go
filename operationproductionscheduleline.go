@@ -47,6 +47,9 @@ func NewOperationProductionScheduleLineService(opts ...option.RequestOption) (r 
 // what the solver produced, and the change is written to the deviation log. Adding
 // into a frozen week requires a `reason`.
 //
+// Only a draft or a published version can be edited; a superseded or archived
+// version is history. The campaign is appended to the end of its week's run order.
+//
 // This endpoint requires the permission: `production_schedules:update`.
 func (r *OperationProductionScheduleLineService) New(ctx context.Context, id string, body OperationProductionScheduleLineNewParams, opts ...option.RequestOption) (res *ProductionScheduleLine, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -65,6 +68,11 @@ func (r *OperationProductionScheduleLineService) New(ctx context.Context, id str
 // snapshot, and the line becomes manual so a regenerate can tell it apart from
 // solver output. A change that touches a frozen week — including moving a campaign
 // out of one — requires a `reason`.
+//
+// Only a draft or a published version can be edited; a superseded or archived
+// version is history. An edit that changes several things at once is logged under
+// the single most significant one, in the order machine, week, quantity, position
+// — that being the change a planner has to react to first.
 //
 // This endpoint requires the permission: `production_schedules:update`.
 func (r *OperationProductionScheduleLineService) Update(ctx context.Context, lineID string, params OperationProductionScheduleLineUpdateParams, opts ...option.RequestOption) (res *ProductionScheduleLine, err error) {
@@ -102,6 +110,11 @@ func (r *OperationProductionScheduleLineService) List(ctx context.Context, id st
 // readable after the line itself is gone. Removing from a frozen week requires a
 // `reason`.
 //
+// Only a draft or a published version can be edited; a superseded or archived
+// version is history. Removing a campaign whose week has already been released
+// does not remove the batches it created; those live on the production run and
+// have to be dealt with there.
+//
 // This endpoint requires the permission: `production_schedules:update`.
 func (r *OperationProductionScheduleLineService) Delete(ctx context.Context, lineID string, params OperationProductionScheduleLineDeleteParams, opts ...option.RequestOption) (res *OperationProductionScheduleLineDeleteResponse, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -124,19 +137,39 @@ func (r *OperationProductionScheduleLineService) Delete(ctx context.Context, lin
 type CreateProductionScheduleLineRequestParam struct {
 	// ID of the item to build.
 	ItemID string `json:"item_id" api:"required"`
-	// ID of the machine that will run it.
+	// ID of the machine that will run the campaign.
+	//
+	// The machine's production step and department are copied onto the campaign, which
+	// is what department-level attainment rolls it up by. The schedule's derived
+	// department work is not re-exploded for a hand-added campaign; it is rebuilt the
+	// next time the version is regenerated.
 	MachineID string `json:"machine_id" api:"required"`
-	// Units to build.
+	// Units to build over the campaign.
 	Quantity float64 `json:"quantity" api:"required"`
 	// Horizon week to plan the campaign in, zero-based.
+	//
+	// Week 0 is the week the schedule's horizon starts in. The week must fall inside
+	// the horizon this version was planned over.
 	WeekIndex int64 `json:"week_index" api:"required"`
-	// Lots the quantity represents.
+	// How many lots the quantity is built in.
+	//
+	// Left unset, it is derived from the quantity and the account's default lot size.
+	// The lot size itself is taken from that account default and is not settable per
+	// campaign, so this is a record of the lot count rather than what a release splits
+	// batches by.
 	Lots param.Opt[int64] `json:"lots,omitzero"`
 	// Free-form explanation of the change.
 	ReasonNote param.Opt[string] `json:"reason_note,omitzero"`
 	// Machine hours the campaign will take.
+	//
+	// Left unset, it is estimated from the rate this version was solved with for this
+	// item, so the week's utilisation still reflects the added work. An item the
+	// version holds no policy for estimates to zero.
 	RunHours param.Opt[float64] `json:"run_hours,omitzero"`
-	// Why the campaign was added. Required when it lands inside a frozen week.
+	// Why the campaign was added.
+	//
+	// Required when the campaign lands inside a frozen week, since that is a
+	// commitment being changed.
 	//
 	// Any of "machine_down", "material_shortage", "rush_order", "quality_hold",
 	// "over_run", "under_run", "capacity_change", "other".
@@ -152,7 +185,10 @@ func (r *CreateProductionScheduleLineRequestParam) UnmarshalJSON(data []byte) er
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Why the campaign was added. Required when it lands inside a frozen week.
+// Why the campaign was added.
+//
+// Required when the campaign lands inside a frozen week, since that is a
+// commitment being changed.
 type CreateProductionScheduleLineRequestReason string
 
 const (
@@ -166,7 +202,8 @@ const (
 	CreateProductionScheduleLineRequestReasonOther            CreateProductionScheduleLineRequestReason = "other"
 )
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListProductionScheduleLine struct {
 	// Resources in this page.
 	Data []ProductionScheduleLine `json:"data" api:"required"`
@@ -174,7 +211,13 @@ type ListProductionScheduleLine struct {
 	//
 	// Any of "list".
 	Object ListProductionScheduleLineObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -207,8 +250,8 @@ type ProductionScheduleLine struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Department Entity `json:"department" api:"required"`
-	// Whether the line is inside the frozen window and can no longer be changed
-	// without recording a deviation.
+	// Whether the line is inside the frozen window, where changing it requires a
+	// reason for the deviation log.
 	//
 	// Any of "frozen", "flexible".
 	FreezeStatus ProductionScheduleLineFreezeStatus `json:"freeze_status" api:"required"`
@@ -247,14 +290,15 @@ type ProductionScheduleLine struct {
 	ProjectedOnHandAfter float64 `json:"projected_on_hand_after" api:"required"`
 	// Projected stock before the campaign lands.
 	ProjectedOnHandBefore float64 `json:"projected_on_hand_before" api:"required"`
-	// Why the campaign was scheduled.
+	// Why the campaign was placed or last changed by hand.
+	//
+	// Only hand changes record a reason, and a change that touches a frozen week has
+	// to supply one.
 	//
 	// Any of "machine_down", "material_shortage", "rush_order", "quality_hold",
 	// "over_run", "under_run", "capacity_change", "other".
 	Reason ProductionScheduleLineReason `json:"reason" api:"required"`
 	// Batches this campaign issued to the floor when its week was released.
-	//
-	// Zero until the week is released.
 	ReleasedBatchCount int64 `json:"released_batch_count" api:"required"`
 	// Batches of this campaign the floor has scanned.
 	ScannedBatchCount int64 `json:"scanned_batch_count" api:"required"`
@@ -267,9 +311,15 @@ type ProductionScheduleLine struct {
 	SequenceIndex int64 `json:"sequence_index" api:"required"`
 	// Whether the solver or a person created the line.
 	//
+	// Editing a solver-placed campaign turns it `manual`, and a regenerate that
+	// preserves hand work keeps exactly the campaigns marked that way.
+	//
 	// Any of "solver", "manual".
 	Source ProductionScheduleLineSource `json:"source" api:"required"`
 	// Where the line is in its lifecycle.
+	//
+	// A campaign becomes `released` when its week is issued to the floor as a
+	// production run, and goes back to `planned` if that run is deleted.
 	//
 	// Any of "planned", "released", "in_progress", "complete", "cancelled".
 	Status ProductionScheduleLineStatus `json:"status" api:"required"`
@@ -321,8 +371,8 @@ func (r *ProductionScheduleLine) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Whether the line is inside the frozen window and can no longer be changed
-// without recording a deviation.
+// Whether the line is inside the frozen window, where changing it requires a
+// reason for the deviation log.
 type ProductionScheduleLineFreezeStatus string
 
 const (
@@ -337,7 +387,10 @@ const (
 	ProductionScheduleLineObjectProductionScheduleLine ProductionScheduleLineObject = "production_schedule_line"
 )
 
-// Why the campaign was scheduled.
+// Why the campaign was placed or last changed by hand.
+//
+// Only hand changes record a reason, and a change that touches a frozen week has
+// to supply one.
 type ProductionScheduleLineReason string
 
 const (
@@ -352,6 +405,9 @@ const (
 )
 
 // Whether the solver or a person created the line.
+//
+// Editing a solver-placed campaign turns it `manual`, and a regenerate that
+// preserves hand work keeps exactly the campaigns marked that way.
 type ProductionScheduleLineSource string
 
 const (
@@ -360,6 +416,9 @@ const (
 )
 
 // Where the line is in its lifecycle.
+//
+// A campaign becomes `released` when its week is issued to the floor as a
+// production run, and goes back to `planned` if that run is deleted.
 type ProductionScheduleLineStatus string
 
 const (
@@ -372,26 +431,43 @@ const (
 
 // Request to edit a campaign on a schedule.
 type UpdateProductionScheduleLineRequestParam struct {
-	// Lots the quantity represents.
+	// How many lots the quantity is built in.
+	//
+	// What a release actually splits batches by is the lot size the campaign was
+	// planned at, which this does not change.
 	Lots param.Opt[int64] `json:"lots,omitzero"`
 	// ID of the machine to move the campaign to.
 	MachineID param.Opt[string] `json:"machine_id,omitzero"`
-	// Units to build.
+	// Units to build over the campaign.
+	//
+	// Changing this does not re-derive `lots` or `run_hours` — send those alongside it
+	// when they should follow, or the campaign will keep claiming its old share of
+	// machine time.
 	Quantity param.Opt[float64] `json:"quantity,omitzero"`
 	// Free-form explanation of the change.
 	ReasonNote param.Opt[string] `json:"reason_note,omitzero"`
 	// Machine hours the campaign will take.
 	RunHours param.Opt[float64] `json:"run_hours,omitzero"`
-	// Position within the week's run order.
+	// Position within the week's run order, lowest first.
 	SequenceIndex param.Opt[int64] `json:"sequence_index,omitzero"`
 	// Horizon week to move the campaign to, zero-based.
+	//
+	// Must fall inside the horizon this version was planned over.
 	WeekIndex param.Opt[int64] `json:"week_index,omitzero"`
-	// Why the campaign changed. Required when the change touches a frozen week.
+	// Why the campaign changed.
+	//
+	// Required when the change touches a frozen week, including moving a campaign out
+	// of one.
 	//
 	// Any of "machine_down", "material_shortage", "rush_order", "quality_hold",
 	// "over_run", "under_run", "capacity_change", "other".
 	Reason UpdateProductionScheduleLineRequestReason `json:"reason,omitzero"`
-	// Lifecycle state of the campaign.
+	// Progress of the campaign.
+	//
+	// Setting `released` here only labels the campaign; it does not create a
+	// production run or any batches — releasing a week to the floor is its own action.
+	// Setting `cancelled` leaves the campaign on the plan but excludes it from any
+	// later release of its week.
 	//
 	// Any of "planned", "released", "in_progress", "complete", "cancelled".
 	Status UpdateProductionScheduleLineRequestStatus `json:"status,omitzero"`
@@ -406,7 +482,10 @@ func (r *UpdateProductionScheduleLineRequestParam) UnmarshalJSON(data []byte) er
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Why the campaign changed. Required when the change touches a frozen week.
+// Why the campaign changed.
+//
+// Required when the change touches a frozen week, including moving a campaign out
+// of one.
 type UpdateProductionScheduleLineRequestReason string
 
 const (
@@ -420,7 +499,12 @@ const (
 	UpdateProductionScheduleLineRequestReasonOther            UpdateProductionScheduleLineRequestReason = "other"
 )
 
-// Lifecycle state of the campaign.
+// Progress of the campaign.
+//
+// Setting `released` here only labels the campaign; it does not create a
+// production run or any batches — releasing a week to the floor is its own action.
+// Setting `cancelled` leaves the campaign on the plan but excludes it from any
+// later release of its week.
 type UpdateProductionScheduleLineRequestStatus string
 
 const (
@@ -493,7 +577,10 @@ type OperationProductionScheduleLineDeleteParams struct {
 	ID string `path:"id" api:"required" json:"-"`
 	// Free-form explanation of the change.
 	ReasonNote param.Opt[string] `query:"reason_note,omitzero" json:"-"`
-	// Why the campaign was removed. Required when it sits in a frozen week.
+	// Why the campaign was removed.
+	//
+	// Required when the campaign sits in a frozen week, since that is a commitment
+	// being broken.
 	//
 	// Any of "machine_down", "material_shortage", "rush_order", "quality_hold",
 	// "over_run", "under_run", "capacity_change", "other".
@@ -510,7 +597,10 @@ func (r OperationProductionScheduleLineDeleteParams) URLQuery() (v url.Values, e
 	})
 }
 
-// Why the campaign was removed. Required when it sits in a frozen week.
+// Why the campaign was removed.
+//
+// Required when the campaign sits in a frozen week, since that is a commitment
+// being broken.
 type OperationProductionScheduleLineDeleteParamsReason string
 
 const (

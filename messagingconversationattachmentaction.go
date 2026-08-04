@@ -42,8 +42,14 @@ func NewMessagingConversationAttachmentActionService(opts ...option.RequestOptio
 	return
 }
 
-// Mints a presigned URL for uploading a chat attachment directly to object
+// Creates a short-lived URL for uploading a chat attachment straight to object
 // storage.
+//
+// Upload the file to the returned URL, then send a message in the same
+// conversation carrying the returned key as an attachment — the file only becomes
+// part of the conversation at that point, and an upload that is never sent is
+// discarded automatically. You must be an active participant of the conversation
+// to stage an upload for it.
 //
 // This endpoint requires the permission: `messaging:create`.
 func (r *MessagingConversationAttachmentActionService) UploadURL(ctx context.Context, id string, params MessagingConversationAttachmentActionUploadURLParams, opts ...option.RequestOption) (res *AttachmentUploadTarget, err error) {
@@ -59,21 +65,30 @@ func (r *MessagingConversationAttachmentActionService) UploadURL(ctx context.Con
 
 // A presigned target for uploading a chat attachment directly to object storage.
 //
-// The client PUTs the file to `upload_url`, then references `s3_key` when sending
-// the message. Request `?include=attachment` to expand the pre-allocated
-// attachment metadata.
+// PUT the file to `upload_url`, then send a message carrying an attachment whose
+// `s3_key` is the key returned here. An upload that is never sent with a message
+// is discarded automatically, so abandoning a target costs nothing.
 type AttachmentUploadTarget struct {
 	// A file, image, link, or resource attached to a message.
 	Attachment MessageAttachment `json:"attachment" api:"required"`
-	// When the upload URL expires.
+	// When the upload URL stops working.
+	//
+	// Targets are short-lived (about fifteen minutes); request a new one if the upload
+	// has not finished by then.
 	ExpiresAt time.Time `json:"expires_at" api:"required" format:"date-time"`
 	// Resource type identifier.
 	//
 	// Any of "attachment_upload_target".
 	Object AttachmentUploadTargetObject `json:"object" api:"required"`
-	// The object-storage key to echo back when sending the message.
+	// The object-storage key identifying the uploaded file.
+	//
+	// Pass it back as an attachment's `s3_key` when sending a message. It is bound to
+	// the conversation it was minted for and cannot be attached in another one.
 	S3Key string `json:"s3_key" api:"required"`
 	// The presigned URL to PUT the file to.
+	//
+	// Send the file with the same content type used to mint the target, or the upload
+	// is rejected.
 	UploadURL string `json:"upload_url" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -106,7 +121,11 @@ const (
 type CreateAttachmentUploadURLRequestParam struct {
 	// The original filename of the file to upload.
 	Filename string `json:"filename" api:"required"`
-	// The MIME content type of the file (sent as the Content-Type on the upload).
+	// The MIME content type of the file.
+	//
+	// The file must then be uploaded with this same content type, or object storage
+	// rejects it. It also decides how the attachment preview returned here is
+	// classified: `image/…` becomes an inline image, anything else a file.
 	ContentType param.Opt[string] `json:"content_type,omitzero"`
 	paramObj
 }

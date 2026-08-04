@@ -36,10 +36,13 @@ func NewMessagingEmailDomainActionService(opts ...option.RequestOption) (r Messa
 	return
 }
 
-// Re-polls the provider and flips the domain to `verified` once its DKIM records
-// are confirmed.
+// Checks whether the domain's DKIM records have been published and marks it
+// `verified` once they are confirmed.
 //
-// Returns the updated domain (still `pending` if not yet confirmed).
+// Call this after publishing the DKIM records returned at registration. It is safe
+// to call repeatedly: a domain whose records are not visible yet is returned
+// unchanged in `pending`, and an already-verified domain is returned as-is without
+// re-checking. DNS propagation can take a while, so expect to poll.
 //
 // This endpoint requires the permission: `messaging:update`.
 func (r *MessagingEmailDomainActionService) Verify(ctx context.Context, id string, opts ...option.RequestOption) (res *EmailDomain, err error) {

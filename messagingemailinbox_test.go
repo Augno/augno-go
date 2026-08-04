@@ -28,8 +28,8 @@ func TestMessagingEmailInboxNewWithOptionalParams(t *testing.T) {
 	_, err := client.Messaging.EmailInboxes.New(context.TODO(), augno.MessagingEmailInboxNewParams{
 		CreateEmailInboxRequest: augno.CreateEmailInboxRequestParam{
 			Address:              "support@acme.com",
-			EmailDomainID:        "emdom_018e88072d1320808dc9aaa01",
-			AgentConfigID:        augno.String("agdf_01b9ef28feb99e6954201aca63"),
+			EmailDomainID:        "emdom_2rk3omr8vshb",
+			AgentConfigID:        augno.String("agdf_ah7tkyfxk8jl"),
 			AgentTriggerKeywords: []string{"invoice", "refund"},
 			AgentTriggerPolicy:   augno.String("keyword"),
 			FromName:             augno.String("Acme Support"),
@@ -60,7 +60,7 @@ func TestMessagingEmailInboxGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.EmailInboxes.Get(
 		context.TODO(),
-		"eminb_018e88072d1320808dc9bbb02",
+		"eminb_2s9kobr9s7tp",
 		augno.MessagingEmailInboxGetParams{
 			Include: []string{"email_domain"},
 		},
@@ -88,11 +88,11 @@ func TestMessagingEmailInboxUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Messaging.EmailInboxes.Update(
 		context.TODO(),
-		"eminb_018e88072d1320808dc9bbb02",
+		"eminb_2s9kobr9s7tp",
 		augno.MessagingEmailInboxUpdateParams{
 			UpdateEmailInboxRequest: augno.UpdateEmailInboxRequestParam{
 				Status:               "active",
-				AgentConfigID:        augno.String("agdf_01b9ef28feb99e6954201aca63"),
+				AgentConfigID:        augno.String("agdf_ah7tkyfxk8jl"),
 				AgentTriggerKeywords: []string{"invoice", "refund"},
 				AgentTriggerPolicy:   augno.String("keyword"),
 				FromName:             augno.String("Acme Support"),
@@ -146,7 +146,7 @@ func TestMessagingEmailInboxDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Messaging.EmailInboxes.Delete(context.TODO(), "eminb_018e88072d1320808dc9bbb02")
+	_, err := client.Messaging.EmailInboxes.Delete(context.TODO(), "eminb_2s9kobr9s7tp")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

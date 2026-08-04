@@ -55,7 +55,7 @@ func TestSettingIntegrationUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Settings.Integrations.Update(
 		context.TODO(),
-		"acig_0177772eae113431f64d473124",
+		"acig_5ilahyezrs63",
 		augno.SettingIntegrationUpdateParams{
 			UpdateAccountIntegrationRequest: augno.UpdateAccountIntegrationRequestParam{
 				Name:   augno.String("Updated Stripe Integration"),
@@ -110,7 +110,7 @@ func TestSettingIntegrationDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Settings.Integrations.Delete(context.TODO(), "acig_0177772eae113431f64d473124")
+	_, err := client.Settings.Integrations.Delete(context.TODO(), "acig_5ilahyezrs63")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

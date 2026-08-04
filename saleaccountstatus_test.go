@@ -27,7 +27,7 @@ func TestSaleAccountStatusGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.AccountStatuses.Get(
 		context.TODO(),
-		"acss_01004f532c58d60514b685cb27",
+		"acss_st5zyjmzm30k",
 		augno.SaleAccountStatusGetParams{
 			Include: []string{"owner"},
 		},

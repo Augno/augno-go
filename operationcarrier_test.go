@@ -57,7 +57,7 @@ func TestOperationCarrierGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.Carriers.Get(
 		context.TODO(),
-		"cr_01784fd54c9ba197bb4e42f0e6",
+		"cr_tv5vfjtgu1n3",
 		augno.OperationCarrierGetParams{
 			Include: []string{"owner"},
 		},
@@ -85,7 +85,7 @@ func TestOperationCarrierUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.Carriers.Update(
 		context.TODO(),
-		"cr_01784fd54c9ba197bb4e42f0e6",
+		"cr_tv5vfjtgu1n3",
 		augno.OperationCarrierUpdateParams{
 			Include: []string{"owner"},
 			UpdateCarrierRequest: augno.UpdateCarrierRequestParam{
@@ -142,7 +142,7 @@ func TestOperationCarrierDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.Carriers.Delete(context.TODO(), "cr_01784fd54c9ba197bb4e42f0e6")
+	_, err := client.Operations.Carriers.Delete(context.TODO(), "cr_tv5vfjtgu1n3")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

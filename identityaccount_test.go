@@ -25,7 +25,7 @@ func TestIdentityAccountUpdateFavicon(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Identity.Accounts.UpdateFavicon(context.TODO(), "ac_01148680966698341a9c0976db")
+	_, err := client.Identity.Accounts.UpdateFavicon(context.TODO(), "ac_ykxoradjoeb3")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

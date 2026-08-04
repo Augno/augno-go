@@ -25,7 +25,7 @@ func TestIdentityAccountUserActionActivate(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Identity.AccountUsers.Actions.Activate(context.TODO(), "acus_01ea9983ddb41dacc44ecf997c")
+	_, err := client.Identity.AccountUsers.Actions.Activate(context.TODO(), "acus_e5zu8bde0z3h")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -47,7 +47,7 @@ func TestIdentityAccountUserActionDisable(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Identity.AccountUsers.Actions.Disable(context.TODO(), "acus_01ea9983ddb41dacc44ecf997c")
+	_, err := client.Identity.AccountUsers.Actions.Disable(context.TODO(), "acus_e5zu8bde0z3h")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -69,7 +69,7 @@ func TestIdentityAccountUserActionRemove(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Identity.AccountUsers.Actions.Remove(context.TODO(), "acus_01ea9983ddb41dacc44ecf997c")
+	_, err := client.Identity.AccountUsers.Actions.Remove(context.TODO(), "acus_e5zu8bde0z3h")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

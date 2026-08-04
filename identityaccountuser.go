@@ -43,11 +43,19 @@ func NewIdentityAccountUserService(opts ...option.RequestOption) (r IdentityAcco
 	return
 }
 
-// Adds a user to the target account.
+// Adds a user to the account you are acting in.
 //
-// If no user with the given email or username exists, a new user is created and
-// sent a welcome email containing a generated password. If a matching user already
-// exists, that user is added to the account instead.
+// If no user with the given email or username exists, a new user is created; a
+// user created with an email address is sent a welcome email containing a
+// generated password, unless they are being added to a supplier account, since
+// suppliers have no portal to sign in to. If a matching user already exists, that
+// user is added to the account instead, and a user you previously removed is
+// restored rather than duplicated. Adding a user to your own account consumes a
+// seat and is rejected once your plan's seat limit is reached.
+//
+// When you add a user to a customer or supplier account that has its own Augno
+// subscription, the membership is created disabled and has to be activated before
+// that user can sign in.
 //
 // This endpoint requires the permissions: `team:create`, `customers:update`,
 // `suppliers:update`.
@@ -59,6 +67,9 @@ func (r *IdentityAccountUserService) New(ctx context.Context, params IdentityAcc
 }
 
 // Returns an account user by ID.
+//
+// The lookup is scoped to the account you are acting in, so an ID belonging to
+// another account is reported as not found.
 //
 // This endpoint requires the permissions: `team:read`, `customers:read`,
 // `suppliers:read`.
@@ -77,7 +88,7 @@ func (r *IdentityAccountUserService) Get(ctx context.Context, id string, query I
 //
 // Omitted fields are left unchanged. Profile fields (`name`, `email`, `username`)
 // update the underlying user, which is shared across every account the user
-// belongs to.
+// belongs to, so the change is visible everywhere that person works.
 //
 // This endpoint requires the permissions: `team:update`, `customers:update`,
 // `suppliers:update`.
@@ -92,7 +103,11 @@ func (r *IdentityAccountUserService) Update(ctx context.Context, id string, para
 	return res, err
 }
 
-// Returns a paginated list of account users for the current account.
+// Returns a paginated list of the users who belong to the account you are acting
+// in.
+//
+// When the account you are acting in is a customer or supplier account you manage,
+// this lists that account's users rather than your own team.
 //
 // This endpoint requires the permissions: `team:read`, `customers:read`,
 // `suppliers:read`.
@@ -106,11 +121,15 @@ func (r *IdentityAccountUserService) List(ctx context.Context, query IdentityAcc
 // Request to create an account user.
 type CreateAccountUserRequestParam struct {
 	// ID of the department to assign to the user.
+	//
+	// The department must already exist in the account you are acting in.
 	DepartmentID param.Opt[string] `json:"department_id,omitzero"`
 	// User email address.
 	//
 	// Either `email` or `username` must be provided. If a user with this email already
-	// exists, that user is added to the account instead of a new user being created.
+	// exists, that user is added to the account instead of a new user being created,
+	// and the request fails with a conflict if they are already an active member of
+	// it.
 	Email param.Opt[string] `json:"email,omitzero"`
 	// User display name.
 	Name param.Opt[string] `json:"name,omitzero"`
@@ -123,7 +142,11 @@ type CreateAccountUserRequestParam struct {
 	Password param.Opt[string] `json:"password,omitzero"`
 	// ID of the role to assign to the user.
 	//
-	// Ignored for scanning station users, which are always assigned the scanner role.
+	// The role you supply can be overridden: users added to a customer account always
+	// receive the shared customer role so their portal capabilities stay
+	// permission-driven, and scanning station users in any other account receive the
+	// scanner role. Supplying a role whose type is `sales_rep` normalizes to the
+	// account's canonical sales-rep role.
 	RoleID param.Opt[string] `json:"role_id,omitzero"`
 	// Unique username.
 	//
@@ -147,7 +170,8 @@ func (r *CreateAccountUserRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// List represents a paginated list of resources.
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
 type ListAccountUser struct {
 	// Resources in this page.
 	Data []AccountUser `json:"data" api:"required"`
@@ -155,7 +179,13 @@ type ListAccountUser struct {
 	//
 	// Any of "list".
 	Object ListAccountUserObject `json:"object" api:"required"`
-	// PageInfo contains URL-based pagination metadata.
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
 	PageInfo PageInfo `json:"page_info" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -214,7 +244,8 @@ const (
 type UpdateAccountUserRequestParam struct {
 	// ID of the department to assign to the user.
 	//
-	// Set to `null` to clear the department.
+	// Set to `null` to clear the department. The department must already exist in the
+	// account.
 	DepartmentID param.Opt[string] `json:"department_id,omitzero"`
 	// ID of the role to assign to the user.
 	//
@@ -339,8 +370,8 @@ type IdentityAccountUserListParams struct {
 	Include []string `query:"include,omitzero" json:"-"`
 	// Controls whether removed (soft-deleted) account users appear in the list.
 	//
-	// - `excluded`: only active and disabled users (default).
-	// - `included`: removed users are listed as well.
+	// Removed users are left out unless you pass `included`, so a user removed with
+	// the remove action disappears from the default listing.
 	//
 	// Any of "excluded", "included".
 	RemovedScope IdentityAccountUserListParamsRemovedScope `query:"removed_scope,omitzero" json:"-"`
@@ -368,8 +399,8 @@ func (r IdentityAccountUserListParams) URLQuery() (v url.Values, err error) {
 
 // Controls whether removed (soft-deleted) account users appear in the list.
 //
-// - `excluded`: only active and disabled users (default).
-// - `included`: removed users are listed as well.
+// Removed users are left out unless you pass `included`, so a user removed with
+// the remove action disappears from the default listing.
 type IdentityAccountUserListParamsRemovedScope string
 
 const (
