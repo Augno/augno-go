@@ -532,7 +532,7 @@ type OperationMachineDowntimeEventListParams struct {
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Only return events that started on or before this timestamp, formatted as
 	// RFC3339.
-	EndDate param.Opt[string] `query:"end_date,omitzero" json:"-"`
+	EndsAt param.Opt[string] `query:"ends_at,omitzero" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Only return events that are still open, meaning the machine is down right now.
@@ -546,7 +546,7 @@ type OperationMachineDowntimeEventListParams struct {
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Only return events that started on or after this timestamp, formatted as
 	// RFC3339.
-	StartDate param.Opt[string] `query:"start_date,omitzero" json:"-"`
+	StartsAt param.Opt[string] `query:"starts_at,omitzero" json:"-"`
 	// Only return events for machines in these departments.
 	DepartmentIDs []string `query:"department_ids,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as

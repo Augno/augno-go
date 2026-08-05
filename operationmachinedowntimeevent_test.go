@@ -129,14 +129,14 @@ func TestOperationMachineDowntimeEventListWithOptionalParams(t *testing.T) {
 	_, err := client.Operations.MachineDowntimeEvents.List(context.TODO(), augno.OperationMachineDowntimeEventListParams{
 		Cursor:        augno.String("cursor"),
 		DepartmentIDs: []string{"string"},
-		EndDate:       augno.String("end_date"),
+		EndsAt:        augno.String("ends_at"),
 		Include:       []string{"machine"},
 		Limit:         augno.Int(0),
 		MachineIDs:    []string{"string"},
 		Open:          augno.Bool(true),
 		Q:             augno.String("q"),
 		Reasons:       []string{"breakdown"},
-		StartDate:     augno.String("start_date"),
+		StartsAt:      augno.String("starts_at"),
 	})
 	if err != nil {
 		var apierr *augno.Error

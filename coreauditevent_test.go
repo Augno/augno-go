@@ -60,7 +60,7 @@ func TestCoreAuditEventListWithOptionalParams(t *testing.T) {
 		ActorIDs:         []string{"string"},
 		ActorTypes:       []string{"user"},
 		Cursor:           augno.String("cursor"),
-		EndDate:          augno.Time(time.Now()),
+		EndsAt:           augno.Time(time.Now()),
 		Include:          []string{"account"},
 		Limit:            augno.Int(0),
 		Q:                augno.String("q"),
@@ -68,7 +68,7 @@ func TestCoreAuditEventListWithOptionalParams(t *testing.T) {
 		ResourceTypes:    []string{"account"},
 		RootResourceID:   augno.String("root_resource_id"),
 		RootResourceType: augno.CoreAuditEventListParamsRootResourceTypeAccount,
-		StartDate:        augno.Time(time.Now()),
+		StartsAt:         augno.Time(time.Now()),
 		TargetAccountIDs: []string{"string"},
 	})
 	if err != nil {

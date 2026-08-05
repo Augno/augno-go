@@ -28,13 +28,41 @@ func TestCoreAnalyticsUpdateOeeWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Core.Analytics.UpdateOee(context.TODO(), augno.CoreAnalyticsUpdateOeeParams{
 		AnalyzeOeeRequest: augno.AnalyzeOeeRequestParam{
-			EndDate:       time.Now(),
-			StartDate:     time.Now(),
+			EndsAt:        time.Now(),
+			StartsAt:      time.Now(),
 			DepartmentIDs: []string{"dp_m0jayebxnkos"},
 			PlannedTime: []augno.OeeDepartmentPlannedTimeParam{{
 				DepartmentID: "department_id",
 				PlannedHours: 0,
 			}},
+		},
+	})
+	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestCoreAnalyticsUpdateOeeTrendWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := augno.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Core.Analytics.UpdateOeeTrend(context.TODO(), augno.CoreAnalyticsUpdateOeeTrendParams{
+		AnalyzeOeeTrendRequest: augno.AnalyzeOeeTrendRequestParam{
+			EndsAt:        time.Now(),
+			StartsAt:      time.Now(),
+			DepartmentIDs: []string{"dp_m0jayebxnkos"},
 		},
 	})
 	if err != nil {
@@ -60,8 +88,8 @@ func TestCoreAnalyticsUpdateScheduleAttainmentWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Core.Analytics.UpdateScheduleAttainment(context.TODO(), augno.CoreAnalyticsUpdateScheduleAttainmentParams{
 		AnalyzeScheduleAttainmentRequest: augno.AnalyzeScheduleAttainmentRequestParam{
-			EndDate:       time.Now(),
-			StartDate:     time.Now(),
+			EndsAt:        time.Now(),
+			StartsAt:      time.Now(),
 			DepartmentIDs: []string{"string"},
 			GroupBy:       augno.AnalyzeScheduleAttainmentRequestGroupByWeek,
 			MachineIDs:    []string{"string"},

@@ -217,9 +217,10 @@ type AuditEvent struct {
 	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
 	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
 	// "analyze_demand_forecast_response", "analyze_oee_response",
-	// "analyze_schedule_attainment_response", "catalog_product_line",
-	// "catalog_category", "catalog_product", "catalog_property", "catalog_attribute",
-	// "dc_location", "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
+	// "analyze_oee_trend_response", "analyze_schedule_attainment_response",
+	// "catalog_product_line", "catalog_category", "catalog_product",
+	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
+	// "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -518,6 +519,7 @@ const (
 	AuditEventResourceTypeAnalyzeNewCustomersResponse          AuditEventResourceType = "analyze_new_customers_response"
 	AuditEventResourceTypeAnalyzeDemandForecastResponse        AuditEventResourceType = "analyze_demand_forecast_response"
 	AuditEventResourceTypeAnalyzeOeeResponse                   AuditEventResourceType = "analyze_oee_response"
+	AuditEventResourceTypeAnalyzeOeeTrendResponse              AuditEventResourceType = "analyze_oee_trend_response"
 	AuditEventResourceTypeAnalyzeScheduleAttainmentResponse    AuditEventResourceType = "analyze_schedule_attainment_response"
 	AuditEventResourceTypeCatalogProductLine                   AuditEventResourceType = "catalog_product_line"
 	AuditEventResourceTypeCatalogCategory                      AuditEventResourceType = "catalog_category"
@@ -773,9 +775,10 @@ type ListObjectType struct {
 	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
 	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
 	// "analyze_demand_forecast_response", "analyze_oee_response",
-	// "analyze_schedule_attainment_response", "catalog_product_line",
-	// "catalog_category", "catalog_product", "catalog_property", "catalog_attribute",
-	// "dc_location", "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
+	// "analyze_oee_trend_response", "analyze_schedule_attainment_response",
+	// "catalog_product_line", "catalog_category", "catalog_product",
+	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
+	// "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -854,7 +857,7 @@ type CoreAuditEventListParams struct {
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Restricts results to audit events on or before this timestamp.
-	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
+	EndsAt param.Opt[time.Time] `query:"ends_at,omitzero" format:"date-time" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Free-text search term used to filter results.
@@ -866,7 +869,7 @@ type CoreAuditEventListParams struct {
 	// Only applied when paired with `root_resource_type`.
 	RootResourceID param.Opt[string] `query:"root_resource_id,omitzero" json:"-"`
 	// Restricts results to audit events on or after this timestamp.
-	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
+	StartsAt param.Opt[time.Time] `query:"starts_at,omitzero" format:"date-time" json:"-"`
 	// Filter by the mutation type recorded on the event.
 	//
 	// Any of "create", "update", "delete", "restore", "archive", "approve", "deny".
@@ -965,9 +968,10 @@ type CoreAuditEventListParams struct {
 	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
 	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
 	// "analyze_demand_forecast_response", "analyze_oee_response",
-	// "analyze_schedule_attainment_response", "catalog_product_line",
-	// "catalog_category", "catalog_product", "catalog_property", "catalog_attribute",
-	// "dc_location", "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
+	// "analyze_oee_trend_response", "analyze_schedule_attainment_response",
+	// "catalog_product_line", "catalog_category", "catalog_product",
+	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
+	// "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -1055,9 +1059,10 @@ type CoreAuditEventListParams struct {
 	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
 	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
 	// "analyze_demand_forecast_response", "analyze_oee_response",
-	// "analyze_schedule_attainment_response", "catalog_product_line",
-	// "catalog_category", "catalog_product", "catalog_property", "catalog_attribute",
-	// "dc_location", "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
+	// "analyze_oee_trend_response", "analyze_schedule_attainment_response",
+	// "catalog_product_line", "catalog_category", "catalog_product",
+	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
+	// "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -1321,6 +1326,7 @@ const (
 	CoreAuditEventListParamsRootResourceTypeAnalyzeNewCustomersResponse          CoreAuditEventListParamsRootResourceType = "analyze_new_customers_response"
 	CoreAuditEventListParamsRootResourceTypeAnalyzeDemandForecastResponse        CoreAuditEventListParamsRootResourceType = "analyze_demand_forecast_response"
 	CoreAuditEventListParamsRootResourceTypeAnalyzeOeeResponse                   CoreAuditEventListParamsRootResourceType = "analyze_oee_response"
+	CoreAuditEventListParamsRootResourceTypeAnalyzeOeeTrendResponse              CoreAuditEventListParamsRootResourceType = "analyze_oee_trend_response"
 	CoreAuditEventListParamsRootResourceTypeAnalyzeScheduleAttainmentResponse    CoreAuditEventListParamsRootResourceType = "analyze_schedule_attainment_response"
 	CoreAuditEventListParamsRootResourceTypeCatalogProductLine                   CoreAuditEventListParamsRootResourceType = "catalog_product_line"
 	CoreAuditEventListParamsRootResourceTypeCatalogCategory                      CoreAuditEventListParamsRootResourceType = "catalog_category"

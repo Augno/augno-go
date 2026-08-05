@@ -109,16 +109,16 @@ func (r *SaleAccountUserSalesTargetService) List(ctx context.Context, id string,
 
 // Request to create a sales target.
 //
-// The properties AmountUnitID, AmountValue, EndDate, StartDate are required.
+// The properties AmountUnitID, AmountValue, EndsAt, StartsAt are required.
 type CreateSalesTargetRequestParam struct {
 	// The unit the goal is denominated in, typically a currency unit.
 	AmountUnitID string `json:"amount_unit_id" api:"required"`
 	// The revenue goal for the period, as a decimal string (e.g. `50000.00`).
 	AmountValue string `json:"amount_value" api:"required"`
 	// End of the period the target applies to.
-	EndDate time.Time `json:"end_date" api:"required" format:"date-time"`
+	EndsAt time.Time `json:"ends_at" api:"required" format:"date-time"`
 	// Start of the period the target applies to (inclusive).
-	StartDate time.Time `json:"start_date" api:"required" format:"date-time"`
+	StartsAt time.Time `json:"starts_at" api:"required" format:"date-time"`
 	paramObj
 }
 
@@ -188,11 +188,8 @@ type SalesTarget struct {
 	//
 	// Any of "sales_target".
 	Object SalesTargetObject `json:"object" api:"required"`
-	// A user's global profile, shared across every account they belong to.
-	//
-	// Account-specific settings (status, role, department) live on the account user
-	// resource that links the user to each account.
-	SalesRep User `json:"sales_rep" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	SalesRep Entity `json:"sales_rep" api:"required"`
 	// Start of the period this target applies to (inclusive).
 	StartAt time.Time `json:"start_at" api:"required" format:"date-time"`
 	// Last updated timestamp.
@@ -227,7 +224,7 @@ const (
 
 // Request to create or update a sales target.
 //
-// The properties AmountUnitID, AmountValue, EndDate, StartDate are required.
+// The properties AmountUnitID, AmountValue, EndsAt, StartsAt are required.
 type UpsertSalesTargetRequestParam struct {
 	// The unit the goal is denominated in, typically a currency unit.
 	//
@@ -243,12 +240,12 @@ type UpsertSalesTargetRequestParam struct {
 	//
 	// Only applied when creating a new target; the dates on an existing target are not
 	// changed.
-	EndDate time.Time `json:"end_date" api:"required" format:"date-time"`
+	EndsAt time.Time `json:"ends_at" api:"required" format:"date-time"`
 	// Start of the period the target applies to (inclusive).
 	//
 	// Only applied when creating a new target; the dates on an existing target are not
 	// changed.
-	StartDate time.Time `json:"start_date" api:"required" format:"date-time"`
+	StartsAt time.Time `json:"starts_at" api:"required" format:"date-time"`
 	paramObj
 }
 

@@ -604,9 +604,10 @@ type CreateConversationRequestParam struct {
 	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
 	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
 	// "analyze_demand_forecast_response", "analyze_oee_response",
-	// "analyze_schedule_attainment_response", "catalog_product_line",
-	// "catalog_category", "catalog_product", "catalog_property", "catalog_attribute",
-	// "dc_location", "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
+	// "analyze_oee_trend_response", "analyze_schedule_attainment_response",
+	// "catalog_product_line", "catalog_category", "catalog_product",
+	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
+	// "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -875,6 +876,7 @@ const (
 	CreateConversationRequestTopicResourceTypeAnalyzeNewCustomersResponse          CreateConversationRequestTopicResourceType = "analyze_new_customers_response"
 	CreateConversationRequestTopicResourceTypeAnalyzeDemandForecastResponse        CreateConversationRequestTopicResourceType = "analyze_demand_forecast_response"
 	CreateConversationRequestTopicResourceTypeAnalyzeOeeResponse                   CreateConversationRequestTopicResourceType = "analyze_oee_response"
+	CreateConversationRequestTopicResourceTypeAnalyzeOeeTrendResponse              CreateConversationRequestTopicResourceType = "analyze_oee_trend_response"
 	CreateConversationRequestTopicResourceTypeAnalyzeScheduleAttainmentResponse    CreateConversationRequestTopicResourceType = "analyze_schedule_attainment_response"
 	CreateConversationRequestTopicResourceTypeCatalogProductLine                   CreateConversationRequestTopicResourceType = "catalog_product_line"
 	CreateConversationRequestTopicResourceTypeCatalogCategory                      CreateConversationRequestTopicResourceType = "catalog_category"
@@ -1767,9 +1769,10 @@ type MessagingConversationListParams struct {
 	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
 	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
 	// "analyze_demand_forecast_response", "analyze_oee_response",
-	// "analyze_schedule_attainment_response", "catalog_product_line",
-	// "catalog_category", "catalog_product", "catalog_property", "catalog_attribute",
-	// "dc_location", "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
+	// "analyze_oee_trend_response", "analyze_schedule_attainment_response",
+	// "catalog_product_line", "catalog_category", "catalog_product",
+	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
+	// "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -2064,6 +2067,7 @@ const (
 	MessagingConversationListParamsTopicResourceTypeAnalyzeNewCustomersResponse          MessagingConversationListParamsTopicResourceType = "analyze_new_customers_response"
 	MessagingConversationListParamsTopicResourceTypeAnalyzeDemandForecastResponse        MessagingConversationListParamsTopicResourceType = "analyze_demand_forecast_response"
 	MessagingConversationListParamsTopicResourceTypeAnalyzeOeeResponse                   MessagingConversationListParamsTopicResourceType = "analyze_oee_response"
+	MessagingConversationListParamsTopicResourceTypeAnalyzeOeeTrendResponse              MessagingConversationListParamsTopicResourceType = "analyze_oee_trend_response"
 	MessagingConversationListParamsTopicResourceTypeAnalyzeScheduleAttainmentResponse    MessagingConversationListParamsTopicResourceType = "analyze_schedule_attainment_response"
 	MessagingConversationListParamsTopicResourceTypeCatalogProductLine                   MessagingConversationListParamsTopicResourceType = "catalog_product_line"
 	MessagingConversationListParamsTopicResourceTypeCatalogCategory                      MessagingConversationListParamsTopicResourceType = "catalog_category"

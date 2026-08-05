@@ -142,13 +142,13 @@ func TestCatalogProductListWithOptionalParams(t *testing.T) {
 		CategoryIDs:      []string{"string"},
 		Cursor:           augno.String("cursor"),
 		CustomerIDs:      []string{"string"},
-		EndDate:          augno.Time(time.Now()),
+		EndsAt:           augno.Time(time.Now()),
 		Include:          []string{"product_line"},
 		Limit:            augno.Int(0),
 		PortalVisibility: augno.CatalogProductListParamsPortalVisibilityVisible,
 		ProductLineIDs:   []string{"string"},
 		Q:                augno.String("q"),
-		StartDate:        augno.Time(time.Now()),
+		StartsAt:         augno.Time(time.Now()),
 	})
 	if err != nil {
 		var apierr *augno.Error

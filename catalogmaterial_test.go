@@ -153,11 +153,11 @@ func TestCatalogMaterialListWithOptionalParams(t *testing.T) {
 		AttributeIDs: []string{"string"},
 		CategoryIDs:  []string{"string"},
 		Cursor:       augno.String("cursor"),
-		EndDate:      augno.Time(time.Now()),
+		EndsAt:       augno.Time(time.Now()),
 		Include:      []string{"item"},
 		Limit:        augno.Int(0),
 		Q:            augno.String("q"),
-		StartDate:    augno.Time(time.Now()),
+		StartsAt:     augno.Time(time.Now()),
 	})
 	if err != nil {
 		var apierr *augno.Error

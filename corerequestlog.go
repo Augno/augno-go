@@ -361,7 +361,7 @@ type CoreRequestLogListParams struct {
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Restricts results to request logs on or before this timestamp.
-	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
+	EndsAt param.Opt[time.Time] `query:"ends_at,omitzero" format:"date-time" json:"-"`
 	// Filter by the user-provided idempotency key.
 	IdempotencyKey param.Opt[string] `query:"idempotency_key,omitzero" json:"-"`
 	// Maximum number of results to return in a single page.
@@ -373,7 +373,7 @@ type CoreRequestLogListParams struct {
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Restricts results to request logs on or after this timestamp.
-	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
+	StartsAt param.Opt[time.Time] `query:"starts_at,omitzero" format:"date-time" json:"-"`
 	// Filter by the _acting_ account: the account the actor belongs to (the log's
 	// `account.id`).
 	//

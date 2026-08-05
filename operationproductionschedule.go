@@ -908,10 +908,14 @@ type ProductionScheduleDeviation struct {
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
 	Actor Actor `json:"actor" api:"required"`
-	// Snapshot of the line after the change.
-	After map[string]any `json:"after" api:"required"`
-	// Snapshot of the line before the change.
-	Before map[string]any `json:"before" api:"required"`
+	// Snapshot of the line after the change, null when the change removed it. Encoded
+	// as a JSON value (object, array, string, number, boolean, or null), not a
+	// JSON-encoded string.
+	After any `json:"after" api:"required"`
+	// Snapshot of the line before the change, null when the change created it. Encoded
+	// as a JSON value (object, array, string, number, boolean, or null), not a
+	// JSON-encoded string.
+	Before any `json:"before" api:"required"`
 	// When the change was made.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Signed change in planned units.

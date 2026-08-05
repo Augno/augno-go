@@ -163,9 +163,10 @@ type Entity struct {
 	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
 	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
 	// "analyze_demand_forecast_response", "analyze_oee_response",
-	// "analyze_schedule_attainment_response", "catalog_product_line",
-	// "catalog_category", "catalog_product", "catalog_property", "catalog_attribute",
-	// "dc_location", "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
+	// "analyze_oee_trend_response", "analyze_schedule_attainment_response",
+	// "catalog_product_line", "catalog_category", "catalog_product",
+	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
+	// "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
@@ -434,6 +435,7 @@ const (
 	EntityTypeAnalyzeNewCustomersResponse          EntityType = "analyze_new_customers_response"
 	EntityTypeAnalyzeDemandForecastResponse        EntityType = "analyze_demand_forecast_response"
 	EntityTypeAnalyzeOeeResponse                   EntityType = "analyze_oee_response"
+	EntityTypeAnalyzeOeeTrendResponse              EntityType = "analyze_oee_trend_response"
 	EntityTypeAnalyzeScheduleAttainmentResponse    EntityType = "analyze_schedule_attainment_response"
 	EntityTypeCatalogProductLine                   EntityType = "catalog_product_line"
 	EntityTypeCatalogCategory                      EntityType = "catalog_category"
@@ -626,9 +628,10 @@ type CoreGetSearchParams struct {
 	// "analyze_manufacturing_response", "analyze_manufacturing_batch_response",
 	// "analyze_quarterly_orders_response", "analyze_new_customers_response",
 	// "analyze_demand_forecast_response", "analyze_oee_response",
-	// "analyze_schedule_attainment_response", "catalog_product_line",
-	// "catalog_category", "catalog_product", "catalog_property", "catalog_attribute",
-	// "dc_location", "edi_run", "inventory_item", "analyze_weeks_of_sales_response",
+	// "analyze_oee_trend_response", "analyze_schedule_attainment_response",
+	// "catalog_product_line", "catalog_category", "catalog_product",
+	// "catalog_property", "catalog_attribute", "dc_location", "edi_run",
+	// "inventory_item", "analyze_weeks_of_sales_response",
 	// "bulk_reconcile_items_response", "sys_property", "sys_property_type",
 	// "sys_property_value", "territory", "tenancy", "checkout_session",
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",

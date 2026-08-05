@@ -622,7 +622,7 @@ type CatalogItemListParams struct {
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Filter to items created on or before this date.
-	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
+	EndsAt param.Opt[time.Time] `query:"ends_at,omitzero" format:"date-time" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Free-text search term used to filter results.
@@ -630,7 +630,7 @@ type CatalogItemListParams struct {
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Filter to items created on or after this date.
-	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
+	StartsAt param.Opt[time.Time] `query:"starts_at,omitzero" format:"date-time" json:"-"`
 	// Filter to materials this supplier account supplies to you.
 	//
 	// Only materials can have suppliers, so combining this with a `types` filter that

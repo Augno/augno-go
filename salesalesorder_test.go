@@ -171,14 +171,14 @@ func TestSaleSalesOrderListWithOptionalParams(t *testing.T) {
 		Cursor:           augno.String("cursor"),
 		CustomerGroupIDs: []string{"string"},
 		CustomerIDs:      []string{"string"},
-		EndDate:          augno.String("end_date"),
+		EndsAt:           augno.String("ends_at"),
 		Include:          []string{"customer"},
 		ItemIDs:          []string{"string"},
 		Limit:            augno.Int(0),
 		ProductLineIDs:   []string{"string"},
 		Q:                augno.String("q"),
 		SalesRepIDs:      []string{"string"},
-		StartDate:        augno.String("start_date"),
+		StartsAt:         augno.String("starts_at"),
 		StatusCodes:      []string{"string"},
 	})
 	if err != nil {

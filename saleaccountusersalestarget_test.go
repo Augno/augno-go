@@ -33,8 +33,8 @@ func TestSaleAccountUserSalesTargetNew(t *testing.T) {
 			CreateSalesTargetRequest: augno.CreateSalesTargetRequestParam{
 				AmountUnitID: "un_82bd37dae5po",
 				AmountValue:  "50000.00",
-				EndDate:      time.Now(),
-				StartDate:    time.Now(),
+				EndsAt:       time.Now(),
+				StartsAt:     time.Now(),
 			},
 		},
 	)
@@ -67,8 +67,8 @@ func TestSaleAccountUserSalesTargetUpdate(t *testing.T) {
 			UpsertSalesTargetRequest: augno.UpsertSalesTargetRequestParam{
 				AmountUnitID: "un_82bd37dae5po",
 				AmountValue:  "75000.00",
-				EndDate:      time.Now(),
-				StartDate:    time.Now(),
+				EndsAt:       time.Now(),
+				StartsAt:     time.Now(),
 			},
 		},
 	)

@@ -140,12 +140,14 @@ Methods:
 Params Types:
 
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeOeeRequestParam">AnalyzeOeeRequestParam</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeOeeTrendRequestParam">AnalyzeOeeTrendRequestParam</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeScheduleAttainmentRequestParam">AnalyzeScheduleAttainmentRequestParam</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OeeDepartmentPlannedTimeParam">OeeDepartmentPlannedTimeParam</a>
 
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeOeeResponse">AnalyzeOeeResponse</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeOeeTrendResponse">AnalyzeOeeTrendResponse</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeScheduleAttainmentResponse">AnalyzeScheduleAttainmentResponse</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AttainmentBucket">AttainmentBucket</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#FrozenAdherence">FrozenAdherence</a>
@@ -153,12 +155,15 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListFrozenAdherence">ListFrozenAdherence</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListOeeDepartment">ListOeeDepartment</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListOeeDowntimeReason">ListOeeDowntimeReason</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListOeeTrendPeriod">ListOeeTrendPeriod</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OeeDepartment">OeeDepartment</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OeeDowntimeReason">OeeDowntimeReason</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OeeTrendPeriod">OeeTrendPeriod</a>
 
 Methods:
 
 - <code title="put /v1/core/analytics/oee">client.Core.Analytics.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreAnalyticsService.UpdateOee">UpdateOee</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreAnalyticsUpdateOeeParams">CoreAnalyticsUpdateOeeParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeOeeResponse">AnalyzeOeeResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="put /v1/core/analytics/oee-trend">client.Core.Analytics.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreAnalyticsService.UpdateOeeTrend">UpdateOeeTrend</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreAnalyticsUpdateOeeTrendParams">CoreAnalyticsUpdateOeeTrendParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeOeeTrendResponse">AnalyzeOeeTrendResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="put /v1/core/analytics/schedule-attainment">client.Core.Analytics.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreAnalyticsService.UpdateScheduleAttainment">UpdateScheduleAttainment</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreAnalyticsUpdateScheduleAttainmentParams">CoreAnalyticsUpdateScheduleAttainmentParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeScheduleAttainmentResponse">AnalyzeScheduleAttainmentResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Catalog

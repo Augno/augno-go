@@ -190,7 +190,7 @@ func TestSaleCustomerListWithOptionalParams(t *testing.T) {
 		CommissionStatusCodes: []string{"commission_applied"},
 		Cursor:                augno.String("cursor"),
 		CustomerGroupIDs:      []string{"string"},
-		EndDate:               augno.Time(time.Now()),
+		EndsAt:                augno.Time(time.Now()),
 		FreightStatusCodes:    []string{"free_freight"},
 		Include:               []string{"bill_to_address"},
 		Limit:                 augno.Int(0),
@@ -202,7 +202,7 @@ func TestSaleCustomerListWithOptionalParams(t *testing.T) {
 		SalesRepIDs:           []string{"string"},
 		ServiceLevelIDs:       []string{"string"},
 		ShippingTermIDs:       []string{"string"},
-		StartDate:             augno.Time(time.Now()),
+		StartsAt:              augno.Time(time.Now()),
 		State:                 augno.String("state"),
 		StatusCodes:           []string{"normal"},
 	})

@@ -670,18 +670,18 @@ type OperationDemandOverrideListParams struct {
 	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	// The end of the window to match against. Only return overrides whose period
+	// starts on or before this timestamp, formatted as RFC3339.
+	EndsAt param.Opt[string] `query:"ends_at,omitzero" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Only return overrides whose period starts on or before this timestamp, formatted
-	// as RFC3339.
-	PeriodEnd param.Opt[string] `query:"period_end,omitzero" json:"-"`
-	// Only return overrides whose period ends on or after this timestamp, formatted as
-	// RFC3339.
-	PeriodStart param.Opt[string] `query:"period_start,omitzero" json:"-"`
 	// Free-text search term used to filter results.
 	//
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
+	// The start of the window to match against. Only return overrides whose period
+	// ends on or after this timestamp, formatted as RFC3339.
+	StartsAt param.Opt[string] `query:"starts_at,omitzero" json:"-"`
 	// Only return overrides making these kinds of adjustment.
 	//
 	// Any of "absolute", "delta_units", "delta_percent".

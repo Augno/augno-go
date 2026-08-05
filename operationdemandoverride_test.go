@@ -134,13 +134,13 @@ func TestOperationDemandOverrideListWithOptionalParams(t *testing.T) {
 	_, err := client.Operations.DemandOverrides.List(context.TODO(), augno.OperationDemandOverrideListParams{
 		Adjustments: []string{"absolute"},
 		Cursor:      augno.String("cursor"),
+		EndsAt:      augno.String("ends_at"),
 		Include:     []string{"scope"},
 		Limit:       augno.Int(0),
-		PeriodEnd:   augno.String("period_end"),
-		PeriodStart: augno.String("period_start"),
 		Q:           augno.String("q"),
 		ScopeRefIDs: []string{"string"},
 		ScopeTypes:  []string{"item"},
+		StartsAt:    augno.String("starts_at"),
 		Statuses:    []string{"active"},
 	})
 	if err != nil {

@@ -1773,7 +1773,7 @@ type SaleSalesOrderListParams struct {
 	// Compared against the creation timestamp at the start of that day, so orders
 	// created later on the end date itself are excluded; pass the following day to
 	// include them.
-	EndDate param.Opt[string] `query:"end_date,omitzero" json:"-"`
+	EndsAt param.Opt[string] `query:"ends_at,omitzero" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Free-text search term used to filter results.
@@ -1781,7 +1781,7 @@ type SaleSalesOrderListParams struct {
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Earliest order creation date to include, in `YYYY-MM-DD` format.
-	StartDate param.Opt[string] `query:"start_date,omitzero" json:"-"`
+	StartsAt param.Opt[string] `query:"starts_at,omitzero" json:"-"`
 	// Restricts results to orders placed by customers belonging to any of these
 	// account groups.
 	CustomerGroupIDs []string `query:"customer_group_ids,omitzero" json:"-"`

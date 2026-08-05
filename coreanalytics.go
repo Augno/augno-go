@@ -52,6 +52,26 @@ func (r *CoreAnalyticsService) UpdateOee(ctx context.Context, body CoreAnalytics
 	return res, err
 }
 
+// Returns Overall Equipment Effectiveness (OEE) by production week.
+//
+// Each period carries the same four terms `/v1/core/analytics/oee` reports for a
+// single window, rolled up across departments and weighted by seconds rather than
+// averaged, so a department that ran for an hour does not weigh as heavily as one
+// that ran all week. Weeks start on Monday, and the first and last period of a
+// window are clipped to the window itself.
+//
+// Only departments with scheduled time take part: a department with no machines
+// has no availability, so counting its output in quality would leave the three
+// terms describing different plants. Compare two windows by calling this twice.
+//
+// This endpoint requires the permission: `machine_downtime:read`.
+func (r *CoreAnalyticsService) UpdateOeeTrend(ctx context.Context, body CoreAnalyticsUpdateOeeTrendParams, opts ...option.RequestOption) (res *AnalyzeOeeTrendResponse, err error) {
+	opts = slices.Concat(r.options, opts)
+	path := "v1/core/analytics/oee-trend"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
+	return res, err
+}
+
 // Returns actual production measured against the plan that was live at the time.
 //
 // The baseline for each week is the schedule version published on or before that
@@ -79,12 +99,12 @@ func (r *CoreAnalyticsService) UpdateScheduleAttainment(ctx context.Context, bod
 // AnalyzeOeeRequest is the request to analyze Overall Equipment Effectiveness
 // (OEE).
 //
-// The properties EndDate, StartDate are required.
+// The properties EndsAt, StartsAt are required.
 type AnalyzeOeeRequestParam struct {
 	// The end date for the analysis period.
-	EndDate time.Time `json:"end_date" api:"required" format:"date-time"`
+	EndsAt time.Time `json:"ends_at" api:"required" format:"date-time"`
 	// The start date for the analysis period.
-	StartDate time.Time `json:"start_date" api:"required" format:"date-time"`
+	StartsAt time.Time `json:"starts_at" api:"required" format:"date-time"`
 	// Optional department IDs to filter by.
 	DepartmentIDs []string `json:"department_ids,omitzero"`
 	// Scheduled production time per department for the period. Availability,
@@ -132,15 +152,68 @@ const (
 	AnalyzeOeeResponseObjectAnalyzeOeeResponse AnalyzeOeeResponseObject = "analyze_oee_response"
 )
 
+// AnalyzeOeeTrendRequest is the request to analyze Overall Equipment Effectiveness
+// (OEE) over time.
+//
+// The properties EndsAt, StartsAt are required.
+type AnalyzeOeeTrendRequestParam struct {
+	// The end date for the analysis period.
+	EndsAt time.Time `json:"ends_at" api:"required" format:"date-time"`
+	// The start date for the analysis period.
+	StartsAt time.Time `json:"starts_at" api:"required" format:"date-time"`
+	// Restrict the analysis to these departments.
+	DepartmentIDs []string `json:"department_ids,omitzero"`
+	paramObj
+}
+
+func (r AnalyzeOeeTrendRequestParam) MarshalJSON() (data []byte, err error) {
+	type shadow AnalyzeOeeTrendRequestParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AnalyzeOeeTrendRequestParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// AnalyzeOeeTrendResponse represents the response from the OEE trend endpoint.
+type AnalyzeOeeTrendResponse struct {
+	// Resource type identifier.
+	//
+	// Any of "analyze_oee_trend_response".
+	Object AnalyzeOeeTrendResponseObject `json:"object" api:"required"`
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
+	Periods ListOeeTrendPeriod `json:"periods" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Object      respjson.Field
+		Periods     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AnalyzeOeeTrendResponse) RawJSON() string { return r.JSON.raw }
+func (r *AnalyzeOeeTrendResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type AnalyzeOeeTrendResponseObject string
+
+const (
+	AnalyzeOeeTrendResponseObjectAnalyzeOeeTrendResponse AnalyzeOeeTrendResponseObject = "analyze_oee_trend_response"
+)
+
 // AnalyzeScheduleAttainmentRequest is the request to measure production against
 // plan.
 //
-// The properties EndDate, StartDate are required.
+// The properties EndsAt, StartsAt are required.
 type AnalyzeScheduleAttainmentRequestParam struct {
 	// The end date for the analysis period.
-	EndDate time.Time `json:"end_date" api:"required" format:"date-time"`
+	EndsAt time.Time `json:"ends_at" api:"required" format:"date-time"`
 	// The start date for the analysis period.
-	StartDate time.Time `json:"start_date" api:"required" format:"date-time"`
+	StartsAt time.Time `json:"starts_at" api:"required" format:"date-time"`
 	// Only measure production in these departments.
 	DepartmentIDs []string `json:"department_ids,omitzero"`
 	// The dimension to break the results down by. Defaults to `week`.
@@ -523,6 +596,46 @@ const (
 	ListOeeDowntimeReasonObjectList ListOeeDowntimeReasonObject = "list"
 )
 
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
+type ListOeeTrendPeriod struct {
+	// Resources in this page.
+	Data []OeeTrendPeriod `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListOeeTrendPeriodObject `json:"object" api:"required"`
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListOeeTrendPeriod) RawJSON() string { return r.JSON.raw }
+func (r *ListOeeTrendPeriod) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListOeeTrendPeriodObject string
+
+const (
+	ListOeeTrendPeriodObjectList ListOeeTrendPeriodObject = "list"
+)
+
 // OeeDepartment represents OEE metrics for a single department.
 type OeeDepartment struct {
 	// Data-quality warnings for this grouping. Empty when the numbers can be taken at
@@ -700,6 +813,87 @@ const (
 	OeeDowntimeReasonReasonNoSchedule         OeeDowntimeReasonReason = "no_schedule"
 )
 
+// OeeTrendPeriod represents one production week of OEE, rolled up across the
+// departments that had scheduled time in it. Departments with no scheduled time
+// have no OEE and take no part in the roll-up, so their output is not counted here
+// either.
+type OeeTrendPeriod struct {
+	// Logged downtime charged against availability, in seconds.
+	AvailabilityLossSeconds float64 `json:"availability_loss_seconds" api:"required"`
+	// Run time divided by scheduled time.
+	AvailabilityPct float64 `json:"availability_pct" api:"required"`
+	// Number of downtime events overlapping this period.
+	DowntimeEventCount int64 `json:"downtime_event_count" api:"required"`
+	// The instant this period ends, exclusive.
+	EndsAt time.Time `json:"ends_at" api:"required" format:"date-time"`
+	// The number of good units produced.
+	GoodUnits float64 `json:"good_units" api:"required"`
+	// Whether availability was measured from logged downtime or estimated from
+	// runtime.
+	//
+	// Any of "measured", "estimated".
+	MeasurementStatus OeeTrendPeriodMeasurementStatus `json:"measurement_status" api:"required"`
+	// Time nobody planned to run, removed from the denominator rather than counted as
+	// a loss.
+	NotScheduledSeconds float64 `json:"not_scheduled_seconds" api:"required"`
+	// Availability multiplied by performance multiplied by quality.
+	OeePct float64 `json:"oee_pct" api:"required"`
+	// Standard seconds earned divided by run time.
+	PerformancePct float64 `json:"performance_pct" api:"required"`
+	// Good units divided by total units produced.
+	QualityPct float64 `json:"quality_pct" api:"required"`
+	// Scheduled time net of availability losses, in seconds.
+	RunTimeSeconds float64 `json:"run_time_seconds" api:"required"`
+	// Planned time net of not-scheduled downtime, in seconds.
+	ScheduledSeconds float64 `json:"scheduled_seconds" api:"required"`
+	// The number of seconds units.
+	SecondsUnits float64 `json:"seconds_units" api:"required"`
+	// The time this output should have taken at each production step's own labor rate:
+	// ideal cycle time multiplied by the units produced.
+	StandardSecondsEarned float64 `json:"standard_seconds_earned" api:"required"`
+	// The first instant this period covers. Weeks start on Monday; the first and last
+	// periods of a window are clipped to the window itself.
+	StartsAt time.Time `json:"starts_at" api:"required" format:"date-time"`
+	// The number of waste units.
+	WasteUnits float64 `json:"waste_units" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AvailabilityLossSeconds respjson.Field
+		AvailabilityPct         respjson.Field
+		DowntimeEventCount      respjson.Field
+		EndsAt                  respjson.Field
+		GoodUnits               respjson.Field
+		MeasurementStatus       respjson.Field
+		NotScheduledSeconds     respjson.Field
+		OeePct                  respjson.Field
+		PerformancePct          respjson.Field
+		QualityPct              respjson.Field
+		RunTimeSeconds          respjson.Field
+		ScheduledSeconds        respjson.Field
+		SecondsUnits            respjson.Field
+		StandardSecondsEarned   respjson.Field
+		StartsAt                respjson.Field
+		WasteUnits              respjson.Field
+		ExtraFields             map[string]respjson.Field
+		raw                     string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r OeeTrendPeriod) RawJSON() string { return r.JSON.raw }
+func (r *OeeTrendPeriod) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Whether availability was measured from logged downtime or estimated from
+// runtime.
+type OeeTrendPeriodMeasurementStatus string
+
+const (
+	OeeTrendPeriodMeasurementStatusMeasured  OeeTrendPeriodMeasurementStatus = "measured"
+	OeeTrendPeriodMeasurementStatusEstimated OeeTrendPeriodMeasurementStatus = "estimated"
+)
+
 type CoreAnalyticsUpdateOeeParams struct {
 	// AnalyzeOeeRequest is the request to analyze Overall Equipment Effectiveness
 	// (OEE).
@@ -711,6 +905,20 @@ func (r CoreAnalyticsUpdateOeeParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.AnalyzeOeeRequest)
 }
 func (r *CoreAnalyticsUpdateOeeParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type CoreAnalyticsUpdateOeeTrendParams struct {
+	// AnalyzeOeeTrendRequest is the request to analyze Overall Equipment Effectiveness
+	// (OEE) over time.
+	AnalyzeOeeTrendRequest AnalyzeOeeTrendRequestParam
+	paramObj
+}
+
+func (r CoreAnalyticsUpdateOeeTrendParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.AnalyzeOeeTrendRequest)
+}
+func (r *CoreAnalyticsUpdateOeeTrendParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

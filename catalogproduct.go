@@ -572,7 +572,7 @@ type CatalogProductListParams struct {
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// End of creation date range.
-	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
+	EndsAt param.Opt[time.Time] `query:"ends_at,omitzero" format:"date-time" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Free-text search term used to filter results.
@@ -580,7 +580,7 @@ type CatalogProductListParams struct {
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Start of creation date range.
-	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
+	StartsAt param.Opt[time.Time] `query:"starts_at,omitzero" format:"date-time" json:"-"`
 	// Filter to products whose item carries at least one of these attributes.
 	AttributeIDs []string `query:"attribute_ids,omitzero" json:"-"`
 	// Filter by the item category the product's item belongs to.

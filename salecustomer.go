@@ -1444,7 +1444,7 @@ type SaleCustomerListParams struct {
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Filter to customers created at or before this timestamp (inclusive).
-	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
+	EndsAt param.Opt[time.Time] `query:"ends_at,omitzero" format:"date-time" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Filter to customers with any address in this postal code (exact match).
@@ -1454,7 +1454,7 @@ type SaleCustomerListParams struct {
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
 	// Filter to customers created at or after this timestamp (inclusive).
-	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
+	StartsAt param.Opt[time.Time] `query:"starts_at,omitzero" format:"date-time" json:"-"`
 	// Filter to customers with any address in this state (exact match).
 	State param.Opt[string] `query:"state,omitzero" json:"-"`
 	// Filter by default carrier IDs.
