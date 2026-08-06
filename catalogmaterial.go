@@ -30,6 +30,8 @@ import (
 // the [NewCatalogMaterialService] method instead.
 type CatalogMaterialService struct {
 	options []option.RequestOption
+	// List and manage materials.
+	Actions CatalogMaterialActionService
 }
 
 // NewCatalogMaterialService generates a new service that applies the given options
@@ -38,6 +40,7 @@ type CatalogMaterialService struct {
 func NewCatalogMaterialService(opts ...option.RequestOption) (r CatalogMaterialService) {
 	r = CatalogMaterialService{}
 	r.options = opts
+	r.Actions = NewCatalogMaterialActionService(opts...)
 	return
 }
 
@@ -278,7 +281,7 @@ type QuantityInputRequestParam struct {
 	// ID of the unit the value is expressed in.
 	UnitID string `json:"unit_id" api:"required"`
 	// Decimal value of the quantity.
-	Value string `json:"value" api:"required"`
+	Value string `json:"value" api:"required" format:"decimal"`
 	paramObj
 }
 

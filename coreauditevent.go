@@ -117,7 +117,8 @@ type AuditEvent struct {
 	//   - `deny`: a human denied a gated action, such as rejecting a review-gated agent
 	//     tool.
 	//
-	// Any of "create", "update", "delete", "restore", "archive", "approve", "deny".
+	// Any of "create", "update", "upsert", "delete", "restore", "archive", "approve",
+	// "deny".
 	Action AuditEventAction `json:"action" api:"required"`
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
@@ -236,7 +237,7 @@ type AuditEvent struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case".
+	// "pack_list_case", "job".
 	ResourceType AuditEventResourceType `json:"resource_type" api:"required"`
 	// Originating client IP address.
 	SourceIP string `json:"source_ip" api:"required"`
@@ -283,6 +284,7 @@ type AuditEventAction string
 const (
 	AuditEventActionCreate  AuditEventAction = "create"
 	AuditEventActionUpdate  AuditEventAction = "update"
+	AuditEventActionUpsert  AuditEventAction = "upsert"
 	AuditEventActionDelete  AuditEventAction = "delete"
 	AuditEventActionRestore AuditEventAction = "restore"
 	AuditEventActionArchive AuditEventAction = "archive"
@@ -577,6 +579,7 @@ const (
 	AuditEventResourceTypePackListLineItem                     AuditEventResourceType = "pack_list_line_item"
 	AuditEventResourceTypePackListBackOrder                    AuditEventResourceType = "pack_list_back_order"
 	AuditEventResourceTypePackListCase                         AuditEventResourceType = "pack_list_case"
+	AuditEventResourceTypeJob                                  AuditEventResourceType = "job"
 )
 
 // Field-level before/after transition recorded during a mutation.
@@ -794,7 +797,7 @@ type ListObjectType struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case".
+	// "pack_list_case", "job".
 	Data []string `json:"data" api:"required"`
 	// Resource type identifier.
 	//
@@ -872,7 +875,8 @@ type CoreAuditEventListParams struct {
 	StartsAt param.Opt[time.Time] `query:"starts_at,omitzero" format:"date-time" json:"-"`
 	// Filter by the mutation type recorded on the event.
 	//
-	// Any of "create", "update", "delete", "restore", "archive", "approve", "deny".
+	// Any of "create", "update", "upsert", "delete", "restore", "archive", "approve",
+	// "deny".
 	Actions []string `query:"actions,omitzero" json:"-"`
 	// Filter by the _acting_ account: the account that performed the mutation.
 	//
@@ -987,7 +991,7 @@ type CoreAuditEventListParams struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case".
+	// "pack_list_case", "job".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
 	// Scope results to a root record's entire history tree.
 	//
@@ -1078,7 +1082,7 @@ type CoreAuditEventListParams struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case".
+	// "pack_list_case", "job".
 	RootResourceType CoreAuditEventListParamsRootResourceType `query:"root_resource_type,omitzero" json:"-"`
 	// Filter by the _target_ account the mutation was performed against (the event's
 	// `account`).
@@ -1384,4 +1388,5 @@ const (
 	CoreAuditEventListParamsRootResourceTypePackListLineItem                     CoreAuditEventListParamsRootResourceType = "pack_list_line_item"
 	CoreAuditEventListParamsRootResourceTypePackListBackOrder                    CoreAuditEventListParamsRootResourceType = "pack_list_back_order"
 	CoreAuditEventListParamsRootResourceTypePackListCase                         CoreAuditEventListParamsRootResourceType = "pack_list_case"
+	CoreAuditEventListParamsRootResourceTypeJob                                  CoreAuditEventListParamsRootResourceType = "job"
 )

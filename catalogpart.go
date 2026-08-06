@@ -30,6 +30,8 @@ import (
 // the [NewCatalogPartService] method instead.
 type CatalogPartService struct {
 	options []option.RequestOption
+	// List and manage parts.
+	Actions CatalogPartActionService
 }
 
 // NewCatalogPartService generates a new service that applies the given options to
@@ -38,6 +40,7 @@ type CatalogPartService struct {
 func NewCatalogPartService(opts ...option.RequestOption) (r CatalogPartService) {
 	r = CatalogPartService{}
 	r.options = opts
+	r.Actions = NewCatalogPartActionService(opts...)
 	return
 }
 

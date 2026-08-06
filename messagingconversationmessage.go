@@ -332,7 +332,7 @@ type SendMessageRequestParam struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case".
+	// "pack_list_case", "job".
 	LinkResourceType SendMessageRequestLinkResourceType `json:"link_resource_type,omitzero"`
 	// Account user ids explicitly @mentioned in the message.
 	//
@@ -676,6 +676,7 @@ const (
 	SendMessageRequestLinkResourceTypePackListLineItem                     SendMessageRequestLinkResourceType = "pack_list_line_item"
 	SendMessageRequestLinkResourceTypePackListBackOrder                    SendMessageRequestLinkResourceType = "pack_list_back_order"
 	SendMessageRequestLinkResourceTypePackListCase                         SendMessageRequestLinkResourceType = "pack_list_case"
+	SendMessageRequestLinkResourceTypeJob                                  SendMessageRequestLinkResourceType = "job"
 )
 
 // Whether to deliver the message now or hold it as a customer-reply draft.

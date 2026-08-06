@@ -32,6 +32,8 @@ type CatalogUnitGroupService struct {
 	options []option.RequestOption
 	// List and manage unit groups and their associated units.
 	Units CatalogUnitGroupUnitService
+	// List and manage unit groups and their associated units.
+	Actions CatalogUnitGroupActionService
 }
 
 // NewCatalogUnitGroupService generates a new service that applies the given
@@ -41,6 +43,7 @@ func NewCatalogUnitGroupService(opts ...option.RequestOption) (r CatalogUnitGrou
 	r = CatalogUnitGroupService{}
 	r.options = opts
 	r.Units = NewCatalogUnitGroupUnitService(opts...)
+	r.Actions = NewCatalogUnitGroupActionService(opts...)
 	return
 }
 

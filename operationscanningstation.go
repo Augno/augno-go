@@ -245,6 +245,8 @@ type UpdateScanningStationRequestParam struct {
 	// Size of the labels printed at this station, given as width-by-height (for
 	// example, `1x1`).
 	//
+	// Send `null` or an empty string to clear.
+	//
 	// Any of "1x1", "1x3", "1x4", "2x4".
 	LabelSize UpdateScanningStationRequestLabelSize `json:"label_size,omitzero"`
 	// Type of label printed at this station.
@@ -252,6 +254,8 @@ type UpdateScanningStationRequestParam struct {
 	//   - `tag`: a label attached to the physical product.
 	//   - `traveler`: a routing sheet that accompanies the batch through every
 	//     production step.
+	//
+	// Send `null` or an empty string to clear.
 	//
 	// Any of "tag", "traveler".
 	LabelType UpdateScanningStationRequestLabelType `json:"label_type,omitzero"`
@@ -275,6 +279,8 @@ func (r *UpdateScanningStationRequestParam) UnmarshalJSON(data []byte) error {
 
 // Size of the labels printed at this station, given as width-by-height (for
 // example, `1x1`).
+//
+// Send `null` or an empty string to clear.
 type UpdateScanningStationRequestLabelSize string
 
 const (
@@ -289,6 +295,8 @@ const (
 //   - `tag`: a label attached to the physical product.
 //   - `traveler`: a routing sheet that accompanies the batch through every
 //     production step.
+//
+// Send `null` or an empty string to clear.
 type UpdateScanningStationRequestLabelType string
 
 const (

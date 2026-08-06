@@ -31,6 +31,8 @@ type CatalogItemCategoryService struct {
 	options []option.RequestOption
 	// List and manage item categories.
 	Properties CatalogItemCategoryPropertyService
+	// List and manage item categories.
+	Actions CatalogItemCategoryActionService
 }
 
 // NewCatalogItemCategoryService generates a new service that applies the given
@@ -40,6 +42,7 @@ func NewCatalogItemCategoryService(opts ...option.RequestOption) (r CatalogItemC
 	r = CatalogItemCategoryService{}
 	r.options = opts
 	r.Properties = NewCatalogItemCategoryPropertyService(opts...)
+	r.Actions = NewCatalogItemCategoryActionService(opts...)
 	return
 }
 

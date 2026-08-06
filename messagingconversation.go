@@ -623,7 +623,7 @@ type CreateConversationRequestParam struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case".
+	// "pack_list_case", "job".
 	TopicResourceType CreateConversationRequestTopicResourceType `json:"topic_resource_type,omitzero"`
 	paramObj
 }
@@ -934,6 +934,7 @@ const (
 	CreateConversationRequestTopicResourceTypePackListLineItem                     CreateConversationRequestTopicResourceType = "pack_list_line_item"
 	CreateConversationRequestTopicResourceTypePackListBackOrder                    CreateConversationRequestTopicResourceType = "pack_list_back_order"
 	CreateConversationRequestTopicResourceTypePackListCase                         CreateConversationRequestTopicResourceType = "pack_list_case"
+	CreateConversationRequestTopicResourceTypeJob                                  CreateConversationRequestTopicResourceType = "job"
 )
 
 // A single page of resources, together with the metadata needed to page through
@@ -1788,7 +1789,7 @@ type MessagingConversationListParams struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case".
+	// "pack_list_case", "job".
 	TopicResourceType MessagingConversationListParamsTopicResourceType `query:"topic_resource_type,omitzero" json:"-"`
 	// Filter by conversation type.
 	//
@@ -2125,6 +2126,7 @@ const (
 	MessagingConversationListParamsTopicResourceTypePackListLineItem                     MessagingConversationListParamsTopicResourceType = "pack_list_line_item"
 	MessagingConversationListParamsTopicResourceTypePackListBackOrder                    MessagingConversationListParamsTopicResourceType = "pack_list_back_order"
 	MessagingConversationListParamsTopicResourceTypePackListCase                         MessagingConversationListParamsTopicResourceType = "pack_list_case"
+	MessagingConversationListParamsTopicResourceTypeJob                                  MessagingConversationListParamsTopicResourceType = "job"
 )
 
 // Filter by conversation type.

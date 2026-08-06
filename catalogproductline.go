@@ -30,6 +30,8 @@ import (
 // the [NewCatalogProductLineService] method instead.
 type CatalogProductLineService struct {
 	options []option.RequestOption
+	// List and manage product lines.
+	Actions CatalogProductLineActionService
 }
 
 // NewCatalogProductLineService generates a new service that applies the given
@@ -38,6 +40,7 @@ type CatalogProductLineService struct {
 func NewCatalogProductLineService(opts ...option.RequestOption) (r CatalogProductLineService) {
 	r = CatalogProductLineService{}
 	r.options = opts
+	r.Actions = NewCatalogProductLineActionService(opts...)
 	return
 }
 

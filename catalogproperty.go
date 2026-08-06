@@ -32,6 +32,8 @@ type CatalogPropertyService struct {
 	options []option.RequestOption
 	// List and manage properties and their attributes.
 	Attributes CatalogPropertyAttributeService
+	// List and manage properties and their attributes.
+	Actions CatalogPropertyActionService
 }
 
 // NewCatalogPropertyService generates a new service that applies the given options
@@ -41,6 +43,7 @@ func NewCatalogPropertyService(opts ...option.RequestOption) (r CatalogPropertyS
 	r = CatalogPropertyService{}
 	r.options = opts
 	r.Attributes = NewCatalogPropertyAttributeService(opts...)
+	r.Actions = NewCatalogPropertyActionService(opts...)
 	return
 }
 

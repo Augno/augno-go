@@ -29,6 +29,8 @@ import (
 // the [NewOperationLocationService] method instead.
 type OperationLocationService struct {
 	options []option.RequestOption
+	// List and manage locations.
+	Actions OperationLocationActionService
 }
 
 // NewOperationLocationService generates a new service that applies the given
@@ -37,6 +39,7 @@ type OperationLocationService struct {
 func NewOperationLocationService(opts ...option.RequestOption) (r OperationLocationService) {
 	r = OperationLocationService{}
 	r.options = opts
+	r.Actions = NewOperationLocationActionService(opts...)
 	return
 }
 

@@ -184,7 +184,7 @@ type AddConversationLinkRequestParam struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case".
+	// "pack_list_case", "job".
 	ResourceType AddConversationLinkRequestResourceType `json:"resource_type,omitzero" api:"required"`
 	paramObj
 }
@@ -477,6 +477,7 @@ const (
 	AddConversationLinkRequestResourceTypePackListLineItem                     AddConversationLinkRequestResourceType = "pack_list_line_item"
 	AddConversationLinkRequestResourceTypePackListBackOrder                    AddConversationLinkRequestResourceType = "pack_list_back_order"
 	AddConversationLinkRequestResourceTypePackListCase                         AddConversationLinkRequestResourceType = "pack_list_case"
+	AddConversationLinkRequestResourceTypeJob                                  AddConversationLinkRequestResourceType = "job"
 )
 
 // A reference from a conversation to a business record it concerns, such as an

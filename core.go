@@ -37,6 +37,9 @@ type CoreService struct {
 	Addresses CoreAddressService
 	// View email logs for accounts.
 	EmailLogs CoreEmailLogService
+	// View the jobs that track asynchronous work. Endpoints that answer 202 Accepted
+	// raise one and point at it with a Location header.
+	Jobs CoreJobService
 	// Analyze sales, orders, manufacturing, materials, and other business metrics.
 	Analytics CoreAnalyticsService
 }
@@ -52,6 +55,7 @@ func NewCoreService(opts ...option.RequestOption) (r CoreService) {
 	r.AuditEvents = NewCoreAuditEventService(opts...)
 	r.Addresses = NewCoreAddressService(opts...)
 	r.EmailLogs = NewCoreEmailLogService(opts...)
+	r.Jobs = NewCoreJobService(opts...)
 	r.Analytics = NewCoreAnalyticsService(opts...)
 	return
 }
@@ -182,7 +186,7 @@ type Entity struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case".
+	// "pack_list_case", "job".
 	Type EntityType `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -493,6 +497,7 @@ const (
 	EntityTypePackListLineItem                     EntityType = "pack_list_line_item"
 	EntityTypePackListBackOrder                    EntityType = "pack_list_back_order"
 	EntityTypePackListCase                         EntityType = "pack_list_case"
+	EntityTypeJob                                  EntityType = "job"
 )
 
 // A single page of resources, together with the metadata needed to page through
@@ -647,7 +652,7 @@ type CoreGetSearchParams struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case".
+	// "pack_list_case", "job".
 	Types []string `query:"types,omitzero" json:"-"`
 	paramObj
 }

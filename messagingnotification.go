@@ -662,7 +662,7 @@ type SendNotificationRequestParam struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case".
+	// "pack_list_case", "job".
 	LinkResourceType SendNotificationRequestLinkResourceType `json:"link_resource_type,omitzero"`
 	// How prominently the notification should be surfaced, from `low` through
 	// `urgent`.
@@ -981,6 +981,7 @@ const (
 	SendNotificationRequestLinkResourceTypePackListLineItem                     SendNotificationRequestLinkResourceType = "pack_list_line_item"
 	SendNotificationRequestLinkResourceTypePackListBackOrder                    SendNotificationRequestLinkResourceType = "pack_list_back_order"
 	SendNotificationRequestLinkResourceTypePackListCase                         SendNotificationRequestLinkResourceType = "pack_list_case"
+	SendNotificationRequestLinkResourceTypeJob                                  SendNotificationRequestLinkResourceType = "job"
 )
 
 // How prominently the notification should be surfaced, from `low` through
