@@ -7,14 +7,13 @@ import (
 	"errors"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/augno/augno-go"
 	"github.com/augno/augno-go/internal/testutil"
 	"github.com/augno/augno-go/option"
 )
 
-func TestCoreAnalyticsUpdateDeliveryPerformanceWithOptionalParams(t *testing.T) {
+func TestOperationProductionScheduleSettingItemGet(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -26,13 +25,7 @@ func TestCoreAnalyticsUpdateDeliveryPerformanceWithOptionalParams(t *testing.T) 
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Analytics.UpdateDeliveryPerformance(context.TODO(), augno.CoreAnalyticsUpdateDeliveryPerformanceParams{
-		AnalyzeDeliveryPerformanceRequest: augno.AnalyzeDeliveryPerformanceRequestParam{
-			EndsAt:      time.Now(),
-			StartsAt:    time.Now(),
-			Granularity: augno.AnalyzeDeliveryPerformanceRequestGranularityWeek,
-		},
-	})
+	_, err := client.Operations.ProductionScheduleSettings.Items.Get(context.TODO(), "example")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -42,7 +35,7 @@ func TestCoreAnalyticsUpdateDeliveryPerformanceWithOptionalParams(t *testing.T) 
 	}
 }
 
-func TestCoreAnalyticsUpdateOeeWithOptionalParams(t *testing.T) {
+func TestOperationProductionScheduleSettingItemUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -54,17 +47,17 @@ func TestCoreAnalyticsUpdateOeeWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Analytics.UpdateOee(context.TODO(), augno.CoreAnalyticsUpdateOeeParams{
-		AnalyzeOeeRequest: augno.AnalyzeOeeRequestParam{
-			EndsAt:        time.Now(),
-			StartsAt:      time.Now(),
-			DepartmentIDs: []string{"dp_m0jayebxnkos"},
-			PlannedTime: []augno.OeeDepartmentPlannedTimeParam{{
-				DepartmentID: "department_id",
-				PlannedHours: 0,
-			}},
+	_, err := client.Operations.ProductionScheduleSettings.Items.Update(
+		context.TODO(),
+		"example",
+		augno.OperationProductionScheduleSettingItemUpdateParams{
+			UpsertItemSettingRequest: augno.UpsertItemSettingRequestParam{
+				ParticipationStatus: augno.UpsertItemSettingRequestParticipationStatusIncluded,
+				FulfillmentPolicy:   augno.UpsertItemSettingRequestFulfillmentPolicyMakeToOrder,
+				LotMultipleUnits:    augno.Float(0),
+			},
 		},
-	})
+	)
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -74,7 +67,7 @@ func TestCoreAnalyticsUpdateOeeWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCoreAnalyticsUpdateOeeTrendWithOptionalParams(t *testing.T) {
+func TestOperationProductionScheduleSettingItemList(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -86,13 +79,7 @@ func TestCoreAnalyticsUpdateOeeTrendWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Analytics.UpdateOeeTrend(context.TODO(), augno.CoreAnalyticsUpdateOeeTrendParams{
-		AnalyzeOeeTrendRequest: augno.AnalyzeOeeTrendRequestParam{
-			EndsAt:        time.Now(),
-			StartsAt:      time.Now(),
-			DepartmentIDs: []string{"dp_m0jayebxnkos"},
-		},
-	})
+	_, err := client.Operations.ProductionScheduleSettings.Items.List(context.TODO())
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -102,7 +89,7 @@ func TestCoreAnalyticsUpdateOeeTrendWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCoreAnalyticsUpdateScheduleAttainmentWithOptionalParams(t *testing.T) {
+func TestOperationProductionScheduleSettingItemDelete(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -114,15 +101,7 @@ func TestCoreAnalyticsUpdateScheduleAttainmentWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Analytics.UpdateScheduleAttainment(context.TODO(), augno.CoreAnalyticsUpdateScheduleAttainmentParams{
-		AnalyzeScheduleAttainmentRequest: augno.AnalyzeScheduleAttainmentRequestParam{
-			EndsAt:        time.Now(),
-			StartsAt:      time.Now(),
-			DepartmentIDs: []string{"string"},
-			GroupBy:       augno.AnalyzeScheduleAttainmentRequestGroupByWeek,
-			MachineIDs:    []string{"string"},
-		},
-	})
+	_, err := client.Operations.ProductionScheduleSettings.Items.Delete(context.TODO(), "example")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

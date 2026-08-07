@@ -27,11 +27,12 @@ func TestSaleAccountGroupNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Sales.AccountGroups.New(context.TODO(), augno.SaleAccountGroupNewParams{
 		CreateAccountGroupRequest: augno.CreateAccountGroupRequestParam{
-			Name:             "Wholesale Customers",
-			Type:             augno.CreateAccountGroupRequestTypeTypeGroup,
-			CommissionPolicy: augno.CreateAccountGroupRequestCommissionPolicyCommissionExempt,
-			Description:      augno.String("Customers who buy in bulk at wholesale pricing."),
-			FreightPolicy:    augno.CreateAccountGroupRequestFreightPolicyBilledFreight,
+			Name:                "Wholesale Customers",
+			Type:                augno.CreateAccountGroupRequestTypeTypeGroup,
+			CommissionPolicy:    augno.CreateAccountGroupRequestCommissionPolicyCommissionExempt,
+			DefaultLeadTimeDays: augno.Int(0),
+			Description:         augno.String("Customers who buy in bulk at wholesale pricing."),
+			FreightPolicy:       augno.CreateAccountGroupRequestFreightPolicyBilledFreight,
 		},
 	})
 	if err != nil {
@@ -82,10 +83,11 @@ func TestSaleAccountGroupUpdateWithOptionalParams(t *testing.T) {
 		"acgp_6p4z57e9alaf",
 		augno.SaleAccountGroupUpdateParams{
 			UpdateAccountGroupRequest: augno.UpdateAccountGroupRequestParam{
-				CommissionPolicy: augno.UpdateAccountGroupRequestCommissionPolicyCommissionExempt,
-				Description:      augno.String("Customers who buy in bulk at wholesale pricing."),
-				FreightPolicy:    augno.UpdateAccountGroupRequestFreightPolicyBilledFreight,
-				Name:             augno.String("Updated Wholesale Customers"),
+				CommissionPolicy:    augno.UpdateAccountGroupRequestCommissionPolicyCommissionExempt,
+				DefaultLeadTimeDays: augno.Int(0),
+				Description:         augno.String("Customers who buy in bulk at wholesale pricing."),
+				FreightPolicy:       augno.UpdateAccountGroupRequestFreightPolicyBilledFreight,
+				Name:                augno.String("Updated Wholesale Customers"),
 			},
 		},
 	)

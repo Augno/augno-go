@@ -571,7 +571,11 @@ type CreateConversationRequestParam struct {
 	// "production_schedule", "production_schedule_line",
 	// "production_schedule_deviation", "production_schedule_derived_line",
 	// "production_schedule_settings", "production_schedule_resource_setting",
-	// "schedule_deviation_type", "production_schedule_finished_policy",
+	// "production_schedule_item_setting", "fulfillment_recommendation",
+	// "analyze_delivery_performance_response", "delivery_performance",
+	// "delivery_backlog_bucket", "schedule_order_coverage",
+	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
+	// "schedule_at_risk_order", "production_schedule_finished_policy",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
 	// "production_schedule_item_policy", "child_account", "unit_group",
 	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
@@ -592,7 +596,7 @@ type CreateConversationRequestParam struct {
 	// "confirm_payment_response", "oauth_response", "oauth_status_response",
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
-	// "customer_freight_preferences", "customer_defaults",
+	// "customer_freight_preferences", "customer_defaults", "customer_lead_time",
 	// "customer_notification_preferences", "order_notification_recipient",
 	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
 	// "material", "supplier_material", "part", "permission_group", "permission",
@@ -767,7 +771,16 @@ const (
 	CreateConversationRequestTopicResourceTypeProductionScheduleDerivedLine        CreateConversationRequestTopicResourceType = "production_schedule_derived_line"
 	CreateConversationRequestTopicResourceTypeProductionScheduleSettings           CreateConversationRequestTopicResourceType = "production_schedule_settings"
 	CreateConversationRequestTopicResourceTypeProductionScheduleResourceSetting    CreateConversationRequestTopicResourceType = "production_schedule_resource_setting"
+	CreateConversationRequestTopicResourceTypeProductionScheduleItemSetting        CreateConversationRequestTopicResourceType = "production_schedule_item_setting"
+	CreateConversationRequestTopicResourceTypeFulfillmentRecommendation            CreateConversationRequestTopicResourceType = "fulfillment_recommendation"
+	CreateConversationRequestTopicResourceTypeAnalyzeDeliveryPerformanceResponse   CreateConversationRequestTopicResourceType = "analyze_delivery_performance_response"
+	CreateConversationRequestTopicResourceTypeDeliveryPerformance                  CreateConversationRequestTopicResourceType = "delivery_performance"
+	CreateConversationRequestTopicResourceTypeDeliveryBacklogBucket                CreateConversationRequestTopicResourceType = "delivery_backlog_bucket"
+	CreateConversationRequestTopicResourceTypeScheduleOrderCoverage                CreateConversationRequestTopicResourceType = "schedule_order_coverage"
+	CreateConversationRequestTopicResourceTypeScheduleOrderCoverageLine            CreateConversationRequestTopicResourceType = "schedule_order_coverage_line"
+	CreateConversationRequestTopicResourceTypePromiseDateQuote                     CreateConversationRequestTopicResourceType = "promise_date_quote"
 	CreateConversationRequestTopicResourceTypeScheduleDeviationType                CreateConversationRequestTopicResourceType = "schedule_deviation_type"
+	CreateConversationRequestTopicResourceTypeScheduleAtRiskOrder                  CreateConversationRequestTopicResourceType = "schedule_at_risk_order"
 	CreateConversationRequestTopicResourceTypeProductionScheduleFinishedPolicy     CreateConversationRequestTopicResourceType = "production_schedule_finished_policy"
 	CreateConversationRequestTopicResourceTypeProductionScheduleWeekRelease        CreateConversationRequestTopicResourceType = "production_schedule_week_release"
 	CreateConversationRequestTopicResourceTypeProductionScheduleWeekReleasePreview CreateConversationRequestTopicResourceType = "production_schedule_week_release_preview"
@@ -840,6 +853,7 @@ const (
 	CreateConversationRequestTopicResourceTypeCustomerContactInfo                  CreateConversationRequestTopicResourceType = "customer_contact_info"
 	CreateConversationRequestTopicResourceTypeCustomerFreightPreferences           CreateConversationRequestTopicResourceType = "customer_freight_preferences"
 	CreateConversationRequestTopicResourceTypeCustomerDefaults                     CreateConversationRequestTopicResourceType = "customer_defaults"
+	CreateConversationRequestTopicResourceTypeCustomerLeadTime                     CreateConversationRequestTopicResourceType = "customer_lead_time"
 	CreateConversationRequestTopicResourceTypeCustomerNotificationPreferences      CreateConversationRequestTopicResourceType = "customer_notification_preferences"
 	CreateConversationRequestTopicResourceTypeOrderNotificationRecipient           CreateConversationRequestTopicResourceType = "order_notification_recipient"
 	CreateConversationRequestTopicResourceTypeOrderDiscount                        CreateConversationRequestTopicResourceType = "order_discount"
@@ -1737,7 +1751,11 @@ type MessagingConversationListParams struct {
 	// "production_schedule", "production_schedule_line",
 	// "production_schedule_deviation", "production_schedule_derived_line",
 	// "production_schedule_settings", "production_schedule_resource_setting",
-	// "schedule_deviation_type", "production_schedule_finished_policy",
+	// "production_schedule_item_setting", "fulfillment_recommendation",
+	// "analyze_delivery_performance_response", "delivery_performance",
+	// "delivery_backlog_bucket", "schedule_order_coverage",
+	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
+	// "schedule_at_risk_order", "production_schedule_finished_policy",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
 	// "production_schedule_item_policy", "child_account", "unit_group",
 	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
@@ -1758,7 +1776,7 @@ type MessagingConversationListParams struct {
 	// "confirm_payment_response", "oauth_response", "oauth_status_response",
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
-	// "customer_freight_preferences", "customer_defaults",
+	// "customer_freight_preferences", "customer_defaults", "customer_lead_time",
 	// "customer_notification_preferences", "order_notification_recipient",
 	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
 	// "material", "supplier_material", "part", "permission_group", "permission",
@@ -1959,7 +1977,16 @@ const (
 	MessagingConversationListParamsTopicResourceTypeProductionScheduleDerivedLine        MessagingConversationListParamsTopicResourceType = "production_schedule_derived_line"
 	MessagingConversationListParamsTopicResourceTypeProductionScheduleSettings           MessagingConversationListParamsTopicResourceType = "production_schedule_settings"
 	MessagingConversationListParamsTopicResourceTypeProductionScheduleResourceSetting    MessagingConversationListParamsTopicResourceType = "production_schedule_resource_setting"
+	MessagingConversationListParamsTopicResourceTypeProductionScheduleItemSetting        MessagingConversationListParamsTopicResourceType = "production_schedule_item_setting"
+	MessagingConversationListParamsTopicResourceTypeFulfillmentRecommendation            MessagingConversationListParamsTopicResourceType = "fulfillment_recommendation"
+	MessagingConversationListParamsTopicResourceTypeAnalyzeDeliveryPerformanceResponse   MessagingConversationListParamsTopicResourceType = "analyze_delivery_performance_response"
+	MessagingConversationListParamsTopicResourceTypeDeliveryPerformance                  MessagingConversationListParamsTopicResourceType = "delivery_performance"
+	MessagingConversationListParamsTopicResourceTypeDeliveryBacklogBucket                MessagingConversationListParamsTopicResourceType = "delivery_backlog_bucket"
+	MessagingConversationListParamsTopicResourceTypeScheduleOrderCoverage                MessagingConversationListParamsTopicResourceType = "schedule_order_coverage"
+	MessagingConversationListParamsTopicResourceTypeScheduleOrderCoverageLine            MessagingConversationListParamsTopicResourceType = "schedule_order_coverage_line"
+	MessagingConversationListParamsTopicResourceTypePromiseDateQuote                     MessagingConversationListParamsTopicResourceType = "promise_date_quote"
 	MessagingConversationListParamsTopicResourceTypeScheduleDeviationType                MessagingConversationListParamsTopicResourceType = "schedule_deviation_type"
+	MessagingConversationListParamsTopicResourceTypeScheduleAtRiskOrder                  MessagingConversationListParamsTopicResourceType = "schedule_at_risk_order"
 	MessagingConversationListParamsTopicResourceTypeProductionScheduleFinishedPolicy     MessagingConversationListParamsTopicResourceType = "production_schedule_finished_policy"
 	MessagingConversationListParamsTopicResourceTypeProductionScheduleWeekRelease        MessagingConversationListParamsTopicResourceType = "production_schedule_week_release"
 	MessagingConversationListParamsTopicResourceTypeProductionScheduleWeekReleasePreview MessagingConversationListParamsTopicResourceType = "production_schedule_week_release_preview"
@@ -2032,6 +2059,7 @@ const (
 	MessagingConversationListParamsTopicResourceTypeCustomerContactInfo                  MessagingConversationListParamsTopicResourceType = "customer_contact_info"
 	MessagingConversationListParamsTopicResourceTypeCustomerFreightPreferences           MessagingConversationListParamsTopicResourceType = "customer_freight_preferences"
 	MessagingConversationListParamsTopicResourceTypeCustomerDefaults                     MessagingConversationListParamsTopicResourceType = "customer_defaults"
+	MessagingConversationListParamsTopicResourceTypeCustomerLeadTime                     MessagingConversationListParamsTopicResourceType = "customer_lead_time"
 	MessagingConversationListParamsTopicResourceTypeCustomerNotificationPreferences      MessagingConversationListParamsTopicResourceType = "customer_notification_preferences"
 	MessagingConversationListParamsTopicResourceTypeOrderNotificationRecipient           MessagingConversationListParamsTopicResourceType = "order_notification_recipient"
 	MessagingConversationListParamsTopicResourceTypeOrderDiscount                        MessagingConversationListParamsTopicResourceType = "order_discount"

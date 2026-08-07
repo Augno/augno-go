@@ -116,6 +116,31 @@ func (r *SaleCustomerService) Delete(ctx context.Context, id string, opts ...opt
 	return res, err
 }
 
+// Returns the ship-by lead time a new order for this customer would be committed
+// to.
+//
+// Resolved through the same chain the issue path stamps onto an order, most
+// specific first: a lead time set on the customer, then on the customer's account
+// group, then the account-wide default. `source` names which rule applied, so a
+// form can show where the number came from rather than leaving a rep to guess.
+//
+// This is a preview of a commitment, not the commitment itself. An order takes its
+// own `ship_by_date` when it is issued and keeps it afterwards, so changing a lead
+// time here moves what future orders will promise and leaves promises already made
+// alone.
+//
+// This endpoint requires the permission: `customers:read`.
+func (r *SaleCustomerService) GetLeadTime(ctx context.Context, id string, opts ...option.RequestOption) (res *CustomerLeadTime, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/sales/customers/%s/lead-time", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return res, err
+}
+
 // A shipping carrier configured for fulfilling orders.
 //
 // Carriers with a Shippo-supported `code` (`fedex`, `ups`, `usps`) are connected
@@ -271,6 +296,11 @@ type CreateCustomerRequestParam struct {
 	DefaultServiceLevelID param.Opt[string] `json:"default_service_level_id,omitzero"`
 	// Email address.
 	Email param.Opt[string] `json:"email,omitzero"`
+	// Calendar days between an order being issued and it being due to ship.
+	//
+	// Sets each order's `ship_by_date` when it is issued. Leave unset to inherit the
+	// customer's account group lead time, then the account default.
+	LeadTimeDays param.Opt[int64] `json:"lead_time_days,omitzero"`
 	// Free-form note about the customer.
 	Note param.Opt[string] `json:"note,omitzero"`
 	// Human-readable customer number used to identify the account, distinct from the
@@ -655,6 +685,11 @@ const (
 // Values used to fill in a new sales order for this customer when the order does
 // not supply its own.
 type CustomerDefaults struct {
+	// Calendar days between an order being issued and it being due to ship.
+	//
+	// Sets each order's `ship_by_date` when it is issued. With none set here the
+	// customer inherits its account group's lead time, then the account default.
+	LeadTimeDays int64 `json:"lead_time_days" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "customer_defaults".
@@ -683,6 +718,7 @@ type CustomerDefaults struct {
 	ShippingTerm ShippingTerm `json:"shipping_term" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		LeadTimeDays respjson.Field
 		Object       respjson.Field
 		PaymentTerm  respjson.Field
 		Priority     respjson.Field
@@ -795,6 +831,75 @@ type CustomerFreightPreferencesStatus string
 const (
 	CustomerFreightPreferencesStatusFreeFreight   CustomerFreightPreferencesStatus = "free_freight"
 	CustomerFreightPreferencesStatusBilledFreight CustomerFreightPreferencesStatus = "billed_freight"
+)
+
+// The ship-by lead time a new order for this customer would be committed to.
+type CustomerLeadTime struct {
+	// Entity is a polymorphic reference to any resource in the system.
+	AccountGroup Entity `json:"account_group" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	Customer Entity `json:"customer" api:"required"`
+	// Calendar days between an order being issued and it being due to ship.
+	//
+	// `0` means same-day: an order issued today would be due to ship today.
+	Days int64 `json:"days" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "customer_lead_time".
+	Object CustomerLeadTimeObject `json:"object" api:"required"`
+	// Which rule in the chain produced this lead time.
+	//
+	// - `customer`: a lead time set on the customer itself.
+	// - `account_group`: inherited from the customer's account group.
+	// - `account`: the account-wide fallback.
+	//
+	// The shared `manual` value cannot appear here: it means a promised date was set
+	// on one specific order, which is a fact about that order rather than about the
+	// customer.
+	//
+	// Any of "customer", "account_group", "account", "manual".
+	Source CustomerLeadTimeSource `json:"source" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AccountGroup respjson.Field
+		Customer     respjson.Field
+		Days         respjson.Field
+		Object       respjson.Field
+		Source       respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CustomerLeadTime) RawJSON() string { return r.JSON.raw }
+func (r *CustomerLeadTime) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type CustomerLeadTimeObject string
+
+const (
+	CustomerLeadTimeObjectCustomerLeadTime CustomerLeadTimeObject = "customer_lead_time"
+)
+
+// Which rule in the chain produced this lead time.
+//
+// - `customer`: a lead time set on the customer itself.
+// - `account_group`: inherited from the customer's account group.
+// - `account`: the account-wide fallback.
+//
+// The shared `manual` value cannot appear here: it means a promised date was set
+// on one specific order, which is a fact about that order rather than about the
+// customer.
+type CustomerLeadTimeSource string
+
+const (
+	CustomerLeadTimeSourceCustomer     CustomerLeadTimeSource = "customer"
+	CustomerLeadTimeSourceAccountGroup CustomerLeadTimeSource = "account_group"
+	CustomerLeadTimeSourceAccount      CustomerLeadTimeSource = "account"
+	CustomerLeadTimeSourceManual       CustomerLeadTimeSource = "manual"
 )
 
 // Customer notification settings.
@@ -1164,6 +1269,11 @@ type UpdateCustomerRequestParam struct {
 	DefaultServiceLevelID param.Opt[string] `json:"default_service_level_id,omitzero"`
 	// Email address.
 	Email param.Opt[string] `json:"email,omitzero"`
+	// Calendar days between an order being issued and it being due to ship.
+	//
+	// Sets each order's `ship_by_date` when it is issued. Leave unset to inherit the
+	// customer's account group lead time, then the account default.
+	LeadTimeDays param.Opt[int64] `json:"lead_time_days,omitzero"`
 	// Free-form note about the customer.
 	Note param.Opt[string] `json:"note,omitzero"`
 	// Phone number.

@@ -185,7 +185,11 @@ type AuditEvent struct {
 	// "production_schedule", "production_schedule_line",
 	// "production_schedule_deviation", "production_schedule_derived_line",
 	// "production_schedule_settings", "production_schedule_resource_setting",
-	// "schedule_deviation_type", "production_schedule_finished_policy",
+	// "production_schedule_item_setting", "fulfillment_recommendation",
+	// "analyze_delivery_performance_response", "delivery_performance",
+	// "delivery_backlog_bucket", "schedule_order_coverage",
+	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
+	// "schedule_at_risk_order", "production_schedule_finished_policy",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
 	// "production_schedule_item_policy", "child_account", "unit_group",
 	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
@@ -206,7 +210,7 @@ type AuditEvent struct {
 	// "confirm_payment_response", "oauth_response", "oauth_status_response",
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
-	// "customer_freight_preferences", "customer_defaults",
+	// "customer_freight_preferences", "customer_defaults", "customer_lead_time",
 	// "customer_notification_preferences", "order_notification_recipient",
 	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
 	// "material", "supplier_material", "part", "permission_group", "permission",
@@ -412,7 +416,16 @@ const (
 	AuditEventResourceTypeProductionScheduleDerivedLine        AuditEventResourceType = "production_schedule_derived_line"
 	AuditEventResourceTypeProductionScheduleSettings           AuditEventResourceType = "production_schedule_settings"
 	AuditEventResourceTypeProductionScheduleResourceSetting    AuditEventResourceType = "production_schedule_resource_setting"
+	AuditEventResourceTypeProductionScheduleItemSetting        AuditEventResourceType = "production_schedule_item_setting"
+	AuditEventResourceTypeFulfillmentRecommendation            AuditEventResourceType = "fulfillment_recommendation"
+	AuditEventResourceTypeAnalyzeDeliveryPerformanceResponse   AuditEventResourceType = "analyze_delivery_performance_response"
+	AuditEventResourceTypeDeliveryPerformance                  AuditEventResourceType = "delivery_performance"
+	AuditEventResourceTypeDeliveryBacklogBucket                AuditEventResourceType = "delivery_backlog_bucket"
+	AuditEventResourceTypeScheduleOrderCoverage                AuditEventResourceType = "schedule_order_coverage"
+	AuditEventResourceTypeScheduleOrderCoverageLine            AuditEventResourceType = "schedule_order_coverage_line"
+	AuditEventResourceTypePromiseDateQuote                     AuditEventResourceType = "promise_date_quote"
 	AuditEventResourceTypeScheduleDeviationType                AuditEventResourceType = "schedule_deviation_type"
+	AuditEventResourceTypeScheduleAtRiskOrder                  AuditEventResourceType = "schedule_at_risk_order"
 	AuditEventResourceTypeProductionScheduleFinishedPolicy     AuditEventResourceType = "production_schedule_finished_policy"
 	AuditEventResourceTypeProductionScheduleWeekRelease        AuditEventResourceType = "production_schedule_week_release"
 	AuditEventResourceTypeProductionScheduleWeekReleasePreview AuditEventResourceType = "production_schedule_week_release_preview"
@@ -485,6 +498,7 @@ const (
 	AuditEventResourceTypeCustomerContactInfo                  AuditEventResourceType = "customer_contact_info"
 	AuditEventResourceTypeCustomerFreightPreferences           AuditEventResourceType = "customer_freight_preferences"
 	AuditEventResourceTypeCustomerDefaults                     AuditEventResourceType = "customer_defaults"
+	AuditEventResourceTypeCustomerLeadTime                     AuditEventResourceType = "customer_lead_time"
 	AuditEventResourceTypeCustomerNotificationPreferences      AuditEventResourceType = "customer_notification_preferences"
 	AuditEventResourceTypeOrderNotificationRecipient           AuditEventResourceType = "order_notification_recipient"
 	AuditEventResourceTypeOrderDiscount                        AuditEventResourceType = "order_discount"
@@ -745,7 +759,11 @@ type ListObjectType struct {
 	// "production_schedule", "production_schedule_line",
 	// "production_schedule_deviation", "production_schedule_derived_line",
 	// "production_schedule_settings", "production_schedule_resource_setting",
-	// "schedule_deviation_type", "production_schedule_finished_policy",
+	// "production_schedule_item_setting", "fulfillment_recommendation",
+	// "analyze_delivery_performance_response", "delivery_performance",
+	// "delivery_backlog_bucket", "schedule_order_coverage",
+	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
+	// "schedule_at_risk_order", "production_schedule_finished_policy",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
 	// "production_schedule_item_policy", "child_account", "unit_group",
 	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
@@ -766,7 +784,7 @@ type ListObjectType struct {
 	// "confirm_payment_response", "oauth_response", "oauth_status_response",
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
-	// "customer_freight_preferences", "customer_defaults",
+	// "customer_freight_preferences", "customer_defaults", "customer_lead_time",
 	// "customer_notification_preferences", "order_notification_recipient",
 	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
 	// "material", "supplier_material", "part", "permission_group", "permission",
@@ -939,7 +957,11 @@ type CoreAuditEventListParams struct {
 	// "production_schedule", "production_schedule_line",
 	// "production_schedule_deviation", "production_schedule_derived_line",
 	// "production_schedule_settings", "production_schedule_resource_setting",
-	// "schedule_deviation_type", "production_schedule_finished_policy",
+	// "production_schedule_item_setting", "fulfillment_recommendation",
+	// "analyze_delivery_performance_response", "delivery_performance",
+	// "delivery_backlog_bucket", "schedule_order_coverage",
+	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
+	// "schedule_at_risk_order", "production_schedule_finished_policy",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
 	// "production_schedule_item_policy", "child_account", "unit_group",
 	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
@@ -960,7 +982,7 @@ type CoreAuditEventListParams struct {
 	// "confirm_payment_response", "oauth_response", "oauth_status_response",
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
-	// "customer_freight_preferences", "customer_defaults",
+	// "customer_freight_preferences", "customer_defaults", "customer_lead_time",
 	// "customer_notification_preferences", "order_notification_recipient",
 	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
 	// "material", "supplier_material", "part", "permission_group", "permission",
@@ -1030,7 +1052,11 @@ type CoreAuditEventListParams struct {
 	// "production_schedule", "production_schedule_line",
 	// "production_schedule_deviation", "production_schedule_derived_line",
 	// "production_schedule_settings", "production_schedule_resource_setting",
-	// "schedule_deviation_type", "production_schedule_finished_policy",
+	// "production_schedule_item_setting", "fulfillment_recommendation",
+	// "analyze_delivery_performance_response", "delivery_performance",
+	// "delivery_backlog_bucket", "schedule_order_coverage",
+	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
+	// "schedule_at_risk_order", "production_schedule_finished_policy",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
 	// "production_schedule_item_policy", "child_account", "unit_group",
 	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
@@ -1051,7 +1077,7 @@ type CoreAuditEventListParams struct {
 	// "confirm_payment_response", "oauth_response", "oauth_status_response",
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
-	// "customer_freight_preferences", "customer_defaults",
+	// "customer_freight_preferences", "customer_defaults", "customer_lead_time",
 	// "customer_notification_preferences", "order_notification_recipient",
 	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
 	// "material", "supplier_material", "part", "permission_group", "permission",
@@ -1221,7 +1247,16 @@ const (
 	CoreAuditEventListParamsRootResourceTypeProductionScheduleDerivedLine        CoreAuditEventListParamsRootResourceType = "production_schedule_derived_line"
 	CoreAuditEventListParamsRootResourceTypeProductionScheduleSettings           CoreAuditEventListParamsRootResourceType = "production_schedule_settings"
 	CoreAuditEventListParamsRootResourceTypeProductionScheduleResourceSetting    CoreAuditEventListParamsRootResourceType = "production_schedule_resource_setting"
+	CoreAuditEventListParamsRootResourceTypeProductionScheduleItemSetting        CoreAuditEventListParamsRootResourceType = "production_schedule_item_setting"
+	CoreAuditEventListParamsRootResourceTypeFulfillmentRecommendation            CoreAuditEventListParamsRootResourceType = "fulfillment_recommendation"
+	CoreAuditEventListParamsRootResourceTypeAnalyzeDeliveryPerformanceResponse   CoreAuditEventListParamsRootResourceType = "analyze_delivery_performance_response"
+	CoreAuditEventListParamsRootResourceTypeDeliveryPerformance                  CoreAuditEventListParamsRootResourceType = "delivery_performance"
+	CoreAuditEventListParamsRootResourceTypeDeliveryBacklogBucket                CoreAuditEventListParamsRootResourceType = "delivery_backlog_bucket"
+	CoreAuditEventListParamsRootResourceTypeScheduleOrderCoverage                CoreAuditEventListParamsRootResourceType = "schedule_order_coverage"
+	CoreAuditEventListParamsRootResourceTypeScheduleOrderCoverageLine            CoreAuditEventListParamsRootResourceType = "schedule_order_coverage_line"
+	CoreAuditEventListParamsRootResourceTypePromiseDateQuote                     CoreAuditEventListParamsRootResourceType = "promise_date_quote"
 	CoreAuditEventListParamsRootResourceTypeScheduleDeviationType                CoreAuditEventListParamsRootResourceType = "schedule_deviation_type"
+	CoreAuditEventListParamsRootResourceTypeScheduleAtRiskOrder                  CoreAuditEventListParamsRootResourceType = "schedule_at_risk_order"
 	CoreAuditEventListParamsRootResourceTypeProductionScheduleFinishedPolicy     CoreAuditEventListParamsRootResourceType = "production_schedule_finished_policy"
 	CoreAuditEventListParamsRootResourceTypeProductionScheduleWeekRelease        CoreAuditEventListParamsRootResourceType = "production_schedule_week_release"
 	CoreAuditEventListParamsRootResourceTypeProductionScheduleWeekReleasePreview CoreAuditEventListParamsRootResourceType = "production_schedule_week_release_preview"
@@ -1294,6 +1329,7 @@ const (
 	CoreAuditEventListParamsRootResourceTypeCustomerContactInfo                  CoreAuditEventListParamsRootResourceType = "customer_contact_info"
 	CoreAuditEventListParamsRootResourceTypeCustomerFreightPreferences           CoreAuditEventListParamsRootResourceType = "customer_freight_preferences"
 	CoreAuditEventListParamsRootResourceTypeCustomerDefaults                     CoreAuditEventListParamsRootResourceType = "customer_defaults"
+	CoreAuditEventListParamsRootResourceTypeCustomerLeadTime                     CoreAuditEventListParamsRootResourceType = "customer_lead_time"
 	CoreAuditEventListParamsRootResourceTypeCustomerNotificationPreferences      CoreAuditEventListParamsRootResourceType = "customer_notification_preferences"
 	CoreAuditEventListParamsRootResourceTypeOrderNotificationRecipient           CoreAuditEventListParamsRootResourceType = "order_notification_recipient"
 	CoreAuditEventListParamsRootResourceTypeOrderDiscount                        CoreAuditEventListParamsRootResourceType = "order_discount"

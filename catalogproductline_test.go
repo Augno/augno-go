@@ -35,6 +35,7 @@ func TestCatalogProductLineNewWithOptionalParams(t *testing.T) {
 				UnitID: "unit_id",
 				Value:  "value",
 			},
+			FulfillmentPolicy: augno.CreateProductLineRequestFulfillmentPolicyMakeToStock,
 		},
 		Include: []string{"owner"},
 	})
@@ -98,9 +99,10 @@ func TestCatalogProductLineUpdateWithOptionalParams(t *testing.T) {
 					UnitID: "unit_id",
 					Value:  "value",
 				},
-				FreightPolicy: augno.UpdateProductLineRequestFreightPolicyBilledFreight,
-				Name:          augno.String("Updated Product Line"),
-				UnitGroupID:   augno.String("ug_andst6m79n41"),
+				FreightPolicy:     augno.UpdateProductLineRequestFreightPolicyBilledFreight,
+				FulfillmentPolicy: augno.UpdateProductLineRequestFulfillmentPolicyMakeToStock,
+				Name:              augno.String("Updated Product Line"),
+				UnitGroupID:       augno.String("ug_andst6m79n41"),
 			},
 		},
 	)

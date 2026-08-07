@@ -37,6 +37,36 @@ func NewCoreAnalyticsService(opts ...option.RequestOption) (r CoreAnalyticsServi
 	return
 }
 
+// Returns how reliably promised delivery dates were met.
+//
+// Orders are counted in the period their promise came due, not the period they
+// shipped — an order promised in March and shipped in May is March's miss. On time
+// means the first shipment left on or before the promised date, because the
+// promise is that the order starts moving by then; judging on the last shipment
+// would fail an order the customer received on time in two boxes. On time in full
+// adds that the whole ordered quantity was packed.
+//
+// The denominator is orders that were due, not orders that shipped, so an order
+// past its date and still unshipped counts against the rate rather than being held
+// back until it moves. Excluding open orders would let a plant with a growing late
+// backlog report perfect delivery.
+//
+// Only orders carrying a ship-by commitment participate. An order with no
+// commitment cannot be late, and counting it as on time would inflate the rate
+// with orders nobody promised anything about — `uncommitted_order_count` says how
+// many were excluded, so the gap is visible rather than silent.
+//
+// Every rate is null rather than zero when nothing was due, and average lateness
+// is measured over late orders only.
+//
+// This endpoint requires the permission: `sales_orders:read`.
+func (r *CoreAnalyticsService) UpdateDeliveryPerformance(ctx context.Context, body CoreAnalyticsUpdateDeliveryPerformanceParams, opts ...option.RequestOption) (res *AnalyzeDeliveryPerformanceResponse, err error) {
+	opts = slices.Concat(r.options, opts)
+	path := "v1/core/analytics/delivery-performance"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
+	return res, err
+}
+
 // Returns Overall Equipment Effectiveness (OEE) metrics by department.
 //
 // Availability is measured from logged machine downtime rather than inferred, so
@@ -95,6 +125,86 @@ func (r *CoreAnalyticsService) UpdateScheduleAttainment(ctx context.Context, bod
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
 	return res, err
 }
+
+// AnalyzeDeliveryPerformanceRequest is the request to measure promises against
+// shipments.
+//
+// The properties EndsAt, StartsAt are required.
+type AnalyzeDeliveryPerformanceRequestParam struct {
+	// The end date for the analysis period.
+	EndsAt time.Time `json:"ends_at" api:"required" format:"date-time"`
+	// The start date for the analysis period.
+	StartsAt time.Time `json:"starts_at" api:"required" format:"date-time"`
+	// The period to break the results down by. Defaults to `week`.
+	//
+	// Any of "day", "week", "month".
+	Granularity AnalyzeDeliveryPerformanceRequestGranularity `json:"granularity,omitzero"`
+	paramObj
+}
+
+func (r AnalyzeDeliveryPerformanceRequestParam) MarshalJSON() (data []byte, err error) {
+	type shadow AnalyzeDeliveryPerformanceRequestParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AnalyzeDeliveryPerformanceRequestParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The period to break the results down by. Defaults to `week`.
+type AnalyzeDeliveryPerformanceRequestGranularity string
+
+const (
+	AnalyzeDeliveryPerformanceRequestGranularityDay   AnalyzeDeliveryPerformanceRequestGranularity = "day"
+	AnalyzeDeliveryPerformanceRequestGranularityWeek  AnalyzeDeliveryPerformanceRequestGranularity = "week"
+	AnalyzeDeliveryPerformanceRequestGranularityMonth AnalyzeDeliveryPerformanceRequestGranularity = "month"
+)
+
+// How reliably promised delivery dates were met.
+type AnalyzeDeliveryPerformanceResponse struct {
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
+	Backlog ListDeliveryBacklogBucket `json:"backlog" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "analyze_delivery_performance_response".
+	Object AnalyzeDeliveryPerformanceResponseObject `json:"object" api:"required"`
+	// Delivery reliability for one period, or for a whole window.
+	Overall DeliveryPerformance `json:"overall" api:"required"`
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
+	Periods ListDeliveryPerformance `json:"periods" api:"required"`
+	// Issued orders in the window carrying no ship-by date, excluded from every rate
+	// above.
+	//
+	// Reported so the exclusion is visible: a delivery score computed over half the
+	// order book, silently, is worse than one that says which half. A non-zero count
+	// here means orders placed before commitments were tracked still need a ship-by
+	// date.
+	UncommittedOrderCount int64 `json:"uncommitted_order_count" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Backlog               respjson.Field
+		Object                respjson.Field
+		Overall               respjson.Field
+		Periods               respjson.Field
+		UncommittedOrderCount respjson.Field
+		ExtraFields           map[string]respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AnalyzeDeliveryPerformanceResponse) RawJSON() string { return r.JSON.raw }
+func (r *AnalyzeDeliveryPerformanceResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type AnalyzeDeliveryPerformanceResponseObject string
+
+const (
+	AnalyzeDeliveryPerformanceResponseObjectAnalyzeDeliveryPerformanceResponse AnalyzeDeliveryPerformanceResponseObject = "analyze_delivery_performance_response"
+)
 
 // AnalyzeOeeRequest is the request to analyze Overall Equipment Effectiveness
 // (OEE).
@@ -391,6 +501,127 @@ func (r *AttainmentBucket) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// One age band of orders past their promise and still unshipped.
+type DeliveryBacklogBucket struct {
+	// Name of the band.
+	Label string `json:"label" api:"required"`
+	// Upper bound in days late; `0` means unbounded.
+	MaxDaysLate int64 `json:"max_days_late" api:"required"`
+	// Lower bound of the band in days late.
+	MinDaysLate int64 `json:"min_days_late" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "delivery_backlog_bucket".
+	Object DeliveryBacklogBucketObject `json:"object" api:"required"`
+	// Orders in the band.
+	OrderCount int64 `json:"order_count" api:"required"`
+	// Quantity still owed across them, which is what remains unpacked rather than what
+	// was ordered.
+	Units float64 `json:"units" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Label       respjson.Field
+		MaxDaysLate respjson.Field
+		MinDaysLate respjson.Field
+		Object      respjson.Field
+		OrderCount  respjson.Field
+		Units       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r DeliveryBacklogBucket) RawJSON() string { return r.JSON.raw }
+func (r *DeliveryBacklogBucket) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type DeliveryBacklogBucketObject string
+
+const (
+	DeliveryBacklogBucketObjectDeliveryBacklogBucket DeliveryBacklogBucketObject = "delivery_backlog_bucket"
+)
+
+// Delivery reliability for one period, or for a whole window.
+type DeliveryPerformance struct {
+	// Average lead time these orders were promised.
+	//
+	// The gap between this and `average_lead_time_days` is what a lead time is
+	// renegotiated on.
+	AverageCommittedLeadTimeDays float64 `json:"average_committed_lead_time_days" api:"required"`
+	// Average days late, over late orders only.
+	//
+	// Averaging over every order would dilute a real problem into a number that looks
+	// fine.
+	AverageDaysLate float64 `json:"average_days_late" api:"required"`
+	// Average days from issue to first shipment, over orders that have shipped.
+	AverageLeadTimeDays float64 `json:"average_lead_time_days" api:"required"`
+	// Orders whose promised ship date fell in this period.
+	//
+	// This is the denominator for both rates below — orders that were due, not orders
+	// that shipped. Measuring against shipments only would let unshipped late orders
+	// disappear from the score.
+	CommittedOrderCount int64 `json:"committed_order_count" api:"required"`
+	// How many shipped late, plus those already past their date and still unshipped.
+	LateOrderCount int64 `json:"late_order_count" api:"required"`
+	// How many due in this period have not shipped at all.
+	//
+	// These count against on-time: a promise not yet met is not a promise kept.
+	NotYetShippedCount int64 `json:"not_yet_shipped_count" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "delivery_performance".
+	Object DeliveryPerformanceObject `json:"object" api:"required"`
+	// How many shipped on time and complete.
+	OnTimeInFullCount int64 `json:"on_time_in_full_count" api:"required"`
+	// Share of due orders that shipped on time and complete, as a percentage.
+	OnTimeInFullPct float64 `json:"on_time_in_full_pct" api:"required"`
+	// How many shipped on or before the promised date.
+	OnTimeOrderCount int64 `json:"on_time_order_count" api:"required"`
+	// Share of due orders that shipped on time, as a percentage.
+	//
+	// Null rather than zero when nothing was due, so a quiet week does not render as
+	// total failure.
+	OnTimePct float64 `json:"on_time_pct" api:"required"`
+	// First day of the period; absent on the overall figure.
+	PeriodStart time.Time `json:"period_start" api:"required" format:"date-time"`
+	// How many of them have shipped at all.
+	ShippedOrderCount int64 `json:"shipped_order_count" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AverageCommittedLeadTimeDays respjson.Field
+		AverageDaysLate              respjson.Field
+		AverageLeadTimeDays          respjson.Field
+		CommittedOrderCount          respjson.Field
+		LateOrderCount               respjson.Field
+		NotYetShippedCount           respjson.Field
+		Object                       respjson.Field
+		OnTimeInFullCount            respjson.Field
+		OnTimeInFullPct              respjson.Field
+		OnTimeOrderCount             respjson.Field
+		OnTimePct                    respjson.Field
+		PeriodStart                  respjson.Field
+		ShippedOrderCount            respjson.Field
+		ExtraFields                  map[string]respjson.Field
+		raw                          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r DeliveryPerformance) RawJSON() string { return r.JSON.raw }
+func (r *DeliveryPerformance) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type DeliveryPerformanceObject string
+
+const (
+	DeliveryPerformanceObjectDeliveryPerformance DeliveryPerformanceObject = "delivery_performance"
+)
+
 // How well a published commitment survived the week it covered.
 type FrozenAdherence struct {
 	// Total absolute unit change across frozen-week deviations.
@@ -474,6 +705,86 @@ type ListAttainmentBucketObject string
 
 const (
 	ListAttainmentBucketObjectList ListAttainmentBucketObject = "list"
+)
+
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
+type ListDeliveryBacklogBucket struct {
+	// Resources in this page.
+	Data []DeliveryBacklogBucket `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListDeliveryBacklogBucketObject `json:"object" api:"required"`
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListDeliveryBacklogBucket) RawJSON() string { return r.JSON.raw }
+func (r *ListDeliveryBacklogBucket) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListDeliveryBacklogBucketObject string
+
+const (
+	ListDeliveryBacklogBucketObjectList ListDeliveryBacklogBucketObject = "list"
+)
+
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
+type ListDeliveryPerformance struct {
+	// Resources in this page.
+	Data []DeliveryPerformance `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListDeliveryPerformanceObject `json:"object" api:"required"`
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListDeliveryPerformance) RawJSON() string { return r.JSON.raw }
+func (r *ListDeliveryPerformance) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListDeliveryPerformanceObject string
+
+const (
+	ListDeliveryPerformanceObjectList ListDeliveryPerformanceObject = "list"
 )
 
 // A single page of resources, together with the metadata needed to page through
@@ -893,6 +1204,20 @@ const (
 	OeeTrendPeriodMeasurementStatusMeasured  OeeTrendPeriodMeasurementStatus = "measured"
 	OeeTrendPeriodMeasurementStatusEstimated OeeTrendPeriodMeasurementStatus = "estimated"
 )
+
+type CoreAnalyticsUpdateDeliveryPerformanceParams struct {
+	// AnalyzeDeliveryPerformanceRequest is the request to measure promises against
+	// shipments.
+	AnalyzeDeliveryPerformanceRequest AnalyzeDeliveryPerformanceRequestParam
+	paramObj
+}
+
+func (r CoreAnalyticsUpdateDeliveryPerformanceParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.AnalyzeDeliveryPerformanceRequest)
+}
+func (r *CoreAnalyticsUpdateDeliveryPerformanceParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 type CoreAnalyticsUpdateOeeParams struct {
 	// AnalyzeOeeRequest is the request to analyze Overall Equipment Effectiveness

@@ -30,6 +30,9 @@ type OperationProductionScheduleSettingService struct {
 	// The planning assumptions production schedules are solved against, and the
 	// per-resource overrides that mark which machines constrain the plan.
 	Resources OperationProductionScheduleSettingResourceService
+	// The planning assumptions production schedules are solved against, and the
+	// per-resource overrides that mark which machines constrain the plan.
+	Items OperationProductionScheduleSettingItemService
 }
 
 // NewOperationProductionScheduleSettingService generates a new service that
@@ -40,6 +43,7 @@ func NewOperationProductionScheduleSettingService(opts ...option.RequestOption) 
 	r = OperationProductionScheduleSettingService{}
 	r.options = opts
 	r.Resources = NewOperationProductionScheduleSettingResourceService(opts...)
+	r.Items = NewOperationProductionScheduleSettingItemService(opts...)
 	return
 }
 
@@ -144,6 +148,20 @@ type ProductionScheduleSettings struct {
 	// An item's own lead time, measured from production history, is used instead
 	// whenever one can be observed.
 	DefaultConstraintLeadTimeWeeks float64 `json:"default_constraint_lead_time_weeks" api:"required"`
+	// Calendar days between an order being issued and it being due to ship.
+	//
+	// The last resort in the ship-by chain: a lead time set on the customer, or on the
+	// customer's account group, takes precedence. Zero means same-day shipping.
+	DefaultCustomerLeadTimeDays int64 `json:"default_customer_lead_time_days" api:"required"`
+	// How a SKU is produced when neither it nor its product line says.
+	//
+	//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+	//     variability.
+	//   - `make_to_order`: built only against orders already on the book, holding no
+	//     buffer.
+	//
+	// Any of "make_to_stock", "make_to_order".
+	DefaultFulfillmentPolicy ProductionScheduleSettingsDefaultFulfillmentPolicy `json:"default_fulfillment_policy" api:"required"`
 	// Units in a default production lot.
 	//
 	// The last resort in the lot-size chain: a lot set on the item, on its product
@@ -261,6 +279,8 @@ type ProductionScheduleSettings struct {
 		ConstraintDepartment           respjson.Field
 		CreatedAt                      respjson.Field
 		DefaultConstraintLeadTimeWeeks respjson.Field
+		DefaultCustomerLeadTimeDays    respjson.Field
+		DefaultFulfillmentPolicy       respjson.Field
 		DefaultLotUnits                respjson.Field
 		DemandBasis                    respjson.Field
 		DemandWindowMonths             respjson.Field
@@ -320,6 +340,19 @@ const (
 	ProductionScheduleSettingsCadenceStatusInactive ProductionScheduleSettingsCadenceStatus = "inactive"
 )
 
+// How a SKU is produced when neither it nor its product line says.
+//
+//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+//     variability.
+//   - `make_to_order`: built only against orders already on the book, holding no
+//     buffer.
+type ProductionScheduleSettingsDefaultFulfillmentPolicy string
+
+const (
+	ProductionScheduleSettingsDefaultFulfillmentPolicyMakeToStock ProductionScheduleSettingsDefaultFulfillmentPolicy = "make_to_stock"
+	ProductionScheduleSettingsDefaultFulfillmentPolicyMakeToOrder ProductionScheduleSettingsDefaultFulfillmentPolicy = "make_to_order"
+)
+
 // How the demand a plan is solved against is derived from history.
 //
 //   - `trailing_12`: the last twelve complete months of orders, spread evenly across
@@ -356,7 +389,8 @@ const (
 //
 // The properties AutoPublishStatus, CadenceStatus, CapacityHeadroomPct,
 // ChangeoverAvgMinutes, ChangeoverLaborRate, ChangeoverMaxMinutes,
-// ChangeoverMinMinutes, DefaultConstraintLeadTimeWeeks, DefaultLotUnits,
+// ChangeoverMinMinutes, DefaultConstraintLeadTimeWeeks,
+// DefaultCustomerLeadTimeDays, DefaultFulfillmentPolicy, DefaultLotUnits,
 // DemandBasis, DemandWindowMonths, FinishLeadTimeWeeks, ForecastHistoryMonths,
 // ForecastMonths, ForecastZ, FrozenWeeks, GenerationTimezone, HoldingRatePct,
 // HoursPerShift, MaxFlowDepth, MaxWeeksSupply, PlanningHorizonWeeks,
@@ -412,6 +446,23 @@ type UpdateProductionScheduleSettingsRequestParam struct {
 	// An item's own lead time, measured from production history, is used instead
 	// whenever one can be observed.
 	DefaultConstraintLeadTimeWeeks float64 `json:"default_constraint_lead_time_weeks" api:"required"`
+	// Calendar days between an order being issued and it being due to ship.
+	//
+	// The last resort in the ship-by chain: a lead time set on the customer, or on the
+	// customer's account group, takes precedence. Zero commits the account to same-day
+	// shipping on every order that falls through to it, so this update replaces the
+	// whole settings object and omitting the field is not the same as leaving it
+	// alone.
+	DefaultCustomerLeadTimeDays int64 `json:"default_customer_lead_time_days" api:"required"`
+	// How a SKU is produced when neither it nor its product line says.
+	//
+	//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+	//     variability.
+	//   - `make_to_order`: built only against orders already on the book, holding no
+	//     buffer.
+	//
+	// Any of "make_to_stock", "make_to_order".
+	DefaultFulfillmentPolicy UpdateProductionScheduleSettingsRequestDefaultFulfillmentPolicy `json:"default_fulfillment_policy,omitzero" api:"required"`
 	// Units in a default production lot.
 	//
 	// The last resort in the lot-size chain: a lot set on the item, on its product
@@ -539,6 +590,19 @@ type UpdateProductionScheduleSettingsRequestCadenceStatus string
 const (
 	UpdateProductionScheduleSettingsRequestCadenceStatusActive   UpdateProductionScheduleSettingsRequestCadenceStatus = "active"
 	UpdateProductionScheduleSettingsRequestCadenceStatusInactive UpdateProductionScheduleSettingsRequestCadenceStatus = "inactive"
+)
+
+// How a SKU is produced when neither it nor its product line says.
+//
+//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+//     variability.
+//   - `make_to_order`: built only against orders already on the book, holding no
+//     buffer.
+type UpdateProductionScheduleSettingsRequestDefaultFulfillmentPolicy string
+
+const (
+	UpdateProductionScheduleSettingsRequestDefaultFulfillmentPolicyMakeToStock UpdateProductionScheduleSettingsRequestDefaultFulfillmentPolicy = "make_to_stock"
+	UpdateProductionScheduleSettingsRequestDefaultFulfillmentPolicyMakeToOrder UpdateProductionScheduleSettingsRequestDefaultFulfillmentPolicy = "make_to_order"
 )
 
 // How the demand a plan is solved against is derived from history.

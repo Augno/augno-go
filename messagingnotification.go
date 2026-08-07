@@ -610,7 +610,11 @@ type SendNotificationRequestParam struct {
 	// "production_schedule", "production_schedule_line",
 	// "production_schedule_deviation", "production_schedule_derived_line",
 	// "production_schedule_settings", "production_schedule_resource_setting",
-	// "schedule_deviation_type", "production_schedule_finished_policy",
+	// "production_schedule_item_setting", "fulfillment_recommendation",
+	// "analyze_delivery_performance_response", "delivery_performance",
+	// "delivery_backlog_bucket", "schedule_order_coverage",
+	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
+	// "schedule_at_risk_order", "production_schedule_finished_policy",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
 	// "production_schedule_item_policy", "child_account", "unit_group",
 	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
@@ -631,7 +635,7 @@ type SendNotificationRequestParam struct {
 	// "confirm_payment_response", "oauth_response", "oauth_status_response",
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
-	// "customer_freight_preferences", "customer_defaults",
+	// "customer_freight_preferences", "customer_defaults", "customer_lead_time",
 	// "customer_notification_preferences", "order_notification_recipient",
 	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
 	// "material", "supplier_material", "part", "permission_group", "permission",
@@ -814,7 +818,16 @@ const (
 	SendNotificationRequestLinkResourceTypeProductionScheduleDerivedLine        SendNotificationRequestLinkResourceType = "production_schedule_derived_line"
 	SendNotificationRequestLinkResourceTypeProductionScheduleSettings           SendNotificationRequestLinkResourceType = "production_schedule_settings"
 	SendNotificationRequestLinkResourceTypeProductionScheduleResourceSetting    SendNotificationRequestLinkResourceType = "production_schedule_resource_setting"
+	SendNotificationRequestLinkResourceTypeProductionScheduleItemSetting        SendNotificationRequestLinkResourceType = "production_schedule_item_setting"
+	SendNotificationRequestLinkResourceTypeFulfillmentRecommendation            SendNotificationRequestLinkResourceType = "fulfillment_recommendation"
+	SendNotificationRequestLinkResourceTypeAnalyzeDeliveryPerformanceResponse   SendNotificationRequestLinkResourceType = "analyze_delivery_performance_response"
+	SendNotificationRequestLinkResourceTypeDeliveryPerformance                  SendNotificationRequestLinkResourceType = "delivery_performance"
+	SendNotificationRequestLinkResourceTypeDeliveryBacklogBucket                SendNotificationRequestLinkResourceType = "delivery_backlog_bucket"
+	SendNotificationRequestLinkResourceTypeScheduleOrderCoverage                SendNotificationRequestLinkResourceType = "schedule_order_coverage"
+	SendNotificationRequestLinkResourceTypeScheduleOrderCoverageLine            SendNotificationRequestLinkResourceType = "schedule_order_coverage_line"
+	SendNotificationRequestLinkResourceTypePromiseDateQuote                     SendNotificationRequestLinkResourceType = "promise_date_quote"
 	SendNotificationRequestLinkResourceTypeScheduleDeviationType                SendNotificationRequestLinkResourceType = "schedule_deviation_type"
+	SendNotificationRequestLinkResourceTypeScheduleAtRiskOrder                  SendNotificationRequestLinkResourceType = "schedule_at_risk_order"
 	SendNotificationRequestLinkResourceTypeProductionScheduleFinishedPolicy     SendNotificationRequestLinkResourceType = "production_schedule_finished_policy"
 	SendNotificationRequestLinkResourceTypeProductionScheduleWeekRelease        SendNotificationRequestLinkResourceType = "production_schedule_week_release"
 	SendNotificationRequestLinkResourceTypeProductionScheduleWeekReleasePreview SendNotificationRequestLinkResourceType = "production_schedule_week_release_preview"
@@ -887,6 +900,7 @@ const (
 	SendNotificationRequestLinkResourceTypeCustomerContactInfo                  SendNotificationRequestLinkResourceType = "customer_contact_info"
 	SendNotificationRequestLinkResourceTypeCustomerFreightPreferences           SendNotificationRequestLinkResourceType = "customer_freight_preferences"
 	SendNotificationRequestLinkResourceTypeCustomerDefaults                     SendNotificationRequestLinkResourceType = "customer_defaults"
+	SendNotificationRequestLinkResourceTypeCustomerLeadTime                     SendNotificationRequestLinkResourceType = "customer_lead_time"
 	SendNotificationRequestLinkResourceTypeCustomerNotificationPreferences      SendNotificationRequestLinkResourceType = "customer_notification_preferences"
 	SendNotificationRequestLinkResourceTypeOrderNotificationRecipient           SendNotificationRequestLinkResourceType = "order_notification_recipient"
 	SendNotificationRequestLinkResourceTypeOrderDiscount                        SendNotificationRequestLinkResourceType = "order_discount"

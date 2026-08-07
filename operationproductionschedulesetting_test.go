@@ -35,6 +35,8 @@ func TestOperationProductionScheduleSettingUpdateWithOptionalParams(t *testing.T
 			ChangeoverMaxMinutes:           0,
 			ChangeoverMinMinutes:           0,
 			DefaultConstraintLeadTimeWeeks: 0,
+			DefaultCustomerLeadTimeDays:    30,
+			DefaultFulfillmentPolicy:       augno.UpdateProductionScheduleSettingsRequestDefaultFulfillmentPolicyMakeToStock,
 			DefaultLotUnits:                60,
 			DemandBasis:                    augno.UpdateProductionScheduleSettingsRequestDemandBasisTrailing12,
 			DemandWindowMonths:             12,

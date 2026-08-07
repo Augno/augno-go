@@ -1087,6 +1087,12 @@ type SalesOrder struct {
 	Freight Freight `json:"freight" api:"required"`
 	// When the order was issued (moved out of `estimate`).
 	IssuedAt time.Time `json:"issued_at" api:"required" format:"date-time"`
+	// Calendar days between issue and the ship-by date.
+	LeadTimeDays int64 `json:"lead_time_days" api:"required"`
+	// Which rule produced the ship-by date.
+	//
+	// Any of "customer", "account_group", "account", "manual".
+	LeadTimeSource SalesOrderLeadTimeSource `json:"lead_time_source" api:"required"`
 	// Number of lines on this order.
 	LineCount int64 `json:"line_count" api:"required"`
 	// A single page of resources, together with the metadata needed to page through
@@ -1132,6 +1138,13 @@ type SalesOrder struct {
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
 	SalesRep Actor `json:"sales_rep" api:"required"`
+	// Date this order is contractually due to ship.
+	//
+	// Stamped when the order is issued, from the promised date if one was set,
+	// otherwise from the lead time on the customer, its account group, or the account.
+	// It is not recomputed afterwards, so renegotiating a customer's lead time leaves
+	// commitments already made where they are. Cleared if the order is unissued.
+	ShipByDate time.Time `json:"ship_by_date" api:"required" format:"date-time"`
 	// A saved address that can be used for billing and shipping on sales orders,
 	// invoices, and shipments.
 	ShipToAddress Address `json:"ship_to_address" api:"required"`
@@ -1177,6 +1190,8 @@ type SalesOrder struct {
 		FirstShipAt                 respjson.Field
 		Freight                     respjson.Field
 		IssuedAt                    respjson.Field
+		LeadTimeDays                respjson.Field
+		LeadTimeSource              respjson.Field
 		LineCount                   respjson.Field
 		Lines                       respjson.Field
 		Note                        respjson.Field
@@ -1190,6 +1205,7 @@ type SalesOrder struct {
 		PromisedAt                  respjson.Field
 		Related                     respjson.Field
 		SalesRep                    respjson.Field
+		ShipByDate                  respjson.Field
 		ShipToAddress               respjson.Field
 		ShippingTerm                respjson.Field
 		Status                      respjson.Field
@@ -1216,6 +1232,16 @@ type SalesOrderAcknowledgmentStatus string
 const (
 	SalesOrderAcknowledgmentStatusNotSent SalesOrderAcknowledgmentStatus = "not_sent"
 	SalesOrderAcknowledgmentStatusSent    SalesOrderAcknowledgmentStatus = "sent"
+)
+
+// Which rule produced the ship-by date.
+type SalesOrderLeadTimeSource string
+
+const (
+	SalesOrderLeadTimeSourceCustomer     SalesOrderLeadTimeSource = "customer"
+	SalesOrderLeadTimeSourceAccountGroup SalesOrderLeadTimeSource = "account_group"
+	SalesOrderLeadTimeSourceAccount      SalesOrderLeadTimeSource = "account"
+	SalesOrderLeadTimeSourceManual       SalesOrderLeadTimeSource = "manual"
 )
 
 // Resource type identifier.
@@ -1776,10 +1802,22 @@ type SaleSalesOrderListParams struct {
 	EndsAt param.Opt[string] `query:"ends_at,omitzero" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
+	// Restricts results to orders that are, or are not, past their ship-by date.
+	//
+	// An order is past due when it is still `issued` and its ship-by date has passed.
+	// A fulfilled order that shipped late is not past due — it is delivered, and how
+	// late it was is a delivery-performance question rather than a backlog one.
+	PastDue param.Opt[bool] `query:"past_due,omitzero" json:"-"`
 	// Free-text search term used to filter results.
 	//
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
+	// Earliest ship-by date to include, in `YYYY-MM-DD` format. Inclusive of the date
+	// itself.
+	ShipByAfter param.Opt[string] `query:"ship_by_after,omitzero" json:"-"`
+	// Latest ship-by date to include, in `YYYY-MM-DD` format. Inclusive of the date
+	// itself.
+	ShipByBefore param.Opt[string] `query:"ship_by_before,omitzero" json:"-"`
 	// Earliest order creation date to include, in `YYYY-MM-DD` format.
 	StartsAt param.Opt[string] `query:"starts_at,omitzero" json:"-"`
 	// Restricts results to orders placed by customers belonging to any of these

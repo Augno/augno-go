@@ -71,6 +71,7 @@ func TestSaleCustomerNewWithOptionalParams(t *testing.T) {
 			EdiStatus:             augno.CreateCustomerRequestEdiStatusDisabled,
 			Email:                 augno.String("orders@acme.com"),
 			FreightPolicy:         augno.CreateCustomerRequestFreightPolicyBilledFreight,
+			LeadTimeDays:          augno.Int(0),
 			Note:                  augno.String("Key enterprise account"),
 			Number:                augno.String("100042"),
 			Phone:                 augno.String("555-123-4567"),
@@ -153,6 +154,7 @@ func TestSaleCustomerUpdateWithOptionalParams(t *testing.T) {
 				EdiStatus:             augno.UpdateCustomerRequestEdiStatusDisabled,
 				Email:                 augno.String("orders@acme.com"),
 				FreightPolicy:         augno.UpdateCustomerRequestFreightPolicyBilledFreight,
+				LeadTimeDays:          augno.Int(0),
 				Name:                  augno.String("Acme Corp Updated"),
 				Note:                  augno.String("Updated account notes"),
 				Number:                augno.String("100042"),
@@ -228,6 +230,28 @@ func TestSaleCustomerDelete(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.Customers.Delete(context.TODO(), "ac_opnlh43ymyee")
+	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSaleCustomerGetLeadTime(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := augno.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Sales.Customers.GetLeadTime(context.TODO(), "ac_opnlh43ymyee")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

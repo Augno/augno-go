@@ -114,6 +114,33 @@ func (r *OperationProductionScheduleService) Delete(ctx context.Context, id stri
 	return res, err
 }
 
+// Returns the customer commitments this schedule version does not meet, soonest
+// first.
+//
+// Three ways an order lands here. `past_due` means the constraint stage needed to
+// start before this plan begins. `undated` means the order carries no ship-by
+// commitment at all, so it is treated as owed now. `short` means the plan simply
+// does not build enough of it in time — the campaigns it does allocate are listed
+// alongside, because building three hundred of five hundred is a different
+// conversation from building none.
+//
+// Read from the version's own record rather than re-solved, so what comes back is
+// what was decided when the plan was made. A version generated before commitments
+// were tracked reports nothing, which is correct: it made no promises it could
+// break.
+//
+// This endpoint requires the permission: `production_schedules:read`.
+func (r *OperationProductionScheduleService) GetAtRiskOrders(ctx context.Context, id string, opts ...option.RequestOption) (res *ListScheduleOrderCoverage, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/operations/production-schedules/%s/at-risk-orders", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return res, err
+}
+
 // Returns the published schedule covering today.
 //
 // Responds 404 when no published version covers today, which is the normal state
@@ -610,6 +637,126 @@ type ListScheduleAppliedOverrideObject string
 
 const (
 	ListScheduleAppliedOverrideObjectList ListScheduleAppliedOverrideObject = "list"
+)
+
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
+type ListScheduleAtRiskOrder struct {
+	// Resources in this page.
+	Data []ScheduleAtRiskOrder `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListScheduleAtRiskOrderObject `json:"object" api:"required"`
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListScheduleAtRiskOrder) RawJSON() string { return r.JSON.raw }
+func (r *ListScheduleAtRiskOrder) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListScheduleAtRiskOrderObject string
+
+const (
+	ListScheduleAtRiskOrderObjectList ListScheduleAtRiskOrderObject = "list"
+)
+
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
+type ListScheduleOrderCoverage struct {
+	// Resources in this page.
+	Data []ScheduleOrderCoverage `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListScheduleOrderCoverageObject `json:"object" api:"required"`
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListScheduleOrderCoverage) RawJSON() string { return r.JSON.raw }
+func (r *ListScheduleOrderCoverage) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListScheduleOrderCoverageObject string
+
+const (
+	ListScheduleOrderCoverageObjectList ListScheduleOrderCoverageObject = "list"
+)
+
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
+type ListScheduleOrderCoverageLine struct {
+	// Resources in this page.
+	Data []ScheduleOrderCoverageLine `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListScheduleOrderCoverageLineObject `json:"object" api:"required"`
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListScheduleOrderCoverageLine) RawJSON() string { return r.JSON.raw }
+func (r *ListScheduleOrderCoverageLine) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListScheduleOrderCoverageLineObject string
+
+const (
+	ListScheduleOrderCoverageLineObjectList ListScheduleOrderCoverageLineObject = "list"
 )
 
 // A saved production schedule.
@@ -1191,6 +1338,19 @@ type ProductionScheduleItemPolicy struct {
 	EoqUnits float64 `json:"eoq_units" api:"required"`
 	// Lead time from the constraint to sellable stock.
 	FinishLeadTimeWeeks float64 `json:"finish_lead_time_weeks" api:"required"`
+	// Outstanding quantity the order book already owed for this item over the horizon.
+	FirmDemandUnits float64 `json:"firm_demand_units" api:"required"`
+	// Quantity the forecast projected for the same window.
+	ForecastDemandUnits float64 `json:"forecast_demand_units" api:"required"`
+	// How this item was planned.
+	//
+	//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+	//     variability.
+	//   - `make_to_order`: built only against orders already on the book, holding no
+	//     buffer, so its safety stocks and reorder point are all zero.
+	//
+	// Any of "make_to_stock", "make_to_order".
+	FulfillmentPolicy ProductionScheduleItemPolicyFulfillmentPolicy `json:"fulfillment_policy" api:"required"`
 	// Annual cost of holding one unit.
 	HoldingCost float64 `json:"holding_cost" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
@@ -1213,6 +1373,11 @@ type ProductionScheduleItemPolicy struct {
 	OnHandGreige float64 `json:"on_hand_greige" api:"required"`
 	// Ceiling on how far ahead this item is built.
 	OrderUpTo float64 `json:"order_up_to" api:"required"`
+	// Which rule decided that policy: the item itself, its product line, or the
+	// account default.
+	//
+	// Any of "item", "product_line", "account_default".
+	PolicySource ProductionScheduleItemPolicyPolicySource `json:"policy_source" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	PrimaryMachine Entity `json:"primary_machine" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
@@ -1269,6 +1434,9 @@ type ProductionScheduleItemPolicy struct {
 		CreatedAt               respjson.Field
 		EoqUnits                respjson.Field
 		FinishLeadTimeWeeks     respjson.Field
+		FirmDemandUnits         respjson.Field
+		ForecastDemandUnits     respjson.Field
+		FulfillmentPolicy       respjson.Field
 		HoldingCost             respjson.Field
 		Item                    respjson.Field
 		MaxGreigeInventory      respjson.Field
@@ -1276,6 +1444,7 @@ type ProductionScheduleItemPolicy struct {
 		OnHandEchelon           respjson.Field
 		OnHandGreige            respjson.Field
 		OrderUpTo               respjson.Field
+		PolicySource            respjson.Field
 		PrimaryMachine          respjson.Field
 		ProductionSchedule      respjson.Field
 		ProductionStep          respjson.Field
@@ -1318,11 +1487,34 @@ const (
 	ProductionScheduleItemPolicyAbcClassC ProductionScheduleItemPolicyAbcClass = "c"
 )
 
+// How this item was planned.
+//
+//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+//     variability.
+//   - `make_to_order`: built only against orders already on the book, holding no
+//     buffer, so its safety stocks and reorder point are all zero.
+type ProductionScheduleItemPolicyFulfillmentPolicy string
+
+const (
+	ProductionScheduleItemPolicyFulfillmentPolicyMakeToStock ProductionScheduleItemPolicyFulfillmentPolicy = "make_to_stock"
+	ProductionScheduleItemPolicyFulfillmentPolicyMakeToOrder ProductionScheduleItemPolicyFulfillmentPolicy = "make_to_order"
+)
+
 // Resource type identifier.
 type ProductionScheduleItemPolicyObject string
 
 const (
 	ProductionScheduleItemPolicyObjectProductionScheduleItemPolicy ProductionScheduleItemPolicyObject = "production_schedule_item_policy"
+)
+
+// Which rule decided that policy: the item itself, its product line, or the
+// account default.
+type ProductionScheduleItemPolicyPolicySource string
+
+const (
+	ProductionScheduleItemPolicyPolicySourceItem           ProductionScheduleItemPolicyPolicySource = "item"
+	ProductionScheduleItemPolicyPolicySourceProductLine    ProductionScheduleItemPolicyPolicySource = "product_line"
+	ProductionScheduleItemPolicyPolicySourceAccountDefault ProductionScheduleItemPolicyPolicySource = "account_default"
 )
 
 // One batch a release created, or would create: a single lot off one planned
@@ -1536,11 +1728,83 @@ const (
 	ScheduleAppliedOverrideReasonOther              ScheduleAppliedOverrideReason = "other"
 )
 
+// An order commitment the plan does not meet.
+type ScheduleAtRiskOrder struct {
+	// Horizon week the constraint stage has to finish in for the order to ship on
+	// time.
+	DueWeek int64 `json:"due_week" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	Item Entity `json:"item" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "schedule_at_risk_order".
+	Object ScheduleAtRiskOrderObject `json:"object" api:"required"`
+	// Why the commitment is at risk.
+	//
+	//   - `past_due`: production needed to start before this plan begins.
+	//   - `undated`: the order carries no ship-by commitment, so it is treated as owed
+	//     now.
+	//   - `short`: the plan projects less stock than the order needs in the week it is
+	//     needed.
+	//
+	// Any of "past_due", "undated", "short".
+	Reason ScheduleAtRiskOrderReason `json:"reason" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	SalesOrder Entity `json:"sales_order" api:"required"`
+	// SKU of that item.
+	SKU string `json:"sku" api:"required"`
+	// Outstanding quantity still owed.
+	Units float64 `json:"units" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		DueWeek     respjson.Field
+		Item        respjson.Field
+		Object      respjson.Field
+		Reason      respjson.Field
+		SalesOrder  respjson.Field
+		SKU         respjson.Field
+		Units       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ScheduleAtRiskOrder) RawJSON() string { return r.JSON.raw }
+func (r *ScheduleAtRiskOrder) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ScheduleAtRiskOrderObject string
+
+const (
+	ScheduleAtRiskOrderObjectScheduleAtRiskOrder ScheduleAtRiskOrderObject = "schedule_at_risk_order"
+)
+
+// Why the commitment is at risk.
+//
+//   - `past_due`: production needed to start before this plan begins.
+//   - `undated`: the order carries no ship-by commitment, so it is treated as owed
+//     now.
+//   - `short`: the plan projects less stock than the order needs in the week it is
+//     needed.
+type ScheduleAtRiskOrderReason string
+
+const (
+	ScheduleAtRiskOrderReasonPastDue ScheduleAtRiskOrderReason = "past_due"
+	ScheduleAtRiskOrderReasonUndated ScheduleAtRiskOrderReason = "undated"
+	ScheduleAtRiskOrderReasonShort   ScheduleAtRiskOrderReason = "short"
+)
+
 // What the solver could not do, and why the plan differs from raw history.
 type ScheduleDiagnostics struct {
 	// A single page of resources, together with the metadata needed to page through
 	// the rest of the result set.
 	AppliedOverrides ListScheduleAppliedOverride `json:"applied_overrides" api:"required"`
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
+	AtRiskOrders ListScheduleAtRiskOrder `json:"at_risk_orders" api:"required"`
 	// Average inputs a product transition introduces, measured from history.
 	AverageInputsAdded float64 `json:"average_inputs_added" api:"required"`
 	// Items below their reorder point that never won a slot in the horizon.
@@ -1561,6 +1825,11 @@ type ScheduleDiagnostics struct {
 	EoqCappedSKUs []string `json:"eoq_capped_skus" api:"required"`
 	// Number of items the merchant has excluded from planning.
 	ExcludedItemCount int64 `json:"excluded_item_count" api:"required"`
+	// Outstanding order quantity this plan owes, expressed in the constraint item's
+	// own unit.
+	//
+	// Zero means nothing is on order and the plan is driven purely by the forecast.
+	FirmDemandUnits float64 `json:"firm_demand_units" api:"required"`
 	// Items with no measured run rate, which cannot be scheduled because their machine
 	// time is unknown.
 	ItemsWithoutRunRate []string `json:"items_without_run_rate" api:"required"`
@@ -1568,26 +1837,38 @@ type ScheduleDiagnostics struct {
 	//
 	// Their campaigns derive no downstream department work.
 	MachinesWithoutStep int64 `json:"machines_without_step" api:"required"`
+	// Planned items built only against the order book rather than to a forecast.
+	MakeToOrderItemCount int64 `json:"make_to_order_item_count" api:"required"`
 	// Batches found on those machines in the demand window.
 	//
 	// Zero means nothing has been scanned there, which is why a plan can be empty even
 	// with machines configured.
 	MeasuredBatchCount int64 `json:"measured_batch_count" api:"required"`
+	// Open orders carrying no ship-by commitment, dated at the front of the horizon
+	// because they are issued and unshipped.
+	//
+	// A non-zero count means orders placed before commitments were tracked still need
+	// a ship-by date.
+	UndatedFirmOrderCount int64 `json:"undated_firm_order_count" api:"required"`
 	// Items that cannot fit even a single lot into a machine-week and are therefore
 	// never scheduled.
 	UnschedulableSKUs []string `json:"unschedulable_skus" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		AppliedOverrides       respjson.Field
+		AtRiskOrders           respjson.Field
 		AverageInputsAdded     respjson.Field
 		CapacityStarvedSKUs    respjson.Field
 		ChangeoverSlopeMinutes respjson.Field
 		ConstraintMachineCount respjson.Field
 		EoqCappedSKUs          respjson.Field
 		ExcludedItemCount      respjson.Field
+		FirmDemandUnits        respjson.Field
 		ItemsWithoutRunRate    respjson.Field
 		MachinesWithoutStep    respjson.Field
+		MakeToOrderItemCount   respjson.Field
 		MeasuredBatchCount     respjson.Field
+		UndatedFirmOrderCount  respjson.Field
 		UnschedulableSKUs      respjson.Field
 		ExtraFields            map[string]respjson.Field
 		raw                    string
@@ -1599,6 +1880,113 @@ func (r ScheduleDiagnostics) RawJSON() string { return r.JSON.raw }
 func (r *ScheduleDiagnostics) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// An order this schedule does not build in time, with the campaigns covering the
+// part it does.
+type ScheduleOrderCoverage struct {
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
+	CoveringLines ListScheduleOrderCoverageLine `json:"covering_lines" api:"required"`
+	// Horizon week the constraint stage has to finish in for the order to ship on
+	// time.
+	DueWeek int64 `json:"due_week" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	Item Entity `json:"item" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "schedule_order_coverage".
+	Object ScheduleOrderCoverageObject `json:"object" api:"required"`
+	// Why the commitment is at risk.
+	//
+	// Any of "past_due", "undated", "short".
+	Reason ScheduleOrderCoverageReason `json:"reason" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	SalesOrder Entity `json:"sales_order" api:"required"`
+	// The date this order is contractually due to ship.
+	ShipByDate time.Time `json:"ship_by_date" api:"required" format:"date-time"`
+	// SKU of that item.
+	SKU string `json:"sku" api:"required"`
+	// Quantity the plan does not build in time.
+	//
+	// Less than the whole order when the plan builds part of it — a mostly-built order
+	// is mostly built, and reporting the full quantity would read as a total miss.
+	UnitsAtRisk float64 `json:"units_at_risk" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		CoveringLines respjson.Field
+		DueWeek       respjson.Field
+		Item          respjson.Field
+		Object        respjson.Field
+		Reason        respjson.Field
+		SalesOrder    respjson.Field
+		ShipByDate    respjson.Field
+		SKU           respjson.Field
+		UnitsAtRisk   respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ScheduleOrderCoverage) RawJSON() string { return r.JSON.raw }
+func (r *ScheduleOrderCoverage) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ScheduleOrderCoverageObject string
+
+const (
+	ScheduleOrderCoverageObjectScheduleOrderCoverage ScheduleOrderCoverageObject = "schedule_order_coverage"
+)
+
+// Why the commitment is at risk.
+type ScheduleOrderCoverageReason string
+
+const (
+	ScheduleOrderCoverageReasonPastDue ScheduleOrderCoverageReason = "past_due"
+	ScheduleOrderCoverageReasonUndated ScheduleOrderCoverageReason = "undated"
+	ScheduleOrderCoverageReasonShort   ScheduleOrderCoverageReason = "short"
+)
+
+// One campaign earmarked for an order.
+type ScheduleOrderCoverageLine struct {
+	// Quantity of that campaign earmarked for this order.
+	AllocatedQuantity float64 `json:"allocated_quantity" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	Machine Entity `json:"machine" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "schedule_order_coverage_line".
+	Object ScheduleOrderCoverageLineObject `json:"object" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	ProductionScheduleLine Entity `json:"production_schedule_line" api:"required"`
+	// Horizon week it runs in.
+	WeekIndex int64 `json:"week_index" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AllocatedQuantity      respjson.Field
+		Machine                respjson.Field
+		Object                 respjson.Field
+		ProductionScheduleLine respjson.Field
+		WeekIndex              respjson.Field
+		ExtraFields            map[string]respjson.Field
+		raw                    string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ScheduleOrderCoverageLine) RawJSON() string { return r.JSON.raw }
+func (r *ScheduleOrderCoverageLine) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ScheduleOrderCoverageLineObject string
+
+const (
+	ScheduleOrderCoverageLineObjectScheduleOrderCoverageLine ScheduleOrderCoverageLineObject = "schedule_order_coverage_line"
+)
 
 type OperationProductionScheduleDeleteResponse struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].

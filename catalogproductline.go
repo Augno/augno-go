@@ -164,6 +164,15 @@ type CreateProductLineRequestParam struct {
 	// The unit may be a currency, so money amounts such as a credit limit are written
 	// the same way as physical amounts like weights or counts.
 	DefaultLot QuantityInputParam `json:"default_lot,omitzero"`
+	// How products in this line are produced when they do not say for themselves.
+	//
+	//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+	//     variability.
+	//   - `make_to_order`: built only against orders already on the book, holding no
+	//     buffer.
+	//
+	// Any of "make_to_stock", "make_to_order".
+	FulfillmentPolicy CreateProductLineRequestFulfillmentPolicy `json:"fulfillment_policy,omitzero"`
 	paramObj
 }
 
@@ -197,6 +206,19 @@ type CreateProductLineRequestFreightPolicy string
 const (
 	CreateProductLineRequestFreightPolicyFreeFreight   CreateProductLineRequestFreightPolicy = "free_freight"
 	CreateProductLineRequestFreightPolicyBilledFreight CreateProductLineRequestFreightPolicy = "billed_freight"
+)
+
+// How products in this line are produced when they do not say for themselves.
+//
+//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+//     variability.
+//   - `make_to_order`: built only against orders already on the book, holding no
+//     buffer.
+type CreateProductLineRequestFulfillmentPolicy string
+
+const (
+	CreateProductLineRequestFulfillmentPolicyMakeToStock CreateProductLineRequestFulfillmentPolicy = "make_to_stock"
+	CreateProductLineRequestFulfillmentPolicyMakeToOrder CreateProductLineRequestFulfillmentPolicy = "make_to_order"
 )
 
 // A single page of resources, together with the metadata needed to page through
@@ -274,6 +296,17 @@ type ProductLine struct {
 	//
 	// Any of "free_freight", "billed_freight".
 	FreightPolicy ProductLineFreightPolicy `json:"freight_policy" api:"required"`
+	// How products in this line are produced when they do not say for themselves.
+	//
+	//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+	//     variability.
+	//   - `make_to_order`: built only against orders already on the book, holding no
+	//     buffer.
+	//
+	// Null falls through to the account default.
+	//
+	// Any of "make_to_stock", "make_to_order".
+	FulfillmentPolicy ProductLineFulfillmentPolicy `json:"fulfillment_policy" api:"required"`
 	// Display name of the product line.
 	//
 	// Unique among the product lines visible to your account, which includes the
@@ -298,20 +331,21 @@ type ProductLine struct {
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID               respjson.Field
-		CommissionPolicy respjson.Field
-		CreatedAt        respjson.Field
-		DefaultLot       respjson.Field
-		Description      respjson.Field
-		FreightPolicy    respjson.Field
-		Name             respjson.Field
-		Notes            respjson.Field
-		Object           respjson.Field
-		Owner            respjson.Field
-		UnitGroup        respjson.Field
-		UpdatedAt        respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
+		ID                respjson.Field
+		CommissionPolicy  respjson.Field
+		CreatedAt         respjson.Field
+		DefaultLot        respjson.Field
+		Description       respjson.Field
+		FreightPolicy     respjson.Field
+		FulfillmentPolicy respjson.Field
+		Name              respjson.Field
+		Notes             respjson.Field
+		Object            respjson.Field
+		Owner             respjson.Field
+		UnitGroup         respjson.Field
+		UpdatedAt         respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
 	} `json:"-"`
 }
 
@@ -343,6 +377,21 @@ type ProductLineFreightPolicy string
 const (
 	ProductLineFreightPolicyFreeFreight   ProductLineFreightPolicy = "free_freight"
 	ProductLineFreightPolicyBilledFreight ProductLineFreightPolicy = "billed_freight"
+)
+
+// How products in this line are produced when they do not say for themselves.
+//
+//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+//     variability.
+//   - `make_to_order`: built only against orders already on the book, holding no
+//     buffer.
+//
+// Null falls through to the account default.
+type ProductLineFulfillmentPolicy string
+
+const (
+	ProductLineFulfillmentPolicyMakeToStock ProductLineFulfillmentPolicy = "make_to_stock"
+	ProductLineFulfillmentPolicyMakeToOrder ProductLineFulfillmentPolicy = "make_to_order"
 )
 
 // Resource type identifier.
@@ -388,6 +437,17 @@ type UpdateProductLineRequestParam struct {
 	// groups. A lot already stored on the line is not rechecked when the group
 	// changes, so send `default_lot` alongside to keep the two consistent.
 	UnitGroupID param.Opt[string] `json:"unit_group_id,omitzero"`
+	// How products in this line are produced when they do not say for themselves.
+	//
+	//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+	//     variability.
+	//   - `make_to_order`: built only against orders already on the book, holding no
+	//     buffer.
+	//
+	// Clearing it returns the line's products to the account default.
+	//
+	// Any of "make_to_stock", "make_to_order".
+	FulfillmentPolicy UpdateProductLineRequestFulfillmentPolicy `json:"fulfillment_policy,omitzero"`
 	// Default commission policy for products in this product line.
 	//
 	//   - `commission_exempt`: no commission applies to these products.
@@ -442,6 +502,21 @@ type UpdateProductLineRequestFreightPolicy string
 const (
 	UpdateProductLineRequestFreightPolicyFreeFreight   UpdateProductLineRequestFreightPolicy = "free_freight"
 	UpdateProductLineRequestFreightPolicyBilledFreight UpdateProductLineRequestFreightPolicy = "billed_freight"
+)
+
+// How products in this line are produced when they do not say for themselves.
+//
+//   - `make_to_stock`: built to the forecast, holding a safety stock against its
+//     variability.
+//   - `make_to_order`: built only against orders already on the book, holding no
+//     buffer.
+//
+// Clearing it returns the line's products to the account default.
+type UpdateProductLineRequestFulfillmentPolicy string
+
+const (
+	UpdateProductLineRequestFulfillmentPolicyMakeToStock UpdateProductLineRequestFulfillmentPolicy = "make_to_stock"
+	UpdateProductLineRequestFulfillmentPolicyMakeToOrder UpdateProductLineRequestFulfillmentPolicy = "make_to_order"
 )
 
 type CatalogProductLineDeleteResponse struct {

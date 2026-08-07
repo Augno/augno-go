@@ -44,6 +44,9 @@ type OperationService struct {
 	// The planning assumptions production schedules are solved against, and the
 	// per-resource overrides that mark which machines constrain the plan.
 	ProductionScheduleSettings OperationProductionScheduleSettingService
+	// The planning assumptions production schedules are solved against, and the
+	// per-resource overrides that mark which machines constrain the plan.
+	FulfillmentRecommendations OperationFulfillmentRecommendationService
 	// List and manage locations.
 	Locations OperationLocationService
 	// List and manage locations.
@@ -67,6 +70,7 @@ func NewOperationService(opts ...option.RequestOption) (r OperationService) {
 	r.DemandOverrides = NewOperationDemandOverrideService(opts...)
 	r.ProductionSchedules = NewOperationProductionScheduleService(opts...)
 	r.ProductionScheduleSettings = NewOperationProductionScheduleSettingService(opts...)
+	r.FulfillmentRecommendations = NewOperationFulfillmentRecommendationService(opts...)
 	r.Locations = NewOperationLocationService(opts...)
 	r.LocationTypes = NewOperationLocationTypeService(opts...)
 	r.Shipments = NewOperationShipmentService(opts...)

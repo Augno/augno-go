@@ -143,6 +143,9 @@ type AccountGroup struct {
 	CommissionPolicy AccountGroupCommissionPolicy `json:"commission_policy" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Calendar days between an order being issued and it being due to ship, inherited
+	// by every customer in this group that has not set its own.
+	DefaultLeadTimeDays int64 `json:"default_lead_time_days" api:"required"`
 	// Free-form description of the account group.
 	Description string `json:"description" api:"required"`
 	// How freight charges apply to orders from accounts in this group.
@@ -176,17 +179,18 @@ type AccountGroup struct {
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID               respjson.Field
-		CommissionPolicy respjson.Field
-		CreatedAt        respjson.Field
-		Description      respjson.Field
-		FreightPolicy    respjson.Field
-		Name             respjson.Field
-		Object           respjson.Field
-		Type             respjson.Field
-		UpdatedAt        respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
+		ID                  respjson.Field
+		CommissionPolicy    respjson.Field
+		CreatedAt           respjson.Field
+		DefaultLeadTimeDays respjson.Field
+		Description         respjson.Field
+		FreightPolicy       respjson.Field
+		Name                respjson.Field
+		Object              respjson.Field
+		Type                respjson.Field
+		UpdatedAt           respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
 	} `json:"-"`
 }
 
@@ -262,6 +266,9 @@ type CreateAccountGroupRequestParam struct {
 	//
 	// Any of "pricing_group", "type_group".
 	Type CreateAccountGroupRequestType `json:"type,omitzero" api:"required"`
+	// Calendar days between an order being issued and it being due to ship, inherited
+	// by every customer in this group that has not set its own.
+	DefaultLeadTimeDays param.Opt[int64] `json:"default_lead_time_days,omitzero"`
 	// Free-form description of the account group.
 	Description param.Opt[string] `json:"description,omitzero"`
 	// How sales commission applies to accounts in this group.
@@ -380,6 +387,10 @@ const (
 
 // Request to partially update an account group.
 type UpdateAccountGroupRequestParam struct {
+	// Calendar days between an order being issued and it being due to ship, inherited
+	// by every customer in this group that has not set its own. Clearing it returns
+	// the group's customers to the account default.
+	DefaultLeadTimeDays param.Opt[int64] `json:"default_lead_time_days,omitzero"`
 	// Free-form description of the account group.
 	Description param.Opt[string] `json:"description,omitzero"`
 	// Display name of the account group.

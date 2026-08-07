@@ -175,9 +175,12 @@ func TestSaleSalesOrderListWithOptionalParams(t *testing.T) {
 		Include:          []string{"customer"},
 		ItemIDs:          []string{"string"},
 		Limit:            augno.Int(0),
+		PastDue:          augno.Bool(true),
 		ProductLineIDs:   []string{"string"},
 		Q:                augno.String("q"),
 		SalesRepIDs:      []string{"string"},
+		ShipByAfter:      augno.String("ship_by_after"),
+		ShipByBefore:     augno.String("ship_by_before"),
 		StartsAt:         augno.String("starts_at"),
 		StatusCodes:      []string{"string"},
 	})

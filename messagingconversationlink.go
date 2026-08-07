@@ -132,7 +132,11 @@ type AddConversationLinkRequestParam struct {
 	// "production_schedule", "production_schedule_line",
 	// "production_schedule_deviation", "production_schedule_derived_line",
 	// "production_schedule_settings", "production_schedule_resource_setting",
-	// "schedule_deviation_type", "production_schedule_finished_policy",
+	// "production_schedule_item_setting", "fulfillment_recommendation",
+	// "analyze_delivery_performance_response", "delivery_performance",
+	// "delivery_backlog_bucket", "schedule_order_coverage",
+	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
+	// "schedule_at_risk_order", "production_schedule_finished_policy",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
 	// "production_schedule_item_policy", "child_account", "unit_group",
 	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
@@ -153,7 +157,7 @@ type AddConversationLinkRequestParam struct {
 	// "confirm_payment_response", "oauth_response", "oauth_status_response",
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
-	// "customer_freight_preferences", "customer_defaults",
+	// "customer_freight_preferences", "customer_defaults", "customer_lead_time",
 	// "customer_notification_preferences", "order_notification_recipient",
 	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
 	// "material", "supplier_material", "part", "permission_group", "permission",
@@ -310,7 +314,16 @@ const (
 	AddConversationLinkRequestResourceTypeProductionScheduleDerivedLine        AddConversationLinkRequestResourceType = "production_schedule_derived_line"
 	AddConversationLinkRequestResourceTypeProductionScheduleSettings           AddConversationLinkRequestResourceType = "production_schedule_settings"
 	AddConversationLinkRequestResourceTypeProductionScheduleResourceSetting    AddConversationLinkRequestResourceType = "production_schedule_resource_setting"
+	AddConversationLinkRequestResourceTypeProductionScheduleItemSetting        AddConversationLinkRequestResourceType = "production_schedule_item_setting"
+	AddConversationLinkRequestResourceTypeFulfillmentRecommendation            AddConversationLinkRequestResourceType = "fulfillment_recommendation"
+	AddConversationLinkRequestResourceTypeAnalyzeDeliveryPerformanceResponse   AddConversationLinkRequestResourceType = "analyze_delivery_performance_response"
+	AddConversationLinkRequestResourceTypeDeliveryPerformance                  AddConversationLinkRequestResourceType = "delivery_performance"
+	AddConversationLinkRequestResourceTypeDeliveryBacklogBucket                AddConversationLinkRequestResourceType = "delivery_backlog_bucket"
+	AddConversationLinkRequestResourceTypeScheduleOrderCoverage                AddConversationLinkRequestResourceType = "schedule_order_coverage"
+	AddConversationLinkRequestResourceTypeScheduleOrderCoverageLine            AddConversationLinkRequestResourceType = "schedule_order_coverage_line"
+	AddConversationLinkRequestResourceTypePromiseDateQuote                     AddConversationLinkRequestResourceType = "promise_date_quote"
 	AddConversationLinkRequestResourceTypeScheduleDeviationType                AddConversationLinkRequestResourceType = "schedule_deviation_type"
+	AddConversationLinkRequestResourceTypeScheduleAtRiskOrder                  AddConversationLinkRequestResourceType = "schedule_at_risk_order"
 	AddConversationLinkRequestResourceTypeProductionScheduleFinishedPolicy     AddConversationLinkRequestResourceType = "production_schedule_finished_policy"
 	AddConversationLinkRequestResourceTypeProductionScheduleWeekRelease        AddConversationLinkRequestResourceType = "production_schedule_week_release"
 	AddConversationLinkRequestResourceTypeProductionScheduleWeekReleasePreview AddConversationLinkRequestResourceType = "production_schedule_week_release_preview"
@@ -383,6 +396,7 @@ const (
 	AddConversationLinkRequestResourceTypeCustomerContactInfo                  AddConversationLinkRequestResourceType = "customer_contact_info"
 	AddConversationLinkRequestResourceTypeCustomerFreightPreferences           AddConversationLinkRequestResourceType = "customer_freight_preferences"
 	AddConversationLinkRequestResourceTypeCustomerDefaults                     AddConversationLinkRequestResourceType = "customer_defaults"
+	AddConversationLinkRequestResourceTypeCustomerLeadTime                     AddConversationLinkRequestResourceType = "customer_lead_time"
 	AddConversationLinkRequestResourceTypeCustomerNotificationPreferences      AddConversationLinkRequestResourceType = "customer_notification_preferences"
 	AddConversationLinkRequestResourceTypeOrderNotificationRecipient           AddConversationLinkRequestResourceType = "order_notification_recipient"
 	AddConversationLinkRequestResourceTypeOrderDiscount                        AddConversationLinkRequestResourceType = "order_discount"

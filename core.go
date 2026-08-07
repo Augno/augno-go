@@ -134,7 +134,11 @@ type Entity struct {
 	// "production_schedule", "production_schedule_line",
 	// "production_schedule_deviation", "production_schedule_derived_line",
 	// "production_schedule_settings", "production_schedule_resource_setting",
-	// "schedule_deviation_type", "production_schedule_finished_policy",
+	// "production_schedule_item_setting", "fulfillment_recommendation",
+	// "analyze_delivery_performance_response", "delivery_performance",
+	// "delivery_backlog_bucket", "schedule_order_coverage",
+	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
+	// "schedule_at_risk_order", "production_schedule_finished_policy",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
 	// "production_schedule_item_policy", "child_account", "unit_group",
 	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
@@ -155,7 +159,7 @@ type Entity struct {
 	// "confirm_payment_response", "oauth_response", "oauth_status_response",
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
-	// "customer_freight_preferences", "customer_defaults",
+	// "customer_freight_preferences", "customer_defaults", "customer_lead_time",
 	// "customer_notification_preferences", "order_notification_recipient",
 	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
 	// "material", "supplier_material", "part", "permission_group", "permission",
@@ -330,7 +334,16 @@ const (
 	EntityTypeProductionScheduleDerivedLine        EntityType = "production_schedule_derived_line"
 	EntityTypeProductionScheduleSettings           EntityType = "production_schedule_settings"
 	EntityTypeProductionScheduleResourceSetting    EntityType = "production_schedule_resource_setting"
+	EntityTypeProductionScheduleItemSetting        EntityType = "production_schedule_item_setting"
+	EntityTypeFulfillmentRecommendation            EntityType = "fulfillment_recommendation"
+	EntityTypeAnalyzeDeliveryPerformanceResponse   EntityType = "analyze_delivery_performance_response"
+	EntityTypeDeliveryPerformance                  EntityType = "delivery_performance"
+	EntityTypeDeliveryBacklogBucket                EntityType = "delivery_backlog_bucket"
+	EntityTypeScheduleOrderCoverage                EntityType = "schedule_order_coverage"
+	EntityTypeScheduleOrderCoverageLine            EntityType = "schedule_order_coverage_line"
+	EntityTypePromiseDateQuote                     EntityType = "promise_date_quote"
 	EntityTypeScheduleDeviationType                EntityType = "schedule_deviation_type"
+	EntityTypeScheduleAtRiskOrder                  EntityType = "schedule_at_risk_order"
 	EntityTypeProductionScheduleFinishedPolicy     EntityType = "production_schedule_finished_policy"
 	EntityTypeProductionScheduleWeekRelease        EntityType = "production_schedule_week_release"
 	EntityTypeProductionScheduleWeekReleasePreview EntityType = "production_schedule_week_release_preview"
@@ -403,6 +416,7 @@ const (
 	EntityTypeCustomerContactInfo                  EntityType = "customer_contact_info"
 	EntityTypeCustomerFreightPreferences           EntityType = "customer_freight_preferences"
 	EntityTypeCustomerDefaults                     EntityType = "customer_defaults"
+	EntityTypeCustomerLeadTime                     EntityType = "customer_lead_time"
 	EntityTypeCustomerNotificationPreferences      EntityType = "customer_notification_preferences"
 	EntityTypeOrderNotificationRecipient           EntityType = "order_notification_recipient"
 	EntityTypeOrderDiscount                        EntityType = "order_discount"
@@ -600,7 +614,11 @@ type CoreGetSearchParams struct {
 	// "production_schedule", "production_schedule_line",
 	// "production_schedule_deviation", "production_schedule_derived_line",
 	// "production_schedule_settings", "production_schedule_resource_setting",
-	// "schedule_deviation_type", "production_schedule_finished_policy",
+	// "production_schedule_item_setting", "fulfillment_recommendation",
+	// "analyze_delivery_performance_response", "delivery_performance",
+	// "delivery_backlog_bucket", "schedule_order_coverage",
+	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
+	// "schedule_at_risk_order", "production_schedule_finished_policy",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
 	// "production_schedule_item_policy", "child_account", "unit_group",
 	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
@@ -621,7 +639,7 @@ type CoreGetSearchParams struct {
 	// "confirm_payment_response", "oauth_response", "oauth_status_response",
 	// "stripe_publishable_key", "stripe_status", "healthcheck",
 	// "agent_definition_config", "trigger_config", "customer_contact_info",
-	// "customer_freight_preferences", "customer_defaults",
+	// "customer_freight_preferences", "customer_defaults", "customer_lead_time",
 	// "customer_notification_preferences", "order_notification_recipient",
 	// "order_discount", "sales_order_line", "sales_order_type", "sales_order_status",
 	// "material", "supplier_material", "part", "permission_group", "permission",
