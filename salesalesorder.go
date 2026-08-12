@@ -1140,10 +1140,14 @@ type SalesOrder struct {
 	SalesRep Actor `json:"sales_rep" api:"required"`
 	// Date this order is contractually due to ship.
 	//
-	// Stamped when the order is issued, from the promised date if one was set,
-	// otherwise from the lead time on the customer, its account group, or the account.
-	// It is not recomputed afterwards, so renegotiating a customer's lead time leaves
-	// commitments already made where they are. Cleared if the order is unissued.
+	// Stamped when the order is issued. With a promised delivery date, this is that
+	// date less the carrier's transit for the order's lane, counted in business days —
+	// the day the order has to leave to arrive when promised. Otherwise it comes from
+	// the lead time on the customer, its account group, or the account.
+	//
+	// It is not recomputed afterwards, so neither renegotiating a customer's lead time
+	// nor a later carrier estimate moves commitments already made. Cleared if the
+	// order is unissued.
 	ShipByDate time.Time `json:"ship_by_date" api:"required" format:"date-time"`
 	// A saved address that can be used for billing and shipping on sales orders,
 	// invoices, and shipments.
@@ -1173,6 +1177,16 @@ type SalesOrder struct {
 	// stage reports both the money that has reached it and its progress against the
 	// ordered baseline.
 	Totals SalesOrderTotals `json:"totals" api:"required"`
+	// Business days the carrier needs to cover this order's lane, subtracted from the
+	// promised delivery date to reach the ship-by date.
+	//
+	// Only set when a delivery date was promised and the lane could be priced. Without
+	// it the ship-by date falls back to the promised date itself.
+	TransitDays int64 `json:"transit_days" api:"required"`
+	// Where the transit estimate came from.
+	//
+	// Any of "carrier_lane", "service_level".
+	TransitSource SalesOrderTransitSource `json:"transit_source" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1210,6 +1224,8 @@ type SalesOrder struct {
 		ShippingTerm                respjson.Field
 		Status                      respjson.Field
 		Totals                      respjson.Field
+		TransitDays                 respjson.Field
+		TransitSource               respjson.Field
 		UpdatedAt                   respjson.Field
 		ExtraFields                 map[string]respjson.Field
 		raw                         string
@@ -1285,6 +1301,14 @@ const (
 	SalesOrderStatusEstimate  SalesOrderStatus = "estimate"
 	SalesOrderStatusIssued    SalesOrderStatus = "issued"
 	SalesOrderStatusFulfilled SalesOrderStatus = "fulfilled"
+)
+
+// Where the transit estimate came from.
+type SalesOrderTransitSource string
+
+const (
+	SalesOrderTransitSourceCarrierLane  SalesOrderTransitSource = "carrier_lane"
+	SalesOrderTransitSourceServiceLevel SalesOrderTransitSource = "service_level"
 )
 
 // A user subscribed to one of a sales order's email notifications.

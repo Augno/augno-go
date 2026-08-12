@@ -1096,6 +1096,13 @@ type ServiceLevel struct {
 	//
 	// Any of "visible", "hidden".
 	CustomerPortalVisibility ServiceLevelCustomerPortalVisibility `json:"customer_portal_visibility" api:"required"`
+	// Business days this service typically takes in transit, used to work an order's
+	// ship-by date back from a promised delivery date.
+	//
+	// A fallback for lanes the carrier has not quoted. Null means transit is unknown
+	// for this service rather than instant, so a ship-by date falls back to the
+	// promised delivery date itself.
+	DefaultTransitDays int64 `json:"default_transit_days" api:"required"`
 	// Whether this is the carrier's default service level, pre-selected when the
 	// carrier is chosen.
 	//
@@ -1126,6 +1133,7 @@ type ServiceLevel struct {
 		ID                       respjson.Field
 		CreatedAt                respjson.Field
 		CustomerPortalVisibility respjson.Field
+		DefaultTransitDays       respjson.Field
 		IsDefault                respjson.Field
 		Name                     respjson.Field
 		Object                   respjson.Field

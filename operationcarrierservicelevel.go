@@ -158,6 +158,13 @@ type CreateServiceLevelRequestParam struct {
 	// Human-readable name for the service level, shown to customers at checkout when
 	// the service level is visible.
 	Name string `json:"name" api:"required"`
+	// Business days this service typically takes in transit, used to work an order's
+	// ship-by date back from a promised delivery date.
+	//
+	// A fallback: when a carrier can rate the lane, the transit it quotes is used
+	// instead. Leave unset for carriers that can be rated, and set it for those that
+	// cannot (freight, will-call), where it is the only transit the system will have.
+	DefaultTransitDays param.Opt[int64] `json:"default_transit_days,omitzero"`
 	// Whether customers can see and select this service level at checkout in the
 	// customer portal.
 	//
@@ -185,6 +192,13 @@ const (
 
 // Request to update a service level.
 type UpdateServiceLevelRequestParam struct {
+	// Business days this service typically takes in transit, used to work an order's
+	// ship-by date back from a promised delivery date.
+	//
+	// A fallback: when a carrier can rate the lane, the transit it quotes is used
+	// instead. Set to null to remove it, which leaves transit unknown for lanes the
+	// carrier cannot rate.
+	DefaultTransitDays param.Opt[int64] `json:"default_transit_days,omitzero"`
 	// Carrier-specific code identifying this service level (e.g. `fedex_ground`).
 	//
 	// Must be unique among the carrier's service levels. For a service level synced

@@ -34,6 +34,7 @@ func TestOperationCarrierServiceLevelNewWithOptionalParams(t *testing.T) {
 				IsDefault:                false,
 				Name:                     "Ground Shipping",
 				CustomerPortalVisibility: augno.CreateServiceLevelRequestCustomerPortalVisibilityVisible,
+				DefaultTransitDays:       augno.Int(3),
 			},
 			Include: []string{"owner"},
 		},
@@ -97,6 +98,7 @@ func TestOperationCarrierServiceLevelUpdateWithOptionalParams(t *testing.T) {
 			UpdateServiceLevelRequest: augno.UpdateServiceLevelRequestParam{
 				Code:                     augno.String("express"),
 				CustomerPortalVisibility: augno.UpdateServiceLevelRequestCustomerPortalVisibilityVisible,
+				DefaultTransitDays:       augno.Int(0),
 				IsDefault:                augno.Bool(false),
 				Name:                     augno.String("Express Shipping"),
 			},
