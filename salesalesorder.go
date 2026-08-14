@@ -223,6 +223,52 @@ const (
 	CheckoutSalesOrderResponseObjectCheckoutSalesOrder CheckoutSalesOrderResponseObject = "checkout_sales_order"
 )
 
+// A rate calculated on demand rather than stored.
+//
+// The same shape as a rate minus the fields only a persisted row can have: it
+// carries no ID and no timestamps because nothing was written. Used where a figure
+// is derived per request, such as an analysis comparing one customer's price
+// against the median other customers pay.
+type ComputedRate struct {
+	// Unit of measurement used for conversions and product quantities.
+	DenominatorUnit Unit `json:"denominator_unit" api:"required"`
+	// Human-readable formatted value (e.g. "$25.50 / pr").
+	DisplayValue string `json:"display_value" api:"required"`
+	// Unit of measurement used for conversions and product quantities.
+	NumeratorUnit Unit `json:"numerator_unit" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "computed_rate".
+	Object ComputedRateObject `json:"object" api:"required"`
+	// Decimal value of the rate, as a string to preserve precision.
+	//
+	// Expressed as the amount of the numerator unit per one denominator unit.
+	Value string `json:"value" api:"required" format:"decimal"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		DenominatorUnit respjson.Field
+		DisplayValue    respjson.Field
+		NumeratorUnit   respjson.Field
+		Object          respjson.Field
+		Value           respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ComputedRate) RawJSON() string { return r.JSON.raw }
+func (r *ComputedRate) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ComputedRateObject string
+
+const (
+	ComputedRateObjectComputedRate ComputedRateObject = "computed_rate"
+)
+
 // Line item input for a create sales order request.
 //
 // The item, unit cost, and (unless an internal user supplies a `unit_price`
@@ -918,11 +964,13 @@ type QuotedSalesOrderLine struct {
 	// pricing, attributes, and inventory position. Creating a product creates that
 	// item; deleting the product deletes it.
 	Product Product `json:"product" api:"required"`
-	// A per-unit rate on a sales-order quote.
+	// A rate calculated on demand rather than stored.
 	//
-	// A lightweight, unpersisted variant of a rate: it carries no ID or timestamps
-	// because a quote is computed on demand and never stored.
-	UnitPrice SalesOrderQuoteRate `json:"unit_price" api:"required"`
+	// The same shape as a rate minus the fields only a persisted row can have: it
+	// carries no ID and no timestamps because nothing was written. Used where a figure
+	// is derived per request, such as an analysis comparing one customer's price
+	// against the median other customers pay.
+	UnitPrice ComputedRate `json:"unit_price" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Object      respjson.Field
@@ -1410,46 +1458,6 @@ type SalesOrderLineObject string
 
 const (
 	SalesOrderLineObjectSalesOrderLine SalesOrderLineObject = "sales_order_line"
-)
-
-// A per-unit rate on a sales-order quote.
-//
-// A lightweight, unpersisted variant of a rate: it carries no ID or timestamps
-// because a quote is computed on demand and never stored.
-type SalesOrderQuoteRate struct {
-	// Unit of measurement used for conversions and product quantities.
-	DenominatorUnit Unit `json:"denominator_unit" api:"required"`
-	// Unit of measurement used for conversions and product quantities.
-	NumeratorUnit Unit `json:"numerator_unit" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "sales_order_quote_rate".
-	Object SalesOrderQuoteRateObject `json:"object" api:"required"`
-	// Decimal value of the rate, expressed as the amount of the numerator unit per one
-	// denominator unit.
-	Value string `json:"value" api:"required" format:"decimal"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		DenominatorUnit respjson.Field
-		NumeratorUnit   respjson.Field
-		Object          respjson.Field
-		Value           respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SalesOrderQuoteRate) RawJSON() string { return r.JSON.raw }
-func (r *SalesOrderQuoteRate) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type SalesOrderQuoteRateObject string
-
-const (
-	SalesOrderQuoteRateObjectSalesOrderQuoteRate SalesOrderQuoteRateObject = "sales_order_quote_rate"
 )
 
 // The fulfillment records produced from a sales order.

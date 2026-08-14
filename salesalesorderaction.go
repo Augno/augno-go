@@ -284,11 +284,13 @@ type QuoteSalesOrderFreightResponse struct {
 	//
 	// Any of "sales_order_freight_quote".
 	Object QuoteSalesOrderFreightResponseObject `json:"object" api:"required"`
-	// A per-unit rate on a sales-order quote.
+	// A rate calculated on demand rather than stored.
 	//
-	// A lightweight, unpersisted variant of a rate: it carries no ID or timestamps
-	// because a quote is computed on demand and never stored.
-	UnitPrice SalesOrderQuoteRate `json:"unit_price" api:"required"`
+	// The same shape as a rate minus the fields only a persisted row can have: it
+	// carries no ID and no timestamps because nothing was written. Used where a figure
+	// is derived per request, such as an analysis comparing one customer's price
+	// against the median other customers pay.
+	UnitPrice ComputedRate `json:"unit_price" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Object      respjson.Field

@@ -235,16 +235,16 @@ type AuditEvent struct {
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
-	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
-	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
-	// "messaging_group", "messaging_group_member", "portal_profile",
-	// "portal_registration_session", "portal_registration_session_data", "pack_list",
-	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job", "analyze_customer_pricing_response",
-	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
-	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "sales_order_price_quote_line", "hubspot_sync_job", "hubspot_sync_report",
+	// "hubspot_company_review", "hubspot_company_candidate", "hubspot_sync_record",
+	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
+	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data", "pack_list", "pack_list_party",
+	// "pack_list_line_item", "pack_list_back_order", "pack_list_case", "job",
+	// "analyze_customer_pricing_response", "customer_pricing_finding",
+	// "customer_pricing_summary", "computed_rate", "computed_quantity",
+	// "analyze_realized_margins_response", "realized_margin_finding",
+	// "realized_margin_summary".
 	ResourceType AuditEventResourceType `json:"resource_type" api:"required"`
 	// Originating client IP address.
 	SourceIP string `json:"source_ip" api:"required"`
@@ -577,7 +577,6 @@ const (
 	AuditEventResourceTypeSalesOrderPriceQuote                 AuditEventResourceType = "sales_order_price_quote"
 	AuditEventResourceTypeSalesOrderFreightQuote               AuditEventResourceType = "sales_order_freight_quote"
 	AuditEventResourceTypeSalesOrderPriceQuoteLine             AuditEventResourceType = "sales_order_price_quote_line"
-	AuditEventResourceTypeSalesOrderQuoteRate                  AuditEventResourceType = "sales_order_quote_rate"
 	AuditEventResourceTypeHubspotSyncJob                       AuditEventResourceType = "hubspot_sync_job"
 	AuditEventResourceTypeHubspotSyncReport                    AuditEventResourceType = "hubspot_sync_report"
 	AuditEventResourceTypeHubspotCompanyReview                 AuditEventResourceType = "hubspot_company_review"
@@ -820,16 +819,16 @@ type ListObjectType struct {
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
-	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
-	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
-	// "messaging_group", "messaging_group_member", "portal_profile",
-	// "portal_registration_session", "portal_registration_session_data", "pack_list",
-	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job", "analyze_customer_pricing_response",
-	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
-	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "sales_order_price_quote_line", "hubspot_sync_job", "hubspot_sync_report",
+	// "hubspot_company_review", "hubspot_company_candidate", "hubspot_sync_record",
+	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
+	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data", "pack_list", "pack_list_party",
+	// "pack_list_line_item", "pack_list_back_order", "pack_list_case", "job",
+	// "analyze_customer_pricing_response", "customer_pricing_finding",
+	// "customer_pricing_summary", "computed_rate", "computed_quantity",
+	// "analyze_realized_margins_response", "realized_margin_finding",
+	// "realized_margin_summary".
 	Data []string `json:"data" api:"required"`
 	// Resource type identifier.
 	//
@@ -1021,16 +1020,16 @@ type CoreAuditEventListParams struct {
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
-	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
-	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
-	// "messaging_group", "messaging_group_member", "portal_profile",
-	// "portal_registration_session", "portal_registration_session_data", "pack_list",
-	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job", "analyze_customer_pricing_response",
-	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
-	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "sales_order_price_quote_line", "hubspot_sync_job", "hubspot_sync_report",
+	// "hubspot_company_review", "hubspot_company_candidate", "hubspot_sync_record",
+	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
+	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data", "pack_list", "pack_list_party",
+	// "pack_list_line_item", "pack_list_back_order", "pack_list_case", "job",
+	// "analyze_customer_pricing_response", "customer_pricing_finding",
+	// "customer_pricing_summary", "computed_rate", "computed_quantity",
+	// "analyze_realized_margins_response", "realized_margin_finding",
+	// "realized_margin_summary".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
 	// Scope results to a root record's entire history tree.
 	//
@@ -1119,16 +1118,16 @@ type CoreAuditEventListParams struct {
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
-	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
-	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
-	// "messaging_group", "messaging_group_member", "portal_profile",
-	// "portal_registration_session", "portal_registration_session_data", "pack_list",
-	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job", "analyze_customer_pricing_response",
-	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
-	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "sales_order_price_quote_line", "hubspot_sync_job", "hubspot_sync_report",
+	// "hubspot_company_review", "hubspot_company_candidate", "hubspot_sync_record",
+	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
+	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data", "pack_list", "pack_list_party",
+	// "pack_list_line_item", "pack_list_back_order", "pack_list_case", "job",
+	// "analyze_customer_pricing_response", "customer_pricing_finding",
+	// "customer_pricing_summary", "computed_rate", "computed_quantity",
+	// "analyze_realized_margins_response", "realized_margin_finding",
+	// "realized_margin_summary".
 	RootResourceType CoreAuditEventListParamsRootResourceType `query:"root_resource_type,omitzero" json:"-"`
 	// Filter by the _target_ account the mutation was performed against (the event's
 	// `account`).
@@ -1425,7 +1424,6 @@ const (
 	CoreAuditEventListParamsRootResourceTypeSalesOrderPriceQuote                 CoreAuditEventListParamsRootResourceType = "sales_order_price_quote"
 	CoreAuditEventListParamsRootResourceTypeSalesOrderFreightQuote               CoreAuditEventListParamsRootResourceType = "sales_order_freight_quote"
 	CoreAuditEventListParamsRootResourceTypeSalesOrderPriceQuoteLine             CoreAuditEventListParamsRootResourceType = "sales_order_price_quote_line"
-	CoreAuditEventListParamsRootResourceTypeSalesOrderQuoteRate                  CoreAuditEventListParamsRootResourceType = "sales_order_quote_rate"
 	CoreAuditEventListParamsRootResourceTypeHubspotSyncJob                       CoreAuditEventListParamsRootResourceType = "hubspot_sync_job"
 	CoreAuditEventListParamsRootResourceTypeHubspotSyncReport                    CoreAuditEventListParamsRootResourceType = "hubspot_sync_report"
 	CoreAuditEventListParamsRootResourceTypeHubspotCompanyReview                 CoreAuditEventListParamsRootResourceType = "hubspot_company_review"

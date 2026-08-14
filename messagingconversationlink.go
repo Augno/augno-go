@@ -182,16 +182,16 @@ type AddConversationLinkRequestParam struct {
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
-	// "sales_order_price_quote_line", "sales_order_quote_rate", "hubspot_sync_job",
-	// "hubspot_sync_report", "hubspot_company_review", "hubspot_company_candidate",
-	// "hubspot_sync_record", "contact_match", "reply_draft", "conversation_link",
-	// "messaging_group", "messaging_group_member", "portal_profile",
-	// "portal_registration_session", "portal_registration_session_data", "pack_list",
-	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job", "analyze_customer_pricing_response",
-	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
-	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "sales_order_price_quote_line", "hubspot_sync_job", "hubspot_sync_report",
+	// "hubspot_company_review", "hubspot_company_candidate", "hubspot_sync_record",
+	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
+	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "portal_registration_session_data", "pack_list", "pack_list_party",
+	// "pack_list_line_item", "pack_list_back_order", "pack_list_case", "job",
+	// "analyze_customer_pricing_response", "customer_pricing_finding",
+	// "customer_pricing_summary", "computed_rate", "computed_quantity",
+	// "analyze_realized_margins_response", "realized_margin_finding",
+	// "realized_margin_summary".
 	ResourceType AddConversationLinkRequestResourceType `json:"resource_type,omitzero" api:"required"`
 	paramObj
 }
@@ -475,7 +475,6 @@ const (
 	AddConversationLinkRequestResourceTypeSalesOrderPriceQuote                 AddConversationLinkRequestResourceType = "sales_order_price_quote"
 	AddConversationLinkRequestResourceTypeSalesOrderFreightQuote               AddConversationLinkRequestResourceType = "sales_order_freight_quote"
 	AddConversationLinkRequestResourceTypeSalesOrderPriceQuoteLine             AddConversationLinkRequestResourceType = "sales_order_price_quote_line"
-	AddConversationLinkRequestResourceTypeSalesOrderQuoteRate                  AddConversationLinkRequestResourceType = "sales_order_quote_rate"
 	AddConversationLinkRequestResourceTypeHubspotSyncJob                       AddConversationLinkRequestResourceType = "hubspot_sync_job"
 	AddConversationLinkRequestResourceTypeHubspotSyncReport                    AddConversationLinkRequestResourceType = "hubspot_sync_report"
 	AddConversationLinkRequestResourceTypeHubspotCompanyReview                 AddConversationLinkRequestResourceType = "hubspot_company_review"
