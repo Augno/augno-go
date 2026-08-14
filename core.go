@@ -190,7 +190,10 @@ type Entity struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job".
+	// "pack_list_case", "job", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	Type EntityType `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -512,6 +515,14 @@ const (
 	EntityTypePackListBackOrder                    EntityType = "pack_list_back_order"
 	EntityTypePackListCase                         EntityType = "pack_list_case"
 	EntityTypeJob                                  EntityType = "job"
+	EntityTypeAnalyzeCustomerPricingResponse       EntityType = "analyze_customer_pricing_response"
+	EntityTypeCustomerPricingFinding               EntityType = "customer_pricing_finding"
+	EntityTypeCustomerPricingSummary               EntityType = "customer_pricing_summary"
+	EntityTypeComputedRate                         EntityType = "computed_rate"
+	EntityTypeComputedQuantity                     EntityType = "computed_quantity"
+	EntityTypeAnalyzeRealizedMarginsResponse       EntityType = "analyze_realized_margins_response"
+	EntityTypeRealizedMarginFinding                EntityType = "realized_margin_finding"
+	EntityTypeRealizedMarginSummary                EntityType = "realized_margin_summary"
 )
 
 // A single page of resources, together with the metadata needed to page through
@@ -670,7 +681,10 @@ type CoreGetSearchParams struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job".
+	// "pack_list_case", "job", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	Types []string `query:"types,omitzero" json:"-"`
 	paramObj
 }

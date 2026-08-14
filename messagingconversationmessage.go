@@ -336,7 +336,10 @@ type SendMessageRequestParam struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job".
+	// "pack_list_case", "job", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	LinkResourceType SendMessageRequestLinkResourceType `json:"link_resource_type,omitzero"`
 	// Account user ids explicitly @mentioned in the message.
 	//
@@ -691,6 +694,14 @@ const (
 	SendMessageRequestLinkResourceTypePackListBackOrder                    SendMessageRequestLinkResourceType = "pack_list_back_order"
 	SendMessageRequestLinkResourceTypePackListCase                         SendMessageRequestLinkResourceType = "pack_list_case"
 	SendMessageRequestLinkResourceTypeJob                                  SendMessageRequestLinkResourceType = "job"
+	SendMessageRequestLinkResourceTypeAnalyzeCustomerPricingResponse       SendMessageRequestLinkResourceType = "analyze_customer_pricing_response"
+	SendMessageRequestLinkResourceTypeCustomerPricingFinding               SendMessageRequestLinkResourceType = "customer_pricing_finding"
+	SendMessageRequestLinkResourceTypeCustomerPricingSummary               SendMessageRequestLinkResourceType = "customer_pricing_summary"
+	SendMessageRequestLinkResourceTypeComputedRate                         SendMessageRequestLinkResourceType = "computed_rate"
+	SendMessageRequestLinkResourceTypeComputedQuantity                     SendMessageRequestLinkResourceType = "computed_quantity"
+	SendMessageRequestLinkResourceTypeAnalyzeRealizedMarginsResponse       SendMessageRequestLinkResourceType = "analyze_realized_margins_response"
+	SendMessageRequestLinkResourceTypeRealizedMarginFinding                SendMessageRequestLinkResourceType = "realized_margin_finding"
+	SendMessageRequestLinkResourceTypeRealizedMarginSummary                SendMessageRequestLinkResourceType = "realized_margin_summary"
 )
 
 // Whether to deliver the message now or hold it as a customer-reply draft.

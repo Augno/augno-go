@@ -241,7 +241,10 @@ type AuditEvent struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job".
+	// "pack_list_case", "job", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	ResourceType AuditEventResourceType `json:"resource_type" api:"required"`
 	// Originating client IP address.
 	SourceIP string `json:"source_ip" api:"required"`
@@ -594,6 +597,14 @@ const (
 	AuditEventResourceTypePackListBackOrder                    AuditEventResourceType = "pack_list_back_order"
 	AuditEventResourceTypePackListCase                         AuditEventResourceType = "pack_list_case"
 	AuditEventResourceTypeJob                                  AuditEventResourceType = "job"
+	AuditEventResourceTypeAnalyzeCustomerPricingResponse       AuditEventResourceType = "analyze_customer_pricing_response"
+	AuditEventResourceTypeCustomerPricingFinding               AuditEventResourceType = "customer_pricing_finding"
+	AuditEventResourceTypeCustomerPricingSummary               AuditEventResourceType = "customer_pricing_summary"
+	AuditEventResourceTypeComputedRate                         AuditEventResourceType = "computed_rate"
+	AuditEventResourceTypeComputedQuantity                     AuditEventResourceType = "computed_quantity"
+	AuditEventResourceTypeAnalyzeRealizedMarginsResponse       AuditEventResourceType = "analyze_realized_margins_response"
+	AuditEventResourceTypeRealizedMarginFinding                AuditEventResourceType = "realized_margin_finding"
+	AuditEventResourceTypeRealizedMarginSummary                AuditEventResourceType = "realized_margin_summary"
 )
 
 // Field-level before/after transition recorded during a mutation.
@@ -815,7 +826,10 @@ type ListObjectType struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job".
+	// "pack_list_case", "job", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	Data []string `json:"data" api:"required"`
 	// Resource type identifier.
 	//
@@ -1013,7 +1027,10 @@ type CoreAuditEventListParams struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job".
+	// "pack_list_case", "job", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
 	// Scope results to a root record's entire history tree.
 	//
@@ -1108,7 +1125,10 @@ type CoreAuditEventListParams struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job".
+	// "pack_list_case", "job", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	RootResourceType CoreAuditEventListParamsRootResourceType `query:"root_resource_type,omitzero" json:"-"`
 	// Filter by the _target_ account the mutation was performed against (the event's
 	// `account`).
@@ -1425,4 +1445,12 @@ const (
 	CoreAuditEventListParamsRootResourceTypePackListBackOrder                    CoreAuditEventListParamsRootResourceType = "pack_list_back_order"
 	CoreAuditEventListParamsRootResourceTypePackListCase                         CoreAuditEventListParamsRootResourceType = "pack_list_case"
 	CoreAuditEventListParamsRootResourceTypeJob                                  CoreAuditEventListParamsRootResourceType = "job"
+	CoreAuditEventListParamsRootResourceTypeAnalyzeCustomerPricingResponse       CoreAuditEventListParamsRootResourceType = "analyze_customer_pricing_response"
+	CoreAuditEventListParamsRootResourceTypeCustomerPricingFinding               CoreAuditEventListParamsRootResourceType = "customer_pricing_finding"
+	CoreAuditEventListParamsRootResourceTypeCustomerPricingSummary               CoreAuditEventListParamsRootResourceType = "customer_pricing_summary"
+	CoreAuditEventListParamsRootResourceTypeComputedRate                         CoreAuditEventListParamsRootResourceType = "computed_rate"
+	CoreAuditEventListParamsRootResourceTypeComputedQuantity                     CoreAuditEventListParamsRootResourceType = "computed_quantity"
+	CoreAuditEventListParamsRootResourceTypeAnalyzeRealizedMarginsResponse       CoreAuditEventListParamsRootResourceType = "analyze_realized_margins_response"
+	CoreAuditEventListParamsRootResourceTypeRealizedMarginFinding                CoreAuditEventListParamsRootResourceType = "realized_margin_finding"
+	CoreAuditEventListParamsRootResourceTypeRealizedMarginSummary                CoreAuditEventListParamsRootResourceType = "realized_margin_summary"
 )

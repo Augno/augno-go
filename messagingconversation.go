@@ -627,7 +627,10 @@ type CreateConversationRequestParam struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job".
+	// "pack_list_case", "job", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	TopicResourceType CreateConversationRequestTopicResourceType `json:"topic_resource_type,omitzero"`
 	paramObj
 }
@@ -949,6 +952,14 @@ const (
 	CreateConversationRequestTopicResourceTypePackListBackOrder                    CreateConversationRequestTopicResourceType = "pack_list_back_order"
 	CreateConversationRequestTopicResourceTypePackListCase                         CreateConversationRequestTopicResourceType = "pack_list_case"
 	CreateConversationRequestTopicResourceTypeJob                                  CreateConversationRequestTopicResourceType = "job"
+	CreateConversationRequestTopicResourceTypeAnalyzeCustomerPricingResponse       CreateConversationRequestTopicResourceType = "analyze_customer_pricing_response"
+	CreateConversationRequestTopicResourceTypeCustomerPricingFinding               CreateConversationRequestTopicResourceType = "customer_pricing_finding"
+	CreateConversationRequestTopicResourceTypeCustomerPricingSummary               CreateConversationRequestTopicResourceType = "customer_pricing_summary"
+	CreateConversationRequestTopicResourceTypeComputedRate                         CreateConversationRequestTopicResourceType = "computed_rate"
+	CreateConversationRequestTopicResourceTypeComputedQuantity                     CreateConversationRequestTopicResourceType = "computed_quantity"
+	CreateConversationRequestTopicResourceTypeAnalyzeRealizedMarginsResponse       CreateConversationRequestTopicResourceType = "analyze_realized_margins_response"
+	CreateConversationRequestTopicResourceTypeRealizedMarginFinding                CreateConversationRequestTopicResourceType = "realized_margin_finding"
+	CreateConversationRequestTopicResourceTypeRealizedMarginSummary                CreateConversationRequestTopicResourceType = "realized_margin_summary"
 )
 
 // A single page of resources, together with the metadata needed to page through
@@ -1807,7 +1818,10 @@ type MessagingConversationListParams struct {
 	// "messaging_group", "messaging_group_member", "portal_profile",
 	// "portal_registration_session", "portal_registration_session_data", "pack_list",
 	// "pack_list_party", "pack_list_line_item", "pack_list_back_order",
-	// "pack_list_case", "job".
+	// "pack_list_case", "job", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	TopicResourceType MessagingConversationListParamsTopicResourceType `query:"topic_resource_type,omitzero" json:"-"`
 	// Filter by conversation type.
 	//
@@ -2155,6 +2169,14 @@ const (
 	MessagingConversationListParamsTopicResourceTypePackListBackOrder                    MessagingConversationListParamsTopicResourceType = "pack_list_back_order"
 	MessagingConversationListParamsTopicResourceTypePackListCase                         MessagingConversationListParamsTopicResourceType = "pack_list_case"
 	MessagingConversationListParamsTopicResourceTypeJob                                  MessagingConversationListParamsTopicResourceType = "job"
+	MessagingConversationListParamsTopicResourceTypeAnalyzeCustomerPricingResponse       MessagingConversationListParamsTopicResourceType = "analyze_customer_pricing_response"
+	MessagingConversationListParamsTopicResourceTypeCustomerPricingFinding               MessagingConversationListParamsTopicResourceType = "customer_pricing_finding"
+	MessagingConversationListParamsTopicResourceTypeCustomerPricingSummary               MessagingConversationListParamsTopicResourceType = "customer_pricing_summary"
+	MessagingConversationListParamsTopicResourceTypeComputedRate                         MessagingConversationListParamsTopicResourceType = "computed_rate"
+	MessagingConversationListParamsTopicResourceTypeComputedQuantity                     MessagingConversationListParamsTopicResourceType = "computed_quantity"
+	MessagingConversationListParamsTopicResourceTypeAnalyzeRealizedMarginsResponse       MessagingConversationListParamsTopicResourceType = "analyze_realized_margins_response"
+	MessagingConversationListParamsTopicResourceTypeRealizedMarginFinding                MessagingConversationListParamsTopicResourceType = "realized_margin_finding"
+	MessagingConversationListParamsTopicResourceTypeRealizedMarginSummary                MessagingConversationListParamsTopicResourceType = "realized_margin_summary"
 )
 
 // Filter by conversation type.
