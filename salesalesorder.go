@@ -1568,7 +1568,7 @@ type SalesOrderTotals struct {
 	//
 	// Any of "sales_order_totals".
 	Object SalesOrderTotalsObject `json:"object" api:"required"`
-	// Total ordered amount as a decimal string (unit price times quantity ordered).
+	// Total ordered amount as a decimal string (unit price x quantity ordered).
 	//
 	// This is the baseline the stage completions are measured against.
 	Ordered string `json:"ordered" api:"required" format:"decimal"`
