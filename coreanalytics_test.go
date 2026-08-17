@@ -28,9 +28,13 @@ func TestCoreAnalyticsUpdateDeliveryPerformanceWithOptionalParams(t *testing.T) 
 	)
 	_, err := client.Core.Analytics.UpdateDeliveryPerformance(context.TODO(), augno.CoreAnalyticsUpdateDeliveryPerformanceParams{
 		AnalyzeDeliveryPerformanceRequest: augno.AnalyzeDeliveryPerformanceRequestParam{
-			EndsAt:      time.Now(),
-			StartsAt:    time.Now(),
-			Granularity: augno.AnalyzeDeliveryPerformanceRequestGranularityWeek,
+			EndsAt:           time.Now(),
+			StartsAt:         time.Now(),
+			CustomerGroupIDs: []string{"string"},
+			CustomerIDs:      []string{"string"},
+			Granularity:      augno.AnalyzeDeliveryPerformanceRequestGranularityWeek,
+			ProductLineIDs:   []string{"string"},
+			SalesRepIDs:      []string{"string"},
 		},
 	})
 	if err != nil {

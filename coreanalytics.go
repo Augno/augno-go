@@ -59,6 +59,17 @@ func NewCoreAnalyticsService(opts ...option.RequestOption) (r CoreAnalyticsServi
 // Every rate is null rather than zero when nothing was due, and average lateness
 // is measured over late orders only.
 //
+// The same window is also returned sliced by customer, customer group, product
+// line, and the rule each ship-by date came from — each ordered worst-first, and
+// each derived from the same set of orders as the headline so a drilldown always
+// adds up to it. `by_product_line` is the one exception to that: an order spanning
+// two lines is counted under both, because a late order is late for every line on
+// it.
+//
+// Every filter is empty-means-all and they combine with AND. They narrow
+// `uncommitted_order_count` too, so the excluded count always describes the same
+// slice of the order book the rates do.
+//
 // This endpoint requires the permission: `sales_orders:read`.
 func (r *CoreAnalyticsService) UpdateDeliveryPerformance(ctx context.Context, body CoreAnalyticsUpdateDeliveryPerformanceParams, opts ...option.RequestOption) (res *AnalyzeDeliveryPerformanceResponse, err error) {
 	opts = slices.Concat(r.options, opts)
@@ -135,10 +146,19 @@ type AnalyzeDeliveryPerformanceRequestParam struct {
 	EndsAt time.Time `json:"ends_at" api:"required" format:"date-time"`
 	// The start date for the analysis period.
 	StartsAt time.Time `json:"starts_at" api:"required" format:"date-time"`
+	// Only measure orders whose customer sits in these groups.
+	CustomerGroupIDs []string `json:"customer_group_ids,omitzero"`
+	// Only measure orders bought by these customers. Their child accounts are
+	// included, matching how the sales analytics resolve a customer.
+	CustomerIDs []string `json:"customer_ids,omitzero"`
 	// The period to break the results down by. Defaults to `week`.
 	//
 	// Any of "day", "week", "month".
 	Granularity AnalyzeDeliveryPerformanceRequestGranularity `json:"granularity,omitzero"`
+	// Only measure orders containing at least one line in these product lines.
+	ProductLineIDs []string `json:"product_line_ids,omitzero"`
+	// Only measure orders owned by these sales reps.
+	SalesRepIDs []string `json:"sales_rep_ids,omitzero"`
 	paramObj
 }
 
@@ -164,6 +184,21 @@ type AnalyzeDeliveryPerformanceResponse struct {
 	// A single page of resources, together with the metadata needed to page through
 	// the rest of the result set.
 	Backlog ListDeliveryBacklogBucket `json:"backlog" api:"required"`
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
+	ByCommitmentSource ListDeliveryBreakdown `json:"by_commitment_source" api:"required"`
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
+	ByCustomer ListDeliveryBreakdown `json:"by_customer" api:"required"`
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
+	ByCustomerGroup ListDeliveryBreakdown `json:"by_customer_group" api:"required"`
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
+	ByProductLine ListDeliveryBreakdown `json:"by_product_line" api:"required"`
+	// A single page of resources, together with the metadata needed to page through
+	// the rest of the result set.
+	Lateness ListDeliveryLatenessBucket `json:"lateness" api:"required"`
 	// Resource type identifier.
 	//
 	// Any of "analyze_delivery_performance_response".
@@ -184,6 +219,11 @@ type AnalyzeDeliveryPerformanceResponse struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Backlog               respjson.Field
+		ByCommitmentSource    respjson.Field
+		ByCustomer            respjson.Field
+		ByCustomerGroup       respjson.Field
+		ByProductLine         respjson.Field
+		Lateness              respjson.Field
 		Object                respjson.Field
 		Overall               respjson.Field
 		Periods               respjson.Field
@@ -551,6 +591,89 @@ const (
 	DeliveryBacklogBucketObjectDeliveryBacklogBucket DeliveryBacklogBucketObject = "delivery_backlog_bucket"
 )
 
+// Delivery performance for one slice of the order book.
+type DeliveryBreakdown struct {
+	// Identifier of the slice — a customer, customer group, product line, or
+	// commitment source. Empty when the dimension is unset on the orders in it.
+	Key string `json:"key" api:"required"`
+	// Display name for the slice.
+	Label string `json:"label" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "delivery_breakdown".
+	Object DeliveryBreakdownObject `json:"object" api:"required"`
+	// Delivery reliability for one period, or for a whole window.
+	Performance DeliveryPerformance `json:"performance" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Key         respjson.Field
+		Label       respjson.Field
+		Object      respjson.Field
+		Performance respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r DeliveryBreakdown) RawJSON() string { return r.JSON.raw }
+func (r *DeliveryBreakdown) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type DeliveryBreakdownObject string
+
+const (
+	DeliveryBreakdownObjectDeliveryBreakdown DeliveryBreakdownObject = "delivery_breakdown"
+)
+
+// One band of how far the window's misses missed by.
+type DeliveryLatenessBucket struct {
+	// Name of the band.
+	Label string `json:"label" api:"required"`
+	// Upper bound in days late; `0` means unbounded.
+	MaxDaysLate int64 `json:"max_days_late" api:"required"`
+	// Lower bound of the band in days late.
+	MinDaysLate int64 `json:"min_days_late" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "delivery_lateness_bucket".
+	Object DeliveryLatenessBucketObject `json:"object" api:"required"`
+	// Orders in the band, shipped and unshipped.
+	OrderCount int64 `json:"order_count" api:"required"`
+	// How many of them have since shipped. The remainder are still owed, and are the
+	// same orders `backlog` counts.
+	ShippedCount int64 `json:"shipped_count" api:"required"`
+	// Quantity still unpacked across the band's orders.
+	Units float64 `json:"units" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Label        respjson.Field
+		MaxDaysLate  respjson.Field
+		MinDaysLate  respjson.Field
+		Object       respjson.Field
+		OrderCount   respjson.Field
+		ShippedCount respjson.Field
+		Units        respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r DeliveryLatenessBucket) RawJSON() string { return r.JSON.raw }
+func (r *DeliveryLatenessBucket) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type DeliveryLatenessBucketObject string
+
+const (
+	DeliveryLatenessBucketObjectDeliveryLatenessBucket DeliveryLatenessBucketObject = "delivery_lateness_bucket"
+)
+
 // Delivery reliability for one period, or for a whole window.
 type DeliveryPerformance struct {
 	// Average lead time these orders were promised.
@@ -762,6 +885,86 @@ type ListDeliveryBacklogBucketObject string
 
 const (
 	ListDeliveryBacklogBucketObjectList ListDeliveryBacklogBucketObject = "list"
+)
+
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
+type ListDeliveryBreakdown struct {
+	// Resources in this page.
+	Data []DeliveryBreakdown `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListDeliveryBreakdownObject `json:"object" api:"required"`
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListDeliveryBreakdown) RawJSON() string { return r.JSON.raw }
+func (r *ListDeliveryBreakdown) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListDeliveryBreakdownObject string
+
+const (
+	ListDeliveryBreakdownObjectList ListDeliveryBreakdownObject = "list"
+)
+
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
+type ListDeliveryLatenessBucket struct {
+	// Resources in this page.
+	Data []DeliveryLatenessBucket `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListDeliveryLatenessBucketObject `json:"object" api:"required"`
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListDeliveryLatenessBucket) RawJSON() string { return r.JSON.raw }
+func (r *ListDeliveryLatenessBucket) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListDeliveryLatenessBucketObject string
+
+const (
+	ListDeliveryLatenessBucketObjectList ListDeliveryLatenessBucketObject = "list"
 )
 
 // A single page of resources, together with the metadata needed to page through

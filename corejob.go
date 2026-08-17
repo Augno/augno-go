@@ -43,6 +43,9 @@ func NewCoreJobService(opts ...option.RequestOption) (r CoreJobService) {
 // Returns a job by ID — poll the job named in a `202 Accepted` response's
 // `Location` to observe its outcome. A completed export carries the link to its
 // file on `export.url`.
+//
+// This endpoint requires the permissions: `jobs:read`, `customers:read`,
+// `suppliers:read`.
 func (r *CoreJobService) Get(ctx context.Context, id string, query CoreJobGetParams, opts ...option.RequestOption) (res *Job, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -57,6 +60,8 @@ func (r *CoreJobService) Get(ctx context.Context, id string, query CoreJobGetPar
 // Cancels a job and returns it carrying its `cancelled` status. Work in flight is
 // not interrupted but can no longer settle, and a finished job cannot be
 // cancelled.
+//
+// This endpoint requires the permission: `jobs:delete`.
 func (r *CoreJobService) Cancel(ctx context.Context, id string, body CoreJobCancelParams, opts ...option.RequestOption) (res *Job, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
@@ -134,15 +139,16 @@ type Job struct {
 	// "production_schedule_settings", "production_schedule_resource_setting",
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
-	// "delivery_backlog_bucket", "schedule_order_coverage",
-	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
-	// "schedule_at_risk_order", "production_schedule_finished_policy",
-	// "production_schedule_week_release", "production_schedule_week_release_preview",
-	// "production_schedule_item_policy", "child_account", "unit_group",
-	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
-	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
-	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
-	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
+	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
+	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_deviation_type", "schedule_at_risk_order",
+	// "production_schedule_finished_policy", "production_schedule_week_release",
+	// "production_schedule_week_release_preview", "production_schedule_item_policy",
+	// "child_account", "unit_group", "unit_group_unit", "consumption",
+	// "customer_product_line_access", "customer", "frequently_ordered_product",
+	// "priority", "delivery", "delivery_line", "sales_order", "location",
+	// "location_type", "lot", "email_log", "email_domain", "email_inbox",
+	// "portal_domain", "dns_record", "inventory_change_log", "invoice",
 	// "invoice_summary", "invoice_line", "invoice_allocation", "invoice_for_payment",
 	// "shipment", "shipment_summary", "shipment_line", "shipping_case",
 	// "shipping_case_label_url", "settlement", "settlement_summary",
@@ -368,6 +374,8 @@ const (
 	JobResourceTypeAnalyzeDeliveryPerformanceResponse   JobResourceType = "analyze_delivery_performance_response"
 	JobResourceTypeDeliveryPerformance                  JobResourceType = "delivery_performance"
 	JobResourceTypeDeliveryBacklogBucket                JobResourceType = "delivery_backlog_bucket"
+	JobResourceTypeDeliveryLatenessBucket               JobResourceType = "delivery_lateness_bucket"
+	JobResourceTypeDeliveryBreakdown                    JobResourceType = "delivery_breakdown"
 	JobResourceTypeScheduleOrderCoverage                JobResourceType = "schedule_order_coverage"
 	JobResourceTypeScheduleOrderCoverageLine            JobResourceType = "schedule_order_coverage_line"
 	JobResourceTypePromiseDateQuote                     JobResourceType = "promise_date_quote"

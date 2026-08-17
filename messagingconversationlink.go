@@ -134,15 +134,16 @@ type AddConversationLinkRequestParam struct {
 	// "production_schedule_settings", "production_schedule_resource_setting",
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
-	// "delivery_backlog_bucket", "schedule_order_coverage",
-	// "schedule_order_coverage_line", "promise_date_quote", "schedule_deviation_type",
-	// "schedule_at_risk_order", "production_schedule_finished_policy",
-	// "production_schedule_week_release", "production_schedule_week_release_preview",
-	// "production_schedule_item_policy", "child_account", "unit_group",
-	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
-	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
-	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
-	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
+	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
+	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_deviation_type", "schedule_at_risk_order",
+	// "production_schedule_finished_policy", "production_schedule_week_release",
+	// "production_schedule_week_release_preview", "production_schedule_item_policy",
+	// "child_account", "unit_group", "unit_group_unit", "consumption",
+	// "customer_product_line_access", "customer", "frequently_ordered_product",
+	// "priority", "delivery", "delivery_line", "sales_order", "location",
+	// "location_type", "lot", "email_log", "email_domain", "email_inbox",
+	// "portal_domain", "dns_record", "inventory_change_log", "invoice",
 	// "invoice_summary", "invoice_line", "invoice_allocation", "invoice_for_payment",
 	// "shipment", "shipment_summary", "shipment_line", "shipping_case",
 	// "shipping_case_label_url", "settlement", "settlement_summary",
@@ -322,6 +323,8 @@ const (
 	AddConversationLinkRequestResourceTypeAnalyzeDeliveryPerformanceResponse   AddConversationLinkRequestResourceType = "analyze_delivery_performance_response"
 	AddConversationLinkRequestResourceTypeDeliveryPerformance                  AddConversationLinkRequestResourceType = "delivery_performance"
 	AddConversationLinkRequestResourceTypeDeliveryBacklogBucket                AddConversationLinkRequestResourceType = "delivery_backlog_bucket"
+	AddConversationLinkRequestResourceTypeDeliveryLatenessBucket               AddConversationLinkRequestResourceType = "delivery_lateness_bucket"
+	AddConversationLinkRequestResourceTypeDeliveryBreakdown                    AddConversationLinkRequestResourceType = "delivery_breakdown"
 	AddConversationLinkRequestResourceTypeScheduleOrderCoverage                AddConversationLinkRequestResourceType = "schedule_order_coverage"
 	AddConversationLinkRequestResourceTypeScheduleOrderCoverageLine            AddConversationLinkRequestResourceType = "schedule_order_coverage_line"
 	AddConversationLinkRequestResourceTypePromiseDateQuote                     AddConversationLinkRequestResourceType = "promise_date_quote"

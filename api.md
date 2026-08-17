@@ -169,10 +169,14 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeScheduleAttainmentResponse">AnalyzeScheduleAttainmentResponse</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AttainmentBucket">AttainmentBucket</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#DeliveryBacklogBucket">DeliveryBacklogBucket</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#DeliveryBreakdown">DeliveryBreakdown</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#DeliveryLatenessBucket">DeliveryLatenessBucket</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#DeliveryPerformance">DeliveryPerformance</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#FrozenAdherence">FrozenAdherence</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListAttainmentBucket">ListAttainmentBucket</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListDeliveryBacklogBucket">ListDeliveryBacklogBucket</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListDeliveryBreakdown">ListDeliveryBreakdown</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListDeliveryLatenessBucket">ListDeliveryLatenessBucket</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListDeliveryPerformance">ListDeliveryPerformance</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListFrozenAdherence">ListFrozenAdherence</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListOeeDepartment">ListOeeDepartment</a>
