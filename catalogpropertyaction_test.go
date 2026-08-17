@@ -13,7 +13,7 @@ import (
 	"github.com/augno/augno-go/option"
 )
 
-func TestCatalogPropertyActionBulkUpsert(t *testing.T) {
+func TestCatalogPropertyActionBulkUpsertWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -35,6 +35,7 @@ func TestCatalogPropertyActionBulkUpsert(t *testing.T) {
 				Name: "Color",
 			}},
 		},
+		Include: []string{"created_by"},
 	})
 	if err != nil {
 		var apierr *augno.Error

@@ -131,6 +131,12 @@ type CreateAccountUserRequestParam struct {
 	// and the request fails with a conflict if they are already an active member of
 	// it.
 	Email param.Opt[string] `json:"email,omitzero"`
+	// Whether the user can be assigned as a sales representative on orders,
+	// territories, and targets.
+	//
+	// Defaults to false. Forced true for the `sales_rep` role type and rejected for
+	// scanner and agent roles.
+	IsCommissionEligible param.Opt[bool] `json:"is_commission_eligible,omitzero"`
 	// User display name.
 	Name param.Opt[string] `json:"name,omitzero"`
 	// Password for scanning station users.
@@ -255,6 +261,12 @@ type UpdateAccountUserRequestParam struct {
 	//
 	// Must not already be in use by another user.
 	Email param.Opt[string] `json:"email,omitzero"`
+	// Whether the user can be assigned as a sales representative on orders,
+	// territories, and targets.
+	//
+	// Forced true for the `sales_rep` role type and rejected for scanner and agent
+	// roles. Cannot be turned off while the user stays on a `sales_rep` role.
+	IsCommissionEligible param.Opt[bool] `json:"is_commission_eligible,omitzero"`
 	// User display name.
 	Name param.Opt[string] `json:"name,omitzero"`
 	// Unique username.
@@ -357,6 +369,11 @@ type IdentityAccountUserListParams struct {
 	// `previous_page_url` to fetch the adjacent page. Omit to start from the first
 	// page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	// Filter by commission eligibility.
+	//
+	// Exact match on the column. Pass `true` to list users who can be assigned as
+	// sales representatives, including dedicated `sales_rep` users.
+	IsCommissionEligible param.Opt[bool] `query:"is_commission_eligible,omitzero" json:"-"`
 	// Maximum number of results to return in a single page.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Free-text search term used to filter results.

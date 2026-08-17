@@ -5,9 +5,11 @@ package augno
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"slices"
 
 	"github.com/augno/augno-go/internal/apijson"
+	"github.com/augno/augno-go/internal/apiquery"
 	shimjson "github.com/augno/augno-go/internal/encoding/json"
 	"github.com/augno/augno-go/internal/requestconfig"
 	"github.com/augno/augno-go/option"
@@ -37,10 +39,10 @@ func NewCatalogPartActionService(opts ...option.RequestOption) (r CatalogPartAct
 
 // Creates or updates multiple parts for the account, matched by SKU, then writes
 // asynchronously — 202 with a job to poll.
-func (r *CatalogPartActionService) BulkUpsert(ctx context.Context, body CatalogPartActionBulkUpsertParams, opts ...option.RequestOption) (res *Job, err error) {
+func (r *CatalogPartActionService) BulkUpsert(ctx context.Context, params CatalogPartActionBulkUpsertParams, opts ...option.RequestOption) (res *Job, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/parts/actions/bulk-upsert"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
 
@@ -126,6 +128,11 @@ func (r *UpsertPartPropertyParam) UnmarshalJSON(data []byte) error {
 type CatalogPartActionBulkUpsertParams struct {
 	// BulkUpsertPartsRequest is the request to bulk upsert parts.
 	BulkUpsertPartsRequest BulkUpsertPartsRequestParam
+	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
+	// `null`.
+	//
+	// Any of "created_by", "created_by.role".
+	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
 
@@ -134,4 +141,13 @@ func (r CatalogPartActionBulkUpsertParams) MarshalJSON() (data []byte, err error
 }
 func (r *CatalogPartActionBulkUpsertParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// URLQuery serializes [CatalogPartActionBulkUpsertParams]'s query parameters as
+// `url.Values`.
+func (r CatalogPartActionBulkUpsertParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

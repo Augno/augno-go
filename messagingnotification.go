@@ -666,10 +666,10 @@ type SendNotificationRequestParam struct {
 	// "messaging_group_member", "portal_profile", "portal_registration_session",
 	// "portal_registration_session_data", "pack_list", "pack_list_party",
 	// "pack_list_line_item", "pack_list_back_order", "pack_list_case", "job",
-	// "analyze_customer_pricing_response", "customer_pricing_finding",
-	// "customer_pricing_summary", "computed_rate", "computed_quantity",
-	// "analyze_realized_margins_response", "realized_margin_finding",
-	// "realized_margin_summary".
+	// "job_result", "job_export", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	LinkResourceType SendNotificationRequestLinkResourceType `json:"link_resource_type,omitzero"`
 	// How prominently the notification should be surfaced, from `low` through
 	// `urgent`.
@@ -998,6 +998,8 @@ const (
 	SendNotificationRequestLinkResourceTypePackListBackOrder                    SendNotificationRequestLinkResourceType = "pack_list_back_order"
 	SendNotificationRequestLinkResourceTypePackListCase                         SendNotificationRequestLinkResourceType = "pack_list_case"
 	SendNotificationRequestLinkResourceTypeJob                                  SendNotificationRequestLinkResourceType = "job"
+	SendNotificationRequestLinkResourceTypeJobResult                            SendNotificationRequestLinkResourceType = "job_result"
+	SendNotificationRequestLinkResourceTypeJobExport                            SendNotificationRequestLinkResourceType = "job_export"
 	SendNotificationRequestLinkResourceTypeAnalyzeCustomerPricingResponse       SendNotificationRequestLinkResourceType = "analyze_customer_pricing_response"
 	SendNotificationRequestLinkResourceTypeCustomerPricingFinding               SendNotificationRequestLinkResourceType = "customer_pricing_finding"
 	SendNotificationRequestLinkResourceTypeCustomerPricingSummary               SendNotificationRequestLinkResourceType = "customer_pricing_summary"

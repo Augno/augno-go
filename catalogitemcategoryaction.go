@@ -5,9 +5,11 @@ package augno
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"slices"
 
 	"github.com/augno/augno-go/internal/apijson"
+	"github.com/augno/augno-go/internal/apiquery"
 	shimjson "github.com/augno/augno-go/internal/encoding/json"
 	"github.com/augno/augno-go/internal/requestconfig"
 	"github.com/augno/augno-go/option"
@@ -37,10 +39,10 @@ func NewCatalogItemCategoryActionService(opts ...option.RequestOption) (r Catalo
 
 // Creates or updates multiple item categories for the account, matched by name
 // (case-insensitive), then writes asynchronously — 202 with a job to poll.
-func (r *CatalogItemCategoryActionService) BulkUpsert(ctx context.Context, body CatalogItemCategoryActionBulkUpsertParams, opts ...option.RequestOption) (res *Job, err error) {
+func (r *CatalogItemCategoryActionService) BulkUpsert(ctx context.Context, params CatalogItemCategoryActionBulkUpsertParams, opts ...option.RequestOption) (res *Job, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/item-categories/actions/bulk-upsert"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
 
@@ -124,6 +126,11 @@ const (
 type CatalogItemCategoryActionBulkUpsertParams struct {
 	// BulkUpsertItemCategoriesRequest is the request to bulk upsert item categories.
 	BulkUpsertItemCategoriesRequest BulkUpsertItemCategoriesRequestParam
+	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
+	// `null`.
+	//
+	// Any of "created_by", "created_by.role".
+	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
 
@@ -132,4 +139,13 @@ func (r CatalogItemCategoryActionBulkUpsertParams) MarshalJSON() (data []byte, e
 }
 func (r *CatalogItemCategoryActionBulkUpsertParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// URLQuery serializes [CatalogItemCategoryActionBulkUpsertParams]'s query
+// parameters as `url.Values`.
+func (r CatalogItemCategoryActionBulkUpsertParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

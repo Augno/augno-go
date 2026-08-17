@@ -13,7 +13,7 @@ import (
 	"github.com/augno/augno-go/option"
 )
 
-func TestCoreJobGet(t *testing.T) {
+func TestCoreJobGetWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,7 +25,13 @@ func TestCoreJobGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Jobs.Get(context.TODO(), "jb_01k0a5smf9ekb8rqg1")
+	_, err := client.Core.Jobs.Get(
+		context.TODO(),
+		"jb_grz7cdpnz8jr",
+		augno.CoreJobGetParams{
+			Include: []string{"created_by"},
+		},
+	)
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -35,7 +41,7 @@ func TestCoreJobGet(t *testing.T) {
 	}
 }
 
-func TestCoreJobCancel(t *testing.T) {
+func TestCoreJobCancelWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -47,7 +53,13 @@ func TestCoreJobCancel(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Jobs.Cancel(context.TODO(), "jb_01k0a5smf9ekb8rqg1")
+	_, err := client.Core.Jobs.Cancel(
+		context.TODO(),
+		"jb_grz7cdpnz8jr",
+		augno.CoreJobCancelParams{
+			Include: []string{"created_by"},
+		},
+	)
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

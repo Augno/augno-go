@@ -100,6 +100,12 @@ type AccountUser struct {
 	// A functional area of a production operation, such as fabrication or packaging,
 	// that groups scanning stations and machines.
 	Department Department `json:"department" api:"required"`
+	// Whether this user can be assigned as a sales representative on orders,
+	// territories, and targets.
+	//
+	// Independent of the `sales_rep` role type, which still scopes analytics and hides
+	// cost. Users with the `sales_rep` role are always eligible.
+	IsCommissionEligible bool `json:"is_commission_eligible" api:"required"`
 	// When the user last accessed this account.
 	LastUsedAt time.Time `json:"last_used_at" api:"required" format:"date-time"`
 	// Resource type identifier.
@@ -129,17 +135,18 @@ type AccountUser struct {
 	User User `json:"user" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID          respjson.Field
-		CreatedAt   respjson.Field
-		Department  respjson.Field
-		LastUsedAt  respjson.Field
-		Object      respjson.Field
-		Role        respjson.Field
-		Status      respjson.Field
-		UpdatedAt   respjson.Field
-		User        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		ID                   respjson.Field
+		CreatedAt            respjson.Field
+		Department           respjson.Field
+		IsCommissionEligible respjson.Field
+		LastUsedAt           respjson.Field
+		Object               respjson.Field
+		Role                 respjson.Field
+		Status               respjson.Field
+		UpdatedAt            respjson.Field
+		User                 respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
 	} `json:"-"`
 }
 

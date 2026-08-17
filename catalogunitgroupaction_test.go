@@ -13,7 +13,7 @@ import (
 	"github.com/augno/augno-go/option"
 )
 
-func TestCatalogUnitGroupActionBulkUpsert(t *testing.T) {
+func TestCatalogUnitGroupActionBulkUpsertWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -46,6 +46,7 @@ func TestCatalogUnitGroupActionBulkUpsert(t *testing.T) {
 				}},
 			}},
 		},
+		Include: []string{"created_by"},
 	})
 	if err != nil {
 		var apierr *augno.Error

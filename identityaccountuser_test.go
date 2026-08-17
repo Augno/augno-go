@@ -28,10 +28,11 @@ func TestIdentityAccountUserNewWithOptionalParams(t *testing.T) {
 	_, err := client.Identity.AccountUsers.New(context.TODO(), augno.IdentityAccountUserNewParams{
 		Include: []string{"user"},
 		CreateAccountUserRequest: augno.CreateAccountUserRequestParam{
-			DepartmentID: augno.String("dp_m0jayebxnkos"),
-			Email:        augno.String("jdoe@augno.com"),
-			Name:         augno.String("John Doe"),
-			Password:     augno.String("QgS7Z8Hhj3&1"),
+			DepartmentID:         augno.String("dp_m0jayebxnkos"),
+			Email:                augno.String("jdoe@augno.com"),
+			IsCommissionEligible: augno.Bool(false),
+			Name:                 augno.String("John Doe"),
+			Password:             augno.String("QgS7Z8Hhj3&1"),
 			Preferences: []augno.NotificationPreferenceItemParam{{
 				Enabled:          true,
 				NotificationType: augno.NotificationPreferenceItemNotificationTypeOrderAcknowledgement,
@@ -95,9 +96,10 @@ func TestIdentityAccountUserUpdateWithOptionalParams(t *testing.T) {
 		augno.IdentityAccountUserUpdateParams{
 			Include: []string{"user"},
 			UpdateAccountUserRequest: augno.UpdateAccountUserRequestParam{
-				DepartmentID: augno.String("dp_m0jayebxnkos"),
-				Email:        augno.String("jdoe@augno.com"),
-				Name:         augno.String("John Doe"),
+				DepartmentID:         augno.String("dp_m0jayebxnkos"),
+				Email:                augno.String("jdoe@augno.com"),
+				IsCommissionEligible: augno.Bool(false),
+				Name:                 augno.String("John Doe"),
 				Preferences: []augno.NotificationPreferenceItemParam{{
 					Enabled:          true,
 					NotificationType: augno.NotificationPreferenceItemNotificationTypeOrderAcknowledgement,
@@ -129,12 +131,13 @@ func TestIdentityAccountUserListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Identity.AccountUsers.List(context.TODO(), augno.IdentityAccountUserListParams{
-		Cursor:       augno.String("cursor"),
-		Include:      []string{"user"},
-		Limit:        augno.Int(0),
-		Q:            augno.String("q"),
-		RemovedScope: augno.IdentityAccountUserListParamsRemovedScopeExcluded,
-		RoleType:     augno.IdentityAccountUserListParamsRoleTypeAdmin,
+		Cursor:               augno.String("cursor"),
+		Include:              []string{"user"},
+		IsCommissionEligible: augno.Bool(true),
+		Limit:                augno.Int(0),
+		Q:                    augno.String("q"),
+		RemovedScope:         augno.IdentityAccountUserListParamsRemovedScopeExcluded,
+		RoleType:             augno.IdentityAccountUserListParamsRoleTypeAdmin,
 	})
 	if err != nil {
 		var apierr *augno.Error

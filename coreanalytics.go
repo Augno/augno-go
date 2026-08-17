@@ -384,6 +384,12 @@ type AnalyzeScheduleAttainmentResponse struct {
 	//
 	// Any of "analyze_schedule_attainment_response".
 	Object AnalyzeScheduleAttainmentResponseObject `json:"object" api:"required"`
+	// Machines the plan asked for over this window.
+	//
+	// Every figure in this response covers those machines only. Production scanned
+	// onto a machine no published version scheduled is excluded outright, so the score
+	// measures the plan that was made rather than the whole plant against it.
+	ScheduledMachineCount int64 `json:"scheduled_machine_count" api:"required"`
 	// Start of the measured period.
 	StartsAt time.Time `json:"starts_at" api:"required" format:"date-time"`
 	// One row of a schedule-attainment breakdown.
@@ -395,17 +401,18 @@ type AnalyzeScheduleAttainmentResponse struct {
 	Totals AttainmentBucket `json:"totals" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		BaselineSchedules respjson.Field
-		BaselineStatus    respjson.Field
-		Buckets           respjson.Field
-		EndsAt            respjson.Field
-		FrozenAdherence   respjson.Field
-		GroupBy           respjson.Field
-		Object            respjson.Field
-		StartsAt          respjson.Field
-		Totals            respjson.Field
-		ExtraFields       map[string]respjson.Field
-		raw               string
+		BaselineSchedules     respjson.Field
+		BaselineStatus        respjson.Field
+		Buckets               respjson.Field
+		EndsAt                respjson.Field
+		FrozenAdherence       respjson.Field
+		GroupBy               respjson.Field
+		Object                respjson.Field
+		ScheduledMachineCount respjson.Field
+		StartsAt              respjson.Field
+		Totals                respjson.Field
+		ExtraFields           map[string]respjson.Field
+		raw                   string
 	} `json:"-"`
 }
 
@@ -638,6 +645,14 @@ type FrozenAdherence struct {
 	FrozenThroughAt time.Time `json:"frozen_through_at" api:"required" format:"date-time"`
 	// Share of frozen campaigns that survived untouched. Null when nothing was frozen.
 	LineAdherencePct float64 `json:"line_adherence_pct" api:"required"`
+	// Campaigns the floor ran inside the frozen window that the frozen plan never
+	// called for, counted per machine-week-SKU.
+	//
+	// Working around a commitment breaks it as surely as editing it does, so this
+	// scores alongside the hand edits rather than beside them.
+	OffPlanLines int64 `json:"off_plan_lines" api:"required"`
+	// Units behind those off-plan campaigns.
+	OffPlanQuantity float64 `json:"off_plan_quantity" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Schedule Entity `json:"schedule" api:"required"`
 	// Share of frozen units that survived untouched. Null when nothing was frozen.
@@ -653,6 +668,8 @@ type FrozenAdherence struct {
 		FrozenPlannedQuantity respjson.Field
 		FrozenThroughAt       respjson.Field
 		LineAdherencePct      respjson.Field
+		OffPlanLines          respjson.Field
+		OffPlanQuantity       respjson.Field
 		Schedule              respjson.Field
 		UnitsAdherencePct     respjson.Field
 		Version               respjson.Field

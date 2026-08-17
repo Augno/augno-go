@@ -142,14 +142,14 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#JobExport">JobExport</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#JobResult">JobResult</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListJobResult">ListJobResult</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#QuotaInfo">QuotaInfo</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ResponseError">ResponseError</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#RowError">RowError</a>
 
 Methods:
 
-- <code title="get /v1/core/jobs/{id}">client.Core.Jobs.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreJobService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="post /v1/core/jobs/{id}/cancel">client.Core.Jobs.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreJobService.Cancel">Cancel</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /v1/core/jobs/{id}">client.Core.Jobs.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreJobService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, query <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreJobGetParams">CoreJobGetParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/core/jobs/{id}/cancel">client.Core.Jobs.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreJobService.Cancel">Cancel</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreJobCancelParams">CoreJobCancelParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## Analytics
 
@@ -221,7 +221,7 @@ Params Types:
 
 Methods:
 
-- <code title="post /v1/catalog/units/actions/bulk-upsert">client.Catalog.Units.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogUnitActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogUnitActionBulkUpsertParams">CatalogUnitActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/catalog/units/actions/bulk-upsert">client.Catalog.Units.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogUnitActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogUnitActionBulkUpsertParams">CatalogUnitActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## UnitGroups
 
@@ -277,7 +277,7 @@ Params Types:
 
 Methods:
 
-- <code title="post /v1/catalog/unit-groups/actions/bulk-upsert">client.Catalog.UnitGroups.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogUnitGroupActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogUnitGroupActionBulkUpsertParams">CatalogUnitGroupActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/catalog/unit-groups/actions/bulk-upsert">client.Catalog.UnitGroups.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogUnitGroupActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogUnitGroupActionBulkUpsertParams">CatalogUnitGroupActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## Properties
 
@@ -331,7 +331,7 @@ Params Types:
 
 Methods:
 
-- <code title="post /v1/catalog/properties/actions/bulk-upsert">client.Catalog.Properties.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogPropertyActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogPropertyActionBulkUpsertParams">CatalogPropertyActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/catalog/properties/actions/bulk-upsert">client.Catalog.Properties.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogPropertyActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogPropertyActionBulkUpsertParams">CatalogPropertyActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## Items
 
@@ -404,7 +404,7 @@ Params Types:
 
 Methods:
 
-- <code title="post /v1/catalog/item-categories/actions/bulk-upsert">client.Catalog.ItemCategories.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogItemCategoryActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogItemCategoryActionBulkUpsertParams">CatalogItemCategoryActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/catalog/item-categories/actions/bulk-upsert">client.Catalog.ItemCategories.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogItemCategoryActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogItemCategoryActionBulkUpsertParams">CatalogItemCategoryActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## Materials
 
@@ -438,7 +438,7 @@ Params Types:
 
 Methods:
 
-- <code title="post /v1/catalog/materials/actions/bulk-upsert">client.Catalog.Materials.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogMaterialActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogMaterialActionBulkUpsertParams">CatalogMaterialActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/catalog/materials/actions/bulk-upsert">client.Catalog.Materials.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogMaterialActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogMaterialActionBulkUpsertParams">CatalogMaterialActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## Parts
 
@@ -470,7 +470,7 @@ Params Types:
 
 Methods:
 
-- <code title="post /v1/catalog/parts/actions/bulk-upsert">client.Catalog.Parts.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogPartActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogPartActionBulkUpsertParams">CatalogPartActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/catalog/parts/actions/bulk-upsert">client.Catalog.Parts.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogPartActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogPartActionBulkUpsertParams">CatalogPartActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## ProductLines
 
@@ -503,7 +503,7 @@ Params Types:
 
 Methods:
 
-- <code title="post /v1/catalog/product-lines/actions/bulk-upsert">client.Catalog.ProductLines.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogProductLineActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogProductLineActionBulkUpsertParams">CatalogProductLineActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/catalog/product-lines/actions/bulk-upsert">client.Catalog.ProductLines.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogProductLineActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogProductLineActionBulkUpsertParams">CatalogProductLineActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## Products
 
@@ -536,7 +536,7 @@ Params Types:
 
 Methods:
 
-- <code title="post /v1/catalog/products/actions/bulk-upsert">client.Catalog.Products.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogProductActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogProductActionBulkUpsertParams">CatalogProductActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/catalog/products/actions/bulk-upsert">client.Catalog.Products.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogProductActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CatalogProductActionBulkUpsertParams">CatalogProductActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # AI
 
@@ -1635,7 +1635,7 @@ Params Types:
 
 Methods:
 
-- <code title="post /v1/operations/locations/actions/bulk-upsert">client.Operations.Locations.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#OperationLocationActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OperationLocationActionBulkUpsertParams">OperationLocationActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/operations/locations/actions/bulk-upsert">client.Operations.Locations.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#OperationLocationActionService.BulkUpsert">BulkUpsert</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OperationLocationActionBulkUpsertParams">OperationLocationActionBulkUpsertParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## LocationTypes
 

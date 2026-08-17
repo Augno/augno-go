@@ -5,9 +5,11 @@ package augno
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"slices"
 
 	"github.com/augno/augno-go/internal/apijson"
+	"github.com/augno/augno-go/internal/apiquery"
 	shimjson "github.com/augno/augno-go/internal/encoding/json"
 	"github.com/augno/augno-go/internal/requestconfig"
 	"github.com/augno/augno-go/option"
@@ -38,10 +40,10 @@ func NewCatalogPropertyActionService(opts ...option.RequestOption) (r CatalogPro
 // Creates or updates multiple properties and their attributes for the account,
 // matched by name (case-insensitive), then writes asynchronously — 202 with a job
 // to poll.
-func (r *CatalogPropertyActionService) BulkUpsert(ctx context.Context, body CatalogPropertyActionBulkUpsertParams, opts ...option.RequestOption) (res *Job, err error) {
+func (r *CatalogPropertyActionService) BulkUpsert(ctx context.Context, params CatalogPropertyActionBulkUpsertParams, opts ...option.RequestOption) (res *Job, err error) {
 	opts = slices.Concat(r.options, opts)
 	path := "v1/catalog/properties/actions/bulk-upsert"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
 
@@ -137,6 +139,11 @@ func (r *UpsertPropertyInputParam) UnmarshalJSON(data []byte) error {
 type CatalogPropertyActionBulkUpsertParams struct {
 	// carries the properties to bulk upsert
 	BulkUpsertPropertiesRequest BulkUpsertPropertiesRequestParam
+	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
+	// `null`.
+	//
+	// Any of "created_by", "created_by.role".
+	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
 
@@ -145,4 +152,13 @@ func (r CatalogPropertyActionBulkUpsertParams) MarshalJSON() (data []byte, err e
 }
 func (r *CatalogPropertyActionBulkUpsertParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// URLQuery serializes [CatalogPropertyActionBulkUpsertParams]'s query parameters
+// as `url.Values`.
+func (r CatalogPropertyActionBulkUpsertParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

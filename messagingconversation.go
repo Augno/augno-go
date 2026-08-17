@@ -627,10 +627,10 @@ type CreateConversationRequestParam struct {
 	// "messaging_group_member", "portal_profile", "portal_registration_session",
 	// "portal_registration_session_data", "pack_list", "pack_list_party",
 	// "pack_list_line_item", "pack_list_back_order", "pack_list_case", "job",
-	// "analyze_customer_pricing_response", "customer_pricing_finding",
-	// "customer_pricing_summary", "computed_rate", "computed_quantity",
-	// "analyze_realized_margins_response", "realized_margin_finding",
-	// "realized_margin_summary".
+	// "job_result", "job_export", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	TopicResourceType CreateConversationRequestTopicResourceType `json:"topic_resource_type,omitzero"`
 	paramObj
 }
@@ -951,6 +951,8 @@ const (
 	CreateConversationRequestTopicResourceTypePackListBackOrder                    CreateConversationRequestTopicResourceType = "pack_list_back_order"
 	CreateConversationRequestTopicResourceTypePackListCase                         CreateConversationRequestTopicResourceType = "pack_list_case"
 	CreateConversationRequestTopicResourceTypeJob                                  CreateConversationRequestTopicResourceType = "job"
+	CreateConversationRequestTopicResourceTypeJobResult                            CreateConversationRequestTopicResourceType = "job_result"
+	CreateConversationRequestTopicResourceTypeJobExport                            CreateConversationRequestTopicResourceType = "job_export"
 	CreateConversationRequestTopicResourceTypeAnalyzeCustomerPricingResponse       CreateConversationRequestTopicResourceType = "analyze_customer_pricing_response"
 	CreateConversationRequestTopicResourceTypeCustomerPricingFinding               CreateConversationRequestTopicResourceType = "customer_pricing_finding"
 	CreateConversationRequestTopicResourceTypeCustomerPricingSummary               CreateConversationRequestTopicResourceType = "customer_pricing_summary"
@@ -1817,10 +1819,10 @@ type MessagingConversationListParams struct {
 	// "messaging_group_member", "portal_profile", "portal_registration_session",
 	// "portal_registration_session_data", "pack_list", "pack_list_party",
 	// "pack_list_line_item", "pack_list_back_order", "pack_list_case", "job",
-	// "analyze_customer_pricing_response", "customer_pricing_finding",
-	// "customer_pricing_summary", "computed_rate", "computed_quantity",
-	// "analyze_realized_margins_response", "realized_margin_finding",
-	// "realized_margin_summary".
+	// "job_result", "job_export", "analyze_customer_pricing_response",
+	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
+	// "computed_quantity", "analyze_realized_margins_response",
+	// "realized_margin_finding", "realized_margin_summary".
 	TopicResourceType MessagingConversationListParamsTopicResourceType `query:"topic_resource_type,omitzero" json:"-"`
 	// Filter by conversation type.
 	//
@@ -2167,6 +2169,8 @@ const (
 	MessagingConversationListParamsTopicResourceTypePackListBackOrder                    MessagingConversationListParamsTopicResourceType = "pack_list_back_order"
 	MessagingConversationListParamsTopicResourceTypePackListCase                         MessagingConversationListParamsTopicResourceType = "pack_list_case"
 	MessagingConversationListParamsTopicResourceTypeJob                                  MessagingConversationListParamsTopicResourceType = "job"
+	MessagingConversationListParamsTopicResourceTypeJobResult                            MessagingConversationListParamsTopicResourceType = "job_result"
+	MessagingConversationListParamsTopicResourceTypeJobExport                            MessagingConversationListParamsTopicResourceType = "job_export"
 	MessagingConversationListParamsTopicResourceTypeAnalyzeCustomerPricingResponse       MessagingConversationListParamsTopicResourceType = "analyze_customer_pricing_response"
 	MessagingConversationListParamsTopicResourceTypeCustomerPricingFinding               MessagingConversationListParamsTopicResourceType = "customer_pricing_finding"
 	MessagingConversationListParamsTopicResourceTypeCustomerPricingSummary               MessagingConversationListParamsTopicResourceType = "customer_pricing_summary"
