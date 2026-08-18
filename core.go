@@ -42,6 +42,8 @@ type CoreService struct {
 	Jobs CoreJobService
 	// Analyze sales, orders, manufacturing, materials, and other business metrics.
 	Analytics CoreAnalyticsService
+	// Utility action endpoints for checking duplicates and emailing records.
+	Actions CoreActionService
 }
 
 // NewCoreService generates a new service that applies the given options to each
@@ -57,6 +59,7 @@ func NewCoreService(opts ...option.RequestOption) (r CoreService) {
 	r.EmailLogs = NewCoreEmailLogService(opts...)
 	r.Jobs = NewCoreJobService(opts...)
 	r.Analytics = NewCoreAnalyticsService(opts...)
+	r.Actions = NewCoreActionService(opts...)
 	return
 }
 

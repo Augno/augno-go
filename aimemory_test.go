@@ -27,7 +27,7 @@ func TestAIMemoryNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.AI.Memories.New(context.TODO(), augno.AIMemoryNewParams{
 		CreateMemoryRequest: augno.CreateMemoryRequestParam{
-			Category:   "preference",
+			Category:   augno.CreateMemoryRequestCategoryPreference,
 			Content:    "Customer prefers express shipping on all orders.",
 			EntityID:   augno.String("entity_id"),
 			EntityType: augno.String("entity_type"),
@@ -86,7 +86,7 @@ func TestAIMemoryUpdateWithOptionalParams(t *testing.T) {
 		"agmm_o7tjkr16gfmh",
 		augno.AIMemoryUpdateParams{
 			UpdateMemoryRequest: augno.UpdateMemoryRequestParam{
-				Category:   augno.String("category"),
+				Category:   augno.UpdateMemoryRequestCategoryPreference,
 				Content:    augno.String("Customer prefers next-day shipping on all orders."),
 				EntityID:   augno.String("entity_id"),
 				EntityType: augno.String("entity_type"),
@@ -118,7 +118,7 @@ func TestAIMemoryListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.AI.Memories.List(context.TODO(), augno.AIMemoryListParams{
-		Category:   augno.String("category"),
+		Category:   augno.AIMemoryListParamsCategoryPreference,
 		Cursor:     augno.String("cursor"),
 		EntityType: augno.String("entity_type"),
 		Limit:      augno.Int(0),

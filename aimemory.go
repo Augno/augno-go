@@ -129,7 +129,9 @@ type AgentMemory struct {
 	//     records, such as a customer's typical order size.
 	//   - `instruction`: standing guidance for agents to follow, such as always
 	//     confirming freight before issuing an order.
-	Category string `json:"category" api:"required"`
+	//
+	// Any of "preference", "fact", "instruction".
+	Category AgentMemoryCategory `json:"category" api:"required"`
 	// The information itself, written as plain text for an agent to read.
 	Content string `json:"content" api:"required"`
 	// Creation timestamp.
@@ -180,6 +182,22 @@ func (r *AgentMemory) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// The kind of information this memory holds, used to group related memories.
+//
+//   - `preference`: how someone likes things done, such as a customer who always
+//     wants express shipping.
+//   - `fact`: a durable detail worth remembering about the account or one of its
+//     records, such as a customer's typical order size.
+//   - `instruction`: standing guidance for agents to follow, such as always
+//     confirming freight before issuing an order.
+type AgentMemoryCategory string
+
+const (
+	AgentMemoryCategoryPreference  AgentMemoryCategory = "preference"
+	AgentMemoryCategoryFact        AgentMemoryCategory = "fact"
+	AgentMemoryCategoryInstruction AgentMemoryCategory = "instruction"
+)
+
 // Resource type identifier.
 type AgentMemoryObject string
 
@@ -199,7 +217,9 @@ type CreateMemoryRequestParam struct {
 	//     records, such as a customer's typical order size.
 	//   - `instruction`: standing guidance for agents to follow, such as always
 	//     confirming freight before issuing an order.
-	Category string `json:"category" api:"required"`
+	//
+	// Any of "preference", "fact", "instruction".
+	Category CreateMemoryRequestCategory `json:"category,omitzero" api:"required"`
 	// The information to remember, written as plain text for an agent to read.
 	Content string `json:"content" api:"required"`
 	// ID of the platform record this memory is scoped to.
@@ -238,6 +258,22 @@ func (r CreateMemoryRequestParam) MarshalJSON() (data []byte, err error) {
 func (r *CreateMemoryRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// The kind of information this memory holds, used to group related memories.
+//
+//   - `preference`: how someone likes things done, such as a customer who always
+//     wants express shipping.
+//   - `fact`: a durable detail worth remembering about the account or one of its
+//     records, such as a customer's typical order size.
+//   - `instruction`: standing guidance for agents to follow, such as always
+//     confirming freight before issuing an order.
+type CreateMemoryRequestCategory string
+
+const (
+	CreateMemoryRequestCategoryPreference  CreateMemoryRequestCategory = "preference"
+	CreateMemoryRequestCategoryFact        CreateMemoryRequestCategory = "fact"
+	CreateMemoryRequestCategoryInstruction CreateMemoryRequestCategory = "instruction"
+)
 
 // A single page of resources, together with the metadata needed to page through
 // the rest of the result set.
@@ -297,15 +333,6 @@ type UpdateMemoryRequestParam struct {
 	// list results, but it is not deleted. Send `null` so the memory is used
 	// indefinitely.
 	ExpiresAt param.Opt[string] `json:"expires_at,omitzero"`
-	// The kind of information this memory holds, used to group related memories.
-	//
-	//   - `preference`: how someone likes things done, such as a customer who always
-	//     wants express shipping.
-	//   - `fact`: a durable detail worth remembering about the account or one of its
-	//     records, such as a customer's typical order size.
-	//   - `instruction`: standing guidance for agents to follow, such as always
-	//     confirming freight before issuing an order.
-	Category param.Opt[string] `json:"category,omitzero"`
 	// The information to remember, written as plain text for an agent to read.
 	Content param.Opt[string] `json:"content,omitzero"`
 	// Relative importance from `0` to `1` in increments of `0.1`, used to prioritize
@@ -320,6 +347,17 @@ type UpdateMemoryRequestParam struct {
 	// JSON value (object, array, string, number, boolean, or null), not a JSON-encoded
 	// string.
 	Metadata any `json:"metadata,omitzero"`
+	// The kind of information this memory holds, used to group related memories.
+	//
+	//   - `preference`: how someone likes things done, such as a customer who always
+	//     wants express shipping.
+	//   - `fact`: a durable detail worth remembering about the account or one of its
+	//     records, such as a customer's typical order size.
+	//   - `instruction`: standing guidance for agents to follow, such as always
+	//     confirming freight before issuing an order.
+	//
+	// Any of "preference", "fact", "instruction".
+	Category UpdateMemoryRequestCategory `json:"category,omitzero"`
 	paramObj
 }
 
@@ -330,6 +368,22 @@ func (r UpdateMemoryRequestParam) MarshalJSON() (data []byte, err error) {
 func (r *UpdateMemoryRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// The kind of information this memory holds, used to group related memories.
+//
+//   - `preference`: how someone likes things done, such as a customer who always
+//     wants express shipping.
+//   - `fact`: a durable detail worth remembering about the account or one of its
+//     records, such as a customer's typical order size.
+//   - `instruction`: standing guidance for agents to follow, such as always
+//     confirming freight before issuing an order.
+type UpdateMemoryRequestCategory string
+
+const (
+	UpdateMemoryRequestCategoryPreference  UpdateMemoryRequestCategory = "preference"
+	UpdateMemoryRequestCategoryFact        UpdateMemoryRequestCategory = "fact"
+	UpdateMemoryRequestCategoryInstruction UpdateMemoryRequestCategory = "instruction"
+)
 
 type AIMemoryDeleteResponse struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -372,8 +426,6 @@ func (r *AIMemoryUpdateParams) UnmarshalJSON(data []byte) error {
 }
 
 type AIMemoryListParams struct {
-	// Filter to memories with this exact category (e.g. `preference`, `fact`).
-	Category param.Opt[string] `query:"category,omitzero" json:"-"`
 	// Opaque cursor token identifying where the page of results starts.
 	//
 	// Use the `cursor` value embedded in a previous response's `next_page_url` or
@@ -388,6 +440,10 @@ type AIMemoryListParams struct {
 	//
 	// Which fields are matched against the term varies by endpoint.
 	Q param.Opt[string] `query:"q,omitzero" json:"-"`
+	// Filter to memories with this exact category (e.g. `preference`, `fact`).
+	//
+	// Any of "preference", "fact", "instruction".
+	Category AIMemoryListParamsCategory `query:"category,omitzero" json:"-"`
 	paramObj
 }
 
@@ -398,3 +454,12 @@ func (r AIMemoryListParams) URLQuery() (v url.Values, err error) {
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }
+
+// Filter to memories with this exact category (e.g. `preference`, `fact`).
+type AIMemoryListParamsCategory string
+
+const (
+	AIMemoryListParamsCategoryPreference  AIMemoryListParamsCategory = "preference"
+	AIMemoryListParamsCategoryFact        AIMemoryListParamsCategory = "fact"
+	AIMemoryListParamsCategoryInstruction AIMemoryListParamsCategory = "instruction"
+)

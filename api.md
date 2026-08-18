@@ -193,6 +193,20 @@ Methods:
 - <code title="put /v1/core/analytics/oee-trend">client.Core.Analytics.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreAnalyticsService.UpdateOeeTrend">UpdateOeeTrend</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreAnalyticsUpdateOeeTrendParams">CoreAnalyticsUpdateOeeTrendParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeOeeTrendResponse">AnalyzeOeeTrendResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="put /v1/core/analytics/schedule-attainment">client.Core.Analytics.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreAnalyticsService.UpdateScheduleAttainment">UpdateScheduleAttainment</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreAnalyticsUpdateScheduleAttainmentParams">CoreAnalyticsUpdateScheduleAttainmentParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AnalyzeScheduleAttainmentResponse">AnalyzeScheduleAttainmentResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
+## Actions
+
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#EmailRecordRequestParam">EmailRecordRequestParam</a>
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreActionEmailRecordResponse">CoreActionEmailRecordResponse</a>
+
+Methods:
+
+- <code title="post /v1/core/actions/email-record">client.Core.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreActionService.EmailRecord">EmailRecord</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreActionEmailRecordParams">CoreActionEmailRecordParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CoreActionEmailRecordResponse">CoreActionEmailRecordResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
 # Catalog
 
 ## Units
