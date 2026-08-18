@@ -1010,6 +1010,49 @@ Methods:
 - <code title="get /v1/sales/account-groups">client.Sales.AccountGroups.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountGroupService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountGroupListParams">SaleAccountGroupListParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListAccountGroup">ListAccountGroup</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="delete /v1/sales/account-groups/{id}">client.Sales.AccountGroups.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountGroupService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountGroupDeleteResponse">SaleAccountGroupDeleteResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
+## AccountPrices
+
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CreateAccountPriceRequestParam">CreateAccountPriceRequestParam</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#UpdateAccountPriceRequestParam">UpdateAccountPriceRequestParam</a>
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AccountPrice">AccountPrice</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Carrier">Carrier</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Customer">Customer</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CustomerContactInfo">CustomerContactInfo</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CustomerDefaults">CustomerDefaults</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CustomerFreightPreferences">CustomerFreightPreferences</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CustomerNotificationPreferences">CustomerNotificationPreferences</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListAccountPrice">ListAccountPrice</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListCustomer">ListCustomer</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListServiceLevel">ListServiceLevel</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#PaymentTerm">PaymentTerm</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Priority">Priority</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ServiceLevel">ServiceLevel</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ShippingTerm">ShippingTerm</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceDeleteResponse">SaleAccountPriceDeleteResponse</a>
+
+Methods:
+
+- <code title="post /v1/sales/account-prices">client.Sales.AccountPrices.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceNewParams">SaleAccountPriceNewParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AccountPrice">AccountPrice</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /v1/sales/account-prices/{id}">client.Sales.AccountPrices.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, query <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceGetParams">SaleAccountPriceGetParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AccountPrice">AccountPrice</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="patch /v1/sales/account-prices/{id}">client.Sales.AccountPrices.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceUpdateParams">SaleAccountPriceUpdateParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#AccountPrice">AccountPrice</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /v1/sales/account-prices">client.Sales.AccountPrices.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceListParams">SaleAccountPriceListParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListAccountPrice">ListAccountPrice</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="delete /v1/sales/account-prices/{id}">client.Sales.AccountPrices.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceDeleteResponse">SaleAccountPriceDeleteResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+### Actions
+
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ExportPriceListRequestParam">ExportPriceListRequestParam</a>
+
+Methods:
+
+- <code title="post /v1/sales/account-prices/actions/export-price-list">client.Sales.AccountPrices.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceActionService.ExportPriceList">ExportPriceList</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleAccountPriceActionExportPriceListParams">SaleAccountPriceActionExportPriceListParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Job">Job</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
 ## Addresses
 
 Params Types:
@@ -1067,7 +1110,6 @@ Methods:
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListPriority">ListPriority</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Priority">Priority</a>
 
 Methods:
 
@@ -1083,18 +1125,7 @@ Params Types:
 
 Response Types:
 
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Carrier">Carrier</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Customer">Customer</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CustomerContactInfo">CustomerContactInfo</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CustomerDefaults">CustomerDefaults</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CustomerFreightPreferences">CustomerFreightPreferences</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CustomerLeadTime">CustomerLeadTime</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CustomerNotificationPreferences">CustomerNotificationPreferences</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListCustomer">ListCustomer</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListServiceLevel">ListServiceLevel</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#PaymentTerm">PaymentTerm</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ServiceLevel">ServiceLevel</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ShippingTerm">ShippingTerm</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleCustomerDeleteResponse">SaleCustomerDeleteResponse</a>
 
 Methods:
@@ -1133,6 +1164,36 @@ Methods:
 
 - <code title="post /v1/sales/contacts/actions/find-by-email">client.Sales.Contacts.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleContactActionService.FindByEmail">FindByEmail</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleContactActionFindByEmailParams">SaleContactActionFindByEmailParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListContactMatch">ListContactMatch</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
+## OrderDiscounts
+
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CreateOrderDiscountRequestParam">CreateOrderDiscountRequestParam</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#UpdateOrderDiscountRequestParam">UpdateOrderDiscountRequestParam</a>
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListOrderDiscount">ListOrderDiscount</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OrderDiscount">OrderDiscount</a>
+
+Methods:
+
+- <code title="post /v1/sales/order-discounts">client.Sales.OrderDiscounts.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleOrderDiscountService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleOrderDiscountNewParams">SaleOrderDiscountNewParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OrderDiscount">OrderDiscount</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /v1/sales/order-discounts/{id}">client.Sales.OrderDiscounts.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleOrderDiscountService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OrderDiscount">OrderDiscount</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="patch /v1/sales/order-discounts/{id}">client.Sales.OrderDiscounts.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleOrderDiscountService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleOrderDiscountUpdateParams">SaleOrderDiscountUpdateParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OrderDiscount">OrderDiscount</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /v1/sales/order-discounts">client.Sales.OrderDiscounts.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleOrderDiscountService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleOrderDiscountListParams">SaleOrderDiscountListParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListOrderDiscount">ListOrderDiscount</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="delete /v1/sales/order-discounts/{id}">client.Sales.OrderDiscounts.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleOrderDiscountService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OrderDiscount">OrderDiscount</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+### Actions
+
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#FindOrderDiscountByCodeRequestParam">FindOrderDiscountByCodeRequestParam</a>
+
+Methods:
+
+- <code title="post /v1/sales/order-discounts/actions/find-by-code">client.Sales.OrderDiscounts.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleOrderDiscountActionService.FindByCode">FindByCode</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleOrderDiscountActionFindByCodeParams">SaleOrderDiscountActionFindByCodeParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OrderDiscount">OrderDiscount</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
 ## SalesOrders
 
 Params Types:
@@ -1157,7 +1218,6 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListSalesOrderLine">ListSalesOrderLine</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListSalesOrderStatus">ListSalesOrderStatus</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OrderContact">OrderContact</a>
-- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#OrderDiscount">OrderDiscount</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#QuoteSalesOrderPricesResponse">QuoteSalesOrderPricesResponse</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#QuotedSalesOrderLine">QuotedSalesOrderLine</a>
 - <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#Record">Record</a>
@@ -1233,6 +1293,31 @@ Response Types:
 Methods:
 
 - <code title="post /v1/sales/sales-orders/{id}/lines/actions/reorder">client.Sales.SalesOrders.Lines.Actions.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleSalesOrderLineActionService.Reorder">Reorder</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleSalesOrderLineActionReorderParams">SaleSalesOrderLineActionReorderParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleSalesOrderLineActionReorderResponse">SaleSalesOrderLineActionReorderResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+## VolumeDiscounts
+
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CreateVolumeDiscountRequestParam">CreateVolumeDiscountRequestParam</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#CreateVolumeDiscountTierInputParam">CreateVolumeDiscountTierInputParam</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#UpdateVolumeDiscountRequestParam">UpdateVolumeDiscountRequestParam</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#UpdateVolumeDiscountTierInputParam">UpdateVolumeDiscountTierInputParam</a>
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListVolumeDiscount">ListVolumeDiscount</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListVolumeDiscountTier">ListVolumeDiscountTier</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#VolumeDiscount">VolumeDiscount</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#VolumeDiscountTier">VolumeDiscountTier</a>
+- <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleVolumeDiscountDeleteResponse">SaleVolumeDiscountDeleteResponse</a>
+
+Methods:
+
+- <code title="post /v1/sales/volume-discounts">client.Sales.VolumeDiscounts.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleVolumeDiscountService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleVolumeDiscountNewParams">SaleVolumeDiscountNewParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#VolumeDiscount">VolumeDiscount</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /v1/sales/volume-discounts/{id}">client.Sales.VolumeDiscounts.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleVolumeDiscountService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, query <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleVolumeDiscountGetParams">SaleVolumeDiscountGetParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#VolumeDiscount">VolumeDiscount</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="patch /v1/sales/volume-discounts/{id}">client.Sales.VolumeDiscounts.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleVolumeDiscountService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleVolumeDiscountUpdateParams">SaleVolumeDiscountUpdateParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#VolumeDiscount">VolumeDiscount</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /v1/sales/volume-discounts">client.Sales.VolumeDiscounts.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleVolumeDiscountService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleVolumeDiscountListParams">SaleVolumeDiscountListParams</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#ListVolumeDiscount">ListVolumeDiscount</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="delete /v1/sales/volume-discounts/{id}">client.Sales.VolumeDiscounts.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleVolumeDiscountService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/augno/augno-go">augno</a>.<a href="https://pkg.go.dev/github.com/augno/augno-go#SaleVolumeDiscountDeleteResponse">SaleVolumeDiscountDeleteResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Finance
 

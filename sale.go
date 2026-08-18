@@ -16,6 +16,8 @@ type SaleService struct {
 	options []option.RequestOption
 	// List and manage account groups.
 	AccountGroups SaleAccountGroupService
+	// List and manage account prices.
+	AccountPrices SaleAccountPriceService
 	// List and manage addresses for accounts.
 	Addresses SaleAddressService
 	// List and retrieve account statuses.
@@ -24,9 +26,13 @@ type SaleService struct {
 	// List and retrieve priorities.
 	Priorities SalePriorityService
 	// Manage customer accounts.
-	Customers   SaleCustomerService
-	Contacts    SaleContactService
-	SalesOrders SaleSalesOrderService
+	Customers SaleCustomerService
+	Contacts  SaleContactService
+	// List and manage order discounts.
+	OrderDiscounts SaleOrderDiscountService
+	SalesOrders    SaleSalesOrderService
+	// List and manage volume discounts.
+	VolumeDiscounts SaleVolumeDiscountService
 }
 
 // NewSaleService generates a new service that applies the given options to each
@@ -36,12 +42,15 @@ func NewSaleService(opts ...option.RequestOption) (r SaleService) {
 	r = SaleService{}
 	r.options = opts
 	r.AccountGroups = NewSaleAccountGroupService(opts...)
+	r.AccountPrices = NewSaleAccountPriceService(opts...)
 	r.Addresses = NewSaleAddressService(opts...)
 	r.AccountStatuses = NewSaleAccountStatusService(opts...)
 	r.AccountUsers = NewSaleAccountUserService(opts...)
 	r.Priorities = NewSalePriorityService(opts...)
 	r.Customers = NewSaleCustomerService(opts...)
 	r.Contacts = NewSaleContactService(opts...)
+	r.OrderDiscounts = NewSaleOrderDiscountService(opts...)
 	r.SalesOrders = NewSaleSalesOrderService(opts...)
+	r.VolumeDiscounts = NewSaleVolumeDiscountService(opts...)
 	return
 }

@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
-	"time"
 
 	"github.com/augno/augno-go/internal/apijson"
 	"github.com/augno/augno-go/internal/apiquery"
@@ -109,74 +108,6 @@ type ListPriorityObject string
 
 const (
 	ListPriorityObjectList ListPriorityObject = "list"
-)
-
-// Priority level used to order work on sales orders, purchase orders, and picks.
-//
-// The levels are platform-provided and the same for every account, so they cannot
-// be created, renamed, or removed. A customer can carry a default priority that
-// pre-fills new orders for them.
-type Priority struct {
-	// Priority ID.
-	ID string `json:"id" api:"required"`
-	// Machine-readable code identifying the priority level.
-	//
-	// Other resources refer to a priority by this code rather than by its ID, such as
-	// a sales order's `priority`, and it can be used in place of the ID when
-	// retrieving a priority.
-	//
-	// Any of "low", "normal", "high".
-	Code PriorityCode `json:"code" api:"required"`
-	// Creation timestamp.
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Display name of the priority level.
-	Name string `json:"name" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "priority".
-	Object PriorityObject `json:"object" api:"required"`
-	// Owner describes the provenance of a resource.
-	Owner Owner `json:"owner" api:"required"`
-	// Last updated timestamp.
-	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		Code        respjson.Field
-		CreatedAt   respjson.Field
-		Name        respjson.Field
-		Object      respjson.Field
-		Owner       respjson.Field
-		UpdatedAt   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r Priority) RawJSON() string { return r.JSON.raw }
-func (r *Priority) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Machine-readable code identifying the priority level.
-//
-// Other resources refer to a priority by this code rather than by its ID, such as
-// a sales order's `priority`, and it can be used in place of the ID when
-// retrieving a priority.
-type PriorityCode string
-
-const (
-	PriorityCodeLow    PriorityCode = "low"
-	PriorityCodeNormal PriorityCode = "normal"
-	PriorityCodeHigh   PriorityCode = "high"
-)
-
-// Resource type identifier.
-type PriorityObject string
-
-const (
-	PriorityObjectPriority PriorityObject = "priority"
 )
 
 type SalePriorityGetParams struct {
