@@ -243,7 +243,7 @@ func TestSaleCustomerDelete(t *testing.T) {
 	}
 }
 
-func TestSaleCustomerGetLeadTime(t *testing.T) {
+func TestSaleCustomerGetLeadTimeWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -255,7 +255,13 @@ func TestSaleCustomerGetLeadTime(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Customers.GetLeadTime(context.TODO(), "ac_opnlh43ymyee")
+	_, err := client.Sales.Customers.GetLeadTime(
+		context.TODO(),
+		"ac_opnlh43ymyee",
+		augno.SaleCustomerGetLeadTimeParams{
+			Include: []string{"account_group"},
+		},
+	)
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

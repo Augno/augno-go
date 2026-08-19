@@ -399,12 +399,21 @@ type QuoteSalesOrderCommitmentResponse struct {
 	// Days the receiving and shipping calendars pulled the date back, beyond what
 	// transit accounted for.
 	CalendarAdjustmentDays int64 `json:"calendar_adjustment_days" api:"required"`
+	// When freight leaving on the ship-by date would reach the customer: transit
+	// walked forward from it and landed on a day their dock receives. Null whenever
+	// `transit_days` is, since an arrival with no journey behind it would just be the
+	// ship date wearing a different name.
+	//
+	// Reported for every basis, including the ones that do not use transit to decide
+	// the ship-by date. An order committed on a lead time has the same journey ahead
+	// of it; it simply was not worked backwards from.
+	EstimatedDeliveryDate time.Time `json:"estimated_delivery_date" api:"required" format:"date-time"`
 	// Calendar days between issue and the ship-by date.
 	LeadTimeDays int64 `json:"lead_time_days" api:"required"`
 	// Which rule produced the date.
 	//
-	// Any of "customer", "account_group", "account", "manual", "order_lead_time",
-	// "order_ship_by".
+	// Any of "customer", "parent_customer", "account_group", "account", "manual",
+	// "order_lead_time", "order_ship_by".
 	LeadTimeSource QuoteSalesOrderCommitmentResponseLeadTimeSource `json:"lead_time_source" api:"required"`
 	// Resource type identifier.
 	//
@@ -418,7 +427,8 @@ type QuoteSalesOrderCommitmentResponse struct {
 	// The derivation in order, one entry per rule that moved the date.
 	Steps []CommitmentQuoteStep `json:"steps" api:"required"`
 	// Days the carrier needs to cover the lane. Null when the lane has never been
-	// quoted and the service level carries no default.
+	// quoted and the service level carries no default, or when no service level was
+	// supplied to quote one on.
 	TransitDays int64 `json:"transit_days" api:"required"`
 	// Where the transit estimate came from.
 	//
@@ -427,6 +437,7 @@ type QuoteSalesOrderCommitmentResponse struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		CalendarAdjustmentDays respjson.Field
+		EstimatedDeliveryDate  respjson.Field
 		LeadTimeDays           respjson.Field
 		LeadTimeSource         respjson.Field
 		Object                 respjson.Field
@@ -450,12 +461,13 @@ func (r *QuoteSalesOrderCommitmentResponse) UnmarshalJSON(data []byte) error {
 type QuoteSalesOrderCommitmentResponseLeadTimeSource string
 
 const (
-	QuoteSalesOrderCommitmentResponseLeadTimeSourceCustomer      QuoteSalesOrderCommitmentResponseLeadTimeSource = "customer"
-	QuoteSalesOrderCommitmentResponseLeadTimeSourceAccountGroup  QuoteSalesOrderCommitmentResponseLeadTimeSource = "account_group"
-	QuoteSalesOrderCommitmentResponseLeadTimeSourceAccount       QuoteSalesOrderCommitmentResponseLeadTimeSource = "account"
-	QuoteSalesOrderCommitmentResponseLeadTimeSourceManual        QuoteSalesOrderCommitmentResponseLeadTimeSource = "manual"
-	QuoteSalesOrderCommitmentResponseLeadTimeSourceOrderLeadTime QuoteSalesOrderCommitmentResponseLeadTimeSource = "order_lead_time"
-	QuoteSalesOrderCommitmentResponseLeadTimeSourceOrderShipBy   QuoteSalesOrderCommitmentResponseLeadTimeSource = "order_ship_by"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceCustomer       QuoteSalesOrderCommitmentResponseLeadTimeSource = "customer"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceParentCustomer QuoteSalesOrderCommitmentResponseLeadTimeSource = "parent_customer"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceAccountGroup   QuoteSalesOrderCommitmentResponseLeadTimeSource = "account_group"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceAccount        QuoteSalesOrderCommitmentResponseLeadTimeSource = "account"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceManual         QuoteSalesOrderCommitmentResponseLeadTimeSource = "manual"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceOrderLeadTime  QuoteSalesOrderCommitmentResponseLeadTimeSource = "order_lead_time"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceOrderShipBy    QuoteSalesOrderCommitmentResponseLeadTimeSource = "order_ship_by"
 )
 
 // Resource type identifier.

@@ -28,10 +28,14 @@ func TestOperationMachineDowntimeEventNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Operations.MachineDowntimeEvents.New(context.TODO(), augno.OperationMachineDowntimeEventNewParams{
 		CreateMachineDowntimeEventRequest: augno.CreateMachineDowntimeEventRequestParam{
-			MachineID:       "mc_ffcfk9dxixis",
-			Reason:          augno.CreateMachineDowntimeEventRequestReasonBreakdown,
-			StartedAt:       time.Now(),
-			BatchID:         augno.String("batch_id"),
+			MachineID: "mc_ffcfk9dxixis",
+			Reason:    augno.CreateMachineDowntimeEventRequestReasonBreakdown,
+			StartedAt: time.Now(),
+			BatchID:   augno.String("batch_id"),
+			Duration: augno.QuantityInputParam{
+				UnitID: "unit_id",
+				Value:  "value",
+			},
 			EndedAt:         augno.Time(time.Now()),
 			ItemID:          augno.String("item_id"),
 			Note:            augno.String("note"),
@@ -95,9 +99,14 @@ func TestOperationMachineDowntimeEventUpdateWithOptionalParams(t *testing.T) {
 		augno.OperationMachineDowntimeEventUpdateParams{
 			Include: []string{"machine"},
 			UpdateMachineDowntimeEventRequest: augno.UpdateMachineDowntimeEventRequestParam{
-				BatchID:         augno.String("batch_id"),
+				BatchID: augno.String("batch_id"),
+				Duration: augno.QuantityInputParam{
+					UnitID: "unit_id",
+					Value:  "value",
+				},
 				EndedAt:         augno.Time(time.Now()),
 				ItemID:          augno.String("item_id"),
+				MachineID:       augno.String("machine_id"),
 				Note:            augno.String("note"),
 				ProductionRunID: augno.String("production_run_id"),
 				Reason:          augno.UpdateMachineDowntimeEventRequestReasonBreakdown,

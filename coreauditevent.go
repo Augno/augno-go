@@ -190,13 +190,13 @@ type AuditEvent struct {
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
 	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
 	// "schedule_deviation_type", "schedule_at_risk_order",
-	// "production_schedule_finished_policy", "production_schedule_week_release",
-	// "production_schedule_week_release_preview", "production_schedule_item_policy",
-	// "child_account", "unit_group", "unit_group_unit", "consumption",
-	// "customer_product_line_access", "customer", "frequently_ordered_product",
-	// "priority", "delivery", "delivery_line", "sales_order", "location",
-	// "location_type", "lot", "email_log", "email_domain", "email_inbox",
-	// "portal_domain", "dns_record", "inventory_change_log", "invoice",
+	// "production_schedule_finished_policy", "production_schedule_finishing_line",
+	// "production_schedule_week_release", "production_schedule_week_release_preview",
+	// "production_schedule_item_policy", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
+	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
 	// "invoice_summary", "invoice_line", "invoice_allocation", "invoice_for_payment",
 	// "shipment", "shipment_summary", "shipment_line", "shipping_case",
 	// "shipping_case_label_url", "settlement", "settlement_summary",
@@ -435,6 +435,7 @@ const (
 	AuditEventResourceTypeScheduleDeviationType                AuditEventResourceType = "schedule_deviation_type"
 	AuditEventResourceTypeScheduleAtRiskOrder                  AuditEventResourceType = "schedule_at_risk_order"
 	AuditEventResourceTypeProductionScheduleFinishedPolicy     AuditEventResourceType = "production_schedule_finished_policy"
+	AuditEventResourceTypeProductionScheduleFinishingLine      AuditEventResourceType = "production_schedule_finishing_line"
 	AuditEventResourceTypeProductionScheduleWeekRelease        AuditEventResourceType = "production_schedule_week_release"
 	AuditEventResourceTypeProductionScheduleWeekReleasePreview AuditEventResourceType = "production_schedule_week_release_preview"
 	AuditEventResourceTypeProductionScheduleItemPolicy         AuditEventResourceType = "production_schedule_item_policy"
@@ -784,13 +785,13 @@ type ListObjectType struct {
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
 	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
 	// "schedule_deviation_type", "schedule_at_risk_order",
-	// "production_schedule_finished_policy", "production_schedule_week_release",
-	// "production_schedule_week_release_preview", "production_schedule_item_policy",
-	// "child_account", "unit_group", "unit_group_unit", "consumption",
-	// "customer_product_line_access", "customer", "frequently_ordered_product",
-	// "priority", "delivery", "delivery_line", "sales_order", "location",
-	// "location_type", "lot", "email_log", "email_domain", "email_inbox",
-	// "portal_domain", "dns_record", "inventory_change_log", "invoice",
+	// "production_schedule_finished_policy", "production_schedule_finishing_line",
+	// "production_schedule_week_release", "production_schedule_week_release_preview",
+	// "production_schedule_item_policy", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
+	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
 	// "invoice_summary", "invoice_line", "invoice_allocation", "invoice_for_payment",
 	// "shipment", "shipment_summary", "shipment_line", "shipping_case",
 	// "shipping_case_label_url", "settlement", "settlement_summary",
@@ -988,13 +989,13 @@ type CoreAuditEventListParams struct {
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
 	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
 	// "schedule_deviation_type", "schedule_at_risk_order",
-	// "production_schedule_finished_policy", "production_schedule_week_release",
-	// "production_schedule_week_release_preview", "production_schedule_item_policy",
-	// "child_account", "unit_group", "unit_group_unit", "consumption",
-	// "customer_product_line_access", "customer", "frequently_ordered_product",
-	// "priority", "delivery", "delivery_line", "sales_order", "location",
-	// "location_type", "lot", "email_log", "email_domain", "email_inbox",
-	// "portal_domain", "dns_record", "inventory_change_log", "invoice",
+	// "production_schedule_finished_policy", "production_schedule_finishing_line",
+	// "production_schedule_week_release", "production_schedule_week_release_preview",
+	// "production_schedule_item_policy", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
+	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
 	// "invoice_summary", "invoice_line", "invoice_allocation", "invoice_for_payment",
 	// "shipment", "shipment_summary", "shipment_line", "shipping_case",
 	// "shipping_case_label_url", "settlement", "settlement_summary",
@@ -1089,13 +1090,13 @@ type CoreAuditEventListParams struct {
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
 	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
 	// "schedule_deviation_type", "schedule_at_risk_order",
-	// "production_schedule_finished_policy", "production_schedule_week_release",
-	// "production_schedule_week_release_preview", "production_schedule_item_policy",
-	// "child_account", "unit_group", "unit_group_unit", "consumption",
-	// "customer_product_line_access", "customer", "frequently_ordered_product",
-	// "priority", "delivery", "delivery_line", "sales_order", "location",
-	// "location_type", "lot", "email_log", "email_domain", "email_inbox",
-	// "portal_domain", "dns_record", "inventory_change_log", "invoice",
+	// "production_schedule_finished_policy", "production_schedule_finishing_line",
+	// "production_schedule_week_release", "production_schedule_week_release_preview",
+	// "production_schedule_item_policy", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
+	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
 	// "invoice_summary", "invoice_line", "invoice_allocation", "invoice_for_payment",
 	// "shipment", "shipment_summary", "shipment_line", "shipping_case",
 	// "shipping_case_label_url", "settlement", "settlement_summary",
@@ -1298,6 +1299,7 @@ const (
 	CoreAuditEventListParamsRootResourceTypeScheduleDeviationType                CoreAuditEventListParamsRootResourceType = "schedule_deviation_type"
 	CoreAuditEventListParamsRootResourceTypeScheduleAtRiskOrder                  CoreAuditEventListParamsRootResourceType = "schedule_at_risk_order"
 	CoreAuditEventListParamsRootResourceTypeProductionScheduleFinishedPolicy     CoreAuditEventListParamsRootResourceType = "production_schedule_finished_policy"
+	CoreAuditEventListParamsRootResourceTypeProductionScheduleFinishingLine      CoreAuditEventListParamsRootResourceType = "production_schedule_finishing_line"
 	CoreAuditEventListParamsRootResourceTypeProductionScheduleWeekRelease        CoreAuditEventListParamsRootResourceType = "production_schedule_week_release"
 	CoreAuditEventListParamsRootResourceTypeProductionScheduleWeekReleasePreview CoreAuditEventListParamsRootResourceType = "production_schedule_week_release_preview"
 	CoreAuditEventListParamsRootResourceTypeProductionScheduleItemPolicy         CoreAuditEventListParamsRootResourceType = "production_schedule_item_policy"

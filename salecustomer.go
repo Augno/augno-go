@@ -120,9 +120,14 @@ func (r *SaleCustomerService) Delete(ctx context.Context, id string, opts ...opt
 // to.
 //
 // Resolved through the same chain the issue path stamps onto an order, most
-// specific first: a lead time set on the customer, then on the customer's account
-// group, then the account-wide default. `source` names which rule applied, so a
-// form can show where the number came from rather than leaving a rep to guess.
+// specific first: a lead time set on the customer, then on its parent account,
+// then on the customer's account group, then the account-wide default. `source`
+// names which rule applied, so a form can show where the number came from rather
+// than leaving a rep to guess.
+//
+// A lead time set on a parent account therefore governs every child account under
+// it that has not set its own, which is how a head office's terms are given to its
+// locations without repeating them on each one.
 //
 // This is a preview of a commitment, not the commitment itself. An order takes its
 // own `ship_by_date` when it is issued and keeps it afterwards, so changing a lead
@@ -130,14 +135,14 @@ func (r *SaleCustomerService) Delete(ctx context.Context, id string, opts ...opt
 // alone.
 //
 // This endpoint requires the permission: `customers:read`.
-func (r *SaleCustomerService) GetLeadTime(ctx context.Context, id string, opts ...option.RequestOption) (res *CustomerLeadTime, err error) {
+func (r *SaleCustomerService) GetLeadTime(ctx context.Context, id string, query SaleCustomerGetLeadTimeParams, opts ...option.RequestOption) (res *CustomerLeadTime, err error) {
 	opts = slices.Concat(r.options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("v1/sales/customers/%s/lead-time", url.PathEscape(id))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -187,7 +192,8 @@ type CreateCustomerRequestParam struct {
 	// Calendar days between an order being issued and it being due to ship.
 	//
 	// Sets each order's `ship_by_date` when it is issued. Leave unset to inherit the
-	// customer's account group lead time, then the account default.
+	// parent account's lead time, then the customer's account group lead time, then
+	// the account default.
 	LeadTimeDays param.Opt[int64] `json:"lead_time_days,omitzero"`
 	// Free-form note about the customer.
 	Note param.Opt[string] `json:"note,omitzero"`
@@ -343,8 +349,14 @@ const (
 
 // The ship-by lead time a new order for this customer would be committed to.
 type CustomerLeadTime struct {
-	// Entity is a polymorphic reference to any resource in the system.
-	AccountGroup Entity `json:"account_group" api:"required"`
+	// A named grouping of customer accounts, used for pricing rules or to categorize
+	// accounts.
+	//
+	// A customer carries at most one group of type `type_group` as its customer type,
+	// plus any number of groups of type `pricing_group`. Membership of either kind can
+	// scope a volume discount to the customer and open up product lines for it to
+	// order from.
+	AccountGroup AccountGroup `json:"account_group" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Customer Entity `json:"customer" api:"required"`
 	// Calendar days between an order being issued and it being due to ship.
@@ -355,9 +367,13 @@ type CustomerLeadTime struct {
 	//
 	// Any of "customer_lead_time".
 	Object CustomerLeadTimeObject `json:"object" api:"required"`
+	// A business you sell to, with its contact details, default fulfillment settings,
+	// and order policies.
+	ParentCustomer Customer `json:"parent_customer" api:"required"`
 	// Which rule in the chain produced this lead time.
 	//
 	// - `customer`: a lead time set on the customer itself.
+	// - `parent_customer`: inherited from the customer's parent account.
 	// - `account_group`: inherited from the customer's account group.
 	// - `account`: the account-wide fallback.
 	//
@@ -365,18 +381,19 @@ type CustomerLeadTime struct {
 	// on one specific order, which is a fact about that order rather than about the
 	// customer.
 	//
-	// Any of "customer", "account_group", "account", "manual", "order_lead_time",
-	// "order_ship_by".
+	// Any of "customer", "parent_customer", "account_group", "account", "manual",
+	// "order_lead_time", "order_ship_by".
 	Source CustomerLeadTimeSource `json:"source" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		AccountGroup respjson.Field
-		Customer     respjson.Field
-		Days         respjson.Field
-		Object       respjson.Field
-		Source       respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
+		AccountGroup   respjson.Field
+		Customer       respjson.Field
+		Days           respjson.Field
+		Object         respjson.Field
+		ParentCustomer respjson.Field
+		Source         respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
 	} `json:"-"`
 }
 
@@ -396,6 +413,7 @@ const (
 // Which rule in the chain produced this lead time.
 //
 // - `customer`: a lead time set on the customer itself.
+// - `parent_customer`: inherited from the customer's parent account.
 // - `account_group`: inherited from the customer's account group.
 // - `account`: the account-wide fallback.
 //
@@ -405,12 +423,13 @@ const (
 type CustomerLeadTimeSource string
 
 const (
-	CustomerLeadTimeSourceCustomer      CustomerLeadTimeSource = "customer"
-	CustomerLeadTimeSourceAccountGroup  CustomerLeadTimeSource = "account_group"
-	CustomerLeadTimeSourceAccount       CustomerLeadTimeSource = "account"
-	CustomerLeadTimeSourceManual        CustomerLeadTimeSource = "manual"
-	CustomerLeadTimeSourceOrderLeadTime CustomerLeadTimeSource = "order_lead_time"
-	CustomerLeadTimeSourceOrderShipBy   CustomerLeadTimeSource = "order_ship_by"
+	CustomerLeadTimeSourceCustomer       CustomerLeadTimeSource = "customer"
+	CustomerLeadTimeSourceParentCustomer CustomerLeadTimeSource = "parent_customer"
+	CustomerLeadTimeSourceAccountGroup   CustomerLeadTimeSource = "account_group"
+	CustomerLeadTimeSourceAccount        CustomerLeadTimeSource = "account"
+	CustomerLeadTimeSourceManual         CustomerLeadTimeSource = "manual"
+	CustomerLeadTimeSourceOrderLeadTime  CustomerLeadTimeSource = "order_lead_time"
+	CustomerLeadTimeSourceOrderShipBy    CustomerLeadTimeSource = "order_ship_by"
 )
 
 // Request to partially update a customer.
@@ -433,8 +452,9 @@ type UpdateCustomerRequestParam struct {
 	Email param.Opt[string] `json:"email,omitzero"`
 	// Calendar days between an order being issued and it being due to ship.
 	//
-	// Sets each order's `ship_by_date` when it is issued. Leave unset to inherit the
-	// customer's account group lead time, then the account default.
+	// Sets each order's `ship_by_date` when it is issued. Clear it to inherit the
+	// parent account's lead time, then the customer's account group lead time, then
+	// the account default.
 	LeadTimeDays param.Opt[int64] `json:"lead_time_days,omitzero"`
 	// Free-form note about the customer.
 	Note param.Opt[string] `json:"note,omitzero"`
@@ -799,3 +819,21 @@ const (
 	SaleCustomerListParamsParentAccountStatusParent    SaleCustomerListParamsParentAccountStatus = "parent"
 	SaleCustomerListParamsParentAccountStatusNonParent SaleCustomerListParamsParentAccountStatus = "non_parent"
 )
+
+type SaleCustomerGetLeadTimeParams struct {
+	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
+	// `null`.
+	//
+	// Any of "account_group", "parent_customer".
+	Include []string `query:"include,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [SaleCustomerGetLeadTimeParams]'s query parameters as
+// `url.Values`.
+func (r SaleCustomerGetLeadTimeParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}

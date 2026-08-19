@@ -144,7 +144,8 @@ type AccountGroup struct {
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Calendar days between an order being issued and it being due to ship, inherited
-	// by every customer in this group that has not set its own.
+	// by every customer in this group that has neither set its own nor inherited one
+	// from a parent account.
 	DefaultLeadTimeDays int64 `json:"default_lead_time_days" api:"required"`
 	// Free-form description of the account group.
 	Description string `json:"description" api:"required"`

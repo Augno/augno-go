@@ -150,8 +150,9 @@ type ProductionScheduleSettings struct {
 	DefaultConstraintLeadTimeWeeks float64 `json:"default_constraint_lead_time_weeks" api:"required"`
 	// Calendar days between an order being issued and it being due to ship.
 	//
-	// The last resort in the ship-by chain: a lead time set on the customer, or on the
-	// customer's account group, takes precedence. Zero means same-day shipping.
+	// The last resort in the ship-by chain: a lead time set on the customer, on its
+	// parent account, or on the customer's account group takes precedence. Zero means
+	// same-day shipping.
 	DefaultCustomerLeadTimeDays int64 `json:"default_customer_lead_time_days" api:"required"`
 	// How a SKU is produced when neither it nor its product line says.
 	//
@@ -458,11 +459,11 @@ type UpdateProductionScheduleSettingsRequestParam struct {
 	DefaultConstraintLeadTimeWeeks float64 `json:"default_constraint_lead_time_weeks" api:"required"`
 	// Calendar days between an order being issued and it being due to ship.
 	//
-	// The last resort in the ship-by chain: a lead time set on the customer, or on the
-	// customer's account group, takes precedence. Zero commits the account to same-day
-	// shipping on every order that falls through to it, so this update replaces the
-	// whole settings object and omitting the field is not the same as leaving it
-	// alone.
+	// The last resort in the ship-by chain: a lead time set on the customer, on its
+	// parent account, or on the customer's account group takes precedence. Zero
+	// commits the account to same-day shipping on every order that falls through to
+	// it, so this update replaces the whole settings object and omitting the field is
+	// not the same as leaving it alone.
 	DefaultCustomerLeadTimeDays int64 `json:"default_customer_lead_time_days" api:"required"`
 	// How a SKU is produced when neither it nor its product line says.
 	//

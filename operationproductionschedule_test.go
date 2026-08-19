@@ -240,6 +240,35 @@ func TestOperationProductionScheduleGetFinishedPolicies(t *testing.T) {
 	}
 }
 
+func TestOperationProductionScheduleGetFinishingLinesWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := augno.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Operations.ProductionSchedules.GetFinishingLines(
+		context.TODO(),
+		"pnsc_m4zt3z8g8src",
+		augno.OperationProductionScheduleGetFinishingLinesParams{
+			ItemID:    augno.String("item_id"),
+			WeekIndex: augno.Int(0),
+		},
+	)
+	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
 func TestOperationProductionScheduleGetItemPolicies(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -278,7 +307,8 @@ func TestOperationProductionScheduleGetWeekReleasePreviewWithOptionalParams(t *t
 		context.TODO(),
 		"pnsc_m4zt3z8g8src",
 		augno.OperationProductionScheduleGetWeekReleasePreviewParams{
-			WeekIndex: augno.Int(0),
+			SkipCarryForward: augno.Bool(true),
+			WeekIndex:        augno.Int(0),
 		},
 	)
 	if err != nil {

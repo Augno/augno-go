@@ -198,6 +198,7 @@ func TestOperationProductionScheduleActionReleaseWeekWithOptionalParams(t *testi
 				ResponsibleUserID: "us_43irtlt2ajz6",
 				WeekIndex:         0,
 				ScanningStationID: augno.String("scanning_station_id"),
+				SkipCarryForward:  augno.Bool(false),
 			},
 		},
 	)

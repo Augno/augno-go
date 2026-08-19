@@ -228,6 +228,38 @@ func (r *OperationProductionScheduleService) GetFinishedPolicies(ctx context.Con
 	return res, err
 }
 
+// Returns the second stage of a schedule: how many of which finished good to make
+// from the knitted parts, week by week.
+//
+// The constraint plan says how much greige to knit and deliberately does not say
+// what to turn it into — a family's demand is pooled onto the greige precisely so
+// the buffer can sit at the undifferentiated stage, where it is cheapest. These
+// lines are where that pooling is undone, against each finished SKU's own stock
+// position, its own orders, and the hours the rest of the factory has that week.
+//
+// Levelled, not merely allocated. Work that does not fit a week moves to the next
+// one rather than being dropped, so the plan never asks the second stage for more
+// hours than it has. Two things bound it, and they are reported separately in the
+// schedule's diagnostics because they call for opposite responses: a SKU held back
+// for want of greige is a knitting problem, and a SKU held back for want of hours
+// is a finishing one.
+//
+// Everything is counted in the constraint item's unit, so `greige_consumed` here
+// and `planned_quantity` on the constraint plan are directly comparable — which is
+// what lets the two stages be reconciled rather than only read side by side.
+//
+// This endpoint requires the permission: `production_schedules:read`.
+func (r *OperationProductionScheduleService) GetFinishingLines(ctx context.Context, id string, query OperationProductionScheduleGetFinishingLinesParams, opts ...option.RequestOption) (res *ListProductionScheduleFinishingLine, err error) {
+	opts = slices.Concat(r.options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/operations/production-schedules/%s/finishing-lines", url.PathEscape(id))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
 // Returns the per-item policy behind a schedule version, ordered by constraint run
 // hours descending.
 //
@@ -258,6 +290,11 @@ func (r *OperationProductionScheduleService) GetItemPolicies(ctx context.Context
 // Cancelled campaigns and campaigns planned at zero are excluded here exactly as
 // the release excludes them, so a week holding nothing but those previews as
 // empty.
+//
+// Lots the floor is already holding are named as such. A batch with
+// `carried_forward_from` set is a ticket an earlier week issued and nobody worked,
+// which the release moves into the new run rather than reissuing, so nothing has
+// to be reprinted.
 //
 // This endpoint requires the permission: `production_schedules:read`.
 func (r *OperationProductionScheduleService) GetWeekReleasePreview(ctx context.Context, id string, query OperationProductionScheduleGetWeekReleasePreviewParams, opts ...option.RequestOption) (res *ReleaseScheduleWeekPreview, err error) {
@@ -479,6 +516,46 @@ type ListProductionScheduleFinishedPolicyObject string
 
 const (
 	ListProductionScheduleFinishedPolicyObjectList ListProductionScheduleFinishedPolicyObject = "list"
+)
+
+// A single page of resources, together with the metadata needed to page through
+// the rest of the result set.
+type ListProductionScheduleFinishingLine struct {
+	// Resources in this page.
+	Data []ProductionScheduleFinishingLine `json:"data" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "list".
+	Object ListProductionScheduleFinishingLineObject `json:"object" api:"required"`
+	// PageInfo describes where the current page sits within a paginated result set and
+	// how to move to the adjacent pages.
+	//
+	// Page a list by following the URLs below rather than assembling cursors yourself.
+	// For a top-level list endpoint the URL repeats the original request's query
+	// string with only the cursor swapped, so following it preserves the same filters,
+	// search term, and page size.
+	PageInfo PageInfo `json:"page_info" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Object      respjson.Field
+		PageInfo    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListProductionScheduleFinishingLine) RawJSON() string { return r.JSON.raw }
+func (r *ListProductionScheduleFinishingLine) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ListProductionScheduleFinishingLineObject string
+
+const (
+	ListProductionScheduleFinishingLineObjectList ListProductionScheduleFinishingLineObject = "list"
 )
 
 // A single page of resources, together with the metadata needed to page through
@@ -1298,6 +1375,142 @@ const (
 	ProductionScheduleFinishedPolicyObjectProductionScheduleFinishedPolicy ProductionScheduleFinishedPolicyObject = "production_schedule_finished_policy"
 )
 
+// One finished good's build in one week: the second stage of the plan.
+//
+// The constraint plan says how much greige to knit and deliberately does not say
+// what to turn it into — a family's demand is pooled onto the greige precisely so
+// the buffer can sit at the undifferentiated stage. These lines are where that
+// pooling is undone: how many of which finished good to make from the knitted
+// parts, decided against each SKU's own stock position, its own orders, and the
+// hours the rest of the factory has that week.
+//
+// Quantities are counted in the constraint item's unit, so `greige_consumed` and
+// the knit plan's `planned_quantity` are directly comparable. That is what lets
+// the two stages be reconciled rather than merely read side by side.
+type ProductionScheduleFinishingLine struct {
+	// Finishing line ID.
+	ID string `json:"id" api:"required"`
+	// Creation timestamp.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Entity is a polymorphic reference to any resource in the system.
+	Department Entity `json:"department" api:"required"`
+	// How much of the week's draw on this SKU is an order rather than a forecast.
+	FirmUnits float64 `json:"firm_units" api:"required"`
+	// Units of the constraint item this takes out of the greige buffer.
+	//
+	// Equal to `planned_quantity` unless a finishing yield loss means a finished unit
+	// costs more than one knitted one.
+	GreigeConsumed float64 `json:"greige_consumed" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	GreigeItem Entity `json:"greige_item" api:"required"`
+	// SKU of that constraint item.
+	GreigeSKU string `json:"greige_sku" api:"required"`
+	// Whether the line sits inside the published frozen window.
+	IsFrozen bool `json:"is_frozen" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	Item Entity `json:"item" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "production_schedule_finishing_line".
+	Object ProductionScheduleFinishingLineObject `json:"object" api:"required"`
+	// Units in one lot.
+	PlannedLotUnits float64 `json:"planned_lot_units" api:"required"`
+	// How many lots the quantity breaks into.
+	PlannedLots int64 `json:"planned_lots" api:"required"`
+	// Units of the finished good to make.
+	PlannedQuantity float64 `json:"planned_quantity" api:"required"`
+	// Hours of the second stage's capacity this line consumes.
+	PlannedRunHours float64 `json:"planned_run_hours" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	ProductionSchedule Entity `json:"production_schedule" api:"required"`
+	// Entity is a polymorphic reference to any resource in the system.
+	ProductionStep Entity `json:"production_step" api:"required"`
+	// And after it lands.
+	ProjectedOnHandAfter float64 `json:"projected_on_hand_after" api:"required"`
+	// This SKU's own projected stock before the line lands.
+	ProjectedOnHandBefore float64 `json:"projected_on_hand_before" api:"required"`
+	// SKU of the finished good, as it stood when the plan was generated.
+	SKU string `json:"sku" api:"required"`
+	// Whether the solver produced this line or a person did.
+	//
+	// Any of "solver", "manual".
+	Source ProductionScheduleFinishingLineSource `json:"source" api:"required"`
+	// Where the line stands.
+	//
+	// Any of "planned", "released", "in_progress", "complete", "cancelled".
+	Status ProductionScheduleFinishingLineStatus `json:"status" api:"required"`
+	// Abbreviation of the unit everything on this line is counted in.
+	Unit string `json:"unit" api:"required"`
+	// Last updated timestamp.
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
+	// Zero-based week offset from the start of the horizon.
+	WeekIndex int64 `json:"week_index" api:"required"`
+	// First day of the week this is planned in.
+	WeekStartsAt time.Time `json:"week_starts_at" api:"required" format:"date-time"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID                    respjson.Field
+		CreatedAt             respjson.Field
+		Department            respjson.Field
+		FirmUnits             respjson.Field
+		GreigeConsumed        respjson.Field
+		GreigeItem            respjson.Field
+		GreigeSKU             respjson.Field
+		IsFrozen              respjson.Field
+		Item                  respjson.Field
+		Object                respjson.Field
+		PlannedLotUnits       respjson.Field
+		PlannedLots           respjson.Field
+		PlannedQuantity       respjson.Field
+		PlannedRunHours       respjson.Field
+		ProductionSchedule    respjson.Field
+		ProductionStep        respjson.Field
+		ProjectedOnHandAfter  respjson.Field
+		ProjectedOnHandBefore respjson.Field
+		SKU                   respjson.Field
+		Source                respjson.Field
+		Status                respjson.Field
+		Unit                  respjson.Field
+		UpdatedAt             respjson.Field
+		WeekIndex             respjson.Field
+		WeekStartsAt          respjson.Field
+		ExtraFields           map[string]respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ProductionScheduleFinishingLine) RawJSON() string { return r.JSON.raw }
+func (r *ProductionScheduleFinishingLine) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type ProductionScheduleFinishingLineObject string
+
+const (
+	ProductionScheduleFinishingLineObjectProductionScheduleFinishingLine ProductionScheduleFinishingLineObject = "production_schedule_finishing_line"
+)
+
+// Whether the solver produced this line or a person did.
+type ProductionScheduleFinishingLineSource string
+
+const (
+	ProductionScheduleFinishingLineSourceSolver ProductionScheduleFinishingLineSource = "solver"
+	ProductionScheduleFinishingLineSourceManual ProductionScheduleFinishingLineSource = "manual"
+)
+
+// Where the line stands.
+type ProductionScheduleFinishingLineStatus string
+
+const (
+	ProductionScheduleFinishingLineStatusPlanned    ProductionScheduleFinishingLineStatus = "planned"
+	ProductionScheduleFinishingLineStatusReleased   ProductionScheduleFinishingLineStatus = "released"
+	ProductionScheduleFinishingLineStatusInProgress ProductionScheduleFinishingLineStatus = "in_progress"
+	ProductionScheduleFinishingLineStatusComplete   ProductionScheduleFinishingLineStatus = "complete"
+	ProductionScheduleFinishingLineStatusCancelled  ProductionScheduleFinishingLineStatus = "cancelled"
+)
+
 // The per-item policy behind a schedule version.
 //
 // Snapshotted at generation rather than recomputed, so a historical plan can still
@@ -1524,6 +1737,12 @@ const (
 type ReleaseScheduleBatch struct {
 	// Entity is a polymorphic reference to any resource in the system.
 	Batch Entity `json:"batch" api:"required"`
+	// The number of the run this ticket came off, when the batch already existed.
+	//
+	// Present on a lot carried forward from an earlier week that the floor never
+	// worked. The ticket is already printed and on the floor, so the release moves it
+	// into the new run rather than issuing a replacement.
+	CarriedForwardFrom string `json:"carried_forward_from" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Item Entity `json:"item" api:"required"`
 	// Units in this lot.
@@ -1535,12 +1754,13 @@ type ReleaseScheduleBatch struct {
 	SKU string `json:"sku" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Batch       respjson.Field
-		Item        respjson.Field
-		Quantity    respjson.Field
-		SKU         respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		Batch              respjson.Field
+		CarriedForwardFrom respjson.Field
+		Item               respjson.Field
+		Quantity           respjson.Field
+		SKU                respjson.Field
+		ExtraFields        map[string]respjson.Field
+		raw                string
 	} `json:"-"`
 }
 
@@ -1556,13 +1776,15 @@ func (r *ReleaseScheduleBatch) UnmarshalJSON(data []byte) error {
 // real work to undo by hand, so the confirmation is driven by this rather than by
 // a count computed in the browser.
 type ReleaseScheduleWeekPreview struct {
-	// How many batches would be created.
+	// How many batches the run would hold, created and carried forward together.
 	BatchCount int64 `json:"batch_count" api:"required"`
 	// Why the week cannot be released, phrased for display.
 	//
 	// A week is blocked when it has already been released to the floor, or when it
 	// holds nothing to release.
 	BlockedReason string `json:"blocked_reason" api:"required"`
+	// How many of `batch_count` would be moved off an earlier run rather than created.
+	CarriedForwardBatchCount int64 `json:"carried_forward_batch_count" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	ExistingProductionRun Entity `json:"existing_production_run" api:"required"`
 	// Whether the week can be released.
@@ -1584,18 +1806,19 @@ type ReleaseScheduleWeekPreview struct {
 	WeekStartsAt time.Time `json:"week_starts_at" api:"required" format:"date-time"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		BatchCount            respjson.Field
-		BlockedReason         respjson.Field
-		ExistingProductionRun respjson.Field
-		IsReleasable          respjson.Field
-		LineCount             respjson.Field
-		Lines                 respjson.Field
-		Object                respjson.Field
-		TotalQuantity         respjson.Field
-		WeekIndex             respjson.Field
-		WeekStartsAt          respjson.Field
-		ExtraFields           map[string]respjson.Field
-		raw                   string
+		BatchCount               respjson.Field
+		BlockedReason            respjson.Field
+		CarriedForwardBatchCount respjson.Field
+		ExistingProductionRun    respjson.Field
+		IsReleasable             respjson.Field
+		LineCount                respjson.Field
+		Lines                    respjson.Field
+		Object                   respjson.Field
+		TotalQuantity            respjson.Field
+		WeekIndex                respjson.Field
+		WeekStartsAt             respjson.Field
+		ExtraFields              map[string]respjson.Field
+		raw                      string
 	} `json:"-"`
 }
 
@@ -1619,6 +1842,9 @@ type ReleasedScheduleLine struct {
 	// A single page of resources, together with the metadata needed to page through
 	// the rest of the result set.
 	Batches ListReleaseScheduleBatch `json:"batches" api:"required"`
+	// How much of `planned_quantity` is covered by tickets an earlier week already
+	// issued.
+	CarriedForwardQuantity float64 `json:"carried_forward_quantity" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
 	Item Entity `json:"item" api:"required"`
 	// Entity is a polymorphic reference to any resource in the system.
@@ -1637,17 +1863,18 @@ type ReleasedScheduleLine struct {
 	Unit string `json:"unit" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		BatchCount      respjson.Field
-		Batches         respjson.Field
-		Item            respjson.Field
-		Line            respjson.Field
-		LotUnits        respjson.Field
-		Machine         respjson.Field
-		PlannedQuantity respjson.Field
-		SKU             respjson.Field
-		Unit            respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
+		BatchCount             respjson.Field
+		Batches                respjson.Field
+		CarriedForwardQuantity respjson.Field
+		Item                   respjson.Field
+		Line                   respjson.Field
+		LotUnits               respjson.Field
+		Machine                respjson.Field
+		PlannedQuantity        respjson.Field
+		SKU                    respjson.Field
+		Unit                   respjson.Field
+		ExtraFields            map[string]respjson.Field
+		raw                    string
 	} `json:"-"`
 }
 
@@ -1827,6 +2054,24 @@ type ScheduleDiagnostics struct {
 	EoqCappedSKUs []string `json:"eoq_capped_skus" api:"required"`
 	// Number of items the merchant has excluded from planning.
 	ExcludedItemCount int64 `json:"excluded_item_count" api:"required"`
+	// How the second stage fared: what it could not make, and which of the two things
+	// it ran out of.
+	//
+	// The two starvation lists are the point of planning in two stages at all. A
+	// finished good held back for want of greige is a knitting problem — knit more of
+	// it, or knit it sooner — and one held back for want of hours is a finishing
+	// problem: another shift, or a different mix. A single "short" list would throw
+	// that distinction away, and it is the only thing this model knows that a
+	// one-stage plan does not.
+	Finishing ScheduleFinishingDiagnostics `json:"finishing" api:"required"`
+	// Whether the second stage's capacity was estimated rather than counted from
+	// machines.
+	FinishingCapacityIsEstimated bool `json:"finishing_capacity_is_estimated" api:"required"`
+	// Machines outside the constraint department that the second stage was sized from.
+	//
+	// Zero means its capacity was estimated from the shift pattern alone rather than
+	// counted.
+	FinishingMachineCount int64 `json:"finishing_machine_count" api:"required"`
 	// Outstanding order quantity this plan owes, expressed in the constraint item's
 	// own unit.
 	//
@@ -1857,29 +2102,87 @@ type ScheduleDiagnostics struct {
 	UnschedulableSKUs []string `json:"unschedulable_skus" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		AppliedOverrides       respjson.Field
-		AtRiskOrders           respjson.Field
-		AverageInputsAdded     respjson.Field
-		CapacityStarvedSKUs    respjson.Field
-		ChangeoverSlopeMinutes respjson.Field
-		ConstraintMachineCount respjson.Field
-		EoqCappedSKUs          respjson.Field
-		ExcludedItemCount      respjson.Field
-		FirmDemandUnits        respjson.Field
-		ItemsWithoutRunRate    respjson.Field
-		MachinesWithoutStep    respjson.Field
-		MakeToOrderItemCount   respjson.Field
-		MeasuredBatchCount     respjson.Field
-		UndatedFirmOrderCount  respjson.Field
-		UnschedulableSKUs      respjson.Field
-		ExtraFields            map[string]respjson.Field
-		raw                    string
+		AppliedOverrides             respjson.Field
+		AtRiskOrders                 respjson.Field
+		AverageInputsAdded           respjson.Field
+		CapacityStarvedSKUs          respjson.Field
+		ChangeoverSlopeMinutes       respjson.Field
+		ConstraintMachineCount       respjson.Field
+		EoqCappedSKUs                respjson.Field
+		ExcludedItemCount            respjson.Field
+		Finishing                    respjson.Field
+		FinishingCapacityIsEstimated respjson.Field
+		FinishingMachineCount        respjson.Field
+		FirmDemandUnits              respjson.Field
+		ItemsWithoutRunRate          respjson.Field
+		MachinesWithoutStep          respjson.Field
+		MakeToOrderItemCount         respjson.Field
+		MeasuredBatchCount           respjson.Field
+		UndatedFirmOrderCount        respjson.Field
+		UnschedulableSKUs            respjson.Field
+		ExtraFields                  map[string]respjson.Field
+		raw                          string
 	} `json:"-"`
 }
 
 // Returns the unmodified JSON received from the API
 func (r ScheduleDiagnostics) RawJSON() string { return r.JSON.raw }
 func (r *ScheduleDiagnostics) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// How the second stage fared: what it could not make, and which of the two things
+// it ran out of.
+//
+// The two starvation lists are the point of planning in two stages at all. A
+// finished good held back for want of greige is a knitting problem — knit more of
+// it, or knit it sooner — and one held back for want of hours is a finishing
+// problem: another shift, or a different mix. A single "short" list would throw
+// that distinction away, and it is the only thing this model knows that a
+// one-stage plan does not.
+type ScheduleFinishingDiagnostics struct {
+	// Finished goods that had greige and never had hours.
+	CapacityStarvedSKUs []string `json:"capacity_starved_skus" api:"required"`
+	// Finished goods that wanted building across the whole horizon and never had
+	// greige to build from.
+	GreigeStarvedSKUs []string `json:"greige_starved_skus" api:"required"`
+	// Finished goods with no measured finishing rate, which cannot be levelled because
+	// the hours they cost are unknown.
+	ItemsWithoutRunRate []string `json:"items_without_run_rate" api:"required"`
+	// How many finishing lines the plan holds.
+	LineCount int64 `json:"line_count" api:"required"`
+	// Hours the plan asks of it, week by week.
+	PlannedHoursByWeek []float64 `json:"planned_hours_by_week" api:"required"`
+	// Total finished units the stage plans across the horizon.
+	TotalPlannedUnits float64 `json:"total_planned_units" api:"required"`
+	// Constraint output the horizon never converts into anything.
+	//
+	// A large figure means the two stages are planned against different demand, which
+	// is worth looking at rather than leaving as an unexplained pile of greige.
+	UnusedGreigeUnits float64 `json:"unused_greige_units" api:"required"`
+	// Those hours as a fraction of capacity, week by week.
+	UtilisationByWeek []float64 `json:"utilisation_by_week" api:"required"`
+	// Hours the second stage can work in one week.
+	WeeklyCapacityHours float64 `json:"weekly_capacity_hours" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		CapacityStarvedSKUs respjson.Field
+		GreigeStarvedSKUs   respjson.Field
+		ItemsWithoutRunRate respjson.Field
+		LineCount           respjson.Field
+		PlannedHoursByWeek  respjson.Field
+		TotalPlannedUnits   respjson.Field
+		UnusedGreigeUnits   respjson.Field
+		UtilisationByWeek   respjson.Field
+		WeeklyCapacityHours respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ScheduleFinishingDiagnostics) RawJSON() string { return r.JSON.raw }
+func (r *ScheduleFinishingDiagnostics) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2101,7 +2404,30 @@ func (r OperationProductionScheduleGetDeviationsParams) URLQuery() (v url.Values
 	})
 }
 
+type OperationProductionScheduleGetFinishingLinesParams struct {
+	// Only the finishing planned for this finished good.
+	ItemID param.Opt[string] `query:"item_id,omitzero" json:"-"`
+	// Only the finishing planned for this week, zero-based from the start of the
+	// horizon.
+	WeekIndex param.Opt[int64] `query:"week_index,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [OperationProductionScheduleGetFinishingLinesParams]'s query
+// parameters as `url.Values`.
+func (r OperationProductionScheduleGetFinishingLinesParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
 type OperationProductionScheduleGetWeekReleasePreviewParams struct {
+	// Preview the week as if every batch were newly issued.
+	//
+	// By default the preview counts tickets an earlier week issued and the floor never
+	// worked against this week's campaigns, because that is what releasing would do.
+	SkipCarryForward param.Opt[bool] `query:"skip_carry_forward,omitzero" json:"-"`
 	// Zero-based week offset from the start of the horizon.
 	WeekIndex param.Opt[int64] `query:"week_index,omitzero" json:"-"`
 	paramObj

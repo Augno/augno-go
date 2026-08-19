@@ -1084,8 +1084,8 @@ type SalesOrder struct {
 	LeadTimeOverrideDays int64 `json:"lead_time_override_days" api:"required"`
 	// Which rule produced the ship-by date.
 	//
-	// Any of "customer", "account_group", "account", "manual", "order_lead_time",
-	// "order_ship_by".
+	// Any of "customer", "parent_customer", "account_group", "account", "manual",
+	// "order_lead_time", "order_ship_by".
 	LeadTimeSource SalesOrderLeadTimeSource `json:"lead_time_source" api:"required"`
 	// Number of lines on this order.
 	LineCount int64 `json:"line_count" api:"required"`
@@ -1143,7 +1143,7 @@ type SalesOrder struct {
 	// date less the carrier's transit for the order's lane and less any day the
 	// customer cannot receive on — the day the order has to leave to arrive when
 	// promised. Otherwise it comes from a lead time, whether this order's own or the
-	// one on the customer, its account group, or the account.
+	// one on the customer, its parent account, its account group, or the account.
 	//
 	// Always a day the plant actually ships on, whichever rule produced it.
 	//
@@ -1263,12 +1263,13 @@ const (
 type SalesOrderLeadTimeSource string
 
 const (
-	SalesOrderLeadTimeSourceCustomer      SalesOrderLeadTimeSource = "customer"
-	SalesOrderLeadTimeSourceAccountGroup  SalesOrderLeadTimeSource = "account_group"
-	SalesOrderLeadTimeSourceAccount       SalesOrderLeadTimeSource = "account"
-	SalesOrderLeadTimeSourceManual        SalesOrderLeadTimeSource = "manual"
-	SalesOrderLeadTimeSourceOrderLeadTime SalesOrderLeadTimeSource = "order_lead_time"
-	SalesOrderLeadTimeSourceOrderShipBy   SalesOrderLeadTimeSource = "order_ship_by"
+	SalesOrderLeadTimeSourceCustomer       SalesOrderLeadTimeSource = "customer"
+	SalesOrderLeadTimeSourceParentCustomer SalesOrderLeadTimeSource = "parent_customer"
+	SalesOrderLeadTimeSourceAccountGroup   SalesOrderLeadTimeSource = "account_group"
+	SalesOrderLeadTimeSourceAccount        SalesOrderLeadTimeSource = "account"
+	SalesOrderLeadTimeSourceManual         SalesOrderLeadTimeSource = "manual"
+	SalesOrderLeadTimeSourceOrderLeadTime  SalesOrderLeadTimeSource = "order_lead_time"
+	SalesOrderLeadTimeSourceOrderShipBy    SalesOrderLeadTimeSource = "order_ship_by"
 )
 
 // Resource type identifier.

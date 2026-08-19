@@ -44,9 +44,11 @@ func NewOperationMachineDowntimeEventService(opts ...option.RequestOption) (r Op
 
 // Logs a machine downtime event.
 //
-// Omit `ended_at` while the machine is still down. A machine can only have one
-// open event at a time, so logging a second open stoppage against a machine that
-// is already down is rejected until the first is closed.
+// Give the stoppage an end either as `ended_at` or as a `duration` counted in a
+// unit of time — sending both is rejected. Omit `ended_at` while the machine is
+// still down. A machine can only have one open event at a time, so logging a
+// second open stoppage against a machine that is already down is rejected until
+// the first is closed.
 //
 // The department is taken from the machine, the business day is taken from
 // `started_at`, the event is attributed to the credentials that made the request,
@@ -76,10 +78,12 @@ func (r *OperationMachineDowntimeEventService) Get(ctx context.Context, id strin
 
 // Closes or corrects a machine downtime event.
 //
-// Only the fields provided in the request are changed. Setting `ended_at` closes
-// the event and calculates its duration; sending it as null reopens an event
-// closed by mistake, which is rejected when the machine already has another open
-// stoppage. The machine an event belongs to cannot be changed.
+// Only the fields provided in the request are changed. Setting `ended_at` — or a
+// `duration`, which says the same thing as a length of time from the start —
+// closes the event and calculates how long it lasted; sending either as null
+// reopens an event closed by mistake, which is rejected when the machine already
+// has another open stoppage. Moving the event to another machine re-resolves the
+// department the stoppage is charged to.
 //
 // This endpoint requires the permission: `machine_downtime:update`.
 func (r *OperationMachineDowntimeEventService) Update(ctx context.Context, id string, params OperationMachineDowntimeEventUpdateParams, opts ...option.RequestOption) (res *MachineDowntimeEvent, err error) {
@@ -162,6 +166,11 @@ type CreateMachineDowntimeEventRequestParam struct {
 	Note param.Opt[string] `json:"note,omitzero"`
 	// ID of the production run in progress when the machine stopped.
 	ProductionRunID param.Opt[string] `json:"production_run_id,omitzero"`
+	// An amount together with the unit it is expressed in.
+	//
+	// The unit may be a currency, so money amounts such as a credit limit are written
+	// the same way as physical amounts like weights or counts.
+	Duration QuantityInputParam `json:"duration,omitzero"`
 	// How the event was recorded.
 	//
 	// Records the stoppage as manually logged unless you say otherwise, so an
@@ -396,11 +405,22 @@ type UpdateMachineDowntimeEventRequestParam struct {
 	//
 	// Send null to detach the run.
 	ProductionRunID param.Opt[string] `json:"production_run_id,omitzero"`
+	// ID of the machine that stopped.
+	//
+	// Moving an event to another machine re-resolves the department it is charged to,
+	// so past availability changes for both rooms. Rejected when the destination
+	// machine already has an open stoppage and this one is open too.
+	MachineID param.Opt[string] `json:"machine_id,omitzero"`
 	// When the machine stopped.
 	//
 	// Correcting it recalculates the duration and can move the stoppage onto a
 	// different business day.
 	StartedAt param.Opt[time.Time] `json:"started_at,omitzero" format:"date-time"`
+	// An amount together with the unit it is expressed in.
+	//
+	// The unit may be a currency, so money amounts such as a credit limit are written
+	// the same way as physical amounts like weights or counts.
+	Duration QuantityInputParam `json:"duration,omitzero"`
 	// Why the machine stopped.
 	//
 	// Reclassifying a stoppage moves it to the OEE term the new reason charges, so

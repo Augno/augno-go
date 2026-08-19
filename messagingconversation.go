@@ -576,13 +576,13 @@ type CreateConversationRequestParam struct {
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
 	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
 	// "schedule_deviation_type", "schedule_at_risk_order",
-	// "production_schedule_finished_policy", "production_schedule_week_release",
-	// "production_schedule_week_release_preview", "production_schedule_item_policy",
-	// "child_account", "unit_group", "unit_group_unit", "consumption",
-	// "customer_product_line_access", "customer", "frequently_ordered_product",
-	// "priority", "delivery", "delivery_line", "sales_order", "location",
-	// "location_type", "lot", "email_log", "email_domain", "email_inbox",
-	// "portal_domain", "dns_record", "inventory_change_log", "invoice",
+	// "production_schedule_finished_policy", "production_schedule_finishing_line",
+	// "production_schedule_week_release", "production_schedule_week_release_preview",
+	// "production_schedule_item_policy", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
+	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
 	// "invoice_summary", "invoice_line", "invoice_allocation", "invoice_for_payment",
 	// "shipment", "shipment_summary", "shipment_line", "shipping_case",
 	// "shipping_case_label_url", "settlement", "settlement_summary",
@@ -790,6 +790,7 @@ const (
 	CreateConversationRequestTopicResourceTypeScheduleDeviationType                CreateConversationRequestTopicResourceType = "schedule_deviation_type"
 	CreateConversationRequestTopicResourceTypeScheduleAtRiskOrder                  CreateConversationRequestTopicResourceType = "schedule_at_risk_order"
 	CreateConversationRequestTopicResourceTypeProductionScheduleFinishedPolicy     CreateConversationRequestTopicResourceType = "production_schedule_finished_policy"
+	CreateConversationRequestTopicResourceTypeProductionScheduleFinishingLine      CreateConversationRequestTopicResourceType = "production_schedule_finishing_line"
 	CreateConversationRequestTopicResourceTypeProductionScheduleWeekRelease        CreateConversationRequestTopicResourceType = "production_schedule_week_release"
 	CreateConversationRequestTopicResourceTypeProductionScheduleWeekReleasePreview CreateConversationRequestTopicResourceType = "production_schedule_week_release_preview"
 	CreateConversationRequestTopicResourceTypeProductionScheduleItemPolicy         CreateConversationRequestTopicResourceType = "production_schedule_item_policy"
@@ -1776,13 +1777,13 @@ type MessagingConversationListParams struct {
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
 	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
 	// "schedule_deviation_type", "schedule_at_risk_order",
-	// "production_schedule_finished_policy", "production_schedule_week_release",
-	// "production_schedule_week_release_preview", "production_schedule_item_policy",
-	// "child_account", "unit_group", "unit_group_unit", "consumption",
-	// "customer_product_line_access", "customer", "frequently_ordered_product",
-	// "priority", "delivery", "delivery_line", "sales_order", "location",
-	// "location_type", "lot", "email_log", "email_domain", "email_inbox",
-	// "portal_domain", "dns_record", "inventory_change_log", "invoice",
+	// "production_schedule_finished_policy", "production_schedule_finishing_line",
+	// "production_schedule_week_release", "production_schedule_week_release_preview",
+	// "production_schedule_item_policy", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
+	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
 	// "invoice_summary", "invoice_line", "invoice_allocation", "invoice_for_payment",
 	// "shipment", "shipment_summary", "shipment_line", "shipping_case",
 	// "shipping_case_label_url", "settlement", "settlement_summary",
@@ -2016,6 +2017,7 @@ const (
 	MessagingConversationListParamsTopicResourceTypeScheduleDeviationType                MessagingConversationListParamsTopicResourceType = "schedule_deviation_type"
 	MessagingConversationListParamsTopicResourceTypeScheduleAtRiskOrder                  MessagingConversationListParamsTopicResourceType = "schedule_at_risk_order"
 	MessagingConversationListParamsTopicResourceTypeProductionScheduleFinishedPolicy     MessagingConversationListParamsTopicResourceType = "production_schedule_finished_policy"
+	MessagingConversationListParamsTopicResourceTypeProductionScheduleFinishingLine      MessagingConversationListParamsTopicResourceType = "production_schedule_finishing_line"
 	MessagingConversationListParamsTopicResourceTypeProductionScheduleWeekRelease        MessagingConversationListParamsTopicResourceType = "production_schedule_week_release"
 	MessagingConversationListParamsTopicResourceTypeProductionScheduleWeekReleasePreview MessagingConversationListParamsTopicResourceType = "production_schedule_week_release_preview"
 	MessagingConversationListParamsTopicResourceTypeProductionScheduleItemPolicy         MessagingConversationListParamsTopicResourceType = "production_schedule_item_policy"

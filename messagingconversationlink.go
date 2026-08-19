@@ -137,13 +137,13 @@ type AddConversationLinkRequestParam struct {
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
 	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
 	// "schedule_deviation_type", "schedule_at_risk_order",
-	// "production_schedule_finished_policy", "production_schedule_week_release",
-	// "production_schedule_week_release_preview", "production_schedule_item_policy",
-	// "child_account", "unit_group", "unit_group_unit", "consumption",
-	// "customer_product_line_access", "customer", "frequently_ordered_product",
-	// "priority", "delivery", "delivery_line", "sales_order", "location",
-	// "location_type", "lot", "email_log", "email_domain", "email_inbox",
-	// "portal_domain", "dns_record", "inventory_change_log", "invoice",
+	// "production_schedule_finished_policy", "production_schedule_finishing_line",
+	// "production_schedule_week_release", "production_schedule_week_release_preview",
+	// "production_schedule_item_policy", "child_account", "unit_group",
+	// "unit_group_unit", "consumption", "customer_product_line_access", "customer",
+	// "frequently_ordered_product", "priority", "delivery", "delivery_line",
+	// "sales_order", "location", "location_type", "lot", "email_log", "email_domain",
+	// "email_inbox", "portal_domain", "dns_record", "inventory_change_log", "invoice",
 	// "invoice_summary", "invoice_line", "invoice_allocation", "invoice_for_payment",
 	// "shipment", "shipment_summary", "shipment_line", "shipping_case",
 	// "shipping_case_label_url", "settlement", "settlement_summary",
@@ -333,6 +333,7 @@ const (
 	AddConversationLinkRequestResourceTypeScheduleDeviationType                AddConversationLinkRequestResourceType = "schedule_deviation_type"
 	AddConversationLinkRequestResourceTypeScheduleAtRiskOrder                  AddConversationLinkRequestResourceType = "schedule_at_risk_order"
 	AddConversationLinkRequestResourceTypeProductionScheduleFinishedPolicy     AddConversationLinkRequestResourceType = "production_schedule_finished_policy"
+	AddConversationLinkRequestResourceTypeProductionScheduleFinishingLine      AddConversationLinkRequestResourceType = "production_schedule_finishing_line"
 	AddConversationLinkRequestResourceTypeProductionScheduleWeekRelease        AddConversationLinkRequestResourceType = "production_schedule_week_release"
 	AddConversationLinkRequestResourceTypeProductionScheduleWeekReleasePreview AddConversationLinkRequestResourceType = "production_schedule_week_release_preview"
 	AddConversationLinkRequestResourceTypeProductionScheduleItemPolicy         AddConversationLinkRequestResourceType = "production_schedule_item_policy"
