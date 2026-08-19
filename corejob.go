@@ -188,10 +188,12 @@ type Job struct {
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
-	// "sales_order_price_quote_line", "hubspot_sync_job", "hubspot_sync_report",
-	// "hubspot_company_review", "hubspot_company_candidate", "hubspot_sync_record",
-	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
-	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "sales_order_commitment_quote", "operating_calendar",
+	// "operating_calendar_closure", "sales_order_price_quote_line",
+	// "hubspot_sync_job", "hubspot_sync_report", "hubspot_company_review",
+	// "hubspot_company_candidate", "hubspot_sync_record", "contact_match",
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
 	// "portal_registration_session_data", "pack_list", "pack_list_party",
 	// "pack_list_line_item", "pack_list_back_order", "pack_list_case", "job",
 	// "job_result", "job_export", "analyze_customer_pricing_response",
@@ -528,6 +530,9 @@ const (
 	JobResourceTypeCheckoutSalesOrder                   JobResourceType = "checkout_sales_order"
 	JobResourceTypeSalesOrderPriceQuote                 JobResourceType = "sales_order_price_quote"
 	JobResourceTypeSalesOrderFreightQuote               JobResourceType = "sales_order_freight_quote"
+	JobResourceTypeSalesOrderCommitmentQuote            JobResourceType = "sales_order_commitment_quote"
+	JobResourceTypeOperatingCalendar                    JobResourceType = "operating_calendar"
+	JobResourceTypeOperatingCalendarClosure             JobResourceType = "operating_calendar_closure"
 	JobResourceTypeSalesOrderPriceQuoteLine             JobResourceType = "sales_order_price_quote_line"
 	JobResourceTypeHubspotSyncJob                       JobResourceType = "hubspot_sync_job"
 	JobResourceTypeHubspotSyncReport                    JobResourceType = "hubspot_sync_report"

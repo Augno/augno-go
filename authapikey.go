@@ -305,6 +305,12 @@ type Address struct {
 	Object AddressObject `json:"object" api:"required"`
 	// Phone number associated with the address.
 	Phone string `json:"phone" api:"required"`
+	// The operating calendar naming the days this dock accepts freight.
+	//
+	// The most specific link in the receiving chain: set it when one of a customer's
+	// sites keeps different days from the rest. Null falls through to the customer,
+	// then their group, then the account default.
+	ReceiveCalendarID string `json:"receive_calendar_id" api:"required"`
 	// How the address is used.
 	//
 	//   - `standard`: a normal shipping or billing address.
@@ -317,17 +323,18 @@ type Address struct {
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID          respjson.Field
-		CreatedAt   respjson.Field
-		Email       respjson.Field
-		Geolocation respjson.Field
-		Name        respjson.Field
-		Object      respjson.Field
-		Phone       respjson.Field
-		Type        respjson.Field
-		UpdatedAt   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		ID                respjson.Field
+		CreatedAt         respjson.Field
+		Email             respjson.Field
+		Geolocation       respjson.Field
+		Name              respjson.Field
+		Object            respjson.Field
+		Phone             respjson.Field
+		ReceiveCalendarID respjson.Field
+		Type              respjson.Field
+		UpdatedAt         respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
 	} `json:"-"`
 }
 

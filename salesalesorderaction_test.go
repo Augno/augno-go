@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/augno/augno-go"
 	"github.com/augno/augno-go/internal/testutil"
@@ -132,6 +133,40 @@ func TestSaleSalesOrderActionOpen(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Actions.Open(context.TODO(), "or_9lqo07quiwyb")
+	if err != nil {
+		var apierr *augno.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSaleSalesOrderActionQuoteCommitmentWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := augno.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Sales.SalesOrders.Actions.QuoteCommitment(context.TODO(), augno.SaleSalesOrderActionQuoteCommitmentParams{
+		QuoteSalesOrderCommitmentRequest: augno.QuoteSalesOrderCommitmentRequestParam{
+			BuyerAccountID:       augno.String("ac_ykxoradjoeb3"),
+			CarrierID:            augno.String("carrier_id"),
+			IssuedAt:             augno.Time(time.Now()),
+			LeadTimeOverrideDays: augno.Int(0),
+			PromisedAt:           augno.Time(time.Now()),
+			SalesOrderID:         augno.String("sales_order_id"),
+			ServiceLevelID:       augno.String("crop_4ilk9p6gccrx"),
+			ShipByOverrideDate:   augno.Time(time.Now()),
+			ShipToAddressID:      augno.String("ad_npqa5y43q26z"),
+		},
+	})
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

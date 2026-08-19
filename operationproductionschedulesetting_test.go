@@ -58,6 +58,8 @@ func TestOperationProductionScheduleSettingUpdateWithOptionalParams(t *testing.T
 			WorkDaysPerWeek:                5,
 			ConstraintDepartmentID:         augno.String("constraint_department_id"),
 			GenerationCron:                 augno.String("generation_cron"),
+			ReceiveCalendarID:              augno.String("receive_calendar_id"),
+			ShipCalendarID:                 augno.String("ship_calendar_id"),
 		},
 	})
 	if err != nil {

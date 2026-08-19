@@ -198,8 +198,9 @@ type CreateProductRequestParam struct {
 	ProductLineID param.Opt[string] `json:"product_line_id,omitzero"`
 	// Attribute IDs to link to the product's item at creation time.
 	//
-	// Every ID must already exist in your account; an unknown ID fails the whole
-	// request rather than being skipped.
+	// Every ID must already exist in your account, and each attribute's property must
+	// be one the item's category carries; an ID that fails either check fails the
+	// whole request rather than being skipped.
 	AttributeIDs []string `json:"attribute_ids,omitzero"`
 	// Whether the product is shown to buyers in the customer portal.
 	//

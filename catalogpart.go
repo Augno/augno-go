@@ -146,6 +146,9 @@ type CreatePartRequestParam struct {
 	// Free-form notes about the part.
 	Notes param.Opt[string] `json:"notes,omitzero"`
 	// IDs of existing attributes to link to the part at creation time.
+	//
+	// Each attribute's property must be one the part's category carries; an attribute
+	// from any other property fails the whole request.
 	AttributeIDs []string `json:"attribute_ids,omitzero"`
 	// A value expressed as a ratio of two units, supplied on create and update
 	// requests.

@@ -331,10 +331,12 @@ type SendMessageRequestParam struct {
 	// "pick_shipments_response", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
-	// "sales_order_price_quote_line", "hubspot_sync_job", "hubspot_sync_report",
-	// "hubspot_company_review", "hubspot_company_candidate", "hubspot_sync_record",
-	// "contact_match", "reply_draft", "conversation_link", "messaging_group",
-	// "messaging_group_member", "portal_profile", "portal_registration_session",
+	// "sales_order_commitment_quote", "operating_calendar",
+	// "operating_calendar_closure", "sales_order_price_quote_line",
+	// "hubspot_sync_job", "hubspot_sync_report", "hubspot_company_review",
+	// "hubspot_company_candidate", "hubspot_sync_record", "contact_match",
+	// "reply_draft", "conversation_link", "messaging_group", "messaging_group_member",
+	// "portal_profile", "portal_registration_session",
 	// "portal_registration_session_data", "pack_list", "pack_list_party",
 	// "pack_list_line_item", "pack_list_back_order", "pack_list_case", "job",
 	// "job_result", "job_export", "analyze_customer_pricing_response",
@@ -676,6 +678,9 @@ const (
 	SendMessageRequestLinkResourceTypeCheckoutSalesOrder                   SendMessageRequestLinkResourceType = "checkout_sales_order"
 	SendMessageRequestLinkResourceTypeSalesOrderPriceQuote                 SendMessageRequestLinkResourceType = "sales_order_price_quote"
 	SendMessageRequestLinkResourceTypeSalesOrderFreightQuote               SendMessageRequestLinkResourceType = "sales_order_freight_quote"
+	SendMessageRequestLinkResourceTypeSalesOrderCommitmentQuote            SendMessageRequestLinkResourceType = "sales_order_commitment_quote"
+	SendMessageRequestLinkResourceTypeOperatingCalendar                    SendMessageRequestLinkResourceType = "operating_calendar"
+	SendMessageRequestLinkResourceTypeOperatingCalendarClosure             SendMessageRequestLinkResourceType = "operating_calendar_closure"
 	SendMessageRequestLinkResourceTypeSalesOrderPriceQuoteLine             SendMessageRequestLinkResourceType = "sales_order_price_quote_line"
 	SendMessageRequestLinkResourceTypeHubspotSyncJob                       SendMessageRequestLinkResourceType = "hubspot_sync_job"
 	SendMessageRequestLinkResourceTypeHubspotSyncReport                    SendMessageRequestLinkResourceType = "hubspot_sync_report"

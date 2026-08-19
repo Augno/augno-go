@@ -440,9 +440,11 @@ type UpdateProductionScheduleLineRequestParam struct {
 	MachineID param.Opt[string] `json:"machine_id,omitzero"`
 	// Units to build over the campaign.
 	//
-	// Changing this does not re-derive `lots` or `run_hours` — send those alongside it
-	// when they should follow, or the campaign will keep claiming its old share of
-	// machine time.
+	// Changing this re-derives `lots` and `run_hours` from the rate and lot size this
+	// version was solved with, so the campaign never keeps claiming its old share of
+	// machine time; send either alongside it to override what is derived. A campaign
+	// builds something by definition, so use delete rather than a quantity of zero to
+	// take it off the plan.
 	Quantity param.Opt[float64] `json:"quantity,omitzero"`
 	// Free-form explanation of the change.
 	ReasonNote param.Opt[string] `json:"reason_note,omitzero"`

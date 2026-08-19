@@ -603,6 +603,12 @@ type CustomerDefaults struct {
 	// be created, renamed, or removed. A customer can carry a default priority that
 	// pre-fills new orders for them.
 	Priority Priority `json:"priority" api:"required"`
+	// The operating calendar naming the days this customer's dock accepts freight.
+	//
+	// A promised delivery date is worked back from a day the customer can actually
+	// receive on. With none set here the customer inherits its account group's
+	// calendar, then the account default, then Monday to Friday.
+	ReceiveCalendarID string `json:"receive_calendar_id" api:"required"`
 	// A user's membership in an account, carrying the account-specific status, role,
 	// and department.
 	//
@@ -618,14 +624,15 @@ type CustomerDefaults struct {
 	ShippingTerm ShippingTerm `json:"shipping_term" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		LeadTimeDays respjson.Field
-		Object       respjson.Field
-		PaymentTerm  respjson.Field
-		Priority     respjson.Field
-		SalesRep     respjson.Field
-		ShippingTerm respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
+		LeadTimeDays      respjson.Field
+		Object            respjson.Field
+		PaymentTerm       respjson.Field
+		Priority          respjson.Field
+		ReceiveCalendarID respjson.Field
+		SalesRep          respjson.Field
+		ShippingTerm      respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
 	} `json:"-"`
 }
 

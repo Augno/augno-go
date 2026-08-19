@@ -47,6 +47,10 @@ type OperationService struct {
 	// The planning assumptions production schedules are solved against, and the
 	// per-resource overrides that mark which machines constrain the plan.
 	FulfillmentRecommendations OperationFulfillmentRecommendationService
+	// The days a plant tenders freight and a customer's dock accepts it, less the
+	// holidays and shutdowns either side is closed for. Every ship-by date is resolved
+	// against them, so an order is never committed to a day nobody can act on.
+	OperatingCalendars OperationOperatingCalendarService
 	// List and manage locations.
 	Locations OperationLocationService
 	// List and manage locations.
@@ -71,6 +75,7 @@ func NewOperationService(opts ...option.RequestOption) (r OperationService) {
 	r.ProductionSchedules = NewOperationProductionScheduleService(opts...)
 	r.ProductionScheduleSettings = NewOperationProductionScheduleSettingService(opts...)
 	r.FulfillmentRecommendations = NewOperationFulfillmentRecommendationService(opts...)
+	r.OperatingCalendars = NewOperationOperatingCalendarService(opts...)
 	r.Locations = NewOperationLocationService(opts...)
 	r.LocationTypes = NewOperationLocationTypeService(opts...)
 	r.Shipments = NewOperationShipmentService(opts...)

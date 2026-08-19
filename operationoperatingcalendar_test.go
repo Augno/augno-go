@@ -13,7 +13,7 @@ import (
 	"github.com/augno/augno-go/option"
 )
 
-func TestSaleAddressNewWithOptionalParams(t *testing.T) {
+func TestOperationOperatingCalendarNewWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,19 +25,15 @@ func TestSaleAddressNewWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Addresses.New(context.TODO(), augno.SaleAddressNewParams{
-		AddressInput: augno.AddressInputParam{
-			Country:           "US",
-			Name:              "Headquarters",
-			Email:             augno.String("warehouse@acme.com"),
-			Locality:          augno.String("Springfield"),
-			Phone:             augno.String("555-123-4567"),
-			PostalCode:        augno.String("62701"),
-			ReceiveCalendarID: augno.String("receive_calendar_id"),
-			State:             augno.String("IL"),
-			StreetLine1:       augno.String("123 Main St"),
-			StreetLine2:       augno.String("Suite 400"),
-			Type:              augno.AddressInputTypeStandard,
+	_, err := client.Operations.OperatingCalendars.New(context.TODO(), augno.OperationOperatingCalendarNewParams{
+		CreateOperatingCalendarRequest: augno.CreateOperatingCalendarRequestParam{
+			Code:       "default_ship",
+			DaysOfWeek: "1111000",
+			Kind:       augno.CreateOperatingCalendarRequestKindShip,
+			Name:       "Shipping days",
+			CutoffAt:   augno.String("15:00"),
+			IsDefault:  augno.Bool(true),
+			Timezone:   augno.String("America/Chicago"),
 		},
 	})
 	if err != nil {
@@ -49,7 +45,7 @@ func TestSaleAddressNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestSaleAddressGet(t *testing.T) {
+func TestOperationOperatingCalendarGet(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -61,7 +57,7 @@ func TestSaleAddressGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Addresses.Get(context.TODO(), "ad_j8cz0b79pwdb")
+	_, err := client.Operations.OperatingCalendars.Get(context.TODO(), "occd_7f2m9qk4wzxb")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {
@@ -71,7 +67,7 @@ func TestSaleAddressGet(t *testing.T) {
 	}
 }
 
-func TestSaleAddressUpdateWithOptionalParams(t *testing.T) {
+func TestOperationOperatingCalendarUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -83,22 +79,16 @@ func TestSaleAddressUpdateWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Addresses.Update(
+	_, err := client.Operations.OperatingCalendars.Update(
 		context.TODO(),
-		"ad_j8cz0b79pwdb",
-		augno.SaleAddressUpdateParams{
-			UpdateAddressRequest: augno.UpdateAddressRequestParam{
-				Country:           augno.String("US"),
-				Email:             augno.String("warehouse@acme.com"),
-				Locality:          augno.String("Springfield"),
-				Name:              augno.String("Warehouse"),
-				Phone:             augno.String("555-123-4567"),
-				PostalCode:        augno.String("62701"),
-				ReceiveCalendarID: augno.String("receive_calendar_id"),
-				State:             augno.String("IL"),
-				StreetLine1:       augno.String("123 Main St"),
-				StreetLine2:       augno.String("Suite 400"),
-				Type:              augno.UpdateAddressRequestTypeStandard,
+		"occd_7f2m9qk4wzxb",
+		augno.OperationOperatingCalendarUpdateParams{
+			UpdateOperatingCalendarRequest: augno.UpdateOperatingCalendarRequestParam{
+				CutoffAt:   augno.String("cutoff_at"),
+				DaysOfWeek: augno.String("days_of_week"),
+				IsDefault:  augno.Bool(false),
+				Name:       augno.String("name"),
+				Timezone:   augno.String("timezone"),
 			},
 		},
 	)
@@ -111,7 +101,7 @@ func TestSaleAddressUpdateWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestSaleAddressListWithOptionalParams(t *testing.T) {
+func TestOperationOperatingCalendarListWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -123,11 +113,8 @@ func TestSaleAddressListWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Addresses.List(context.TODO(), augno.SaleAddressListParams{
-		Cursor: augno.String("cursor"),
-		Limit:  augno.Int(0),
-		Q:      augno.String("q"),
-		Type:   augno.SaleAddressListParamsTypeStandard,
+	_, err := client.Operations.OperatingCalendars.List(context.TODO(), augno.OperationOperatingCalendarListParams{
+		Kind: augno.OperationOperatingCalendarListParamsKindShip,
 	})
 	if err != nil {
 		var apierr *augno.Error
@@ -138,7 +125,7 @@ func TestSaleAddressListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestSaleAddressDelete(t *testing.T) {
+func TestOperationOperatingCalendarDelete(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -150,7 +137,7 @@ func TestSaleAddressDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Addresses.Delete(context.TODO(), "ad_j8cz0b79pwdb")
+	_, err := client.Operations.OperatingCalendars.Delete(context.TODO(), "occd_7f2m9qk4wzxb")
 	if err != nil {
 		var apierr *augno.Error
 		if errors.As(err, &apierr) {

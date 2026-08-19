@@ -343,6 +343,12 @@ type CreateSalesOrderRequestParam struct {
 	//
 	// Must be unique among your orders for this customer.
 	CustomerPurchaseOrderNumber param.Opt[string] `json:"customer_purchase_order_number,omitzero"`
+	// Days between this order being issued and it being due to ship, replacing the
+	// customer's standing lead time for this order alone.
+	//
+	// Already a ship lead time, so no carrier transit is subtracted from it. Mutually
+	// exclusive with promised_at and ship_by_override_date.
+	LeadTimeOverrideDays param.Opt[int64] `json:"lead_time_override_days,omitzero"`
 	// Free-form note about the order.
 	Note param.Opt[string] `json:"note,omitzero"`
 	// The order-level discount to apply, given as either its ID or its unique code.
@@ -356,6 +362,11 @@ type CreateSalesOrderRequestParam struct {
 	// neither is available.
 	PaymentTermID param.Opt[string] `json:"payment_term_id,omitzero"`
 	// Date delivery is promised to the customer.
+	//
+	// The order's ship-by date is worked back from this: the goods have to reach the
+	// customer on a day they receive, so transit and both operating calendars are
+	// subtracted from it. Mutually exclusive with lead_time_override_days and
+	// ship_by_override_date.
 	PromisedAt param.Opt[time.Time] `json:"promised_at,omitzero" format:"date-time"`
 	// ID of the account user to credit as the order's sales rep.
 	//
@@ -370,6 +381,13 @@ type CreateSalesOrderRequestParam struct {
 	// is also omitted — supplying a carrier without a service level leaves the service
 	// level unset.
 	ServiceLevelID param.Opt[string] `json:"service_level_id,omitzero"`
+	// The exact date the order is due to ship, bypassing transit and the customer's
+	// receiving days.
+	//
+	// Still moved back to the nearest earlier day the plant ships on, since a date
+	// nobody can ship on is not a deadline. Mutually exclusive with promised_at and
+	// lead_time_override_days.
+	ShipByOverrideDate param.Opt[time.Time] `json:"ship_by_override_date,omitzero" format:"date-time"`
 	// ID of the shipping terms for the order.
 	//
 	// Falls back to the customer's default shipping term; the order is rejected when
@@ -1024,6 +1042,12 @@ type SalesOrder struct {
 	// A saved address that can be used for billing and shipping on sales orders,
 	// invoices, and shipments.
 	BillToAddress Address `json:"bill_to_address" api:"required"`
+	// Days the customer's receiving calendar and the plant's shipping calendar pulled
+	// the ship-by date back, beyond what carrier transit accounted for.
+	//
+	// Zero means every date along the way already fell on an open day. This is what
+	// explains a ship-by date that is earlier than transit alone would suggest.
+	CalendarAdjustmentDays int64 `json:"calendar_adjustment_days" api:"required"`
 	// When the order was fulfilled and closed.
 	CompletedAt time.Time `json:"completed_at" api:"required" format:"date-time"`
 	// A sales order's email recipients, grouped by the notification they receive.
@@ -1055,9 +1079,13 @@ type SalesOrder struct {
 	IssuedAt time.Time `json:"issued_at" api:"required" format:"date-time"`
 	// Calendar days between issue and the ship-by date.
 	LeadTimeDays int64 `json:"lead_time_days" api:"required"`
+	// Days between issue and the ship-by date, set on this order alone in place of the
+	// customer's standing lead time.
+	LeadTimeOverrideDays int64 `json:"lead_time_override_days" api:"required"`
 	// Which rule produced the ship-by date.
 	//
-	// Any of "customer", "account_group", "account", "manual".
+	// Any of "customer", "account_group", "account", "manual", "order_lead_time",
+	// "order_ship_by".
 	LeadTimeSource SalesOrderLeadTimeSource `json:"lead_time_source" api:"required"`
 	// Number of lines on this order.
 	LineCount int64 `json:"line_count" api:"required"`
@@ -1104,17 +1132,28 @@ type SalesOrder struct {
 	// Reference to an actor — the user, API key, agent, or group identity associated
 	// with an action.
 	SalesRep Actor `json:"sales_rep" api:"required"`
+	// The ship-by date at the plant's pickup cutoff — the moment freight has to be
+	// tendered by, not just the day.
+	//
+	// Only set when the account's shipping calendar carries a cutoff time.
+	ShipByCutoffAt time.Time `json:"ship_by_cutoff_at" api:"required" format:"date-time"`
 	// Date this order is contractually due to ship.
 	//
 	// Stamped when the order is issued. With a promised delivery date, this is that
-	// date less the carrier's transit for the order's lane, counted in business days —
-	// the day the order has to leave to arrive when promised. Otherwise it comes from
-	// the lead time on the customer, its account group, or the account.
+	// date less the carrier's transit for the order's lane and less any day the
+	// customer cannot receive on — the day the order has to leave to arrive when
+	// promised. Otherwise it comes from a lead time, whether this order's own or the
+	// one on the customer, its account group, or the account.
 	//
-	// It is not recomputed afterwards, so neither renegotiating a customer's lead time
-	// nor a later carrier estimate moves commitments already made. Cleared if the
-	// order is unissued.
+	// Always a day the plant actually ships on, whichever rule produced it.
+	//
+	// It is not recomputed afterwards, so neither renegotiating a customer's lead
+	// time, nor a later carrier estimate, nor a holiday added to a calendar moves
+	// commitments already made. Cleared if the order is unissued.
 	ShipByDate time.Time `json:"ship_by_date" api:"required" format:"date-time"`
+	// The ship date pinned on this order, bypassing transit and the customer's
+	// receiving days.
+	ShipByOverrideDate time.Time `json:"ship_by_override_date" api:"required" format:"date-time"`
 	// A saved address that can be used for billing and shipping on sales orders,
 	// invoices, and shipments.
 	ShipToAddress Address `json:"ship_to_address" api:"required"`
@@ -1160,6 +1199,7 @@ type SalesOrder struct {
 		ID                          respjson.Field
 		AcknowledgmentStatus        respjson.Field
 		BillToAddress               respjson.Field
+		CalendarAdjustmentDays      respjson.Field
 		CompletedAt                 respjson.Field
 		Contacts                    respjson.Field
 		CreatedAt                   respjson.Field
@@ -1171,6 +1211,7 @@ type SalesOrder struct {
 		Freight                     respjson.Field
 		IssuedAt                    respjson.Field
 		LeadTimeDays                respjson.Field
+		LeadTimeOverrideDays        respjson.Field
 		LeadTimeSource              respjson.Field
 		LineCount                   respjson.Field
 		Lines                       respjson.Field
@@ -1185,7 +1226,9 @@ type SalesOrder struct {
 		PromisedAt                  respjson.Field
 		Related                     respjson.Field
 		SalesRep                    respjson.Field
+		ShipByCutoffAt              respjson.Field
 		ShipByDate                  respjson.Field
+		ShipByOverrideDate          respjson.Field
 		ShipToAddress               respjson.Field
 		ShippingTerm                respjson.Field
 		Status                      respjson.Field
@@ -1220,10 +1263,12 @@ const (
 type SalesOrderLeadTimeSource string
 
 const (
-	SalesOrderLeadTimeSourceCustomer     SalesOrderLeadTimeSource = "customer"
-	SalesOrderLeadTimeSourceAccountGroup SalesOrderLeadTimeSource = "account_group"
-	SalesOrderLeadTimeSourceAccount      SalesOrderLeadTimeSource = "account"
-	SalesOrderLeadTimeSourceManual       SalesOrderLeadTimeSource = "manual"
+	SalesOrderLeadTimeSourceCustomer      SalesOrderLeadTimeSource = "customer"
+	SalesOrderLeadTimeSourceAccountGroup  SalesOrderLeadTimeSource = "account_group"
+	SalesOrderLeadTimeSourceAccount       SalesOrderLeadTimeSource = "account"
+	SalesOrderLeadTimeSourceManual        SalesOrderLeadTimeSource = "manual"
+	SalesOrderLeadTimeSourceOrderLeadTime SalesOrderLeadTimeSource = "order_lead_time"
+	SalesOrderLeadTimeSourceOrderShipBy   SalesOrderLeadTimeSource = "order_ship_by"
 )
 
 // Resource type identifier.
@@ -1528,6 +1573,10 @@ type UpdateSalesOrderRequestParam struct {
 	CarrierBillingAccountNumber param.Opt[string] `json:"carrier_billing_account_number,omitzero"`
 	// The customer's own purchase order number, for cross-referencing.
 	CustomerPurchaseOrderNumber param.Opt[string] `json:"customer_purchase_order_number,omitzero"`
+	// Days between this order being issued and it being due to ship, replacing the
+	// customer's standing lead time for this order alone. Mutually exclusive with
+	// promised_at and ship_by_override_date; clear one to switch to another.
+	LeadTimeOverrideDays param.Opt[int64] `json:"lead_time_override_days,omitzero"`
 	// Free-form note about the order.
 	Note param.Opt[string] `json:"note,omitzero"`
 	// ID of the order-level discount recorded on the order.
@@ -1541,6 +1590,9 @@ type UpdateSalesOrderRequestParam struct {
 	SalesRepID param.Opt[string] `json:"sales_rep_id,omitzero"`
 	// ID of the carrier service level the order ships on.
 	ServiceLevelID param.Opt[string] `json:"service_level_id,omitzero"`
+	// The exact date the order is due to ship, bypassing transit and the customer's
+	// receiving days. Mutually exclusive with promised_at and lead_time_override_days.
+	ShipByOverrideDate param.Opt[time.Time] `json:"ship_by_override_date,omitzero" format:"date-time"`
 	// Billing address ID.
 	//
 	// Re-points the order to an existing address. To change an address's contents, use

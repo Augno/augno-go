@@ -199,6 +199,12 @@ type CreateCustomerRequestParam struct {
 	Number param.Opt[string] `json:"number,omitzero"`
 	// Phone number.
 	Phone param.Opt[string] `json:"phone,omitzero"`
+	// The operating calendar naming the days this customer's dock accepts freight.
+	//
+	// Sits in the same chain as lead_time_days: leaving it unset falls through to the
+	// customer's group, then the account default, then Monday to Friday. A promised
+	// delivery date is never worked back from a day nobody is there to receive on.
+	ReceiveCalendarID param.Opt[string] `json:"receive_calendar_id,omitzero"`
 	// Website URL.
 	URL param.Opt[string] `json:"url,omitzero"`
 	// Who pays the carrier for shipments.
@@ -359,7 +365,8 @@ type CustomerLeadTime struct {
 	// on one specific order, which is a fact about that order rather than about the
 	// customer.
 	//
-	// Any of "customer", "account_group", "account", "manual".
+	// Any of "customer", "account_group", "account", "manual", "order_lead_time",
+	// "order_ship_by".
 	Source CustomerLeadTimeSource `json:"source" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -398,10 +405,12 @@ const (
 type CustomerLeadTimeSource string
 
 const (
-	CustomerLeadTimeSourceCustomer     CustomerLeadTimeSource = "customer"
-	CustomerLeadTimeSourceAccountGroup CustomerLeadTimeSource = "account_group"
-	CustomerLeadTimeSourceAccount      CustomerLeadTimeSource = "account"
-	CustomerLeadTimeSourceManual       CustomerLeadTimeSource = "manual"
+	CustomerLeadTimeSourceCustomer      CustomerLeadTimeSource = "customer"
+	CustomerLeadTimeSourceAccountGroup  CustomerLeadTimeSource = "account_group"
+	CustomerLeadTimeSourceAccount       CustomerLeadTimeSource = "account"
+	CustomerLeadTimeSourceManual        CustomerLeadTimeSource = "manual"
+	CustomerLeadTimeSourceOrderLeadTime CustomerLeadTimeSource = "order_lead_time"
+	CustomerLeadTimeSourceOrderShipBy   CustomerLeadTimeSource = "order_ship_by"
 )
 
 // Request to partially update a customer.
@@ -431,6 +440,10 @@ type UpdateCustomerRequestParam struct {
 	Note param.Opt[string] `json:"note,omitzero"`
 	// Phone number.
 	Phone param.Opt[string] `json:"phone,omitzero"`
+	// The operating calendar naming the days this customer's dock accepts freight.
+	// Clearing it returns the customer to their group's calendar, then the account
+	// default.
+	ReceiveCalendarID param.Opt[string] `json:"receive_calendar_id,omitzero"`
 	// ID of an existing address to use as the default shipping address.
 	//
 	// The address is linked to the customer's account if it is not already.

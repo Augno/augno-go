@@ -148,6 +148,9 @@ type CreateMaterialRequestParam struct {
 	// Free-form notes about the material.
 	Notes param.Opt[string] `json:"notes,omitzero"`
 	// IDs of existing attributes to link to the material at creation time.
+	//
+	// Each attribute's property must be one the material's category carries; an
+	// attribute from any other property fails the whole request.
 	AttributeIDs []string `json:"attribute_ids,omitzero"`
 	// A quantity, given as a decimal value and the unit it is measured in.
 	LeadTime QuantityInputRequestParam `json:"lead_time,omitzero"`

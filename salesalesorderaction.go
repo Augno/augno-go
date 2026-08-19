@@ -133,6 +133,33 @@ func (r *SaleSalesOrderActionService) Open(ctx context.Context, id string, opts 
 	return res, err
 }
 
+// Previews the ship-by date a set of commitment inputs would produce, without
+// creating or changing anything.
+//
+// Runs the same resolution an order runs when it is issued: a promised delivery
+// date has the customer's receiving days, the carrier's transit, and the plant's
+// shipping days worked back through it, while a lead time or a pinned ship date is
+// snapped onto the next earlier day the plant ships. The returned steps are that
+// derivation in order, so a caller can show why a date is what it is rather than
+// restating the rules.
+//
+// At most one of `promised_at`, `lead_time_override_days`, and
+// `ship_by_override_date` may be set; they are alternative answers to the same
+// question.
+//
+// Advisory rather than binding. Carrier transit comes from a lane cache warmed in
+// the background, so a lane nobody has shipped yet quotes against the service
+// level's default or against no transit at all, and the date stamped at issue may
+// differ once the lane has been rated.
+//
+// This endpoint requires the permission: `sales_orders:read`.
+func (r *SaleSalesOrderActionService) QuoteCommitment(ctx context.Context, body SaleSalesOrderActionQuoteCommitmentParams, opts ...option.RequestOption) (res *QuoteSalesOrderCommitmentResponse, err error) {
+	opts = slices.Concat(r.options, opts)
+	path := "v1/sales/sales-orders/actions/quote-commitment"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 // Re-estimates the freight (shipping) charge for an order using the latest carrier
 // rates.
 //
@@ -190,6 +217,54 @@ func (r BulkDeleteSalesOrdersRequestParam) MarshalJSON() (data []byte, err error
 func (r *BulkDeleteSalesOrdersRequestParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// CommitmentQuoteStep is one rule's contribution to a previewed ship-by date.
+//
+// Returned as an ordered list so a caller can show why a date is what it is
+// without reimplementing the arithmetic, and so the explanation cannot drift from
+// the calculation that produced it.
+type CommitmentQuoteStep struct {
+	// Which rule applied.
+	//
+	// Any of "basis", "receive_calendar", "carrier_transit", "ship_calendar",
+	// "pickup_cutoff".
+	Code CommitmentQuoteStepCode `json:"code" api:"required"`
+	// Where the running date stood after this rule.
+	Date time.Time `json:"date" api:"required" format:"date-time"`
+	// How far this rule pulled the date back. Zero means the rule applied and changed
+	// nothing, which is worth showing: it says the date was already on an open day.
+	DaysMoved int64 `json:"days_moved" api:"required"`
+	// The rule's own parameter — where a transit estimate came from, or the cutoff
+	// time applied. Null for a rule that takes none, rather than an empty string:
+	// snapping onto an open day has no parameter to report.
+	Detail string `json:"detail" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Code        respjson.Field
+		Date        respjson.Field
+		DaysMoved   respjson.Field
+		Detail      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CommitmentQuoteStep) RawJSON() string { return r.JSON.raw }
+func (r *CommitmentQuoteStep) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Which rule applied.
+type CommitmentQuoteStepCode string
+
+const (
+	CommitmentQuoteStepCodeBasis           CommitmentQuoteStepCode = "basis"
+	CommitmentQuoteStepCodeReceiveCalendar CommitmentQuoteStepCode = "receive_calendar"
+	CommitmentQuoteStepCodeCarrierTransit  CommitmentQuoteStepCode = "carrier_transit"
+	CommitmentQuoteStepCodeShipCalendar    CommitmentQuoteStepCode = "ship_calendar"
+	CommitmentQuoteStepCodePickupCutoff    CommitmentQuoteStepCode = "pickup_cutoff"
+)
 
 // Request to issue a sales order.
 //
@@ -276,6 +351,126 @@ type ProductionRunObject string
 
 const (
 	ProductionRunObjectProductionRun ProductionRunObject = "production_run"
+)
+
+// Request to preview the ship-by date a set of commitment inputs would produce.
+type QuoteSalesOrderCommitmentRequestParam struct {
+	// The buying account, used to resolve its lead time and receiving days.
+	BuyerAccountID param.Opt[string] `json:"buyer_account_id,omitzero"`
+	// Carrier for the shipment.
+	CarrierID param.Opt[string] `json:"carrier_id,omitzero"`
+	// When the order would be issued. Defaults to now, since a lead time is measured
+	// from issue and an order built today but issued next week commits to next week's
+	// date.
+	IssuedAt param.Opt[time.Time] `json:"issued_at,omitzero" format:"date-time"`
+	// Days between issue and the order being due to ship, in place of the customer's
+	// standing lead time.
+	LeadTimeOverrideDays param.Opt[int64] `json:"lead_time_override_days,omitzero"`
+	// Date delivery would be promised to the customer.
+	PromisedAt param.Opt[time.Time] `json:"promised_at,omitzero" format:"date-time"`
+	// An existing order to preview against. Its customer, ship-to address, carrier,
+	// and service level are used, and the commitment fields below replace whatever it
+	// currently carries.
+	//
+	// Omit it to preview an order that has not been created yet, supplying the parts
+	// directly.
+	SalesOrderID param.Opt[string] `json:"sales_order_id,omitzero"`
+	// Service level for the shipment, which the lane's transit estimate is keyed on.
+	ServiceLevelID param.Opt[string] `json:"service_level_id,omitzero"`
+	// The exact date the order would be due to ship.
+	ShipByOverrideDate param.Opt[time.Time] `json:"ship_by_override_date,omitzero" format:"date-time"`
+	// The ship-to address, which decides the destination timezone and the lane transit
+	// is quoted on.
+	ShipToAddressID param.Opt[string] `json:"ship_to_address_id,omitzero"`
+	paramObj
+}
+
+func (r QuoteSalesOrderCommitmentRequestParam) MarshalJSON() (data []byte, err error) {
+	type shadow QuoteSalesOrderCommitmentRequestParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *QuoteSalesOrderCommitmentRequestParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The ship-by date a set of commitment inputs would produce, and how it was
+// reached.
+type QuoteSalesOrderCommitmentResponse struct {
+	// Days the receiving and shipping calendars pulled the date back, beyond what
+	// transit accounted for.
+	CalendarAdjustmentDays int64 `json:"calendar_adjustment_days" api:"required"`
+	// Calendar days between issue and the ship-by date.
+	LeadTimeDays int64 `json:"lead_time_days" api:"required"`
+	// Which rule produced the date.
+	//
+	// Any of "customer", "account_group", "account", "manual", "order_lead_time",
+	// "order_ship_by".
+	LeadTimeSource QuoteSalesOrderCommitmentResponseLeadTimeSource `json:"lead_time_source" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "sales_order_commitment_quote".
+	Object QuoteSalesOrderCommitmentResponseObject `json:"object" api:"required"`
+	// That date at the plant's pickup cutoff — the moment freight would have to be
+	// tendered by. Null when the shipping calendar carries no cutoff.
+	ShipByCutoffAt time.Time `json:"ship_by_cutoff_at" api:"required" format:"date-time"`
+	// The date the order would be due to ship, or null when no rule resolves one.
+	ShipByDate time.Time `json:"ship_by_date" api:"required" format:"date-time"`
+	// The derivation in order, one entry per rule that moved the date.
+	Steps []CommitmentQuoteStep `json:"steps" api:"required"`
+	// Days the carrier needs to cover the lane. Null when the lane has never been
+	// quoted and the service level carries no default.
+	TransitDays int64 `json:"transit_days" api:"required"`
+	// Where the transit estimate came from.
+	//
+	// Any of "carrier_lane", "service_level".
+	TransitSource QuoteSalesOrderCommitmentResponseTransitSource `json:"transit_source" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		CalendarAdjustmentDays respjson.Field
+		LeadTimeDays           respjson.Field
+		LeadTimeSource         respjson.Field
+		Object                 respjson.Field
+		ShipByCutoffAt         respjson.Field
+		ShipByDate             respjson.Field
+		Steps                  respjson.Field
+		TransitDays            respjson.Field
+		TransitSource          respjson.Field
+		ExtraFields            map[string]respjson.Field
+		raw                    string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r QuoteSalesOrderCommitmentResponse) RawJSON() string { return r.JSON.raw }
+func (r *QuoteSalesOrderCommitmentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Which rule produced the date.
+type QuoteSalesOrderCommitmentResponseLeadTimeSource string
+
+const (
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceCustomer      QuoteSalesOrderCommitmentResponseLeadTimeSource = "customer"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceAccountGroup  QuoteSalesOrderCommitmentResponseLeadTimeSource = "account_group"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceAccount       QuoteSalesOrderCommitmentResponseLeadTimeSource = "account"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceManual        QuoteSalesOrderCommitmentResponseLeadTimeSource = "manual"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceOrderLeadTime QuoteSalesOrderCommitmentResponseLeadTimeSource = "order_lead_time"
+	QuoteSalesOrderCommitmentResponseLeadTimeSourceOrderShipBy   QuoteSalesOrderCommitmentResponseLeadTimeSource = "order_ship_by"
+)
+
+// Resource type identifier.
+type QuoteSalesOrderCommitmentResponseObject string
+
+const (
+	QuoteSalesOrderCommitmentResponseObjectSalesOrderCommitmentQuote QuoteSalesOrderCommitmentResponseObject = "sales_order_commitment_quote"
+)
+
+// Where the transit estimate came from.
+type QuoteSalesOrderCommitmentResponseTransitSource string
+
+const (
+	QuoteSalesOrderCommitmentResponseTransitSourceCarrierLane  QuoteSalesOrderCommitmentResponseTransitSource = "carrier_lane"
+	QuoteSalesOrderCommitmentResponseTransitSourceServiceLevel QuoteSalesOrderCommitmentResponseTransitSource = "service_level"
 )
 
 // The freshly estimated freight charge for a sales order.
@@ -368,5 +563,18 @@ func (r SaleSalesOrderActionIssueParams) MarshalJSON() (data []byte, err error) 
 	return shimjson.Marshal(r.IssueSalesOrderRequest)
 }
 func (r *SaleSalesOrderActionIssueParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type SaleSalesOrderActionQuoteCommitmentParams struct {
+	// Request to preview the ship-by date a set of commitment inputs would produce.
+	QuoteSalesOrderCommitmentRequest QuoteSalesOrderCommitmentRequestParam
+	paramObj
+}
+
+func (r SaleSalesOrderActionQuoteCommitmentParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.QuoteSalesOrderCommitmentRequest)
+}
+func (r *SaleSalesOrderActionQuoteCommitmentParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }

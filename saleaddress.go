@@ -141,6 +141,9 @@ type AddressInputParam struct {
 	Phone param.Opt[string] `json:"phone,omitzero"`
 	// Postal or ZIP code.
 	PostalCode param.Opt[string] `json:"postal_code,omitzero"`
+	// The operating calendar naming the days this dock accepts freight, overriding the
+	// customer's own.
+	ReceiveCalendarID param.Opt[string] `json:"receive_calendar_id,omitzero"`
 	// State or administrative area.
 	State param.Opt[string] `json:"state,omitzero"`
 	// First line of the street address.
@@ -230,6 +233,9 @@ type UpdateAddressRequestParam struct {
 	//
 	// Send `null` to clear.
 	Phone param.Opt[string] `json:"phone,omitzero"`
+	// The operating calendar naming the days this dock accepts freight, overriding the
+	// customer's own. Clearing it returns this address to the customer's own calendar.
+	ReceiveCalendarID param.Opt[string] `json:"receive_calendar_id,omitzero"`
 	// Second line of the street address.
 	//
 	// Send `null` to clear.

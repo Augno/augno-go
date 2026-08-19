@@ -246,7 +246,8 @@ type ProductionScheduleSettings struct {
 	// Any of "production_schedule_settings".
 	Object ProductionScheduleSettingsObject `json:"object" api:"required"`
 	// How many weeks a generated plan covers.
-	PlanningHorizonWeeks int64 `json:"planning_horizon_weeks" api:"required"`
+	PlanningHorizonWeeks int64  `json:"planning_horizon_weeks" api:"required"`
+	ReceiveCalendarID    string `json:"receive_calendar_id" api:"required"`
 	// Z-score behind the safety stock targets.
 	//
 	// A higher value buys more cover against demand variability at both the constraint
@@ -259,6 +260,13 @@ type ProductionScheduleSettings struct {
 	SettingsStatus ProductionScheduleSettingsSettingsStatus `json:"settings_status" api:"required"`
 	// Shifts worked per day.
 	ShiftsPerDay int64 `json:"shifts_per_day" api:"required"`
+	// The account-wide operating calendars: the days the plant tenders freight, and
+	// the days a customer's dock accepts it.
+	//
+	// Behind the per-address and per-customer links and ahead of a plain
+	// Monday-to-Friday week. Null on both means every ship-by date is resolved against
+	// weekdays alone.
+	ShipCalendarID string `json:"ship_calendar_id" api:"required"`
 	// Last updated timestamp.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Day a planning week starts, where 0 is Sunday.
@@ -298,9 +306,11 @@ type ProductionScheduleSettings struct {
 		MaxWeeksSupply                 respjson.Field
 		Object                         respjson.Field
 		PlanningHorizonWeeks           respjson.Field
+		ReceiveCalendarID              respjson.Field
 		ServiceLevelZ                  respjson.Field
 		SettingsStatus                 respjson.Field
 		ShiftsPerDay                   respjson.Field
+		ShipCalendarID                 respjson.Field
 		UpdatedAt                      respjson.Field
 		WeekStartDay                   respjson.Field
 		WeeksPerYear                   respjson.Field
@@ -557,7 +567,15 @@ type UpdateProductionScheduleSettingsRequestParam struct {
 	//
 	// Must be present and parse as a standard cron expression whenever the cadence is
 	// active, otherwise the whole update is rejected.
-	GenerationCron param.Opt[string] `json:"generation_cron,omitzero"`
+	GenerationCron    param.Opt[string] `json:"generation_cron,omitzero"`
+	ReceiveCalendarID param.Opt[string] `json:"receive_calendar_id,omitzero"`
+	// The operating calendar naming the days this account's plant tenders freight, and
+	// the one naming the days a customer's dock accepts it.
+	//
+	// These are the account-wide fallbacks: an address or a customer with its own
+	// calendar overrides them, and an account with neither set falls back to a
+	// Monday-to-Friday week with no closures.
+	ShipCalendarID param.Opt[string] `json:"ship_calendar_id,omitzero"`
 	paramObj
 }
 
