@@ -618,8 +618,7 @@ type CreateConversationRequestParam struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -633,7 +632,9 @@ type CreateConversationRequestParam struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	TopicResourceType CreateConversationRequestTopicResourceType `json:"topic_resource_type,omitzero"`
 	paramObj
 }
@@ -929,8 +930,6 @@ const (
 	CreateConversationRequestTopicResourceTypeBatchLot                             CreateConversationRequestTopicResourceType = "batch_lot"
 	CreateConversationRequestTopicResourceTypeCheckDuplicateResult                 CreateConversationRequestTopicResourceType = "check_duplicate_result"
 	CreateConversationRequestTopicResourceTypeItemTrendPoint                       CreateConversationRequestTopicResourceType = "item_trend_point"
-	CreateConversationRequestTopicResourceTypePackPickResponse                     CreateConversationRequestTopicResourceType = "pack_pick_response"
-	CreateConversationRequestTopicResourceTypePickShipmentsResponse                CreateConversationRequestTopicResourceType = "pick_shipments_response"
 	CreateConversationRequestTopicResourceTypeTenancyPendingRegistration           CreateConversationRequestTopicResourceType = "tenancy_pending_registration"
 	CreateConversationRequestTopicResourceTypeInvoiceAllocationEntry               CreateConversationRequestTopicResourceType = "invoice_allocation_entry"
 	CreateConversationRequestTopicResourceTypeAllocationCustomer                   CreateConversationRequestTopicResourceType = "allocation_customer"
@@ -970,6 +969,12 @@ const (
 	CreateConversationRequestTopicResourceTypeAnalyzeRealizedMarginsResponse       CreateConversationRequestTopicResourceType = "analyze_realized_margins_response"
 	CreateConversationRequestTopicResourceTypeRealizedMarginFinding                CreateConversationRequestTopicResourceType = "realized_margin_finding"
 	CreateConversationRequestTopicResourceTypeRealizedMarginSummary                CreateConversationRequestTopicResourceType = "realized_margin_summary"
+	CreateConversationRequestTopicResourceTypeShipmentRelated                      CreateConversationRequestTopicResourceType = "shipment_related"
+	CreateConversationRequestTopicResourceTypeInvoiceRelated                       CreateConversationRequestTopicResourceType = "invoice_related"
+	CreateConversationRequestTopicResourceTypePickRelated                          CreateConversationRequestTopicResourceType = "pick_related"
+	CreateConversationRequestTopicResourceTypePickShipmentsResponse                CreateConversationRequestTopicResourceType = "pick_shipments_response"
+	CreateConversationRequestTopicResourceTypePickTotals                           CreateConversationRequestTopicResourceType = "pick_totals"
+	CreateConversationRequestTopicResourceTypePickStageTotal                       CreateConversationRequestTopicResourceType = "pick_stage_total"
 )
 
 // A single page of resources, together with the metadata needed to page through
@@ -1819,8 +1824,7 @@ type MessagingConversationListParams struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -1834,7 +1838,9 @@ type MessagingConversationListParams struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	TopicResourceType MessagingConversationListParamsTopicResourceType `query:"topic_resource_type,omitzero" json:"-"`
 	// Filter by conversation type.
 	//
@@ -2156,8 +2162,6 @@ const (
 	MessagingConversationListParamsTopicResourceTypeBatchLot                             MessagingConversationListParamsTopicResourceType = "batch_lot"
 	MessagingConversationListParamsTopicResourceTypeCheckDuplicateResult                 MessagingConversationListParamsTopicResourceType = "check_duplicate_result"
 	MessagingConversationListParamsTopicResourceTypeItemTrendPoint                       MessagingConversationListParamsTopicResourceType = "item_trend_point"
-	MessagingConversationListParamsTopicResourceTypePackPickResponse                     MessagingConversationListParamsTopicResourceType = "pack_pick_response"
-	MessagingConversationListParamsTopicResourceTypePickShipmentsResponse                MessagingConversationListParamsTopicResourceType = "pick_shipments_response"
 	MessagingConversationListParamsTopicResourceTypeTenancyPendingRegistration           MessagingConversationListParamsTopicResourceType = "tenancy_pending_registration"
 	MessagingConversationListParamsTopicResourceTypeInvoiceAllocationEntry               MessagingConversationListParamsTopicResourceType = "invoice_allocation_entry"
 	MessagingConversationListParamsTopicResourceTypeAllocationCustomer                   MessagingConversationListParamsTopicResourceType = "allocation_customer"
@@ -2197,6 +2201,12 @@ const (
 	MessagingConversationListParamsTopicResourceTypeAnalyzeRealizedMarginsResponse       MessagingConversationListParamsTopicResourceType = "analyze_realized_margins_response"
 	MessagingConversationListParamsTopicResourceTypeRealizedMarginFinding                MessagingConversationListParamsTopicResourceType = "realized_margin_finding"
 	MessagingConversationListParamsTopicResourceTypeRealizedMarginSummary                MessagingConversationListParamsTopicResourceType = "realized_margin_summary"
+	MessagingConversationListParamsTopicResourceTypeShipmentRelated                      MessagingConversationListParamsTopicResourceType = "shipment_related"
+	MessagingConversationListParamsTopicResourceTypeInvoiceRelated                       MessagingConversationListParamsTopicResourceType = "invoice_related"
+	MessagingConversationListParamsTopicResourceTypePickRelated                          MessagingConversationListParamsTopicResourceType = "pick_related"
+	MessagingConversationListParamsTopicResourceTypePickShipmentsResponse                MessagingConversationListParamsTopicResourceType = "pick_shipments_response"
+	MessagingConversationListParamsTopicResourceTypePickTotals                           MessagingConversationListParamsTopicResourceType = "pick_totals"
+	MessagingConversationListParamsTopicResourceTypePickStageTotal                       MessagingConversationListParamsTopicResourceType = "pick_stage_total"
 )
 
 // Filter by conversation type.

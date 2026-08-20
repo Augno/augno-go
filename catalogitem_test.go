@@ -107,34 +107,6 @@ func TestCatalogItemChangeCategoryWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCatalogItemGetInventoryWithOptionalParams(t *testing.T) {
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := augno.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
-	)
-	_, err := client.Catalog.Items.GetInventory(
-		context.TODO(),
-		"it_pej07ckhvu62",
-		augno.CatalogItemGetInventoryParams{
-			Include: []string{"on_hand"},
-		},
-	)
-	if err != nil {
-		var apierr *augno.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
 func TestCatalogItemGetLotDefaultWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {

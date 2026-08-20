@@ -30,7 +30,11 @@ import (
 type CatalogItemService struct {
 	options []option.RequestOption
 	// List and manage inventory items.
+	Inventory CatalogItemInventoryService
+	// List and manage inventory items.
 	Attributes CatalogItemAttributeService
+	// List and manage inventory items.
+	Actions CatalogItemActionService
 }
 
 // NewCatalogItemService generates a new service that applies the given options to
@@ -39,7 +43,9 @@ type CatalogItemService struct {
 func NewCatalogItemService(opts ...option.RequestOption) (r CatalogItemService) {
 	r = CatalogItemService{}
 	r.options = opts
+	r.Inventory = NewCatalogItemInventoryService(opts...)
 	r.Attributes = NewCatalogItemAttributeService(opts...)
+	r.Actions = NewCatalogItemActionService(opts...)
 	return
 }
 
@@ -95,25 +101,6 @@ func (r *CatalogItemService) ChangeCategory(ctx context.Context, categoryID stri
 	}
 	path := fmt.Sprintf("v1/catalog/items/%s/category/%s", url.PathEscape(params.ID), url.PathEscape(categoryID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, params, &res, opts...)
-	return res, err
-}
-
-// Returns the stock position for an item: what is on hand, what is reserved
-// against existing orders, what is free to promise, and what is short.
-//
-// Stock your account either owns or holds counts toward the on-hand figure, so
-// customer-supplied material sitting in your facility is included. All four
-// quantities are reported in the base unit of the item's category.
-//
-// This endpoint requires the permission: `items:read`.
-func (r *CatalogItemService) GetInventory(ctx context.Context, id string, query CatalogItemGetInventoryParams, opts ...option.RequestOption) (res *ItemInventory, err error) {
-	opts = slices.Concat(r.options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
-		return nil, err
-	}
-	path := fmt.Sprintf("v1/catalog/items/%s/inventory", url.PathEscape(id))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -318,65 +305,6 @@ const (
 	ItemCategoryTypeProductCategory  ItemCategoryType = "product_category"
 )
 
-// The stock position for an item: what is in stock, what is already committed, and
-// what is still free to sell.
-//
-// All four quantities are reported in the same unit — the base unit of the item's
-// category.
-type ItemInventory struct {
-	// A measured amount: a numeric value together with the unit it is expressed in.
-	//
-	// Quantities are shared building blocks rather than standalone records — other
-	// resources point at them to report stock levels, ordered and packed amounts,
-	// money, weights, and durations.
-	AvailableToPromise Quantity `json:"available_to_promise" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "item_inventory".
-	Object ItemInventoryObject `json:"object" api:"required"`
-	// A measured amount: a numeric value together with the unit it is expressed in.
-	//
-	// Quantities are shared building blocks rather than standalone records — other
-	// resources point at them to report stock levels, ordered and packed amounts,
-	// money, weights, and durations.
-	OnHand Quantity `json:"on_hand" api:"required"`
-	// A measured amount: a numeric value together with the unit it is expressed in.
-	//
-	// Quantities are shared building blocks rather than standalone records — other
-	// resources point at them to report stock levels, ordered and packed amounts,
-	// money, weights, and durations.
-	Reserved Quantity `json:"reserved" api:"required"`
-	// A measured amount: a numeric value together with the unit it is expressed in.
-	//
-	// Quantities are shared building blocks rather than standalone records — other
-	// resources point at them to report stock levels, ordered and packed amounts,
-	// money, weights, and durations.
-	Short Quantity `json:"short" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AvailableToPromise respjson.Field
-		Object             respjson.Field
-		OnHand             respjson.Field
-		Reserved           respjson.Field
-		Short              respjson.Field
-		ExtraFields        map[string]respjson.Field
-		raw                string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r ItemInventory) RawJSON() string { return r.JSON.raw }
-func (r *ItemInventory) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type ItemInventoryObject string
-
-const (
-	ItemInventoryObjectItemInventory ItemInventoryObject = "item_inventory"
-)
-
 // The lot an item is made in — how many, counted in what.
 //
 // A lot is the quantity production is issued in: a doff, a pallet, a batch. The
@@ -495,52 +423,6 @@ type ListItemObject string
 
 const (
 	ListItemObjectList ListItemObject = "list"
-)
-
-// A measured amount: a numeric value together with the unit it is expressed in.
-//
-// Quantities are shared building blocks rather than standalone records — other
-// resources point at them to report stock levels, ordered and packed amounts,
-// money, weights, and durations.
-type Quantity struct {
-	// Quantity ID.
-	ID string `json:"id" api:"required"`
-	// Formatted value with unit abbreviation (e.g. "$1,234.56" or "100 kg").
-	DisplayValue string `json:"display_value" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "quantity".
-	Object QuantityObject `json:"object" api:"required"`
-	// Unit of measurement used for conversions and product quantities.
-	Unit Unit `json:"unit" api:"required"`
-	// Raw decimal value of the quantity, as a string to preserve precision.
-	//
-	// This is the unformatted machine value; see `display_value` for the
-	// human-readable rendering with unit and thousands separators.
-	Value string `json:"value" api:"required" format:"decimal"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID           respjson.Field
-		DisplayValue respjson.Field
-		Object       respjson.Field
-		Unit         respjson.Field
-		Value        respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r Quantity) RawJSON() string { return r.JSON.raw }
-func (r *Quantity) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type QuantityObject string
-
-const (
-	QuantityObjectQuantity QuantityObject = "quantity"
 )
 
 // Value expressed as a ratio of two units, such as a price per kilogram or a
@@ -705,24 +587,6 @@ type CatalogItemChangeCategoryParams struct {
 // URLQuery serializes [CatalogItemChangeCategoryParams]'s query parameters as
 // `url.Values`.
 func (r CatalogItemChangeCategoryParams) URLQuery() (v url.Values, err error) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
-}
-
-type CatalogItemGetInventoryParams struct {
-	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
-	// `null`.
-	//
-	// Any of "on_hand", "reserved", "available_to_promise", "short".
-	Include []string `query:"include,omitzero" json:"-"`
-	paramObj
-}
-
-// URLQuery serializes [CatalogItemGetInventoryParams]'s query parameters as
-// `url.Values`.
-func (r CatalogItemGetInventoryParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

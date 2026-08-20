@@ -327,8 +327,7 @@ type SendMessageRequestParam struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -342,7 +341,9 @@ type SendMessageRequestParam struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	LinkResourceType SendMessageRequestLinkResourceType `json:"link_resource_type,omitzero"`
 	// Account user ids explicitly @mentioned in the message.
 	//
@@ -671,8 +672,6 @@ const (
 	SendMessageRequestLinkResourceTypeBatchLot                             SendMessageRequestLinkResourceType = "batch_lot"
 	SendMessageRequestLinkResourceTypeCheckDuplicateResult                 SendMessageRequestLinkResourceType = "check_duplicate_result"
 	SendMessageRequestLinkResourceTypeItemTrendPoint                       SendMessageRequestLinkResourceType = "item_trend_point"
-	SendMessageRequestLinkResourceTypePackPickResponse                     SendMessageRequestLinkResourceType = "pack_pick_response"
-	SendMessageRequestLinkResourceTypePickShipmentsResponse                SendMessageRequestLinkResourceType = "pick_shipments_response"
 	SendMessageRequestLinkResourceTypeTenancyPendingRegistration           SendMessageRequestLinkResourceType = "tenancy_pending_registration"
 	SendMessageRequestLinkResourceTypeInvoiceAllocationEntry               SendMessageRequestLinkResourceType = "invoice_allocation_entry"
 	SendMessageRequestLinkResourceTypeAllocationCustomer                   SendMessageRequestLinkResourceType = "allocation_customer"
@@ -712,6 +711,12 @@ const (
 	SendMessageRequestLinkResourceTypeAnalyzeRealizedMarginsResponse       SendMessageRequestLinkResourceType = "analyze_realized_margins_response"
 	SendMessageRequestLinkResourceTypeRealizedMarginFinding                SendMessageRequestLinkResourceType = "realized_margin_finding"
 	SendMessageRequestLinkResourceTypeRealizedMarginSummary                SendMessageRequestLinkResourceType = "realized_margin_summary"
+	SendMessageRequestLinkResourceTypeShipmentRelated                      SendMessageRequestLinkResourceType = "shipment_related"
+	SendMessageRequestLinkResourceTypeInvoiceRelated                       SendMessageRequestLinkResourceType = "invoice_related"
+	SendMessageRequestLinkResourceTypePickRelated                          SendMessageRequestLinkResourceType = "pick_related"
+	SendMessageRequestLinkResourceTypePickShipmentsResponse                SendMessageRequestLinkResourceType = "pick_shipments_response"
+	SendMessageRequestLinkResourceTypePickTotals                           SendMessageRequestLinkResourceType = "pick_totals"
+	SendMessageRequestLinkResourceTypePickStageTotal                       SendMessageRequestLinkResourceType = "pick_stage_total"
 )
 
 // Whether to deliver the message now or hold it as a customer-reply draft.

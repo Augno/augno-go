@@ -184,8 +184,7 @@ type Job struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -199,7 +198,9 @@ type Job struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	ResourceType JobResourceType `json:"resource_type" api:"required"`
 	// A single page of resources, together with the metadata needed to page through
 	// the rest of the result set.
@@ -215,7 +216,7 @@ type Job struct {
 	Status JobStatus `json:"status" api:"required"`
 	// The kind of work the job carries out.
 	//
-	// Any of "bulk_create", "bulk_upsert", "export".
+	// Any of "bulk_create", "bulk_upsert", "export", "pack_pick".
 	Type JobType `json:"type" api:"required"`
 	// When the job was last updated.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
@@ -523,8 +524,6 @@ const (
 	JobResourceTypeBatchLot                             JobResourceType = "batch_lot"
 	JobResourceTypeCheckDuplicateResult                 JobResourceType = "check_duplicate_result"
 	JobResourceTypeItemTrendPoint                       JobResourceType = "item_trend_point"
-	JobResourceTypePackPickResponse                     JobResourceType = "pack_pick_response"
-	JobResourceTypePickShipmentsResponse                JobResourceType = "pick_shipments_response"
 	JobResourceTypeTenancyPendingRegistration           JobResourceType = "tenancy_pending_registration"
 	JobResourceTypeInvoiceAllocationEntry               JobResourceType = "invoice_allocation_entry"
 	JobResourceTypeAllocationCustomer                   JobResourceType = "allocation_customer"
@@ -564,6 +563,12 @@ const (
 	JobResourceTypeAnalyzeRealizedMarginsResponse       JobResourceType = "analyze_realized_margins_response"
 	JobResourceTypeRealizedMarginFinding                JobResourceType = "realized_margin_finding"
 	JobResourceTypeRealizedMarginSummary                JobResourceType = "realized_margin_summary"
+	JobResourceTypeShipmentRelated                      JobResourceType = "shipment_related"
+	JobResourceTypeInvoiceRelated                       JobResourceType = "invoice_related"
+	JobResourceTypePickRelated                          JobResourceType = "pick_related"
+	JobResourceTypePickShipmentsResponse                JobResourceType = "pick_shipments_response"
+	JobResourceTypePickTotals                           JobResourceType = "pick_totals"
+	JobResourceTypePickStageTotal                       JobResourceType = "pick_stage_total"
 )
 
 // How far the job has got.
@@ -587,6 +592,7 @@ const (
 	JobTypeBulkCreate JobType = "bulk_create"
 	JobTypeBulkUpsert JobType = "bulk_upsert"
 	JobTypeExport     JobType = "export"
+	JobTypePackPick   JobType = "pack_pick"
 )
 
 // Points a completed export job at the file it produced.

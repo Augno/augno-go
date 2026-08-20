@@ -657,8 +657,7 @@ type SendNotificationRequestParam struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -672,7 +671,9 @@ type SendNotificationRequestParam struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	LinkResourceType SendNotificationRequestLinkResourceType `json:"link_resource_type,omitzero"`
 	// How prominently the notification should be surfaced, from `low` through
 	// `urgent`.
@@ -976,8 +977,6 @@ const (
 	SendNotificationRequestLinkResourceTypeBatchLot                             SendNotificationRequestLinkResourceType = "batch_lot"
 	SendNotificationRequestLinkResourceTypeCheckDuplicateResult                 SendNotificationRequestLinkResourceType = "check_duplicate_result"
 	SendNotificationRequestLinkResourceTypeItemTrendPoint                       SendNotificationRequestLinkResourceType = "item_trend_point"
-	SendNotificationRequestLinkResourceTypePackPickResponse                     SendNotificationRequestLinkResourceType = "pack_pick_response"
-	SendNotificationRequestLinkResourceTypePickShipmentsResponse                SendNotificationRequestLinkResourceType = "pick_shipments_response"
 	SendNotificationRequestLinkResourceTypeTenancyPendingRegistration           SendNotificationRequestLinkResourceType = "tenancy_pending_registration"
 	SendNotificationRequestLinkResourceTypeInvoiceAllocationEntry               SendNotificationRequestLinkResourceType = "invoice_allocation_entry"
 	SendNotificationRequestLinkResourceTypeAllocationCustomer                   SendNotificationRequestLinkResourceType = "allocation_customer"
@@ -1017,6 +1016,12 @@ const (
 	SendNotificationRequestLinkResourceTypeAnalyzeRealizedMarginsResponse       SendNotificationRequestLinkResourceType = "analyze_realized_margins_response"
 	SendNotificationRequestLinkResourceTypeRealizedMarginFinding                SendNotificationRequestLinkResourceType = "realized_margin_finding"
 	SendNotificationRequestLinkResourceTypeRealizedMarginSummary                SendNotificationRequestLinkResourceType = "realized_margin_summary"
+	SendNotificationRequestLinkResourceTypeShipmentRelated                      SendNotificationRequestLinkResourceType = "shipment_related"
+	SendNotificationRequestLinkResourceTypeInvoiceRelated                       SendNotificationRequestLinkResourceType = "invoice_related"
+	SendNotificationRequestLinkResourceTypePickRelated                          SendNotificationRequestLinkResourceType = "pick_related"
+	SendNotificationRequestLinkResourceTypePickShipmentsResponse                SendNotificationRequestLinkResourceType = "pick_shipments_response"
+	SendNotificationRequestLinkResourceTypePickTotals                           SendNotificationRequestLinkResourceType = "pick_totals"
+	SendNotificationRequestLinkResourceTypePickStageTotal                       SendNotificationRequestLinkResourceType = "pick_stage_total"
 )
 
 // How prominently the notification should be surfaced, from `low` through

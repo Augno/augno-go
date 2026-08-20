@@ -184,8 +184,7 @@ type Entity struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -199,7 +198,9 @@ type Entity struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	Type EntityType `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -495,8 +496,6 @@ const (
 	EntityTypeBatchLot                             EntityType = "batch_lot"
 	EntityTypeCheckDuplicateResult                 EntityType = "check_duplicate_result"
 	EntityTypeItemTrendPoint                       EntityType = "item_trend_point"
-	EntityTypePackPickResponse                     EntityType = "pack_pick_response"
-	EntityTypePickShipmentsResponse                EntityType = "pick_shipments_response"
 	EntityTypeTenancyPendingRegistration           EntityType = "tenancy_pending_registration"
 	EntityTypeInvoiceAllocationEntry               EntityType = "invoice_allocation_entry"
 	EntityTypeAllocationCustomer                   EntityType = "allocation_customer"
@@ -536,6 +535,12 @@ const (
 	EntityTypeAnalyzeRealizedMarginsResponse       EntityType = "analyze_realized_margins_response"
 	EntityTypeRealizedMarginFinding                EntityType = "realized_margin_finding"
 	EntityTypeRealizedMarginSummary                EntityType = "realized_margin_summary"
+	EntityTypeShipmentRelated                      EntityType = "shipment_related"
+	EntityTypeInvoiceRelated                       EntityType = "invoice_related"
+	EntityTypePickRelated                          EntityType = "pick_related"
+	EntityTypePickShipmentsResponse                EntityType = "pick_shipments_response"
+	EntityTypePickTotals                           EntityType = "pick_totals"
+	EntityTypePickStageTotal                       EntityType = "pick_stage_total"
 )
 
 // A single page of resources, together with the metadata needed to page through
@@ -685,8 +690,7 @@ type CoreGetSearchParams struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -700,7 +704,9 @@ type CoreGetSearchParams struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	Types []string `query:"types,omitzero" json:"-"`
 	paramObj
 }

@@ -1346,6 +1346,8 @@ type SalesOrderLine struct {
 	ID string `json:"id" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// An entry in your catalog: something you sell, consume, or build with.
+	Item Item `json:"item" api:"required"`
 	// Position of the line on the order.
 	//
 	// Assigned automatically in sequence, starting at `1`. Product lines are numbered
@@ -1396,6 +1398,7 @@ type SalesOrderLine struct {
 	JSON struct {
 		ID                 respjson.Field
 		CreatedAt          respjson.Field
+		Item               respjson.Field
 		LineItemNumber     respjson.Field
 		Object             respjson.Field
 		Product            respjson.Field

@@ -277,6 +277,52 @@ const (
 	MaterialObjectMaterial MaterialObject = "material"
 )
 
+// A measured amount: a numeric value together with the unit it is expressed in.
+//
+// Quantities are shared building blocks rather than standalone records — other
+// resources point at them to report stock levels, ordered and packed amounts,
+// money, weights, and durations.
+type Quantity struct {
+	// Quantity ID.
+	ID string `json:"id" api:"required"`
+	// Formatted value with unit abbreviation (e.g. "$1,234.56" or "100 kg").
+	DisplayValue string `json:"display_value" api:"required"`
+	// Resource type identifier.
+	//
+	// Any of "quantity".
+	Object QuantityObject `json:"object" api:"required"`
+	// Unit of measurement used for conversions and product quantities.
+	Unit Unit `json:"unit" api:"required"`
+	// Raw decimal value of the quantity, as a string to preserve precision.
+	//
+	// This is the unformatted machine value; see `display_value` for the
+	// human-readable rendering with unit and thousands separators.
+	Value string `json:"value" api:"required" format:"decimal"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID           respjson.Field
+		DisplayValue respjson.Field
+		Object       respjson.Field
+		Unit         respjson.Field
+		Value        respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r Quantity) RawJSON() string { return r.JSON.raw }
+func (r *Quantity) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Resource type identifier.
+type QuantityObject string
+
+const (
+	QuantityObjectQuantity QuantityObject = "quantity"
+)
+
 // A quantity, given as a decimal value and the unit it is measured in.
 //
 // The properties UnitID, Value are required.

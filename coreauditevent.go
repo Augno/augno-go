@@ -232,8 +232,7 @@ type AuditEvent struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -247,7 +246,9 @@ type AuditEvent struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	ResourceType AuditEventResourceType `json:"resource_type" api:"required"`
 	// Originating client IP address.
 	SourceIP string `json:"source_ip" api:"required"`
@@ -574,8 +575,6 @@ const (
 	AuditEventResourceTypeBatchLot                             AuditEventResourceType = "batch_lot"
 	AuditEventResourceTypeCheckDuplicateResult                 AuditEventResourceType = "check_duplicate_result"
 	AuditEventResourceTypeItemTrendPoint                       AuditEventResourceType = "item_trend_point"
-	AuditEventResourceTypePackPickResponse                     AuditEventResourceType = "pack_pick_response"
-	AuditEventResourceTypePickShipmentsResponse                AuditEventResourceType = "pick_shipments_response"
 	AuditEventResourceTypeTenancyPendingRegistration           AuditEventResourceType = "tenancy_pending_registration"
 	AuditEventResourceTypeInvoiceAllocationEntry               AuditEventResourceType = "invoice_allocation_entry"
 	AuditEventResourceTypeAllocationCustomer                   AuditEventResourceType = "allocation_customer"
@@ -615,6 +614,12 @@ const (
 	AuditEventResourceTypeAnalyzeRealizedMarginsResponse       AuditEventResourceType = "analyze_realized_margins_response"
 	AuditEventResourceTypeRealizedMarginFinding                AuditEventResourceType = "realized_margin_finding"
 	AuditEventResourceTypeRealizedMarginSummary                AuditEventResourceType = "realized_margin_summary"
+	AuditEventResourceTypeShipmentRelated                      AuditEventResourceType = "shipment_related"
+	AuditEventResourceTypeInvoiceRelated                       AuditEventResourceType = "invoice_related"
+	AuditEventResourceTypePickRelated                          AuditEventResourceType = "pick_related"
+	AuditEventResourceTypePickShipmentsResponse                AuditEventResourceType = "pick_shipments_response"
+	AuditEventResourceTypePickTotals                           AuditEventResourceType = "pick_totals"
+	AuditEventResourceTypePickStageTotal                       AuditEventResourceType = "pick_stage_total"
 )
 
 // Field-level before/after transition recorded during a mutation.
@@ -827,8 +832,7 @@ type ListObjectType struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -842,7 +846,9 @@ type ListObjectType struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	Data []string `json:"data" api:"required"`
 	// Resource type identifier.
 	//
@@ -1031,8 +1037,7 @@ type CoreAuditEventListParams struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -1046,7 +1051,9 @@ type CoreAuditEventListParams struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	ResourceTypes []string `query:"resource_types,omitzero" json:"-"`
 	// Scope results to a root record's entire history tree.
 	//
@@ -1132,8 +1139,7 @@ type CoreAuditEventListParams struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -1147,7 +1153,9 @@ type CoreAuditEventListParams struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	RootResourceType CoreAuditEventListParamsRootResourceType `query:"root_resource_type,omitzero" json:"-"`
 	// Filter by the _target_ account the mutation was performed against (the event's
 	// `account`).
@@ -1438,8 +1446,6 @@ const (
 	CoreAuditEventListParamsRootResourceTypeBatchLot                             CoreAuditEventListParamsRootResourceType = "batch_lot"
 	CoreAuditEventListParamsRootResourceTypeCheckDuplicateResult                 CoreAuditEventListParamsRootResourceType = "check_duplicate_result"
 	CoreAuditEventListParamsRootResourceTypeItemTrendPoint                       CoreAuditEventListParamsRootResourceType = "item_trend_point"
-	CoreAuditEventListParamsRootResourceTypePackPickResponse                     CoreAuditEventListParamsRootResourceType = "pack_pick_response"
-	CoreAuditEventListParamsRootResourceTypePickShipmentsResponse                CoreAuditEventListParamsRootResourceType = "pick_shipments_response"
 	CoreAuditEventListParamsRootResourceTypeTenancyPendingRegistration           CoreAuditEventListParamsRootResourceType = "tenancy_pending_registration"
 	CoreAuditEventListParamsRootResourceTypeInvoiceAllocationEntry               CoreAuditEventListParamsRootResourceType = "invoice_allocation_entry"
 	CoreAuditEventListParamsRootResourceTypeAllocationCustomer                   CoreAuditEventListParamsRootResourceType = "allocation_customer"
@@ -1479,4 +1485,10 @@ const (
 	CoreAuditEventListParamsRootResourceTypeAnalyzeRealizedMarginsResponse       CoreAuditEventListParamsRootResourceType = "analyze_realized_margins_response"
 	CoreAuditEventListParamsRootResourceTypeRealizedMarginFinding                CoreAuditEventListParamsRootResourceType = "realized_margin_finding"
 	CoreAuditEventListParamsRootResourceTypeRealizedMarginSummary                CoreAuditEventListParamsRootResourceType = "realized_margin_summary"
+	CoreAuditEventListParamsRootResourceTypeShipmentRelated                      CoreAuditEventListParamsRootResourceType = "shipment_related"
+	CoreAuditEventListParamsRootResourceTypeInvoiceRelated                       CoreAuditEventListParamsRootResourceType = "invoice_related"
+	CoreAuditEventListParamsRootResourceTypePickRelated                          CoreAuditEventListParamsRootResourceType = "pick_related"
+	CoreAuditEventListParamsRootResourceTypePickShipmentsResponse                CoreAuditEventListParamsRootResourceType = "pick_shipments_response"
+	CoreAuditEventListParamsRootResourceTypePickTotals                           CoreAuditEventListParamsRootResourceType = "pick_totals"
+	CoreAuditEventListParamsRootResourceTypePickStageTotal                       CoreAuditEventListParamsRootResourceType = "pick_stage_total"
 )

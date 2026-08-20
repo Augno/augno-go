@@ -179,8 +179,7 @@ type AddConversationLinkRequestParam struct {
 	// "estimate_rate_result", "rate_shop_option", "rate_shop_result", "owner",
 	// "created_by", "message", "account_photo_upload_result",
 	// "user_photo_upload_result", "user_photo_url", "batch_lot",
-	// "check_duplicate_result", "item_trend_point", "pack_pick_response",
-	// "pick_shipments_response", "tenancy_pending_registration",
+	// "check_duplicate_result", "item_trend_point", "tenancy_pending_registration",
 	// "invoice_allocation_entry", "allocation_customer", "checkout_sales_order",
 	// "sales_order_price_quote", "sales_order_freight_quote",
 	// "sales_order_commitment_quote", "operating_calendar",
@@ -194,7 +193,9 @@ type AddConversationLinkRequestParam struct {
 	// "job_result", "job_export", "analyze_customer_pricing_response",
 	// "customer_pricing_finding", "customer_pricing_summary", "computed_rate",
 	// "computed_quantity", "analyze_realized_margins_response",
-	// "realized_margin_finding", "realized_margin_summary".
+	// "realized_margin_finding", "realized_margin_summary", "shipment_related",
+	// "invoice_related", "pick_related", "pick_shipments_response", "pick_totals",
+	// "pick_stage_total".
 	ResourceType AddConversationLinkRequestResourceType `json:"resource_type,omitzero" api:"required"`
 	paramObj
 }
@@ -472,8 +473,6 @@ const (
 	AddConversationLinkRequestResourceTypeBatchLot                             AddConversationLinkRequestResourceType = "batch_lot"
 	AddConversationLinkRequestResourceTypeCheckDuplicateResult                 AddConversationLinkRequestResourceType = "check_duplicate_result"
 	AddConversationLinkRequestResourceTypeItemTrendPoint                       AddConversationLinkRequestResourceType = "item_trend_point"
-	AddConversationLinkRequestResourceTypePackPickResponse                     AddConversationLinkRequestResourceType = "pack_pick_response"
-	AddConversationLinkRequestResourceTypePickShipmentsResponse                AddConversationLinkRequestResourceType = "pick_shipments_response"
 	AddConversationLinkRequestResourceTypeTenancyPendingRegistration           AddConversationLinkRequestResourceType = "tenancy_pending_registration"
 	AddConversationLinkRequestResourceTypeInvoiceAllocationEntry               AddConversationLinkRequestResourceType = "invoice_allocation_entry"
 	AddConversationLinkRequestResourceTypeAllocationCustomer                   AddConversationLinkRequestResourceType = "allocation_customer"
@@ -513,6 +512,12 @@ const (
 	AddConversationLinkRequestResourceTypeAnalyzeRealizedMarginsResponse       AddConversationLinkRequestResourceType = "analyze_realized_margins_response"
 	AddConversationLinkRequestResourceTypeRealizedMarginFinding                AddConversationLinkRequestResourceType = "realized_margin_finding"
 	AddConversationLinkRequestResourceTypeRealizedMarginSummary                AddConversationLinkRequestResourceType = "realized_margin_summary"
+	AddConversationLinkRequestResourceTypeShipmentRelated                      AddConversationLinkRequestResourceType = "shipment_related"
+	AddConversationLinkRequestResourceTypeInvoiceRelated                       AddConversationLinkRequestResourceType = "invoice_related"
+	AddConversationLinkRequestResourceTypePickRelated                          AddConversationLinkRequestResourceType = "pick_related"
+	AddConversationLinkRequestResourceTypePickShipmentsResponse                AddConversationLinkRequestResourceType = "pick_shipments_response"
+	AddConversationLinkRequestResourceTypePickTotals                           AddConversationLinkRequestResourceType = "pick_totals"
+	AddConversationLinkRequestResourceTypePickStageTotal                       AddConversationLinkRequestResourceType = "pick_stage_total"
 )
 
 // A reference from a conversation to a business record it concerns, such as an

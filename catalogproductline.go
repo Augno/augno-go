@@ -401,28 +401,6 @@ const (
 	ProductLineObjectProductLine ProductLineObject = "product_line"
 )
 
-// An amount together with the unit it is expressed in.
-//
-// The unit may be a currency, so money amounts such as a credit limit are written
-// the same way as physical amounts like weights or counts.
-//
-// The properties UnitID, Value are required.
-type QuantityInputParam struct {
-	// ID of the unit of measure for the value.
-	UnitID string `json:"unit_id" api:"required"`
-	// Decimal value, as a string to preserve precision.
-	Value string `json:"value" api:"required" format:"decimal"`
-	paramObj
-}
-
-func (r QuantityInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow QuantityInputParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *QuantityInputParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Request to partially update a product line.
 type UpdateProductLineRequestParam struct {
 	// Display name of the product line.
