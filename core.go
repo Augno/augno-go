@@ -140,7 +140,7 @@ type Entity struct {
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
-	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_order_coverage", "schedule_order_coverage_line",
 	// "schedule_deviation_type", "schedule_at_risk_order",
 	// "production_schedule_finished_policy", "production_schedule_finishing_line",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
@@ -353,7 +353,6 @@ const (
 	EntityTypeDeliveryBreakdown                    EntityType = "delivery_breakdown"
 	EntityTypeScheduleOrderCoverage                EntityType = "schedule_order_coverage"
 	EntityTypeScheduleOrderCoverageLine            EntityType = "schedule_order_coverage_line"
-	EntityTypePromiseDateQuote                     EntityType = "promise_date_quote"
 	EntityTypeScheduleDeviationType                EntityType = "schedule_deviation_type"
 	EntityTypeScheduleAtRiskOrder                  EntityType = "schedule_at_risk_order"
 	EntityTypeProductionScheduleFinishedPolicy     EntityType = "production_schedule_finished_policy"
@@ -646,7 +645,7 @@ type CoreGetSearchParams struct {
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
-	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_order_coverage", "schedule_order_coverage_line",
 	// "schedule_deviation_type", "schedule_at_risk_order",
 	// "production_schedule_finished_policy", "production_schedule_finishing_line",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",

@@ -140,7 +140,7 @@ type Job struct {
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
-	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_order_coverage", "schedule_order_coverage_line",
 	// "schedule_deviation_type", "schedule_at_risk_order",
 	// "production_schedule_finished_policy", "production_schedule_finishing_line",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
@@ -381,7 +381,6 @@ const (
 	JobResourceTypeDeliveryBreakdown                    JobResourceType = "delivery_breakdown"
 	JobResourceTypeScheduleOrderCoverage                JobResourceType = "schedule_order_coverage"
 	JobResourceTypeScheduleOrderCoverageLine            JobResourceType = "schedule_order_coverage_line"
-	JobResourceTypePromiseDateQuote                     JobResourceType = "promise_date_quote"
 	JobResourceTypeScheduleDeviationType                JobResourceType = "schedule_deviation_type"
 	JobResourceTypeScheduleAtRiskOrder                  JobResourceType = "schedule_at_risk_order"
 	JobResourceTypeProductionScheduleFinishedPolicy     JobResourceType = "production_schedule_finished_policy"

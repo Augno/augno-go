@@ -574,7 +574,7 @@ type CreateConversationRequestParam struct {
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
-	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_order_coverage", "schedule_order_coverage_line",
 	// "schedule_deviation_type", "schedule_at_risk_order",
 	// "production_schedule_finished_policy", "production_schedule_finishing_line",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
@@ -787,7 +787,6 @@ const (
 	CreateConversationRequestTopicResourceTypeDeliveryBreakdown                    CreateConversationRequestTopicResourceType = "delivery_breakdown"
 	CreateConversationRequestTopicResourceTypeScheduleOrderCoverage                CreateConversationRequestTopicResourceType = "schedule_order_coverage"
 	CreateConversationRequestTopicResourceTypeScheduleOrderCoverageLine            CreateConversationRequestTopicResourceType = "schedule_order_coverage_line"
-	CreateConversationRequestTopicResourceTypePromiseDateQuote                     CreateConversationRequestTopicResourceType = "promise_date_quote"
 	CreateConversationRequestTopicResourceTypeScheduleDeviationType                CreateConversationRequestTopicResourceType = "schedule_deviation_type"
 	CreateConversationRequestTopicResourceTypeScheduleAtRiskOrder                  CreateConversationRequestTopicResourceType = "schedule_at_risk_order"
 	CreateConversationRequestTopicResourceTypeProductionScheduleFinishedPolicy     CreateConversationRequestTopicResourceType = "production_schedule_finished_policy"
@@ -1780,7 +1779,7 @@ type MessagingConversationListParams struct {
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
-	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_order_coverage", "schedule_order_coverage_line",
 	// "schedule_deviation_type", "schedule_at_risk_order",
 	// "production_schedule_finished_policy", "production_schedule_finishing_line",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
@@ -2019,7 +2018,6 @@ const (
 	MessagingConversationListParamsTopicResourceTypeDeliveryBreakdown                    MessagingConversationListParamsTopicResourceType = "delivery_breakdown"
 	MessagingConversationListParamsTopicResourceTypeScheduleOrderCoverage                MessagingConversationListParamsTopicResourceType = "schedule_order_coverage"
 	MessagingConversationListParamsTopicResourceTypeScheduleOrderCoverageLine            MessagingConversationListParamsTopicResourceType = "schedule_order_coverage_line"
-	MessagingConversationListParamsTopicResourceTypePromiseDateQuote                     MessagingConversationListParamsTopicResourceType = "promise_date_quote"
 	MessagingConversationListParamsTopicResourceTypeScheduleDeviationType                MessagingConversationListParamsTopicResourceType = "schedule_deviation_type"
 	MessagingConversationListParamsTopicResourceTypeScheduleAtRiskOrder                  MessagingConversationListParamsTopicResourceType = "schedule_at_risk_order"
 	MessagingConversationListParamsTopicResourceTypeProductionScheduleFinishedPolicy     MessagingConversationListParamsTopicResourceType = "production_schedule_finished_policy"

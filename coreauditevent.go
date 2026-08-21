@@ -188,7 +188,7 @@ type AuditEvent struct {
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
-	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_order_coverage", "schedule_order_coverage_line",
 	// "schedule_deviation_type", "schedule_at_risk_order",
 	// "production_schedule_finished_policy", "production_schedule_finishing_line",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
@@ -432,7 +432,6 @@ const (
 	AuditEventResourceTypeDeliveryBreakdown                    AuditEventResourceType = "delivery_breakdown"
 	AuditEventResourceTypeScheduleOrderCoverage                AuditEventResourceType = "schedule_order_coverage"
 	AuditEventResourceTypeScheduleOrderCoverageLine            AuditEventResourceType = "schedule_order_coverage_line"
-	AuditEventResourceTypePromiseDateQuote                     AuditEventResourceType = "promise_date_quote"
 	AuditEventResourceTypeScheduleDeviationType                AuditEventResourceType = "schedule_deviation_type"
 	AuditEventResourceTypeScheduleAtRiskOrder                  AuditEventResourceType = "schedule_at_risk_order"
 	AuditEventResourceTypeProductionScheduleFinishedPolicy     AuditEventResourceType = "production_schedule_finished_policy"
@@ -788,7 +787,7 @@ type ListObjectType struct {
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
-	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_order_coverage", "schedule_order_coverage_line",
 	// "schedule_deviation_type", "schedule_at_risk_order",
 	// "production_schedule_finished_policy", "production_schedule_finishing_line",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
@@ -993,7 +992,7 @@ type CoreAuditEventListParams struct {
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
-	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_order_coverage", "schedule_order_coverage_line",
 	// "schedule_deviation_type", "schedule_at_risk_order",
 	// "production_schedule_finished_policy", "production_schedule_finishing_line",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
@@ -1095,7 +1094,7 @@ type CoreAuditEventListParams struct {
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
-	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_order_coverage", "schedule_order_coverage_line",
 	// "schedule_deviation_type", "schedule_at_risk_order",
 	// "production_schedule_finished_policy", "production_schedule_finishing_line",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
@@ -1303,7 +1302,6 @@ const (
 	CoreAuditEventListParamsRootResourceTypeDeliveryBreakdown                    CoreAuditEventListParamsRootResourceType = "delivery_breakdown"
 	CoreAuditEventListParamsRootResourceTypeScheduleOrderCoverage                CoreAuditEventListParamsRootResourceType = "schedule_order_coverage"
 	CoreAuditEventListParamsRootResourceTypeScheduleOrderCoverageLine            CoreAuditEventListParamsRootResourceType = "schedule_order_coverage_line"
-	CoreAuditEventListParamsRootResourceTypePromiseDateQuote                     CoreAuditEventListParamsRootResourceType = "promise_date_quote"
 	CoreAuditEventListParamsRootResourceTypeScheduleDeviationType                CoreAuditEventListParamsRootResourceType = "schedule_deviation_type"
 	CoreAuditEventListParamsRootResourceTypeScheduleAtRiskOrder                  CoreAuditEventListParamsRootResourceType = "schedule_at_risk_order"
 	CoreAuditEventListParamsRootResourceTypeProductionScheduleFinishedPolicy     CoreAuditEventListParamsRootResourceType = "production_schedule_finished_policy"

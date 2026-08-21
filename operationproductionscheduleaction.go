@@ -138,31 +138,6 @@ func (r *OperationProductionScheduleActionService) Publish(ctx context.Context, 
 	return res, err
 }
 
-// Returns the earliest date the published schedule could ship a quantity of an
-// item.
-//
-// Quoted from the published version — the plan the floor is actually working to —
-// and net of everything already promised to other orders. A date backed by stock
-// somebody else is owed is not a date, so existing commitments are consumed before
-// anything is offered.
-//
-// The answer allows for finishing after the constraint stage completes, so it is a
-// ship date rather than a production date. When the published horizon cannot
-// supply the quantity at all, `is_promisable` is false and no date is returned: a
-// plan that runs thirteen weeks cannot speak for the fourteenth, and inventing a
-// date beyond it would be the one number a customer actually relies on.
-//
-// Quoting does not reserve anything. Two quotes taken a minute apart can both come
-// back with the same date, and only issuing an order commits the supply.
-//
-// This endpoint requires the permission: `production_schedules:read`.
-func (r *OperationProductionScheduleActionService) QuotePromiseDate(ctx context.Context, body OperationProductionScheduleActionQuotePromiseDateParams, opts ...option.RequestOption) (res *PromiseDateQuote, err error) {
-	opts = slices.Concat(r.options, opts)
-	path := "v1/operations/production-schedules/actions/quote-promise-date"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return res, err
-}
-
 // Re-solves a draft in place, keeping its version number.
 //
 // Only a draft can be regenerated. A published version is a commitment the floor
@@ -599,78 +574,6 @@ type ProductionScheduleRegeneratePreviewObject string
 const (
 	ProductionScheduleRegeneratePreviewObjectProductionScheduleRegeneratePreview ProductionScheduleRegeneratePreviewObject = "production_schedule_regenerate_preview"
 )
-
-// The earliest date the published plan could ship a quantity of an item.
-type PromiseDateQuote struct {
-	// Earliest date the quantity could ship, allowing for finishing after the
-	// constraint stage completes.
-	EarliestShipDate time.Time `json:"earliest_ship_date" api:"required" format:"date-time"`
-	// Horizon week the constraint stage would complete in.
-	EarliestWeekIndex int64 `json:"earliest_week_index" api:"required"`
-	// Whether the published horizon can supply it at all.
-	//
-	// False means the plan as published runs out before it could cover this quantity.
-	// That is not the same as "never" — it is the honest limit of a plan that only
-	// runs so many weeks.
-	IsPromisable bool `json:"is_promisable" api:"required"`
-	// Entity is a polymorphic reference to any resource in the system.
-	Item Entity `json:"item" api:"required"`
-	// Resource type identifier.
-	//
-	// Any of "promise_date_quote".
-	Object PromiseDateQuoteObject `json:"object" api:"required"`
-	// Entity is a polymorphic reference to any resource in the system.
-	ProductionSchedule Entity `json:"production_schedule" api:"required"`
-	// Version number of that schedule.
-	ProductionScheduleVersion int64 `json:"production_schedule_version" api:"required"`
-	// The quantity being quoted.
-	Quantity float64 `json:"quantity" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		EarliestShipDate          respjson.Field
-		EarliestWeekIndex         respjson.Field
-		IsPromisable              respjson.Field
-		Item                      respjson.Field
-		Object                    respjson.Field
-		ProductionSchedule        respjson.Field
-		ProductionScheduleVersion respjson.Field
-		Quantity                  respjson.Field
-		ExtraFields               map[string]respjson.Field
-		raw                       string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PromiseDateQuote) RawJSON() string { return r.JSON.raw }
-func (r *PromiseDateQuote) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Resource type identifier.
-type PromiseDateQuoteObject string
-
-const (
-	PromiseDateQuoteObjectPromiseDateQuote PromiseDateQuoteObject = "promise_date_quote"
-)
-
-// Request to quote the earliest date a quantity could ship.
-//
-// The properties ItemID, Quantity are required.
-type QuotePromiseDateRequestParam struct {
-	// Item being quoted.
-	ItemID string `json:"item_id" api:"required"`
-	// Quantity being quoted, in the item's own unit.
-	Quantity float64 `json:"quantity" api:"required"`
-	paramObj
-}
-
-func (r QuotePromiseDateRequestParam) MarshalJSON() (data []byte, err error) {
-	type shadow QuotePromiseDateRequestParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *QuotePromiseDateRequestParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
 
 // Request to re-solve a draft in place.
 type RegenerateProductionScheduleRequestParam struct {
@@ -1127,19 +1030,6 @@ func (r OperationProductionScheduleActionPreviewRegenerateParams) MarshalJSON() 
 	return shimjson.Marshal(r.PreviewRegenerateProductionScheduleRequest)
 }
 func (r *OperationProductionScheduleActionPreviewRegenerateParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type OperationProductionScheduleActionQuotePromiseDateParams struct {
-	// Request to quote the earliest date a quantity could ship.
-	QuotePromiseDateRequest QuotePromiseDateRequestParam
-	paramObj
-}
-
-func (r OperationProductionScheduleActionQuotePromiseDateParams) MarshalJSON() (data []byte, err error) {
-	return shimjson.Marshal(r.QuotePromiseDateRequest)
-}
-func (r *OperationProductionScheduleActionQuotePromiseDateParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

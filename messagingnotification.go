@@ -613,7 +613,7 @@ type SendNotificationRequestParam struct {
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
-	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_order_coverage", "schedule_order_coverage_line",
 	// "schedule_deviation_type", "schedule_at_risk_order",
 	// "production_schedule_finished_policy", "production_schedule_finishing_line",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
@@ -834,7 +834,6 @@ const (
 	SendNotificationRequestLinkResourceTypeDeliveryBreakdown                    SendNotificationRequestLinkResourceType = "delivery_breakdown"
 	SendNotificationRequestLinkResourceTypeScheduleOrderCoverage                SendNotificationRequestLinkResourceType = "schedule_order_coverage"
 	SendNotificationRequestLinkResourceTypeScheduleOrderCoverageLine            SendNotificationRequestLinkResourceType = "schedule_order_coverage_line"
-	SendNotificationRequestLinkResourceTypePromiseDateQuote                     SendNotificationRequestLinkResourceType = "promise_date_quote"
 	SendNotificationRequestLinkResourceTypeScheduleDeviationType                SendNotificationRequestLinkResourceType = "schedule_deviation_type"
 	SendNotificationRequestLinkResourceTypeScheduleAtRiskOrder                  SendNotificationRequestLinkResourceType = "schedule_at_risk_order"
 	SendNotificationRequestLinkResourceTypeProductionScheduleFinishedPolicy     SendNotificationRequestLinkResourceType = "production_schedule_finished_policy"

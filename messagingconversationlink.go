@@ -135,7 +135,7 @@ type AddConversationLinkRequestParam struct {
 	// "production_schedule_item_setting", "fulfillment_recommendation",
 	// "analyze_delivery_performance_response", "delivery_performance",
 	// "delivery_backlog_bucket", "delivery_lateness_bucket", "delivery_breakdown",
-	// "schedule_order_coverage", "schedule_order_coverage_line", "promise_date_quote",
+	// "schedule_order_coverage", "schedule_order_coverage_line",
 	// "schedule_deviation_type", "schedule_at_risk_order",
 	// "production_schedule_finished_policy", "production_schedule_finishing_line",
 	// "production_schedule_week_release", "production_schedule_week_release_preview",
@@ -330,7 +330,6 @@ const (
 	AddConversationLinkRequestResourceTypeDeliveryBreakdown                    AddConversationLinkRequestResourceType = "delivery_breakdown"
 	AddConversationLinkRequestResourceTypeScheduleOrderCoverage                AddConversationLinkRequestResourceType = "schedule_order_coverage"
 	AddConversationLinkRequestResourceTypeScheduleOrderCoverageLine            AddConversationLinkRequestResourceType = "schedule_order_coverage_line"
-	AddConversationLinkRequestResourceTypePromiseDateQuote                     AddConversationLinkRequestResourceType = "promise_date_quote"
 	AddConversationLinkRequestResourceTypeScheduleDeviationType                AddConversationLinkRequestResourceType = "schedule_deviation_type"
 	AddConversationLinkRequestResourceTypeScheduleAtRiskOrder                  AddConversationLinkRequestResourceType = "schedule_at_risk_order"
 	AddConversationLinkRequestResourceTypeProductionScheduleFinishedPolicy     AddConversationLinkRequestResourceType = "production_schedule_finished_policy"
