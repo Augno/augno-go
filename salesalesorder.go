@@ -1860,8 +1860,9 @@ type SaleSalesOrderListParams struct {
 	//
 	// These are account user IDs, matching the `sales_rep` on the order.
 	SalesRepIDs []string `query:"sales_rep_ids,omitzero" json:"-"`
-	// Restricts results to orders in any of these lifecycle statuses (`estimate`,
-	// `issued`, `fulfilled`).
+	// Restricts results to orders in any of these lifecycle statuses.
+	//
+	// Any of "estimate", "issued", "fulfilled".
 	StatusCodes []string `query:"status_codes,omitzero" json:"-"`
 	paramObj
 }

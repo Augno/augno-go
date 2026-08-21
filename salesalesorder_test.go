@@ -186,7 +186,7 @@ func TestSaleSalesOrderListWithOptionalParams(t *testing.T) {
 		ShipByAfter:      augno.String("ship_by_after"),
 		ShipByBefore:     augno.String("ship_by_before"),
 		StartsAt:         augno.String("starts_at"),
-		StatusCodes:      []string{"string"},
+		StatusCodes:      []string{"estimate"},
 	})
 	if err != nil {
 		var apierr *augno.Error
