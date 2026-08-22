@@ -237,7 +237,7 @@ type RequestLog struct {
 	ErrorMessage string `json:"error_message" api:"required"`
 	// Request host.
 	//
-	// Usually `api.openmrp.ai`.
+	// Usually `api.augno.com`.
 	Host string `json:"host" api:"required"`
 	// User-provided idempotency key.
 	IdempotencyKey string `json:"idempotency_key" api:"required"`
@@ -430,7 +430,7 @@ type CoreRequestLogListParams struct {
 	ExcludeErrorCodes []string `query:"exclude_error_codes,omitzero" json:"-"`
 	// Filter by the request host.
 	//
-	// Typically `api.openmrp.ai`.
+	// Typically `api.augno.com`.
 	Hosts []string `query:"hosts,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

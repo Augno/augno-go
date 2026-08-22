@@ -263,7 +263,7 @@ func WithRequestTimeout(dur time.Duration) RequestOption {
 // environment to be the "production" environment. An environment specifies which base URL
 // to use by default.
 func WithEnvironmentProduction() RequestOption {
-	return requestconfig.WithDefaultBaseURL("https://api.openmrp.ai/")
+	return requestconfig.WithDefaultBaseURL("https://api.augno.com/")
 }
 
 // WithEnvironmentLocal returns a RequestOption that sets the current

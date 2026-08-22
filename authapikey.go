@@ -44,7 +44,7 @@ func NewAuthAPIKeyService(opts ...option.RequestOption) (r AuthAPIKeyService) {
 	return
 }
 
-// Creates an [API key](https://docs.openmrp.ai/api/api-keys) to authenticate API
+// Creates an [API key](https://docs.augno.com/api/api-keys) to authenticate API
 // requests.
 //
 // The key belongs to the account it was created under and only ever acts on behalf
@@ -53,7 +53,7 @@ func NewAuthAPIKeyService(opts ...option.RequestOption) (r AuthAPIKeyService) {
 //
 // The secret key is returned once and cannot be retrieved later, so you should
 // store it securely. We provide some
-// [recommendations](https://docs.openmrp.ai/api/managing-api-keys) on how you can
+// [recommendations](https://docs.augno.com/api/managing-api-keys) on how you can
 // manage your API keys.
 //
 // This endpoint requires the `admin` role type.
@@ -64,7 +64,7 @@ func (r *AuthAPIKeyService) New(ctx context.Context, params AuthAPIKeyNewParams,
 	return res, err
 }
 
-// Returns [API key](https://docs.openmrp.ai/api/api-keys) metadata by ID.
+// Returns [API key](https://docs.augno.com/api/api-keys) metadata by ID.
 //
 // Only the redacted key value is returned. The full secret is available only in
 // the response that issued the key, so a lost secret must be replaced by rotating
@@ -82,7 +82,7 @@ func (r *AuthAPIKeyService) Get(ctx context.Context, id string, query AuthAPIKey
 	return res, err
 }
 
-// Returns a paginated list of [API keys](https://docs.openmrp.ai/api/api-keys),
+// Returns a paginated list of [API keys](https://docs.augno.com/api/api-keys),
 // newest first.
 //
 // Only keys belonging to the account making the request are returned. The search
@@ -96,7 +96,7 @@ func (r *AuthAPIKeyService) List(ctx context.Context, query AuthAPIKeyListParams
 	return res, err
 }
 
-// Revokes an [API key](https://docs.openmrp.ai/api/api-keys).
+// Revokes an [API key](https://docs.augno.com/api/api-keys).
 //
 // Revocation takes effect immediately and cannot be undone; any request still
 // presenting the key is rejected. The key record is kept, so it stays visible in
@@ -476,7 +476,7 @@ type CreatedAPIKey struct {
 	//
 	// This is the only response that ever contains the secret; if it is lost, rotate
 	// the key to issue a new one. Learn more about
-	// [managing your API keys](https://docs.openmrp.ai/api/managing-api-keys).
+	// [managing your API keys](https://docs.augno.com/api/managing-api-keys).
 	APIKeySecret string `json:"api_key_secret" api:"required"`
 	// Resource type identifier.
 	//

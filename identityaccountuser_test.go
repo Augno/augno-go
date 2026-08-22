@@ -29,7 +29,7 @@ func TestIdentityAccountUserNewWithOptionalParams(t *testing.T) {
 		Include: []string{"user"},
 		CreateAccountUserRequest: openmrp.CreateAccountUserRequestParam{
 			DepartmentID:         openmrp.String("dp_m0jayebxnkos"),
-			Email:                openmrp.String("jdoe@openmrp.ai"),
+			Email:                openmrp.String("jdoe@augno.com"),
 			IsCommissionEligible: openmrp.Bool(false),
 			Name:                 openmrp.String("John Doe"),
 			Password:             openmrp.String("QgS7Z8Hhj3&1"),
@@ -97,7 +97,7 @@ func TestIdentityAccountUserUpdateWithOptionalParams(t *testing.T) {
 			Include: []string{"user"},
 			UpdateAccountUserRequest: openmrp.UpdateAccountUserRequestParam{
 				DepartmentID:         openmrp.String("dp_m0jayebxnkos"),
-				Email:                openmrp.String("jdoe@openmrp.ai"),
+				Email:                openmrp.String("jdoe@augno.com"),
 				IsCommissionEligible: openmrp.Bool(false),
 				Name:                 openmrp.String("John Doe"),
 				Preferences: []openmrp.NotificationPreferenceItemParam{{
