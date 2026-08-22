@@ -2,7 +2,7 @@ package param_test
 
 import (
 	"encoding/json"
-	"github.com/augno/augno-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/param"
 	"testing"
 )
 

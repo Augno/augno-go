@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCoreAnalyticsUpdateDeliveryPerformanceWithOptionalParams(t *testing.T) {
@@ -22,23 +22,23 @@ func TestCoreAnalyticsUpdateDeliveryPerformanceWithOptionalParams(t *testing.T) 
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Analytics.UpdateDeliveryPerformance(context.TODO(), augno.CoreAnalyticsUpdateDeliveryPerformanceParams{
-		AnalyzeDeliveryPerformanceRequest: augno.AnalyzeDeliveryPerformanceRequestParam{
+	_, err := client.Core.Analytics.UpdateDeliveryPerformance(context.TODO(), openmrp.CoreAnalyticsUpdateDeliveryPerformanceParams{
+		AnalyzeDeliveryPerformanceRequest: openmrp.AnalyzeDeliveryPerformanceRequestParam{
 			EndsAt:           time.Now(),
 			StartsAt:         time.Now(),
 			CustomerGroupIDs: []string{"string"},
 			CustomerIDs:      []string{"string"},
-			Granularity:      augno.AnalyzeDeliveryPerformanceRequestGranularityWeek,
+			Granularity:      openmrp.AnalyzeDeliveryPerformanceRequestGranularityWeek,
 			ProductLineIDs:   []string{"string"},
 			SalesRepIDs:      []string{"string"},
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -54,23 +54,23 @@ func TestCoreAnalyticsUpdateOeeWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Analytics.UpdateOee(context.TODO(), augno.CoreAnalyticsUpdateOeeParams{
-		AnalyzeOeeRequest: augno.AnalyzeOeeRequestParam{
+	_, err := client.Core.Analytics.UpdateOee(context.TODO(), openmrp.CoreAnalyticsUpdateOeeParams{
+		AnalyzeOeeRequest: openmrp.AnalyzeOeeRequestParam{
 			EndsAt:        time.Now(),
 			StartsAt:      time.Now(),
 			DepartmentIDs: []string{"dp_m0jayebxnkos"},
-			PlannedTime: []augno.OeeDepartmentPlannedTimeParam{{
+			PlannedTime: []openmrp.OeeDepartmentPlannedTimeParam{{
 				DepartmentID: "department_id",
 				PlannedHours: 0,
 			}},
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -86,19 +86,19 @@ func TestCoreAnalyticsUpdateOeeTrendWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Analytics.UpdateOeeTrend(context.TODO(), augno.CoreAnalyticsUpdateOeeTrendParams{
-		AnalyzeOeeTrendRequest: augno.AnalyzeOeeTrendRequestParam{
+	_, err := client.Core.Analytics.UpdateOeeTrend(context.TODO(), openmrp.CoreAnalyticsUpdateOeeTrendParams{
+		AnalyzeOeeTrendRequest: openmrp.AnalyzeOeeTrendRequestParam{
 			EndsAt:        time.Now(),
 			StartsAt:      time.Now(),
 			DepartmentIDs: []string{"dp_m0jayebxnkos"},
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -114,21 +114,21 @@ func TestCoreAnalyticsUpdateScheduleAttainmentWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Analytics.UpdateScheduleAttainment(context.TODO(), augno.CoreAnalyticsUpdateScheduleAttainmentParams{
-		AnalyzeScheduleAttainmentRequest: augno.AnalyzeScheduleAttainmentRequestParam{
+	_, err := client.Core.Analytics.UpdateScheduleAttainment(context.TODO(), openmrp.CoreAnalyticsUpdateScheduleAttainmentParams{
+		AnalyzeScheduleAttainmentRequest: openmrp.AnalyzeScheduleAttainmentRequestParam{
 			EndsAt:        time.Now(),
 			StartsAt:      time.Now(),
 			DepartmentIDs: []string{"string"},
-			GroupBy:       augno.AnalyzeScheduleAttainmentRequestGroupByWeek,
+			GroupBy:       openmrp.AnalyzeScheduleAttainmentRequestGroupByWeek,
 			MachineIDs:    []string{"string"},
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

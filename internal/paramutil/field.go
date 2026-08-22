@@ -1,8 +1,8 @@
 package paramutil
 
 import (
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 func AddrIfPresent[T comparable](v param.Opt[T]) *T {

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogUnitGroupActionBulkUpsertWithOptionalParams(t *testing.T) {
@@ -21,35 +21,35 @@ func TestCatalogUnitGroupActionBulkUpsertWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.UnitGroups.Actions.BulkUpsert(context.TODO(), augno.CatalogUnitGroupActionBulkUpsertParams{
-		BulkUpsertUnitGroupsRequest: augno.BulkUpsertUnitGroupsRequestParam{
-			UnitGroups: []augno.UpsertUnitGroupInputParam{{
-				BaseUnit: augno.UnitIdentifierParam{
+	_, err := client.Catalog.UnitGroups.Actions.BulkUpsert(context.TODO(), openmrp.CatalogUnitGroupActionBulkUpsertParams{
+		BulkUpsertUnitGroupsRequest: openmrp.BulkUpsertUnitGroupsRequestParam{
+			UnitGroups: []openmrp.UpsertUnitGroupInputParam{{
+				BaseUnit: openmrp.UnitIdentifierParam{
 					ID:           "un_82bd37dae5po",
 					Abbreviation: "abbreviation",
 					Name:         "name",
 				},
 				Name:  "Weight",
-				Type:  augno.UpsertUnitGroupInputTypeMass,
-				Notes: augno.String("notes"),
-				UnitConversions: []augno.UpsertUnitGroupConversionInputParam{{
-					Unit: augno.UnitIdentifierParam{
+				Type:  openmrp.UpsertUnitGroupInputTypeMass,
+				Notes: openmrp.String("notes"),
+				UnitConversions: []openmrp.UpsertUnitGroupConversionInputParam{{
+					Unit: openmrp.UnitIdentifierParam{
 						ID:           "un_82bd37dae5po",
 						Abbreviation: "abbreviation",
 						Name:         "name",
 					},
-					DiscountPercentage: augno.Float(1),
+					DiscountPercentage: openmrp.Float(1),
 				}},
 			}},
 		},
 		Include: []string{"created_by"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

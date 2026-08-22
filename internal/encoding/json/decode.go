@@ -14,7 +14,7 @@ import (
 	"encoding"
 	"encoding/base64"
 	"fmt"
-	"github.com/augno/augno-go/internal/encoding/json/shims"
+	"github.com/open-mrp/openmrp-go/internal/encoding/json/shims"
 	"reflect"
 	"strconv"
 	"strings"

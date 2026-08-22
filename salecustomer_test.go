@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSaleCustomerNewWithOptionalParams(t *testing.T) {
@@ -22,69 +22,69 @@ func TestSaleCustomerNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Customers.New(context.TODO(), augno.SaleCustomerNewParams{
-		CreateCustomerRequest: augno.CreateCustomerRequestParam{
-			BillToAddress: augno.AddressInputParam{
+	_, err := client.Sales.Customers.New(context.TODO(), openmrp.SaleCustomerNewParams{
+		CreateCustomerRequest: openmrp.CreateCustomerRequestParam{
+			BillToAddress: openmrp.AddressInputParam{
 				Country:           "US",
 				Name:              "Acme Inc.",
-				Email:             augno.String("warehouse@acme.com"),
-				Locality:          augno.String("New York"),
-				Phone:             augno.String("555-123-4567"),
-				PostalCode:        augno.String("10001"),
-				ReceiveCalendarID: augno.String("receive_calendar_id"),
-				State:             augno.String("NY"),
-				StreetLine1:       augno.String("123 Main St"),
-				StreetLine2:       augno.String("Suite 400"),
-				Type:              augno.AddressInputTypeStandard,
+				Email:             openmrp.String("warehouse@acme.com"),
+				Locality:          openmrp.String("New York"),
+				Phone:             openmrp.String("555-123-4567"),
+				PostalCode:        openmrp.String("10001"),
+				ReceiveCalendarID: openmrp.String("receive_calendar_id"),
+				State:             openmrp.String("NY"),
+				StreetLine1:       openmrp.String("123 Main St"),
+				StreetLine2:       openmrp.String("Suite 400"),
+				Type:              openmrp.AddressInputTypeStandard,
 			},
 			CustomerTypeGroupID:   "acgp_6p4z57e9alaf",
 			DefaultCarrierID:      "cr_tv5vfjtgu1n3",
 			DefaultPaymentTermID:  "pytm_skssmsy21lem",
 			DefaultShippingTermID: "shtm_c5gxy05whw6r",
 			Name:                  "Acme Inc.",
-			ShipToAddress: augno.AddressInputParam{
+			ShipToAddress: openmrp.AddressInputParam{
 				Country:           "US",
 				Name:              "Acme Inc.",
-				Email:             augno.String("warehouse@acme.com"),
-				Locality:          augno.String("New York"),
-				Phone:             augno.String("555-123-4567"),
-				PostalCode:        augno.String("10001"),
-				ReceiveCalendarID: augno.String("receive_calendar_id"),
-				State:             augno.String("NY"),
-				StreetLine1:       augno.String("123 Main St"),
-				StreetLine2:       augno.String("Suite 400"),
-				Type:              augno.AddressInputTypeStandard,
+				Email:             openmrp.String("warehouse@acme.com"),
+				Locality:          openmrp.String("New York"),
+				Phone:             openmrp.String("555-123-4567"),
+				PostalCode:        openmrp.String("10001"),
+				ReceiveCalendarID: openmrp.String("receive_calendar_id"),
+				State:             openmrp.String("NY"),
+				StreetLine1:       openmrp.String("123 Main St"),
+				StreetLine2:       openmrp.String("Suite 400"),
+				Type:              openmrp.AddressInputTypeStandard,
 			},
-			CarrierBillingAccount: augno.String("123456789"),
-			CarrierBillingType:    augno.CreateCustomerRequestCarrierBillingTypeSender,
-			CommissionPolicy:      augno.CreateCustomerRequestCommissionPolicyCommissionApplied,
-			CreditLimit: augno.QuantityInputParam{
+			CarrierBillingAccount: openmrp.String("123456789"),
+			CarrierBillingType:    openmrp.CreateCustomerRequestCarrierBillingTypeSender,
+			CommissionPolicy:      openmrp.CreateCustomerRequestCommissionPolicyCommissionApplied,
+			CreditLimit: openmrp.QuantityInputParam{
 				UnitID: "un_82bd37dae5po",
 				Value:  "10000.00",
 			},
 			CustomerPriceGroupIDs: []string{"acgp_6p4z57e9alaf"},
-			DefaultPriority:       augno.CreateCustomerRequestDefaultPriorityNormal,
-			DefaultSalesRepID:     augno.String("acus_e5zu8bde0z3h"),
-			DefaultServiceLevelID: augno.String("crop_4ilk9p6gccrx"),
-			EdiStatus:             augno.CreateCustomerRequestEdiStatusDisabled,
-			Email:                 augno.String("orders@acme.com"),
-			FreightPolicy:         augno.CreateCustomerRequestFreightPolicyBilledFreight,
-			LeadTimeDays:          augno.Int(0),
-			Note:                  augno.String("Key enterprise account"),
-			Number:                augno.String("100042"),
-			Phone:                 augno.String("555-123-4567"),
-			ReceiveCalendarID:     augno.String("receive_calendar_id"),
-			Status:                augno.CreateCustomerRequestStatusNormal,
-			URL:                   augno.String("https://acme.com"),
+			DefaultPriority:       openmrp.CreateCustomerRequestDefaultPriorityNormal,
+			DefaultSalesRepID:     openmrp.String("acus_e5zu8bde0z3h"),
+			DefaultServiceLevelID: openmrp.String("crop_4ilk9p6gccrx"),
+			EdiStatus:             openmrp.CreateCustomerRequestEdiStatusDisabled,
+			Email:                 openmrp.String("orders@acme.com"),
+			FreightPolicy:         openmrp.CreateCustomerRequestFreightPolicyBilledFreight,
+			LeadTimeDays:          openmrp.Int(0),
+			Note:                  openmrp.String("Key enterprise account"),
+			Number:                openmrp.String("100042"),
+			Phone:                 openmrp.String("555-123-4567"),
+			ReceiveCalendarID:     openmrp.String("receive_calendar_id"),
+			Status:                openmrp.CreateCustomerRequestStatusNormal,
+			URL:                   openmrp.String("https://acme.com"),
 		},
 		Include: []string{"bill_to_address"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -100,19 +100,19 @@ func TestSaleCustomerGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.Customers.Get(
 		context.TODO(),
 		"ac_opnlh43ymyee",
-		augno.SaleCustomerGetParams{
+		openmrp.SaleCustomerGetParams{
 			Include: []string{"bill_to_address"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -128,49 +128,49 @@ func TestSaleCustomerUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.Customers.Update(
 		context.TODO(),
 		"ac_opnlh43ymyee",
-		augno.SaleCustomerUpdateParams{
+		openmrp.SaleCustomerUpdateParams{
 			Include: []string{"bill_to_address"},
-			UpdateCustomerRequest: augno.UpdateCustomerRequestParam{
-				BillToAddressID:       augno.String("ad_npqa5y43q26z"),
-				CarrierBillingAccount: augno.String("123456789"),
-				CarrierBillingType:    augno.UpdateCustomerRequestCarrierBillingTypeSender,
-				CommissionPolicy:      augno.UpdateCustomerRequestCommissionPolicyCommissionApplied,
-				CreditLimit: augno.QuantityInputParam{
+			UpdateCustomerRequest: openmrp.UpdateCustomerRequestParam{
+				BillToAddressID:       openmrp.String("ad_npqa5y43q26z"),
+				CarrierBillingAccount: openmrp.String("123456789"),
+				CarrierBillingType:    openmrp.UpdateCustomerRequestCarrierBillingTypeSender,
+				CommissionPolicy:      openmrp.UpdateCustomerRequestCommissionPolicyCommissionApplied,
+				CreditLimit: openmrp.QuantityInputParam{
 					UnitID: "un_82bd37dae5po",
 					Value:  "10000.00",
 				},
 				CustomerPriceGroupIDs: []string{"acgp_6p4z57e9alaf"},
-				CustomerTypeGroupID:   augno.String("acgp_6p4z57e9alaf"),
-				DefaultCarrierID:      augno.String("cr_tv5vfjtgu1n3"),
-				DefaultPaymentTermID:  augno.String("pytm_skssmsy21lem"),
-				DefaultPriority:       augno.UpdateCustomerRequestDefaultPriorityNormal,
-				DefaultSalesRepID:     augno.String("acus_e5zu8bde0z3h"),
-				DefaultServiceLevelID: augno.String("crop_4ilk9p6gccrx"),
-				DefaultShippingTermID: augno.String("shtm_c5gxy05whw6r"),
-				EdiStatus:             augno.UpdateCustomerRequestEdiStatusDisabled,
-				Email:                 augno.String("orders@acme.com"),
-				FreightPolicy:         augno.UpdateCustomerRequestFreightPolicyBilledFreight,
-				LeadTimeDays:          augno.Int(0),
-				Name:                  augno.String("Acme Corp Updated"),
-				Note:                  augno.String("Updated account notes"),
-				Number:                augno.String("100042"),
-				Phone:                 augno.String("555-123-4567"),
-				ReceiveCalendarID:     augno.String("receive_calendar_id"),
-				ShipToAddressID:       augno.String("ad_npqa5y43q26z"),
-				Status:                augno.UpdateCustomerRequestStatusNormal,
-				URL:                   augno.String("https://acme.com"),
+				CustomerTypeGroupID:   openmrp.String("acgp_6p4z57e9alaf"),
+				DefaultCarrierID:      openmrp.String("cr_tv5vfjtgu1n3"),
+				DefaultPaymentTermID:  openmrp.String("pytm_skssmsy21lem"),
+				DefaultPriority:       openmrp.UpdateCustomerRequestDefaultPriorityNormal,
+				DefaultSalesRepID:     openmrp.String("acus_e5zu8bde0z3h"),
+				DefaultServiceLevelID: openmrp.String("crop_4ilk9p6gccrx"),
+				DefaultShippingTermID: openmrp.String("shtm_c5gxy05whw6r"),
+				EdiStatus:             openmrp.UpdateCustomerRequestEdiStatusDisabled,
+				Email:                 openmrp.String("orders@acme.com"),
+				FreightPolicy:         openmrp.UpdateCustomerRequestFreightPolicyBilledFreight,
+				LeadTimeDays:          openmrp.Int(0),
+				Name:                  openmrp.String("Acme Corp Updated"),
+				Note:                  openmrp.String("Updated account notes"),
+				Number:                openmrp.String("100042"),
+				Phone:                 openmrp.String("555-123-4567"),
+				ReceiveCalendarID:     openmrp.String("receive_calendar_id"),
+				ShipToAddressID:       openmrp.String("ad_npqa5y43q26z"),
+				Status:                openmrp.UpdateCustomerRequestStatusNormal,
+				URL:                   openmrp.String("https://acme.com"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -186,34 +186,34 @@ func TestSaleCustomerListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Customers.List(context.TODO(), augno.SaleCustomerListParams{
+	_, err := client.Sales.Customers.List(context.TODO(), openmrp.SaleCustomerListParams{
 		CarrierIDs:            []string{"string"},
-		City:                  augno.String("city"),
+		City:                  openmrp.String("city"),
 		CommissionStatusCodes: []string{"commission_applied"},
-		Cursor:                augno.String("cursor"),
+		Cursor:                openmrp.String("cursor"),
 		CustomerGroupIDs:      []string{"string"},
-		EndsAt:                augno.Time(time.Now()),
+		EndsAt:                openmrp.Time(time.Now()),
 		FreightStatusCodes:    []string{"free_freight"},
 		Include:               []string{"bill_to_address"},
-		Limit:                 augno.Int(0),
-		ParentAccountStatus:   augno.SaleCustomerListParamsParentAccountStatusParent,
+		Limit:                 openmrp.Int(0),
+		ParentAccountStatus:   openmrp.SaleCustomerListParamsParentAccountStatusParent,
 		PaymentTermIDs:        []string{"string"},
-		PostalCode:            augno.String("postal_code"),
+		PostalCode:            openmrp.String("postal_code"),
 		PricingGroupIDs:       []string{"string"},
-		Q:                     augno.String("q"),
+		Q:                     openmrp.String("q"),
 		SalesRepIDs:           []string{"string"},
 		ServiceLevelIDs:       []string{"string"},
 		ShippingTermIDs:       []string{"string"},
-		StartsAt:              augno.Time(time.Now()),
-		State:                 augno.String("state"),
+		StartsAt:              openmrp.Time(time.Now()),
+		State:                 openmrp.String("state"),
 		StatusCodes:           []string{"normal"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -229,13 +229,13 @@ func TestSaleCustomerDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.Customers.Delete(context.TODO(), "ac_opnlh43ymyee")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -251,19 +251,19 @@ func TestSaleCustomerGetLeadTimeWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.Customers.GetLeadTime(
 		context.TODO(),
 		"ac_opnlh43ymyee",
-		augno.SaleCustomerGetLeadTimeParams{
+		openmrp.SaleCustomerGetLeadTimeParams{
 			Include: []string{"account_group"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

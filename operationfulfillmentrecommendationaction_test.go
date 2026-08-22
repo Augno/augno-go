@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationFulfillmentRecommendationActionApply(t *testing.T) {
@@ -21,17 +21,17 @@ func TestOperationFulfillmentRecommendationActionApply(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.FulfillmentRecommendations.Actions.Apply(context.TODO(), augno.OperationFulfillmentRecommendationActionApplyParams{
-		ApplyFulfillmentRecommendationsRequest: augno.ApplyFulfillmentRecommendationsRequestParam{
+	_, err := client.Operations.FulfillmentRecommendations.Actions.Apply(context.TODO(), openmrp.OperationFulfillmentRecommendationActionApplyParams{
+		ApplyFulfillmentRecommendationsRequest: openmrp.ApplyFulfillmentRecommendationsRequestParam{
 			ItemIDs: []string{"it_pej07ckhvu62"},
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

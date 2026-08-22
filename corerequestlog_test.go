@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCoreRequestLogGetWithOptionalParams(t *testing.T) {
@@ -22,19 +22,19 @@ func TestCoreRequestLogGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Core.RequestLogs.Get(
 		context.TODO(),
 		"rq_0lhl3kkhme40",
-		augno.CoreRequestLogGetParams{
+		openmrp.CoreRequestLogGetParams{
 			Include: []string{"account"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -50,33 +50,33 @@ func TestCoreRequestLogListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.RequestLogs.List(context.TODO(), augno.CoreRequestLogListParams{
+	_, err := client.Core.RequestLogs.List(context.TODO(), openmrp.CoreRequestLogListParams{
 		ActorAccountIDs:   []string{"string"},
 		ActorIDs:          []string{"string"},
 		ActorTypes:        []string{"user"},
-		Cursor:            augno.String("cursor"),
-		EndsAt:            augno.Time(time.Now()),
+		Cursor:            openmrp.String("cursor"),
+		EndsAt:            openmrp.Time(time.Now()),
 		ErrorCodes:        []string{"expired_token"},
 		ExcludeErrorCodes: []string{"expired_token"},
 		Hosts:             []string{"string"},
-		IdempotencyKey:    augno.String("idempotency_key"),
+		IdempotencyKey:    openmrp.String("idempotency_key"),
 		Include:           []string{"account"},
-		Limit:             augno.Int(0),
+		Limit:             openmrp.Int(0),
 		Methods:           []string{"GET"},
-		MinLatencyUs:      augno.Int(0),
+		MinLatencyUs:      openmrp.Int(0),
 		NormalizedRoutes:  []string{"string"},
-		Q:                 augno.String("q"),
-		StartsAt:          augno.Time(time.Now()),
+		Q:                 openmrp.String("q"),
+		StartsAt:          openmrp.Time(time.Now()),
 		StatusCodeClasses: []int64{0},
 		StatusCodes:       []int64{0},
 		TargetAccountIDs:  []string{"string"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

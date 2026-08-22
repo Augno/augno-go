@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationProductionScheduleActionArchive(t *testing.T) {
@@ -22,13 +22,13 @@ func TestOperationProductionScheduleActionArchive(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ProductionSchedules.Actions.Archive(context.TODO(), "pnsc_m4zt3z8g8src")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -44,19 +44,19 @@ func TestOperationProductionScheduleActionPreviewWithOptionalParams(t *testing.T
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ProductionSchedules.Actions.Preview(context.TODO(), augno.OperationProductionScheduleActionPreviewParams{
-		PreviewProductionScheduleRequest: augno.PreviewProductionScheduleRequestParam{
-			DemandBasis:  augno.PreviewProductionScheduleRequestDemandBasisTrailing12,
-			HorizonWeeks: augno.Int(13),
-			PlanningAsOf: augno.Time(time.Now()),
+	_, err := client.Operations.ProductionSchedules.Actions.Preview(context.TODO(), openmrp.OperationProductionScheduleActionPreviewParams{
+		PreviewProductionScheduleRequest: openmrp.PreviewProductionScheduleRequestParam{
+			DemandBasis:  openmrp.PreviewProductionScheduleRequestDemandBasisTrailing12,
+			HorizonWeeks: openmrp.Int(13),
+			PlanningAsOf: openmrp.Time(time.Now()),
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -72,23 +72,23 @@ func TestOperationProductionScheduleActionPreviewRegenerateWithOptionalParams(t 
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ProductionSchedules.Actions.PreviewRegenerate(
 		context.TODO(),
 		"pnsc_m4zt3z8g8src",
-		augno.OperationProductionScheduleActionPreviewRegenerateParams{
-			PreviewRegenerateProductionScheduleRequest: augno.PreviewRegenerateProductionScheduleRequestParam{
-				DemandBasis:  augno.PreviewRegenerateProductionScheduleRequestDemandBasisTrailing12,
-				HorizonWeeks: augno.Int(13),
-				PlanningAsOf: augno.Time(time.Now()),
+		openmrp.OperationProductionScheduleActionPreviewRegenerateParams{
+			PreviewRegenerateProductionScheduleRequest: openmrp.PreviewRegenerateProductionScheduleRequestParam{
+				DemandBasis:  openmrp.PreviewRegenerateProductionScheduleRequestDemandBasisTrailing12,
+				HorizonWeeks: openmrp.Int(13),
+				PlanningAsOf: openmrp.Time(time.Now()),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -104,13 +104,13 @@ func TestOperationProductionScheduleActionPublish(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ProductionSchedules.Actions.Publish(context.TODO(), "pnsc_m4zt3z8g8src")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -126,24 +126,24 @@ func TestOperationProductionScheduleActionRegenerateWithOptionalParams(t *testin
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ProductionSchedules.Actions.Regenerate(
 		context.TODO(),
 		"pnsc_m4zt3z8g8src",
-		augno.OperationProductionScheduleActionRegenerateParams{
-			RegenerateProductionScheduleRequest: augno.RegenerateProductionScheduleRequestParam{
-				DemandBasis:  augno.RegenerateProductionScheduleRequestDemandBasisTrailing12,
-				HorizonWeeks: augno.Int(0),
-				MergeMode:    augno.RegenerateProductionScheduleRequestMergeModePreserveManual,
-				PlanningAsOf: augno.Time(time.Now()),
+		openmrp.OperationProductionScheduleActionRegenerateParams{
+			RegenerateProductionScheduleRequest: openmrp.RegenerateProductionScheduleRequestParam{
+				DemandBasis:  openmrp.RegenerateProductionScheduleRequestDemandBasisTrailing12,
+				HorizonWeeks: openmrp.Int(0),
+				MergeMode:    openmrp.RegenerateProductionScheduleRequestMergeModePreserveManual,
+				PlanningAsOf: openmrp.Time(time.Now()),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -159,24 +159,24 @@ func TestOperationProductionScheduleActionReleaseWeekWithOptionalParams(t *testi
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ProductionSchedules.Actions.ReleaseWeek(
 		context.TODO(),
 		"pnsc_m4zt3z8g8src",
-		augno.OperationProductionScheduleActionReleaseWeekParams{
-			ReleaseProductionScheduleWeekRequest: augno.ReleaseProductionScheduleWeekRequestParam{
+		openmrp.OperationProductionScheduleActionReleaseWeekParams{
+			ReleaseProductionScheduleWeekRequest: openmrp.ReleaseProductionScheduleWeekRequestParam{
 				ResponsibleUserID: "us_43irtlt2ajz6",
 				WeekIndex:         0,
-				ScanningStationID: augno.String("scanning_station_id"),
-				SkipCarryForward:  augno.Bool(false),
+				ScanningStationID: openmrp.String("scanning_station_id"),
+				SkipCarryForward:  openmrp.Bool(false),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestAIMemoryNewWithOptionalParams(t *testing.T) {
@@ -21,25 +21,25 @@ func TestAIMemoryNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.AI.Memories.New(context.TODO(), augno.AIMemoryNewParams{
-		CreateMemoryRequest: augno.CreateMemoryRequestParam{
-			Category:   augno.CreateMemoryRequestCategoryPreference,
+	_, err := client.AI.Memories.New(context.TODO(), openmrp.AIMemoryNewParams{
+		CreateMemoryRequest: openmrp.CreateMemoryRequestParam{
+			Category:   openmrp.CreateMemoryRequestCategoryPreference,
 			Content:    "Customer prefers express shipping on all orders.",
-			EntityID:   augno.String("entity_id"),
-			EntityType: augno.String("entity_type"),
-			ExpiresAt:  augno.String("expires_at"),
-			Importance: augno.Float(0.8),
+			EntityID:   openmrp.String("entity_id"),
+			EntityType: openmrp.String("entity_type"),
+			ExpiresAt:  openmrp.String("expires_at"),
+			Importance: openmrp.Float(0.8),
 			Metadata: map[string]any{
 				"source": "support_ticket",
 			},
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -55,13 +55,13 @@ func TestAIMemoryGet(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.AI.Memories.Get(context.TODO(), "agmm_o7tjkr16gfmh")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -77,27 +77,27 @@ func TestAIMemoryUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.AI.Memories.Update(
 		context.TODO(),
 		"agmm_o7tjkr16gfmh",
-		augno.AIMemoryUpdateParams{
-			UpdateMemoryRequest: augno.UpdateMemoryRequestParam{
-				Category:   augno.UpdateMemoryRequestCategoryPreference,
-				Content:    augno.String("Customer prefers next-day shipping on all orders."),
-				EntityID:   augno.String("entity_id"),
-				EntityType: augno.String("entity_type"),
-				ExpiresAt:  augno.String("expires_at"),
-				Importance: augno.Float(0.9),
+		openmrp.AIMemoryUpdateParams{
+			UpdateMemoryRequest: openmrp.UpdateMemoryRequestParam{
+				Category:   openmrp.UpdateMemoryRequestCategoryPreference,
+				Content:    openmrp.String("Customer prefers next-day shipping on all orders."),
+				EntityID:   openmrp.String("entity_id"),
+				EntityType: openmrp.String("entity_type"),
+				ExpiresAt:  openmrp.String("expires_at"),
+				Importance: openmrp.Float(0.9),
 				Metadata:   map[string]any{},
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -113,19 +113,19 @@ func TestAIMemoryListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.AI.Memories.List(context.TODO(), augno.AIMemoryListParams{
-		Category:   augno.AIMemoryListParamsCategoryPreference,
-		Cursor:     augno.String("cursor"),
-		EntityType: augno.String("entity_type"),
-		Limit:      augno.Int(0),
-		Q:          augno.String("q"),
+	_, err := client.AI.Memories.List(context.TODO(), openmrp.AIMemoryListParams{
+		Category:   openmrp.AIMemoryListParamsCategoryPreference,
+		Cursor:     openmrp.String("cursor"),
+		EntityType: openmrp.String("entity_type"),
+		Limit:      openmrp.Int(0),
+		Q:          openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -141,13 +141,13 @@ func TestAIMemoryDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.AI.Memories.Delete(context.TODO(), "agmm_o7tjkr16gfmh")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

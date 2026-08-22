@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationOperatingCalendarNewWithOptionalParams(t *testing.T) {
@@ -21,23 +21,23 @@ func TestOperationOperatingCalendarNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.OperatingCalendars.New(context.TODO(), augno.OperationOperatingCalendarNewParams{
-		CreateOperatingCalendarRequest: augno.CreateOperatingCalendarRequestParam{
+	_, err := client.Operations.OperatingCalendars.New(context.TODO(), openmrp.OperationOperatingCalendarNewParams{
+		CreateOperatingCalendarRequest: openmrp.CreateOperatingCalendarRequestParam{
 			Code:       "default_ship",
 			DaysOfWeek: "1111000",
-			Kind:       augno.CreateOperatingCalendarRequestKindShip,
+			Kind:       openmrp.CreateOperatingCalendarRequestKindShip,
 			Name:       "Shipping days",
-			CutoffAt:   augno.String("15:00"),
-			IsDefault:  augno.Bool(true),
-			Timezone:   augno.String("America/Chicago"),
+			CutoffAt:   openmrp.String("15:00"),
+			IsDefault:  openmrp.Bool(true),
+			Timezone:   openmrp.String("America/Chicago"),
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -53,13 +53,13 @@ func TestOperationOperatingCalendarGet(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.OperatingCalendars.Get(context.TODO(), "occd_7f2m9qk4wzxb")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -75,25 +75,25 @@ func TestOperationOperatingCalendarUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.OperatingCalendars.Update(
 		context.TODO(),
 		"occd_7f2m9qk4wzxb",
-		augno.OperationOperatingCalendarUpdateParams{
-			UpdateOperatingCalendarRequest: augno.UpdateOperatingCalendarRequestParam{
-				CutoffAt:   augno.String("cutoff_at"),
-				DaysOfWeek: augno.String("days_of_week"),
-				IsDefault:  augno.Bool(false),
-				Name:       augno.String("name"),
-				Timezone:   augno.String("timezone"),
+		openmrp.OperationOperatingCalendarUpdateParams{
+			UpdateOperatingCalendarRequest: openmrp.UpdateOperatingCalendarRequestParam{
+				CutoffAt:   openmrp.String("cutoff_at"),
+				DaysOfWeek: openmrp.String("days_of_week"),
+				IsDefault:  openmrp.Bool(false),
+				Name:       openmrp.String("name"),
+				Timezone:   openmrp.String("timezone"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -109,15 +109,15 @@ func TestOperationOperatingCalendarListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.OperatingCalendars.List(context.TODO(), augno.OperationOperatingCalendarListParams{
-		Kind: augno.OperationOperatingCalendarListParamsKindShip,
+	_, err := client.Operations.OperatingCalendars.List(context.TODO(), openmrp.OperationOperatingCalendarListParams{
+		Kind: openmrp.OperationOperatingCalendarListParamsKindShip,
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -133,13 +133,13 @@ func TestOperationOperatingCalendarDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.OperatingCalendars.Delete(context.TODO(), "occd_7f2m9qk4wzxb")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

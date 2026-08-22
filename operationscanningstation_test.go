@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationScanningStationNewWithOptionalParams(t *testing.T) {
@@ -21,24 +21,24 @@ func TestOperationScanningStationNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ScanningStations.New(context.TODO(), augno.OperationScanningStationNewParams{
-		CreateScanningStationRequest: augno.CreateScanningStationRequestParam{
+	_, err := client.Operations.ScanningStations.New(context.TODO(), openmrp.OperationScanningStationNewParams{
+		CreateScanningStationRequest: openmrp.CreateScanningStationRequestParam{
 			DepartmentID:        "dp_m0jayebxnkos",
 			Name:                "Packaging Line 1",
-			OperatorRequirement: augno.CreateScanningStationRequestOperatorRequirementNone,
-			Type:                augno.CreateScanningStationRequestTypeInitBatch,
-			LabelSize:           augno.CreateScanningStationRequestLabelSize1x1,
-			LabelType:           augno.CreateScanningStationRequestLabelTypeTag,
-			Notes:               augno.String("Primary intake station on the receiving dock."),
+			OperatorRequirement: openmrp.CreateScanningStationRequestOperatorRequirementNone,
+			Type:                openmrp.CreateScanningStationRequestTypeInitBatch,
+			LabelSize:           openmrp.CreateScanningStationRequestLabelSize1x1,
+			LabelType:           openmrp.CreateScanningStationRequestLabelTypeTag,
+			Notes:               openmrp.String("Primary intake station on the receiving dock."),
 		},
 		Include: []string{"department"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -54,19 +54,19 @@ func TestOperationScanningStationGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ScanningStations.Get(
 		context.TODO(),
 		"scst_t71bn7lq5yov",
-		augno.OperationScanningStationGetParams{
+		openmrp.OperationScanningStationGetParams{
 			Include: []string{"department"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -82,26 +82,26 @@ func TestOperationScanningStationUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ScanningStations.Update(
 		context.TODO(),
 		"scst_t71bn7lq5yov",
-		augno.OperationScanningStationUpdateParams{
+		openmrp.OperationScanningStationUpdateParams{
 			Include: []string{"department"},
-			UpdateScanningStationRequest: augno.UpdateScanningStationRequestParam{
-				LabelSize:           augno.UpdateScanningStationRequestLabelSize1x1,
-				LabelType:           augno.UpdateScanningStationRequestLabelTypeTag,
-				Name:                augno.String("Station B"),
-				Notes:               augno.String("Relocated to the finishing area."),
-				OperatorRequirement: augno.UpdateScanningStationRequestOperatorRequirementMaterialCheck,
+			UpdateScanningStationRequest: openmrp.UpdateScanningStationRequestParam{
+				LabelSize:           openmrp.UpdateScanningStationRequestLabelSize1x1,
+				LabelType:           openmrp.UpdateScanningStationRequestLabelTypeTag,
+				Name:                openmrp.String("Station B"),
+				Notes:               openmrp.String("Relocated to the finishing area."),
+				OperatorRequirement: openmrp.UpdateScanningStationRequestOperatorRequirementMaterialCheck,
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -117,18 +117,18 @@ func TestOperationScanningStationListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ScanningStations.List(context.TODO(), augno.OperationScanningStationListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Operations.ScanningStations.List(context.TODO(), openmrp.OperationScanningStationListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"department"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -144,13 +144,13 @@ func TestOperationScanningStationDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ScanningStations.Delete(context.TODO(), "scst_t71bn7lq5yov")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

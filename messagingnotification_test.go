@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestMessagingNotificationNewWithOptionalParams(t *testing.T) {
@@ -21,26 +21,26 @@ func TestMessagingNotificationNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Messaging.Notifications.New(context.TODO(), augno.MessagingNotificationNewParams{
-		SendNotificationRequest: augno.SendNotificationRequestParam{
-			Category: augno.SendNotificationRequestCategoryOrderUpdated,
-			Target: augno.NotificationTargetInputParam{
+	_, err := client.Messaging.Notifications.New(context.TODO(), openmrp.MessagingNotificationNewParams{
+		SendNotificationRequest: openmrp.SendNotificationRequestParam{
+			Category: openmrp.SendNotificationRequestCategoryOrderUpdated,
+			Target: openmrp.NotificationTargetInputParam{
 				ID:   "acus_e5zu8bde0z3h",
-				Type: augno.NotificationTargetInputTypeAccountUser,
+				Type: openmrp.NotificationTargetInputTypeAccountUser,
 			},
 			Title:            "Order updated",
-			Body:             augno.String("Order #1042 was updated."),
-			LinkResourceID:   augno.String("or_9lqo07quiwyb"),
-			LinkResourceType: augno.SendNotificationRequestLinkResourceTypeSalesOrder,
-			Priority:         augno.SendNotificationRequestPriorityHigh,
+			Body:             openmrp.String("Order #1042 was updated."),
+			LinkResourceID:   openmrp.String("or_9lqo07quiwyb"),
+			LinkResourceType: openmrp.SendNotificationRequestLinkResourceTypeSalesOrder,
+			Priority:         openmrp.SendNotificationRequestPriorityHigh,
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -56,19 +56,19 @@ func TestMessagingNotificationGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Notifications.Get(
 		context.TODO(),
 		"nf_yvw2bfj2guyn",
-		augno.MessagingNotificationGetParams{
+		openmrp.MessagingNotificationGetParams{
 			Include: []string{"sender"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -84,22 +84,22 @@ func TestMessagingNotificationListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Messaging.Notifications.List(context.TODO(), augno.MessagingNotificationListParams{
-		Category:    augno.MessagingNotificationListParamsCategoryChatMessage,
-		Cursor:      augno.String("cursor"),
+	_, err := client.Messaging.Notifications.List(context.TODO(), openmrp.MessagingNotificationListParams{
+		Category:    openmrp.MessagingNotificationListParamsCategoryChatMessage,
+		Cursor:      openmrp.String("cursor"),
 		Include:     []string{"sender"},
-		Limit:       augno.Int(0),
-		Q:           augno.String("q"),
+		Limit:       openmrp.Int(0),
+		Q:           openmrp.String("q"),
 		SenderIDs:   []string{"string"},
 		SenderTypes: []string{"user"},
-		Status:      augno.MessagingNotificationListParamsStatusUnseen,
+		Status:      openmrp.MessagingNotificationListParamsStatusUnseen,
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -115,13 +115,13 @@ func TestMessagingNotificationGetUnreadCount(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Notifications.GetUnreadCount(context.TODO())
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -137,13 +137,13 @@ func TestMessagingNotificationGetUnreadSummary(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Notifications.GetUnreadSummary(context.TODO())
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

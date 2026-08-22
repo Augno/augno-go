@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSaleAccountPriceNewWithOptionalParams(t *testing.T) {
@@ -21,14 +21,14 @@ func TestSaleAccountPriceNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.AccountPrices.New(context.TODO(), augno.SaleAccountPriceNewParams{
-		CreateAccountPriceRequest: augno.CreateAccountPriceRequestParam{
+	_, err := client.Sales.AccountPrices.New(context.TODO(), openmrp.SaleAccountPriceNewParams{
+		CreateAccountPriceRequest: openmrp.CreateAccountPriceRequestParam{
 			ProductLineID: "pdln_k9bnlgvxhxjh",
-			Rate: augno.RateInputParam{
+			Rate: openmrp.RateInputParam{
 				DenominatorUnitID: "un_82bd37dae5po",
 				NumeratorUnitID:   "un_82bd37dae5po",
 				Value:             "25.50",
@@ -40,7 +40,7 @@ func TestSaleAccountPriceNewWithOptionalParams(t *testing.T) {
 		Include: []string{"recipient_account"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -56,19 +56,19 @@ func TestSaleAccountPriceGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.AccountPrices.Get(
 		context.TODO(),
 		"acpr_7l4j483kf32p",
-		augno.SaleAccountPriceGetParams{
+		openmrp.SaleAccountPriceGetParams{
 			Include: []string{"recipient_account"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -84,30 +84,30 @@ func TestSaleAccountPriceUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.AccountPrices.Update(
 		context.TODO(),
 		"acpr_7l4j483kf32p",
-		augno.SaleAccountPriceUpdateParams{
+		openmrp.SaleAccountPriceUpdateParams{
 			Include: []string{"recipient_account"},
-			UpdateAccountPriceRequest: augno.UpdateAccountPriceRequestParam{
+			UpdateAccountPriceRequest: openmrp.UpdateAccountPriceRequestParam{
 				AttributeIDs:  []string{"string"},
 				CategoryIDs:   []string{"string"},
-				ProductLineID: augno.String("product_line_id"),
-				Rate: augno.RateInputParam{
+				ProductLineID: openmrp.String("product_line_id"),
+				Rate: openmrp.RateInputParam{
 					DenominatorUnitID: "un_82bd37dae5po",
 					NumeratorUnitID:   "un_82bd37dae5po",
 					Value:             "30.000000000000000000000000000000",
 				},
-				RecipientAccountID: augno.String("recipient_account_id"),
+				RecipientAccountID: openmrp.String("recipient_account_id"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -123,19 +123,19 @@ func TestSaleAccountPriceListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.AccountPrices.List(context.TODO(), augno.SaleAccountPriceListParams{
-		Cursor:             augno.String("cursor"),
+	_, err := client.Sales.AccountPrices.List(context.TODO(), openmrp.SaleAccountPriceListParams{
+		Cursor:             openmrp.String("cursor"),
 		Include:            []string{"recipient_account"},
-		Limit:              augno.Int(0),
-		Q:                  augno.String("q"),
-		RecipientAccountID: augno.String("recipient_account_id"),
+		Limit:              openmrp.Int(0),
+		Q:                  openmrp.String("q"),
+		RecipientAccountID: openmrp.String("recipient_account_id"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -151,13 +151,13 @@ func TestSaleAccountPriceDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.AccountPrices.Delete(context.TODO(), "acpr_7l4j483kf32p")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

@@ -2,7 +2,7 @@ package apiform
 
 import (
 	"bytes"
-	"github.com/augno/augno-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/param"
 	"io"
 	"mime/multipart"
 	"strings"

@@ -13,7 +13,7 @@ import (
 
 	"github.com/tidwall/sjson"
 
-	shimjson "github.com/augno/augno-go/internal/encoding/json"
+	shimjson "github.com/open-mrp/openmrp-go/internal/encoding/json"
 )
 
 var encoders sync.Map // map[encoderEntry]encoderFunc

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationShipmentActionRateShopWithOptionalParams(t *testing.T) {
@@ -21,51 +21,51 @@ func TestOperationShipmentActionRateShopWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.Shipments.Actions.RateShop(context.TODO(), augno.OperationShipmentActionRateShopParams{
-		RateShopRequest: augno.RateShopRequestParam{
-			Parcels: []augno.ParcelInputParam{{
+	_, err := client.Operations.Shipments.Actions.RateShop(context.TODO(), openmrp.OperationShipmentActionRateShopParams{
+		RateShopRequest: openmrp.RateShopRequestParam{
+			Parcels: []openmrp.ParcelInputParam{{
 				Height: 6,
 				Length: 12,
 				Weight: 5,
 				Width:  8,
 			}},
-			ToAddress: augno.AddressInputParam{
+			ToAddress: openmrp.AddressInputParam{
 				Country:           "US",
 				Name:              "Destination",
-				Email:             augno.String("warehouse@acme.com"),
-				Locality:          augno.String("Los Angeles"),
-				Phone:             augno.String("555-123-4567"),
-				PostalCode:        augno.String("90001"),
-				ReceiveCalendarID: augno.String("receive_calendar_id"),
-				State:             augno.String("CA"),
-				StreetLine1:       augno.String("456 Oak Avenue"),
-				StreetLine2:       augno.String("Suite 400"),
-				Type:              augno.AddressInputTypeStandard,
+				Email:             openmrp.String("warehouse@acme.com"),
+				Locality:          openmrp.String("Los Angeles"),
+				Phone:             openmrp.String("555-123-4567"),
+				PostalCode:        openmrp.String("90001"),
+				ReceiveCalendarID: openmrp.String("receive_calendar_id"),
+				State:             openmrp.String("CA"),
+				StreetLine1:       openmrp.String("456 Oak Avenue"),
+				StreetLine2:       openmrp.String("Suite 400"),
+				Type:              openmrp.AddressInputTypeStandard,
 			},
-			CustomerID: augno.String("customer_id"),
-			FromAddress: augno.AddressInputParam{
+			CustomerID: openmrp.String("customer_id"),
+			FromAddress: openmrp.AddressInputParam{
 				Country:           "US",
 				Name:              "Origin Warehouse",
-				Email:             augno.String("warehouse@acme.com"),
-				Locality:          augno.String("San Francisco"),
-				Phone:             augno.String("555-123-4567"),
-				PostalCode:        augno.String("94105"),
-				ReceiveCalendarID: augno.String("receive_calendar_id"),
-				State:             augno.String("CA"),
-				StreetLine1:       augno.String("123 Main Street"),
-				StreetLine2:       augno.String("Suite 400"),
-				Type:              augno.AddressInputTypeStandard,
+				Email:             openmrp.String("warehouse@acme.com"),
+				Locality:          openmrp.String("San Francisco"),
+				Phone:             openmrp.String("555-123-4567"),
+				PostalCode:        openmrp.String("94105"),
+				ReceiveCalendarID: openmrp.String("receive_calendar_id"),
+				State:             openmrp.String("CA"),
+				StreetLine1:       openmrp.String("123 Main Street"),
+				StreetLine2:       openmrp.String("Suite 400"),
+				Type:              openmrp.AddressInputTypeStandard,
 			},
-			OrderTotal:     augno.Float(0),
+			OrderTotal:     openmrp.Float(0),
 			ProductLineIDs: []string{"string"},
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

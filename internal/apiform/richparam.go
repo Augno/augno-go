@@ -1,7 +1,7 @@
 package apiform
 
 import (
-	"github.com/augno/augno-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/param"
 	"mime/multipart"
 	"reflect"
 )

@@ -1,10 +1,10 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
-	"github.com/augno/augno-go/internal/apierror"
-	"github.com/augno/augno-go/packages/param"
+	"github.com/open-mrp/openmrp-go/internal/apierror"
+	"github.com/open-mrp/openmrp-go/packages/param"
 )
 
 // aliased to make [param.APIUnion] private when embedding

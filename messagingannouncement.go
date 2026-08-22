@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -11,18 +11,18 @@ import (
 	"slices"
 	"time"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // List, read, and manage broadcast announcements.
 //
 // MessagingAnnouncementService contains methods and other services that help with
-// interacting with the augno API.
+// interacting with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -65,7 +65,7 @@ func (r *MessagingAnnouncementService) Get(ctx context.Context, id string, query
 // Lists the announcements currently active for the caller, newest first.
 //
 // The feed covers announcements broadcast to the account being acted in together
-// with platform-wide announcements from Augno. Announcements the caller has
+// with platform-wide announcements from OpenMRP. Announcements the caller has
 // dismissed are left out, as are any that are scheduled for later or have already
 // expired.
 //
@@ -131,7 +131,7 @@ type Announcement struct {
 	//
 	//   - `account`: published to a single account and shown only to that account's
 	//     users.
-	//   - `platform`: published by Augno and shown to every user across all accounts.
+	//   - `platform`: published by OpenMRP and shown to every user across all accounts.
 	//
 	// Any of "account", "platform".
 	Scope AnnouncementScope `json:"scope" api:"required"`
@@ -224,7 +224,7 @@ const (
 //
 //   - `account`: published to a single account and shown only to that account's
 //     users.
-//   - `platform`: published by Augno and shown to every user across all accounts.
+//   - `platform`: published by OpenMRP and shown to every user across all accounts.
 type AnnouncementScope string
 
 const (

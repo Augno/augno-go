@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	shimjson "github.com/augno/augno-go/internal/encoding/json"
+	shimjson "github.com/open-mrp/openmrp-go/internal/encoding/json"
 
 	"github.com/tidwall/sjson"
 )

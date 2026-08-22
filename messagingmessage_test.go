@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestMessagingMessageUpdateWithOptionalParams(t *testing.T) {
@@ -21,23 +21,23 @@ func TestMessagingMessageUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Messages.Update(
 		context.TODO(),
 		"mg_fdny8633ebgw",
-		augno.MessagingMessageUpdateParams{
-			UpdateDraftRequest: augno.UpdateDraftRequestParam{
+		openmrp.MessagingMessageUpdateParams{
+			UpdateDraftRequest: openmrp.UpdateDraftRequestParam{
 				Body:    "Hi Joe — good news, your order ships tomorrow.",
-				Subject: augno.String("Re: Order #1042"),
+				Subject: openmrp.String("Re: Order #1042"),
 			},
 			Include: []string{"sender"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

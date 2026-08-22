@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogPartActionBulkUpsertWithOptionalParams(t *testing.T) {
@@ -21,30 +21,30 @@ func TestCatalogPartActionBulkUpsertWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Parts.Actions.BulkUpsert(context.TODO(), augno.CatalogPartActionBulkUpsertParams{
-		BulkUpsertPartsRequest: augno.BulkUpsertPartsRequestParam{
-			Parts: []augno.UpsertPartInputParam{{
-				Category: augno.ObjectIdentifierParam{
+	_, err := client.Catalog.Parts.Actions.BulkUpsert(context.TODO(), openmrp.CatalogPartActionBulkUpsertParams{
+		BulkUpsertPartsRequest: openmrp.BulkUpsertPartsRequestParam{
+			Parts: []openmrp.UpsertPartInputParam{{
+				Category: openmrp.ObjectIdentifierParam{
 					ID:   "ic_d06g9c6yc9ck",
 					Name: "name",
 				},
-				Properties: []augno.UpsertPartPropertyParam{{
+				Properties: []openmrp.UpsertPartPropertyParam{{
 					Name:  "name",
 					Value: "value",
 				}},
 				SKU:         "BRG-6204-2RS",
-				Description: augno.String("description"),
-				Notes:       augno.String("notes"),
-				UnitCost: augno.RateInputParam{
+				Description: openmrp.String("description"),
+				Notes:       openmrp.String("notes"),
+				UnitCost: openmrp.RateInputParam{
 					DenominatorUnitID: "denominator_unit_id",
 					NumeratorUnitID:   "numerator_unit_id",
 					Value:             "value",
 				},
-				UnitPrice: augno.RateInputParam{
+				UnitPrice: openmrp.RateInputParam{
 					DenominatorUnitID: "denominator_unit_id",
 					NumeratorUnitID:   "numerator_unit_id",
 					Value:             "value",
@@ -54,7 +54,7 @@ func TestCatalogPartActionBulkUpsertWithOptionalParams(t *testing.T) {
 		Include: []string{"created_by"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

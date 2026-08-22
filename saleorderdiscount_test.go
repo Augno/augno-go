@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSaleOrderDiscountNewWithOptionalParams(t *testing.T) {
@@ -21,21 +21,21 @@ func TestSaleOrderDiscountNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.OrderDiscounts.New(context.TODO(), augno.SaleOrderDiscountNewParams{
-		CreateOrderDiscountRequest: augno.CreateOrderDiscountRequestParam{
+	_, err := client.Sales.OrderDiscounts.New(context.TODO(), openmrp.SaleOrderDiscountNewParams{
+		CreateOrderDiscountRequest: openmrp.CreateOrderDiscountRequestParam{
 			Code:         "SAVE10",
-			DiscountType: augno.CreateOrderDiscountRequestDiscountTypePercentage,
+			DiscountType: openmrp.CreateOrderDiscountRequestDiscountTypePercentage,
 			Name:         "10% Off",
-			Amount:       augno.String("amount"),
-			Percentage:   augno.String("0.1"),
+			Amount:       openmrp.String("amount"),
+			Percentage:   openmrp.String("0.1"),
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -51,13 +51,13 @@ func TestSaleOrderDiscountGet(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.OrderDiscounts.Get(context.TODO(), "ords_qnbrjvq5ih2q")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -73,25 +73,25 @@ func TestSaleOrderDiscountUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.OrderDiscounts.Update(
 		context.TODO(),
 		"ords_qnbrjvq5ih2q",
-		augno.SaleOrderDiscountUpdateParams{
-			UpdateOrderDiscountRequest: augno.UpdateOrderDiscountRequestParam{
-				Amount:       augno.String("amount"),
-				Code:         augno.String("SAVE15"),
-				DiscountType: augno.UpdateOrderDiscountRequestDiscountTypePercentage,
-				Name:         augno.String("15% Off"),
-				Percentage:   augno.String("percentage"),
+		openmrp.SaleOrderDiscountUpdateParams{
+			UpdateOrderDiscountRequest: openmrp.UpdateOrderDiscountRequestParam{
+				Amount:       openmrp.String("amount"),
+				Code:         openmrp.String("SAVE15"),
+				DiscountType: openmrp.UpdateOrderDiscountRequestDiscountTypePercentage,
+				Name:         openmrp.String("15% Off"),
+				Percentage:   openmrp.String("percentage"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -107,17 +107,17 @@ func TestSaleOrderDiscountListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.OrderDiscounts.List(context.TODO(), augno.SaleOrderDiscountListParams{
-		Cursor: augno.String("cursor"),
-		Limit:  augno.Int(0),
-		Q:      augno.String("q"),
+	_, err := client.Sales.OrderDiscounts.List(context.TODO(), openmrp.SaleOrderDiscountListParams{
+		Cursor: openmrp.String("cursor"),
+		Limit:  openmrp.Int(0),
+		Q:      openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -133,13 +133,13 @@ func TestSaleOrderDiscountDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.OrderDiscounts.Delete(context.TODO(), "ords_qnbrjvq5ih2q")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

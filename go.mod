@@ -1,4 +1,4 @@
-module github.com/augno/augno-go
+module github.com/open-mrp/openmrp-go
 
 go 1.22
 

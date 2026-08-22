@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogItemCategoryNewWithOptionalParams(t *testing.T) {
@@ -21,20 +21,20 @@ func TestCatalogItemCategoryNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.ItemCategories.New(context.TODO(), augno.CatalogItemCategoryNewParams{
-		CreateItemCategoryRequest: augno.CreateItemCategoryRequestParam{
+	_, err := client.Catalog.ItemCategories.New(context.TODO(), openmrp.CatalogItemCategoryNewParams{
+		CreateItemCategoryRequest: openmrp.CreateItemCategoryRequestParam{
 			Name:        "Electronics",
-			Type:        augno.CreateItemCategoryRequestTypeMaterialCategory,
+			Type:        openmrp.CreateItemCategoryRequestTypeMaterialCategory,
 			UnitGroupID: "ug_andst6m79n41",
 		},
 		Include: []string{"owner"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -50,19 +50,19 @@ func TestCatalogItemCategoryGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.ItemCategories.Get(
 		context.TODO(),
 		"ic_d06g9c6yc9ck",
-		augno.CatalogItemCategoryGetParams{
+		openmrp.CatalogItemCategoryGetParams{
 			Include: []string{"owner"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -78,23 +78,23 @@ func TestCatalogItemCategoryUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.ItemCategories.Update(
 		context.TODO(),
 		"ic_d06g9c6yc9ck",
-		augno.CatalogItemCategoryUpdateParams{
+		openmrp.CatalogItemCategoryUpdateParams{
 			Include: []string{"owner"},
-			UpdateItemCategoryRequest: augno.UpdateItemCategoryRequestParam{
-				Name:  augno.String("Electronic Components"),
-				Notes: augno.String("Covers passive and active components; excludes assemblies."),
+			UpdateItemCategoryRequest: openmrp.UpdateItemCategoryRequestParam{
+				Name:  openmrp.String("Electronic Components"),
+				Notes: openmrp.String("Covers passive and active components; excludes assemblies."),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -110,19 +110,19 @@ func TestCatalogItemCategoryListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.ItemCategories.List(context.TODO(), augno.CatalogItemCategoryListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Catalog.ItemCategories.List(context.TODO(), openmrp.CatalogItemCategoryListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"owner"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
-		Type:    augno.CatalogItemCategoryListParamsTypeMaterialCategory,
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
+		Type:    openmrp.CatalogItemCategoryListParamsTypeMaterialCategory,
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -138,13 +138,13 @@ func TestCatalogItemCategoryDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.ItemCategories.Delete(context.TODO(), "ic_d06g9c6yc9ck")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -160,19 +160,19 @@ func TestCatalogItemCategoryChangeUnitGroup(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.ItemCategories.ChangeUnitGroup(
 		context.TODO(),
 		"ug_andst6m79n41",
-		augno.CatalogItemCategoryChangeUnitGroupParams{
+		openmrp.CatalogItemCategoryChangeUnitGroupParams{
 			ID: "ic_d06g9c6yc9ck",
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

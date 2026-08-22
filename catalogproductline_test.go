@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogProductLineNewWithOptionalParams(t *testing.T) {
@@ -21,26 +21,26 @@ func TestCatalogProductLineNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.ProductLines.New(context.TODO(), augno.CatalogProductLineNewParams{
-		CreateProductLineRequest: augno.CreateProductLineRequestParam{
-			CommissionPolicy: augno.CreateProductLineRequestCommissionPolicyCommissionExempt,
-			FreightPolicy:    augno.CreateProductLineRequestFreightPolicyBilledFreight,
+	_, err := client.Catalog.ProductLines.New(context.TODO(), openmrp.CatalogProductLineNewParams{
+		CreateProductLineRequest: openmrp.CreateProductLineRequestParam{
+			CommissionPolicy: openmrp.CreateProductLineRequestCommissionPolicyCommissionExempt,
+			FreightPolicy:    openmrp.CreateProductLineRequestFreightPolicyBilledFreight,
 			Name:             "Industrial Fasteners",
 			UnitGroupID:      "ug_andst6m79n41",
-			DefaultLot: augno.QuantityInputParam{
+			DefaultLot: openmrp.QuantityInputParam{
 				UnitID: "unit_id",
 				Value:  "value",
 			},
-			FulfillmentPolicy: augno.CreateProductLineRequestFulfillmentPolicyMakeToStock,
+			FulfillmentPolicy: openmrp.CreateProductLineRequestFulfillmentPolicyMakeToStock,
 		},
 		Include: []string{"owner"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -56,19 +56,19 @@ func TestCatalogProductLineGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.ProductLines.Get(
 		context.TODO(),
 		"pdln_k9bnlgvxhxjh",
-		augno.CatalogProductLineGetParams{
+		openmrp.CatalogProductLineGetParams{
 			Include: []string{"owner"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -84,30 +84,30 @@ func TestCatalogProductLineUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.ProductLines.Update(
 		context.TODO(),
 		"pdln_k9bnlgvxhxjh",
-		augno.CatalogProductLineUpdateParams{
+		openmrp.CatalogProductLineUpdateParams{
 			Include: []string{"owner"},
-			UpdateProductLineRequest: augno.UpdateProductLineRequestParam{
-				CommissionPolicy: augno.UpdateProductLineRequestCommissionPolicyCommissionApplied,
-				DefaultLot: augno.QuantityInputParam{
+			UpdateProductLineRequest: openmrp.UpdateProductLineRequestParam{
+				CommissionPolicy: openmrp.UpdateProductLineRequestCommissionPolicyCommissionApplied,
+				DefaultLot: openmrp.QuantityInputParam{
 					UnitID: "unit_id",
 					Value:  "value",
 				},
-				FreightPolicy:     augno.UpdateProductLineRequestFreightPolicyBilledFreight,
-				FulfillmentPolicy: augno.UpdateProductLineRequestFulfillmentPolicyMakeToStock,
-				Name:              augno.String("Updated Product Line"),
-				UnitGroupID:       augno.String("ug_andst6m79n41"),
+				FreightPolicy:     openmrp.UpdateProductLineRequestFreightPolicyBilledFreight,
+				FulfillmentPolicy: openmrp.UpdateProductLineRequestFulfillmentPolicyMakeToStock,
+				Name:              openmrp.String("Updated Product Line"),
+				UnitGroupID:       openmrp.String("ug_andst6m79n41"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -123,18 +123,18 @@ func TestCatalogProductLineListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.ProductLines.List(context.TODO(), augno.CatalogProductLineListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Catalog.ProductLines.List(context.TODO(), openmrp.CatalogProductLineListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"owner"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -150,13 +150,13 @@ func TestCatalogProductLineDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.ProductLines.Delete(context.TODO(), "pdln_k9bnlgvxhxjh")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSaleVolumeDiscountNewWithOptionalParams(t *testing.T) {
@@ -21,18 +21,18 @@ func TestSaleVolumeDiscountNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.VolumeDiscounts.New(context.TODO(), augno.SaleVolumeDiscountNewParams{
-		CreateVolumeDiscountRequest: augno.CreateVolumeDiscountRequestParam{
+	_, err := client.Sales.VolumeDiscounts.New(context.TODO(), openmrp.SaleVolumeDiscountNewParams{
+		CreateVolumeDiscountRequest: openmrp.CreateVolumeDiscountRequestParam{
 			Name: "Bulk Order Discount",
-			Tiers: []augno.CreateVolumeDiscountTierInputParam{{
+			Tiers: []openmrp.CreateVolumeDiscountTierInputParam{{
 				DiscountPercentage: "5.000000000000000000000000000000",
 				Name:               "100+ Units",
 				Threshold:          "100.000000000000000000000000000000",
-				ParentTierID:       augno.String("parent_tier_id"),
+				ParentTierID:       openmrp.String("parent_tier_id"),
 			}},
 			AttributeIDs:     []string{"string"},
 			CategoryIDs:      []string{"string"},
@@ -43,7 +43,7 @@ func TestSaleVolumeDiscountNewWithOptionalParams(t *testing.T) {
 		Include: []string{"customer_groups"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -59,19 +59,19 @@ func TestSaleVolumeDiscountGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.VolumeDiscounts.Get(
 		context.TODO(),
 		"quds_bn7hto9s10pp",
-		augno.SaleVolumeDiscountGetParams{
+		openmrp.SaleVolumeDiscountGetParams{
 			Include: []string{"customer_groups"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -87,15 +87,15 @@ func TestSaleVolumeDiscountUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.VolumeDiscounts.Update(
 		context.TODO(),
 		"quds_bn7hto9s10pp",
-		augno.SaleVolumeDiscountUpdateParams{
-			UpdateVolumeDiscountRequest: augno.UpdateVolumeDiscountRequestParam{
+		openmrp.SaleVolumeDiscountUpdateParams{
+			UpdateVolumeDiscountRequest: openmrp.UpdateVolumeDiscountRequestParam{
 				HasAttributes:     true,
 				HasCategories:     true,
 				HasCustomerGroups: true,
@@ -105,14 +105,14 @@ func TestSaleVolumeDiscountUpdateWithOptionalParams(t *testing.T) {
 				AttributeIDs:      []string{"string"},
 				CategoryIDs:       []string{"string"},
 				CustomerGroupIDs:  []string{"string"},
-				Name:              augno.String("Updated Bulk Discount"),
+				Name:              openmrp.String("Updated Bulk Discount"),
 				ProductLineIDs:    []string{"string"},
-				Tiers: []augno.UpdateVolumeDiscountTierInputParam{{
-					ID:                 augno.String("id"),
-					DiscountPercentage: augno.String("10.000000000000000000000000000000"),
-					Name:               augno.String("50+ Units"),
-					ParentTierID:       augno.String("parent_tier_id"),
-					Threshold:          augno.String("50.000000000000000000000000000000"),
+				Tiers: []openmrp.UpdateVolumeDiscountTierInputParam{{
+					ID:                 openmrp.String("id"),
+					DiscountPercentage: openmrp.String("10.000000000000000000000000000000"),
+					Name:               openmrp.String("50+ Units"),
+					ParentTierID:       openmrp.String("parent_tier_id"),
+					Threshold:          openmrp.String("50.000000000000000000000000000000"),
 				}},
 				UnitIDs: []string{"string"},
 			},
@@ -120,7 +120,7 @@ func TestSaleVolumeDiscountUpdateWithOptionalParams(t *testing.T) {
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -136,18 +136,18 @@ func TestSaleVolumeDiscountListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.VolumeDiscounts.List(context.TODO(), augno.SaleVolumeDiscountListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Sales.VolumeDiscounts.List(context.TODO(), openmrp.SaleVolumeDiscountListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"customer_groups"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -163,13 +163,13 @@ func TestSaleVolumeDiscountDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.VolumeDiscounts.Delete(context.TODO(), "quds_bn7hto9s10pp")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

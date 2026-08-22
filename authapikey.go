@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -11,19 +11,19 @@ import (
 	"slices"
 	"time"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	shimjson "github.com/augno/augno-go/internal/encoding/json"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	shimjson "github.com/open-mrp/openmrp-go/internal/encoding/json"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // Create and manage API keys for programmatic access.
 //
 // AuthAPIKeyService contains methods and other services that help with interacting
-// with the augno API.
+// with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -48,8 +48,8 @@ func NewAuthAPIKeyService(opts ...option.RequestOption) (r AuthAPIKeyService) {
 // requests.
 //
 // The key belongs to the account it was created under and only ever acts on behalf
-// of that account. Keys created under a sandbox account carry an `aug_sk_test_`
-// prefix; keys created under a production account carry an `aug_sk_prod_` prefix.
+// of that account. Keys created under a sandbox account carry an `mrp_sk_test_`
+// prefix; keys created under a production account carry an `mrp_sk_prod_` prefix.
 //
 // The secret key is returned once and cannot be retrieved later, so you should
 // store it securely. We provide some
@@ -115,7 +115,7 @@ func (r *AuthAPIKeyService) Delete(ctx context.Context, id string, opts ...optio
 	return res, err
 }
 
-// An organization on Augno, including its branding and customer portal
+// An organization on OpenMRP, including its branding and customer portal
 // sub-resources.
 //
 // Your own account and any customer or supplier account you trade with are both
@@ -363,7 +363,7 @@ const (
 	AddressTypeDropShip AddressType = "drop_ship"
 )
 
-// An API key used to authenticate requests to the Augno API.
+// An API key used to authenticate requests to the OpenMRP API.
 //
 // A key always acts on behalf of the account it was created under, with the
 // permissions of the role assigned to it.
@@ -390,7 +390,7 @@ type APIKey struct {
 	// Redacted key value safe for display.
 	//
 	// The key's prefix followed by its last four characters, e.g.
-	// `aug_sk_prod_****hjt4`.
+	// `mrp_sk_prod_****hjt4`.
 	RedactedValue string `json:"redacted_value" api:"required"`
 	// When the key's revocation takes effect.
 	//
@@ -466,7 +466,7 @@ func (r *CreateAPIKeyRequestParam) UnmarshalJSON(data []byte) error {
 // A newly issued API key together with its secret value, returned when a key is
 // created or rotated.
 type CreatedAPIKey struct {
-	// An API key used to authenticate requests to the Augno API.
+	// An API key used to authenticate requests to the OpenMRP API.
 	//
 	// A key always acts on behalf of the account it was created under, with the
 	// permissions of the role assigned to it.
@@ -595,7 +595,7 @@ const (
 
 // Owner describes the provenance of a resource.
 type Owner struct {
-	// An organization on Augno, including its branding and customer portal
+	// An organization on OpenMRP, including its branding and customer portal
 	// sub-resources.
 	//
 	// Your own account and any customer or supplier account you trade with are both

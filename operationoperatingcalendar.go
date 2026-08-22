@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -11,13 +11,13 @@ import (
 	"slices"
 	"time"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	shimjson "github.com/augno/augno-go/internal/encoding/json"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	shimjson "github.com/open-mrp/openmrp-go/internal/encoding/json"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // The days a plant tenders freight and a customer's dock accepts it, less the
@@ -25,7 +25,7 @@ import (
 // against them, so an order is never committed to a day nobody can act on.
 //
 // OperationOperatingCalendarService contains methods and other services that help
-// with interacting with the augno API.
+// with interacting with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogProductNewWithOptionalParams(t *testing.T) {
@@ -22,26 +22,26 @@ func TestCatalogProductNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Products.New(context.TODO(), augno.CatalogProductNewParams{
-		CreateProductRequest: augno.CreateProductRequestParam{
+	_, err := client.Catalog.Products.New(context.TODO(), openmrp.CatalogProductNewParams{
+		CreateProductRequest: openmrp.CreateProductRequestParam{
 			CategoryID:       "ic_d06g9c6yc9ck",
 			SKU:              "ALM-2024-1001",
-			Type:             augno.CreateProductRequestTypeSale,
+			Type:             openmrp.CreateProductRequestTypeSale,
 			AttributeIDs:     []string{"at_rf1w295jt5ia"},
-			Description:      augno.String("Wireless barcode scanner with charging cradle"),
-			Notes:            augno.String("Ships with a 2-year warranty; register for extended coverage."),
-			PortalVisibility: augno.CreateProductRequestPortalVisibilityVisible,
-			ProductLineID:    augno.String("pdln_k9bnlgvxhxjh"),
-			UnitCost: augno.RateInputParam{
+			Description:      openmrp.String("Wireless barcode scanner with charging cradle"),
+			Notes:            openmrp.String("Ships with a 2-year warranty; register for extended coverage."),
+			PortalVisibility: openmrp.CreateProductRequestPortalVisibilityVisible,
+			ProductLineID:    openmrp.String("pdln_k9bnlgvxhxjh"),
+			UnitCost: openmrp.RateInputParam{
 				DenominatorUnitID: "un_82bd37dae5po",
 				NumeratorUnitID:   "un_82bd37dae5po",
 				Value:             "112.00",
 			},
-			UnitPrice: augno.RateInputParam{
+			UnitPrice: openmrp.RateInputParam{
 				DenominatorUnitID: "un_82bd37dae5po",
 				NumeratorUnitID:   "un_82bd37dae5po",
 				Value:             "199.00",
@@ -50,7 +50,7 @@ func TestCatalogProductNewWithOptionalParams(t *testing.T) {
 		Include: []string{"product_line"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -66,19 +66,19 @@ func TestCatalogProductGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Products.Get(
 		context.TODO(),
 		"pd_07oe0r7adh2w",
-		augno.CatalogProductGetParams{
+		openmrp.CatalogProductGetParams{
 			Include: []string{"product_line"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -94,21 +94,21 @@ func TestCatalogProductUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Products.Update(
 		context.TODO(),
 		"pd_07oe0r7adh2w",
-		augno.CatalogProductUpdateParams{
+		openmrp.CatalogProductUpdateParams{
 			Include: []string{"product_line"},
-			UpdateProductRequest: augno.UpdateProductRequestParam{
-				Description:      augno.String("Wireless barcode scanner with charging cradle (v2)"),
-				Notes:            augno.String("Firmware 2.1 improves Bluetooth pairing reliability."),
-				PortalVisibility: augno.UpdateProductRequestPortalVisibilityVisible,
-				SKU:              augno.String("SKU-002"),
-				UnitPrice: augno.RateInputParam{
+			UpdateProductRequest: openmrp.UpdateProductRequestParam{
+				Description:      openmrp.String("Wireless barcode scanner with charging cradle (v2)"),
+				Notes:            openmrp.String("Firmware 2.1 improves Bluetooth pairing reliability."),
+				PortalVisibility: openmrp.UpdateProductRequestPortalVisibilityVisible,
+				SKU:              openmrp.String("SKU-002"),
+				UnitPrice: openmrp.RateInputParam{
 					DenominatorUnitID: "un_82bd37dae5po",
 					NumeratorUnitID:   "un_82bd37dae5po",
 					Value:             "219.00",
@@ -117,7 +117,7 @@ func TestCatalogProductUpdateWithOptionalParams(t *testing.T) {
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -133,25 +133,25 @@ func TestCatalogProductListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Products.List(context.TODO(), augno.CatalogProductListParams{
+	_, err := client.Catalog.Products.List(context.TODO(), openmrp.CatalogProductListParams{
 		AttributeIDs:     []string{"string"},
 		CategoryIDs:      []string{"string"},
-		Cursor:           augno.String("cursor"),
+		Cursor:           openmrp.String("cursor"),
 		CustomerIDs:      []string{"string"},
-		EndsAt:           augno.Time(time.Now()),
+		EndsAt:           openmrp.Time(time.Now()),
 		Include:          []string{"product_line"},
-		Limit:            augno.Int(0),
-		PortalVisibility: augno.CatalogProductListParamsPortalVisibilityVisible,
+		Limit:            openmrp.Int(0),
+		PortalVisibility: openmrp.CatalogProductListParamsPortalVisibilityVisible,
 		ProductLineIDs:   []string{"string"},
-		Q:                augno.String("q"),
-		StartsAt:         augno.Time(time.Now()),
+		Q:                openmrp.String("q"),
+		StartsAt:         openmrp.Time(time.Now()),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -167,19 +167,19 @@ func TestCatalogProductDeleteWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Products.Delete(
 		context.TODO(),
 		"pd_07oe0r7adh2w",
-		augno.CatalogProductDeleteParams{
+		openmrp.CatalogProductDeleteParams{
 			Include: []string{"product_line"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -195,20 +195,20 @@ func TestCatalogProductChangeProductLineWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Products.ChangeProductLine(
 		context.TODO(),
 		"pdln_k9bnlgvxhxjh",
-		augno.CatalogProductChangeProductLineParams{
+		openmrp.CatalogProductChangeProductLineParams{
 			ID:      "pd_07oe0r7adh2w",
 			Include: []string{"product_line"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

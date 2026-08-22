@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestFinanceGetAdjustmentTypesWithOptionalParams(t *testing.T) {
@@ -21,18 +21,18 @@ func TestFinanceGetAdjustmentTypesWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Finance.GetAdjustmentTypes(context.TODO(), augno.FinanceGetAdjustmentTypesParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Finance.GetAdjustmentTypes(context.TODO(), openmrp.FinanceGetAdjustmentTypesParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"owner"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -48,17 +48,17 @@ func TestFinanceGetTransactionMethodsWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Finance.GetTransactionMethods(context.TODO(), augno.FinanceGetTransactionMethodsParams{
-		Cursor: augno.String("cursor"),
-		Limit:  augno.Int(0),
-		Q:      augno.String("q"),
+	_, err := client.Finance.GetTransactionMethods(context.TODO(), openmrp.FinanceGetTransactionMethodsParams{
+		Cursor: openmrp.String("cursor"),
+		Limit:  openmrp.Int(0),
+		Q:      openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -74,17 +74,17 @@ func TestFinanceGetTransactionTypesWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Finance.GetTransactionTypes(context.TODO(), augno.FinanceGetTransactionTypesParams{
-		Cursor: augno.String("cursor"),
-		Limit:  augno.Int(0),
-		Q:      augno.String("q"),
+	_, err := client.Finance.GetTransactionTypes(context.TODO(), openmrp.FinanceGetTransactionTypesParams{
+		Cursor: openmrp.String("cursor"),
+		Limit:  openmrp.Int(0),
+		Q:      openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // Error represents an error that originates from the API, i.e. when a request is

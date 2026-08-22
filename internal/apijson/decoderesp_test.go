@@ -2,8 +2,8 @@ package apijson_test
 
 import (
 	"encoding/json"
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 	"testing"
 )
 

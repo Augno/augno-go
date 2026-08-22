@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 type closureTransport struct {
@@ -24,7 +24,7 @@ func (t *closureTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 
 func TestUserAgentHeader(t *testing.T) {
 	var userAgent string
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBearerToken("My Bearer Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
@@ -37,15 +37,15 @@ func TestUserAgentHeader(t *testing.T) {
 			},
 		}),
 	)
-	_, _ = client.Catalog.Items.List(context.Background(), augno.CatalogItemListParams{})
-	if userAgent != fmt.Sprintf("Augno/Go %s", internal.PackageVersion) {
+	_, _ = client.Catalog.Items.List(context.Background(), openmrp.CatalogItemListParams{})
+	if userAgent != fmt.Sprintf("OpenMRP/Go %s", internal.PackageVersion) {
 		t.Errorf("Expected User-Agent to be correct, but got: %#v", userAgent)
 	}
 }
 
 func TestRetryAfter(t *testing.T) {
 	attempts := 0
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBearerToken("My Bearer Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
@@ -61,7 +61,7 @@ func TestRetryAfter(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Catalog.Items.List(context.Background(), augno.CatalogItemListParams{})
+	_, err := client.Catalog.Items.List(context.Background(), openmrp.CatalogItemListParams{})
 	if err == nil {
 		t.Error("Expected there to be a cancel error")
 	}
@@ -73,7 +73,7 @@ func TestRetryAfter(t *testing.T) {
 
 func TestRetryAfterMs(t *testing.T) {
 	attempts := 0
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBearerToken("My Bearer Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
@@ -89,7 +89,7 @@ func TestRetryAfterMs(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Catalog.Items.List(context.Background(), augno.CatalogItemListParams{})
+	_, err := client.Catalog.Items.List(context.Background(), openmrp.CatalogItemListParams{})
 	if err == nil {
 		t.Error("Expected there to be a cancel error")
 	}
@@ -99,7 +99,7 @@ func TestRetryAfterMs(t *testing.T) {
 }
 
 func TestContextCancel(t *testing.T) {
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBearerToken("My Bearer Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
@@ -112,14 +112,14 @@ func TestContextCancel(t *testing.T) {
 	)
 	cancelCtx, cancel := context.WithCancel(context.Background())
 	cancel()
-	_, err := client.Catalog.Items.List(cancelCtx, augno.CatalogItemListParams{})
+	_, err := client.Catalog.Items.List(cancelCtx, openmrp.CatalogItemListParams{})
 	if err == nil {
 		t.Error("Expected there to be a cancel error")
 	}
 }
 
 func TestContextCancelDelay(t *testing.T) {
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBearerToken("My Bearer Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
@@ -132,7 +132,7 @@ func TestContextCancelDelay(t *testing.T) {
 	)
 	cancelCtx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	_, err := client.Catalog.Items.List(cancelCtx, augno.CatalogItemListParams{})
+	_, err := client.Catalog.Items.List(cancelCtx, openmrp.CatalogItemListParams{})
 	if err == nil {
 		t.Error("expected there to be a cancel error")
 	}
@@ -147,7 +147,7 @@ func TestContextDeadline(t *testing.T) {
 	defer cancel()
 
 	go func() {
-		client := augno.NewClient(
+		client := openmrp.NewClient(
 			option.WithBearerToken("My Bearer Token"),
 			option.WithHTTPClient(&http.Client{
 				Transport: &closureTransport{
@@ -158,7 +158,7 @@ func TestContextDeadline(t *testing.T) {
 				},
 			}),
 		)
-		_, err := client.Catalog.Items.List(deadlineCtx, augno.CatalogItemListParams{})
+		_, err := client.Catalog.Items.List(deadlineCtx, openmrp.CatalogItemListParams{})
 		if err == nil {
 			t.Error("expected there to be a deadline error")
 		}

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -8,19 +8,19 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	shimjson "github.com/augno/augno-go/internal/encoding/json"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	shimjson "github.com/open-mrp/openmrp-go/internal/encoding/json"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // Look up the people you do business with.
 //
 // SaleContactActionService contains methods and other services that help with
-// interacting with the augno API.
+// interacting with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -69,7 +69,7 @@ type ContactMatch struct {
 	// This is the matched account user's ID, so the same value also appears as
 	// `account_user.id`.
 	ID string `json:"id" api:"required"`
-	// An organization on Augno, including its branding and customer portal
+	// An organization on OpenMRP, including its branding and customer portal
 	// sub-resources.
 	//
 	// Your own account and any customer or supplier account you trade with are both

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationLocationNewWithOptionalParams(t *testing.T) {
@@ -21,21 +21,21 @@ func TestOperationLocationNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.Locations.New(context.TODO(), augno.OperationLocationNewParams{
-		CreateLocationRequest: augno.CreateLocationRequestParam{
+	_, err := client.Operations.Locations.New(context.TODO(), openmrp.OperationLocationNewParams{
+		CreateLocationRequest: openmrp.CreateLocationRequestParam{
 			Name:     "Warehouse A",
-			Type:     augno.LocationTypeCodeBuilding,
+			Type:     openmrp.LocationTypeCodeBuilding,
 			ChildIDs: []string{"lc_yonnys0hx3ju"},
-			ParentID: augno.String("lc_yonnys0hx3ju"),
+			ParentID: openmrp.String("lc_yonnys0hx3ju"),
 		},
 		Include: []string{"parent"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -51,19 +51,19 @@ func TestOperationLocationGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Locations.Get(
 		context.TODO(),
 		"lc_yonnys0hx3ju",
-		augno.OperationLocationGetParams{
+		openmrp.OperationLocationGetParams{
 			Include: []string{"parent"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -79,25 +79,25 @@ func TestOperationLocationUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Locations.Update(
 		context.TODO(),
 		"lc_yonnys0hx3ju",
-		augno.OperationLocationUpdateParams{
+		openmrp.OperationLocationUpdateParams{
 			Include: []string{"parent"},
-			UpdateLocationRequest: augno.UpdateLocationRequestParam{
+			UpdateLocationRequest: openmrp.UpdateLocationRequestParam{
 				ChildIDs: []string{"lc_yonnys0hx3ju"},
-				Name:     augno.String("Warehouse B"),
-				ParentID: augno.String("lc_yonnys0hx3ju"),
-				Type:     augno.LocationTypeCodeSection,
+				Name:     openmrp.String("Warehouse B"),
+				ParentID: openmrp.String("lc_yonnys0hx3ju"),
+				Type:     openmrp.LocationTypeCodeSection,
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -113,18 +113,18 @@ func TestOperationLocationListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.Locations.List(context.TODO(), augno.OperationLocationListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Operations.Locations.List(context.TODO(), openmrp.OperationLocationListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"parent"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -140,13 +140,13 @@ func TestOperationLocationDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Locations.Delete(context.TODO(), "lc_yonnys0hx3ju")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

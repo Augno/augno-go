@@ -1,20 +1,20 @@
-# Augno Go API Library
+# OpenMRP Go API Library
 
 <!-- x-release-please-start-version -->
 
-<a href="https://pkg.go.dev/github.com/augno/augno-go"><img src="https://pkg.go.dev/badge/github.com/augno/augno-go.svg" alt="Go Reference"></a>
+<a href="https://pkg.go.dev/github.com/open-mrp/openmrp-go"><img src="https://pkg.go.dev/badge/github.com/open-mrp/openmrp-go.svg" alt="Go Reference"></a>
 
 <!-- x-release-please-end -->
 
-The Augno Go library provides convenient access to the Augno REST API
+The OpenMRP Go library provides convenient access to the OpenMRP REST API
 from applications written in Go.
 
 ## MCP Server
 
-Use the Augno MCP Server to enable AI assistants to interact with this API, allowing them to explore endpoints, make test requests, and use documentation to help integrate this SDK into your application.
+Use the OpenMRP MCP Server to enable AI assistants to interact with this API, allowing them to explore endpoints, make test requests, and use documentation to help integrate this SDK into your application.
 
-[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en-US/install-mcp?name=%40augno%2Fsdk-mcp&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBhdWduby9zZGstbWNwIl0sImVudiI6eyJBVUdOT19BUElfS0VZIjoiTXkgQmVhcmVyIFRva2VuIiwiQVVHTk9fQVVHTk9fQUNDT1VOVF9JRCI6Ik15IEF1Z25vIEFjY291bnQgSUQifX0)
-[![Install in VS Code](https://img.shields.io/badge/_-Add_to_VS_Code-blue?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHBhdGggZmlsbD0iI0VFRSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMzAuMjM1IDM5Ljg4NGEyLjQ5MSAyLjQ5MSAwIDAgMS0xLjc4MS0uNzNMMTIuNyAyNC43OGwtMy40NiAyLjYyNC0zLjQwNiAyLjU4MmExLjY2NSAxLjY2NSAwIDAgMS0xLjA4Mi4zMzggMS42NjQgMS42NjQgMCAwIDEtMS4wNDYtLjQzMWwtMi4yLTJhMS42NjYgMS42NjYgMCAwIDEgMC0yLjQ2M0w3LjQ1OCAyMCA0LjY3IDE3LjQ1MyAxLjUwNyAxNC41N2ExLjY2NSAxLjY2NSAwIDAgMSAwLTIuNDYzbDIuMi0yYTEuNjY1IDEuNjY1IDAgMCAxIDIuMTMtLjA5N2w2Ljg2MyA1LjIwOUwyOC40NTIuODQ0YTIuNDg4IDIuNDg4IDAgMCAxIDEuODQxLS43MjljLjM1MS4wMDkuNjk5LjA5MSAxLjAxOS4yNDVsOC4yMzYgMy45NjFhMi41IDIuNSAwIDAgMSAxLjQxNSAyLjI1M3YuMDk5LS4wNDVWMzMuMzd2LS4wNDUuMDk1YTIuNTAxIDIuNTAxIDAgMCAxLTEuNDE2IDIuMjU3bC04LjIzNSAzLjk2MWEyLjQ5MiAyLjQ5MiAwIDAgMS0xLjA3Ny4yNDZabS43MTYtMjguOTQ3LTExLjk0OCA5LjA2MiAxMS45NTIgOS4wNjUtLjAwNC0xOC4xMjdaIi8+PC9zdmc+)](https://vscode.stainless.com/mcp/%7B%22name%22%3A%22%40augno%2Fsdk-mcp%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40augno%2Fsdk-mcp%22%5D%2C%22env%22%3A%7B%22AUGNO_API_KEY%22%3A%22My%20Bearer%20Token%22%2C%22AUGNO_AUGNO_ACCOUNT_ID%22%3A%22My%20Augno%20Account%20ID%22%7D%7D)
+[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en-US/install-mcp?name=%40openmrp%2Fsdk-mcp&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBhdWduby9zZGstbWNwIl0sImVudiI6eyJBVUdOT19BUElfS0VZIjoiTXkgQmVhcmVyIFRva2VuIiwiQVVHTk9fQVVHTk9fQUNDT1VOVF9JRCI6Ik15IEF1Z25vIEFjY291bnQgSUQifX0)
+[![Install in VS Code](https://img.shields.io/badge/_-Add_to_VS_Code-blue?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHBhdGggZmlsbD0iI0VFRSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMzAuMjM1IDM5Ljg4NGEyLjQ5MSAyLjQ5MSAwIDAgMS0xLjc4MS0uNzNMMTIuNyAyNC43OGwtMy40NiAyLjYyNC0zLjQwNiAyLjU4MmExLjY2NSAxLjY2NSAwIDAgMS0xLjA4Mi4zMzggMS42NjQgMS42NjQgMCAwIDEtMS4wNDYtLjQzMWwtMi4yLTJhMS42NjYgMS42NjYgMCAwIDEgMC0yLjQ2M0w3LjQ1OCAyMCA0LjY3IDE3LjQ1MyAxLjUwNyAxNC41N2ExLjY2NSAxLjY2NSAwIDAgMSAwLTIuNDYzbDIuMi0yYTEuNjY1IDEuNjY1IDAgMCAxIDIuMTMtLjA5N2w2Ljg2MyA1LjIwOUwyOC40NTIuODQ0YTIuNDg4IDIuNDg4IDAgMCAxIDEuODQxLS43MjljLjM1MS4wMDkuNjk5LjA5MSAxLjAxOS4yNDVsOC4yMzYgMy45NjFhMi41IDIuNSAwIDAgMSAxLjQxNSAyLjI1M3YuMDk5LS4wNDVWMzMuMzd2LS4wNDUuMDk1YTIuNTAxIDIuNTAxIDAgMCAxLTEuNDE2IDIuMjU3bC04LjIzNSAzLjk2MWEyLjQ5MiAyLjQ5MiAwIDAgMS0xLjA3Ny4yNDZabS43MTYtMjguOTQ3LTExLjk0OCA5LjA2MiAxMS45NTIgOS4wNjUtLjAwNC0xOC4xMjdaIi8+PC9zdmc+)](https://vscode.stainless.com/mcp/%7B%22name%22%3A%22%40openmrp%2Fsdk-mcp%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40openmrp%2Fsdk-mcp%22%5D%2C%22env%22%3A%7B%22OPENMRP_API_KEY%22%3A%22My%20Bearer%20Token%22%2C%22OPENMRP_OPENMRP_ACCOUNT_ID%22%3A%22My%20OpenMRP%20Account%20ID%22%7D%7D)
 
 > Note: You may need to set environment variables in your MCP client.
 
@@ -24,7 +24,7 @@ Use the Augno MCP Server to enable AI assistants to interact with this API, allo
 
 ```go
 import (
-	"github.com/augno/augno-go" // imported as augno
+	"github.com/open-mrp/openmrp-go" // imported as openmrp
 )
 ```
 
@@ -35,7 +35,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/augno/augno-go@v0.16.1'
+go get -u 'github.com/open-mrp/openmrp-go@v0.16.1'
 ```
 
 <!-- x-release-please-end -->
@@ -55,16 +55,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func main() {
-	client := augno.NewClient(
-		option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("AUGNO_API_KEY")
+	client := openmrp.NewClient(
+		option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("OPENMRP_API_KEY")
 		option.WithEnvironmentLocal(),             // defaults to option.WithEnvironmentProduction()
 	)
-	listItem, err := client.Catalog.Items.List(context.TODO(), augno.CatalogItemListParams{})
+	listItem, err := client.Catalog.Items.List(context.TODO(), openmrp.CatalogItemListParams{})
 	if err != nil {
 		panic(err.Error())
 	}
@@ -75,13 +75,13 @@ func main() {
 
 ### Request fields
 
-The augno library uses the [`omitzero`](https://tip.golang.org/doc/go1.24#encodingjsonpkgencodingjson)
+The openmrp library uses the [`omitzero`](https://tip.golang.org/doc/go1.24#encodingjsonpkgencodingjson)
 semantics from the Go 1.24+ `encoding/json` release for request fields.
 
 Required primitive fields (`int64`, `string`, etc.) feature the tag <code>\`api:"required"\`</code>. These
 fields are always serialized, even their zero values.
 
-Optional primitive types are wrapped in a `param.Opt[T]`. These fields can be set with the provided constructors, `augno.String(string)`, `augno.Int(int64)`, etc.
+Optional primitive types are wrapped in a `param.Opt[T]`. These fields can be set with the provided constructors, `openmrp.String(string)`, `openmrp.Int(int64)`, etc.
 
 Any `param.Opt[T]`, map, slice, struct or string enum uses the
 tag <code>\`json:"...,omitzero"\`</code>. Its zero value is considered omitted.
@@ -89,17 +89,17 @@ tag <code>\`json:"...,omitzero"\`</code>. Its zero value is considered omitted.
 The `param.IsOmitted(any)` function can confirm the presence of any `omitzero` field.
 
 ```go
-p := augno.ExampleParams{
+p := openmrp.ExampleParams{
 	ID:   "id_xxx",            // required property
-	Name: augno.String("..."), // optional property
+	Name: openmrp.String("..."), // optional property
 
-	Point: augno.Point{
+	Point: openmrp.Point{
 		X: 0,            // required field will serialize as 0
-		Y: augno.Int(1), // optional field will serialize as 1
+		Y: openmrp.Int(1), // optional field will serialize as 1
 		// ... omitted non-required fields will not be serialized
 	},
 
-	Origin: augno.Origin{}, // the zero value of [Origin] is considered omitted
+	Origin: openmrp.Origin{}, // the zero value of [Origin] is considered omitted
 }
 ```
 
@@ -128,7 +128,7 @@ p.SetExtraFields(map[string]any{
 })
 
 // Send a number instead of an object
-custom := param.Override[augno.FooParams](12)
+custom := param.Override[openmrp.FooParams](12)
 ```
 
 ### Request unions
@@ -269,7 +269,7 @@ This library uses the functional options pattern. Functions defined in the
 requests. For example:
 
 ```go
-client := augno.NewClient(
+client := openmrp.NewClient(
 	// Adds a header to every request made by the client
 	option.WithHeader("X-Some-Header", "custom_header_info"),
 )
@@ -284,7 +284,7 @@ client.Catalog.Items.List(context.TODO(), ...,
 
 The request option `option.WithDebugLog(nil)` may be helpful while debugging.
 
-See the [full list of request options](https://pkg.go.dev/github.com/augno/augno-go/option).
+See the [full list of request options](https://pkg.go.dev/github.com/open-mrp/openmrp-go/option).
 
 ### Pagination
 
@@ -298,16 +298,16 @@ with additional helper methods like `.GetNextPage()`, e.g.:
 ### Errors
 
 When the API returns a non-success status code, we return an error with type
-`*augno.Error`. This contains the `StatusCode`, `*http.Request`, and
+`*openmrp.Error`. This contains the `StatusCode`, `*http.Request`, and
 `*http.Response` values of the request, as well as the JSON of the error body
 (much like other response objects in the SDK).
 
 To handle errors, we recommend that you use the `errors.As` pattern:
 
 ```go
-_, err := client.Catalog.Items.List(context.TODO(), augno.CatalogItemListParams{})
+_, err := client.Catalog.Items.List(context.TODO(), openmrp.CatalogItemListParams{})
 if err != nil {
-	var apierr *augno.Error
+	var apierr *openmrp.Error
 	if errors.As(err, &apierr) {
 		println(string(apierr.DumpRequest(true)))  // Prints the serialized HTTP request
 		println(string(apierr.DumpResponse(true))) // Prints the serialized HTTP response
@@ -332,7 +332,7 @@ ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 defer cancel()
 client.Catalog.Items.List(
 	ctx,
-	augno.CatalogItemListParams{},
+	openmrp.CatalogItemListParams{},
 	// This sets the per-retry timeout
 	option.WithRequestTimeout(20*time.Second),
 )
@@ -348,7 +348,7 @@ The file name and content-type can be customized by implementing `Name() string`
 string` on the run-time type of `io.Reader`. Note that `os.File` implements `Name() string`, so a
 file returned by `os.Open` will be sent with the file name on disk.
 
-We also provide a helper `augno.File(reader io.Reader, filename string, contentType string)`
+We also provide a helper `openmrp.File(reader io.Reader, filename string, contentType string)`
 which can be used to wrap any `io.Reader` with the appropriate file name and content type.
 
 ### Retries
@@ -361,14 +361,14 @@ You can use the `WithMaxRetries` option to configure or disable this:
 
 ```go
 // Configure the default for all requests:
-client := augno.NewClient(
+client := openmrp.NewClient(
 	option.WithMaxRetries(0), // default is 2
 )
 
 // Override per-request:
 client.Catalog.Items.List(
 	context.TODO(),
-	augno.CatalogItemListParams{},
+	openmrp.CatalogItemListParams{},
 	option.WithMaxRetries(5),
 )
 ```
@@ -383,7 +383,7 @@ you need to examine response headers, status codes, or other details.
 var response *http.Response
 listItem, err := client.Catalog.Items.List(
 	context.TODO(),
-	augno.CatalogItemListParams{},
+	openmrp.CatalogItemListParams{},
 	option.WithResponseInto(&response),
 )
 if err != nil {
@@ -430,7 +430,7 @@ or the `option.WithJSONSet()` methods.
 params := FooNewParams{
     ID:   "id_xxxx",
     Data: FooNewParamsData{
-        FirstName: augno.String("John"),
+        FirstName: openmrp.String("John"),
     },
 }
 client.Foo.New(context.Background(), params, option.WithJSONSet("data.last_name", "Doe"))
@@ -465,7 +465,7 @@ func Logger(req *http.Request, next option.MiddlewareNext) (res *http.Response, 
     return res, err
 }
 
-client := augno.NewClient(
+client := openmrp.NewClient(
 	option.WithMiddleware(Logger),
 )
 ```
@@ -490,7 +490,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/augno/augno-go/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/open-mrp/openmrp-go/issues) with questions, bugs, or suggestions.
 
 ## Contributing
 

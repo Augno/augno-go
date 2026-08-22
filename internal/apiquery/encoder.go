@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/augno/augno-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/param"
 )
 
 var encoders sync.Map // map[reflect.Type]encoderFunc

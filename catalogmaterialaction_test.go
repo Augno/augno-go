@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogMaterialActionBulkUpsertWithOptionalParams(t *testing.T) {
@@ -21,38 +21,38 @@ func TestCatalogMaterialActionBulkUpsertWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Materials.Actions.BulkUpsert(context.TODO(), augno.CatalogMaterialActionBulkUpsertParams{
-		BulkUpsertMaterialsRequest: augno.BulkUpsertMaterialsRequestParam{
-			Materials: []augno.UpsertMaterialInputParam{{
-				Category: augno.ObjectIdentifierParam{
+	_, err := client.Catalog.Materials.Actions.BulkUpsert(context.TODO(), openmrp.CatalogMaterialActionBulkUpsertParams{
+		BulkUpsertMaterialsRequest: openmrp.BulkUpsertMaterialsRequestParam{
+			Materials: []openmrp.UpsertMaterialInputParam{{
+				Category: openmrp.ObjectIdentifierParam{
 					ID:   "ic_d06g9c6yc9ck",
 					Name: "name",
 				},
-				Properties: []augno.UpsertMaterialPropertyParam{{
+				Properties: []openmrp.UpsertMaterialPropertyParam{{
 					Name:  "name",
 					Value: "value",
 				}},
 				SKU:         "MAT-001",
-				Description: augno.String("description"),
-				LeadTime: augno.QuantityInputRequestParam{
+				Description: openmrp.String("description"),
+				LeadTime: openmrp.QuantityInputRequestParam{
 					UnitID: "unit_id",
 					Value:  "value",
 				},
-				Notes: augno.String("notes"),
-				OrderPoint: augno.QuantityInputRequestParam{
+				Notes: openmrp.String("notes"),
+				OrderPoint: openmrp.QuantityInputRequestParam{
 					UnitID: "unit_id",
 					Value:  "value",
 				},
-				UnitCost: augno.RateInputParam{
+				UnitCost: openmrp.RateInputParam{
 					DenominatorUnitID: "denominator_unit_id",
 					NumeratorUnitID:   "numerator_unit_id",
 					Value:             "value",
 				},
-				UnitPrice: augno.RateInputParam{
+				UnitPrice: openmrp.RateInputParam{
 					DenominatorUnitID: "denominator_unit_id",
 					NumeratorUnitID:   "numerator_unit_id",
 					Value:             "value",
@@ -62,7 +62,7 @@ func TestCatalogMaterialActionBulkUpsertWithOptionalParams(t *testing.T) {
 		Include: []string{"created_by"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

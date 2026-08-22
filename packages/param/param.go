@@ -2,7 +2,7 @@ package param
 
 import (
 	"encoding/json"
-	"github.com/augno/augno-go/internal/encoding/json/sentinel"
+	"github.com/open-mrp/openmrp-go/internal/encoding/json/sentinel"
 	"reflect"
 )
 

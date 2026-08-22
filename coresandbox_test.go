@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCoreSandboxNewWithOptionalParams(t *testing.T) {
@@ -21,19 +21,19 @@ func TestCoreSandboxNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Sandboxes.New(context.TODO(), augno.CoreSandboxNewParams{
-		CreateSandboxRequest: augno.CreateSandboxRequestParam{
+	_, err := client.Core.Sandboxes.New(context.TODO(), openmrp.CoreSandboxNewParams{
+		CreateSandboxRequest: openmrp.CreateSandboxRequestParam{
 			Name: "Integration Testing",
-			Mode: augno.CreateSandboxRequestModeBlank,
+			Mode: openmrp.CreateSandboxRequestModeBlank,
 		},
 		Include: []string{"owner_account"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -49,19 +49,19 @@ func TestCoreSandboxGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Core.Sandboxes.Get(
 		context.TODO(),
 		"sbac_d8ci32xggml9",
-		augno.CoreSandboxGetParams{
+		openmrp.CoreSandboxGetParams{
 			Include: []string{"owner_account"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -77,18 +77,18 @@ func TestCoreSandboxListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.Sandboxes.List(context.TODO(), augno.CoreSandboxListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Core.Sandboxes.List(context.TODO(), openmrp.CoreSandboxListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"owner_account"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -104,13 +104,13 @@ func TestCoreSandboxDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Core.Sandboxes.Delete(context.TODO(), "sbac_d8ci32xggml9")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
