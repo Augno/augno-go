@@ -38,7 +38,7 @@ func TestUserAgentHeader(t *testing.T) {
 		}),
 	)
 	_, _ = client.Catalog.Items.List(context.Background(), openmrp.CatalogItemListParams{})
-	if userAgent != fmt.Sprintf("OpenMRP/Go %s", internal.PackageVersion) {
+	if userAgent != fmt.Sprintf("Openmrp/Go %s", internal.PackageVersion) {
 		t.Errorf("Expected User-Agent to be correct, but got: %#v", userAgent)
 	}
 }

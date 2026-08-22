@@ -88,8 +88,8 @@ func (r *FinancePaymentTermService) Update(ctx context.Context, id string, param
 
 // Returns a paginated list of payment terms.
 //
-// The list includes both payment terms created by your account and OpenMRP-provided
-// system defaults.
+// The list includes both payment terms created by your account and
+// OpenMRP-provided system defaults.
 //
 // This endpoint requires the permission: `payment_terms:read`.
 func (r *FinancePaymentTermService) List(ctx context.Context, query FinancePaymentTermListParams, opts ...option.RequestOption) (res *ListPaymentTerm, err error) {

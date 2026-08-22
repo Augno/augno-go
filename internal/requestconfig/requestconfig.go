@@ -25,7 +25,7 @@ import (
 
 func getDefaultHeaders() map[string]string {
 	return map[string]string{
-		"User-Agent": fmt.Sprintf("OpenMRP/Go %s", internal.PackageVersion),
+		"User-Agent": fmt.Sprintf("Openmrp/Go %s", internal.PackageVersion),
 	}
 }
 
@@ -157,7 +157,7 @@ type RequestConfig struct {
 	HTTPClient       *http.Client
 	Middlewares      []middleware
 	BearerToken      string
-	OpenMRPAccountID string
+	OpenmrpAccountID string
 	// If ResponseBodyInto not nil, then we will attempt to deserialize into
 	// ResponseBodyInto. If Destination is a []byte, then it will return the body as
 	// is.
@@ -526,7 +526,7 @@ func (cfg *RequestConfig) Clone(ctx context.Context) *RequestConfig {
 		HTTPClient:       cfg.HTTPClient,
 		Middlewares:      cfg.Middlewares,
 		BearerToken:      cfg.BearerToken,
-		OpenMRPAccountID: cfg.OpenMRPAccountID,
+		OpenmrpAccountID: cfg.OpenmrpAccountID,
 	}
 
 	return new

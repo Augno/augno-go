@@ -56,9 +56,9 @@ func (r *AIAgentService) New(ctx context.Context, params AIAgentNewParams, opts 
 
 // Retrieves a single agent by ID.
 //
-// Resolves both the `system` agents OpenMRP provides and the `custom` agents in your
-// account; the `status` reflects whether the agent is enabled for your account
-// specifically.
+// Resolves both the `system` agents OpenMRP provides and the `custom` agents in
+// your account; the `status` reflects whether the agent is enabled for your
+// account specifically.
 //
 // This endpoint requires the permission: `agents:read`.
 func (r *AIAgentService) Get(ctx context.Context, id string, query AIAgentGetParams, opts ...option.RequestOption) (res *AgentDefinition, err error) {
@@ -92,9 +92,9 @@ func (r *AIAgentService) Update(ctx context.Context, id string, params AIAgentUp
 
 // Lists the agents available to your account, newest first.
 //
-// Covers both the `system` agents OpenMRP provides to every account and the `custom`
-// agents created in yours. Deleted agents are never returned. The `q` parameter
-// matches an agent's name, slug, description, or ID.
+// Covers both the `system` agents OpenMRP provides to every account and the
+// `custom` agents created in yours. Deleted agents are never returned. The `q`
+// parameter matches an agent's name, slug, description, or ID.
 //
 // This endpoint requires the permission: `agents:read`.
 func (r *AIAgentService) List(ctx context.Context, query AIAgentListParams, opts ...option.RequestOption) (res *ListAgentDefinition, err error) {
@@ -490,8 +490,8 @@ const (
 type ConfigInputParam struct {
 	// Instructions that define the agent's role and how it should behave.
 	//
-	// Sent to the model on every turn of a run, alongside the platform guidance OpenMRP
-	// adds automatically.
+	// Sent to the model on every turn of a run, alongside the platform guidance
+	// OpenMRP adds automatically.
 	SystemPrompt param.Opt[string] `json:"system_prompt,omitzero"`
 	// How much randomness the model uses when generating text.
 	//

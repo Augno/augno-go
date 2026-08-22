@@ -237,14 +237,15 @@ type RequestLog struct {
 	ErrorMessage string `json:"error_message" api:"required"`
 	// Request host.
 	//
-	// Usually `api.augno.com`.
+	// Usually `api.openmrp.ai`.
 	Host string `json:"host" api:"required"`
 	// User-provided idempotency key.
 	IdempotencyKey string `json:"idempotency_key" api:"required"`
 	// Request latency in microseconds.
 	//
 	// Measured at the API edge, from the moment the request was received until the
-	// response was written, so it excludes network time between your client and OpenMRP.
+	// response was written, so it excludes network time between your client and
+	// OpenMRP.
 	LatencyUs int64 `json:"latency_us" api:"required"`
 	// HTTP method.
 	Method string `json:"method" api:"required"`
@@ -430,7 +431,7 @@ type CoreRequestLogListParams struct {
 	ExcludeErrorCodes []string `query:"exclude_error_codes,omitzero" json:"-"`
 	// Filter by the request host.
 	//
-	// Typically `api.augno.com`.
+	// Typically `api.openmrp.ai`.
 	Hosts []string `query:"hosts,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

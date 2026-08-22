@@ -263,7 +263,7 @@ func WithRequestTimeout(dur time.Duration) RequestOption {
 // environment to be the "production" environment. An environment specifies which base URL
 // to use by default.
 func WithEnvironmentProduction() RequestOption {
-	return requestconfig.WithDefaultBaseURL("https://api.augno.com/")
+	return requestconfig.WithDefaultBaseURL("https://api.openmrp.ai/")
 }
 
 // WithEnvironmentLocal returns a RequestOption that sets the current
@@ -281,10 +281,10 @@ func WithBearerToken(value string) RequestOption {
 	})
 }
 
-// WithOpenMRPAccountID returns a RequestOption that sets the client setting "openmrp_account_id".
-func WithOpenMRPAccountID(value string) RequestOption {
+// WithOpenmrpAccountID returns a RequestOption that sets the client setting "openmrp_account_id".
+func WithOpenmrpAccountID(value string) RequestOption {
 	return requestconfig.RequestOptionFunc(func(r *requestconfig.RequestConfig) error {
-		r.OpenMRPAccountID = value
+		r.OpenmrpAccountID = value
 		return r.Apply(WithHeader("OpenMRP-Account", value))
 	})
 }

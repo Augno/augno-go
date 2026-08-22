@@ -14,8 +14,8 @@ import (
 )
 
 // Client creates a struct with services and top level methods that help with
-// interacting with the openmrp API. You should not instantiate this client directly,
-// and instead use the [NewClient] method instead.
+// interacting with the openmrp API. You should not instantiate this client
+// directly, and instead use the [NewClient] method instead.
 type Client struct {
 	options []option.RequestOption
 	Auth    AuthService
@@ -36,8 +36,8 @@ type Client struct {
 	Settings SettingService
 }
 
-// DefaultClientOptions read from the environment (OPENMRP_API_KEY, OPENMRP_BASE_URL).
-// This should be used to initialize new clients.
+// DefaultClientOptions read from the environment (OPENMRP_API_KEY,
+// OPENMRP_BASE_URL). This should be used to initialize new clients.
 func DefaultClientOptions() []option.RequestOption {
 	defaults := []option.RequestOption{option.WithHTTPClient(defaultHTTPClient()), option.WithEnvironmentProduction()}
 	if o, ok := os.LookupEnv("OPENMRP_BASE_URL"); ok {
@@ -58,9 +58,9 @@ func DefaultClientOptions() []option.RequestOption {
 }
 
 // NewClient generates a new client with the default option read from the
-// environment (OPENMRP_API_KEY, OPENMRP_BASE_URL). The option passed in as arguments
-// are applied after these default arguments, and all option will be passed down to
-// the services and requests that this client makes.
+// environment (OPENMRP_API_KEY, OPENMRP_BASE_URL). The option passed in as
+// arguments are applied after these default arguments, and all option will be
+// passed down to the services and requests that this client makes.
 func NewClient(opts ...option.RequestOption) (r Client) {
 	opts = append(DefaultClientOptions(), opts...)
 
