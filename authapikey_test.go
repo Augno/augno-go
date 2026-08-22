@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestAuthAPIKeyNewWithOptionalParams(t *testing.T) {
@@ -22,20 +22,20 @@ func TestAuthAPIKeyNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Auth.APIKeys.New(context.TODO(), augno.AuthAPIKeyNewParams{
-		CreateAPIKeyRequest: augno.CreateAPIKeyRequestParam{
+	_, err := client.Auth.APIKeys.New(context.TODO(), openmrp.AuthAPIKeyNewParams{
+		CreateAPIKeyRequest: openmrp.CreateAPIKeyRequestParam{
 			Name:      "Production API Key",
 			RoleID:    "rl_3xknmfqflhvb",
-			ExpiresAt: augno.Time(time.Now()),
+			ExpiresAt: openmrp.Time(time.Now()),
 		},
 		Include: []string{"role"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -51,19 +51,19 @@ func TestAuthAPIKeyGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Auth.APIKeys.Get(
 		context.TODO(),
 		"apke_eiylmwr6q7oz",
-		augno.AuthAPIKeyGetParams{
+		openmrp.AuthAPIKeyGetParams{
 			Include: []string{"role"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -79,19 +79,19 @@ func TestAuthAPIKeyListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Auth.APIKeys.List(context.TODO(), augno.AuthAPIKeyListParams{
-		Cursor:   augno.String("cursor"),
+	_, err := client.Auth.APIKeys.List(context.TODO(), openmrp.AuthAPIKeyListParams{
+		Cursor:   openmrp.String("cursor"),
 		Include:  []string{"role"},
-		Limit:    augno.Int(0),
-		Q:        augno.String("q"),
+		Limit:    openmrp.Int(0),
+		Q:        openmrp.String("q"),
 		Statuses: []string{"active"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -107,13 +107,13 @@ func TestAuthAPIKeyDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Auth.APIKeys.Delete(context.TODO(), "apke_eiylmwr6q7oz")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

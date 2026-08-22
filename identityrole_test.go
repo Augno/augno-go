@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestIdentityRoleNewWithOptionalParams(t *testing.T) {
@@ -21,19 +21,19 @@ func TestIdentityRoleNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Identity.Roles.New(context.TODO(), augno.IdentityRoleNewParams{
-		CreateRoleRequest: augno.CreateRoleRequestParam{
+	_, err := client.Identity.Roles.New(context.TODO(), openmrp.IdentityRoleNewParams{
+		CreateRoleRequest: openmrp.CreateRoleRequestParam{
 			Name:        "Warehouse Manager",
 			Permissions: []string{"customers:create", "customers:read", "customers:update", "invoices:read"},
 		},
 		Include: []string{"owner"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -49,19 +49,19 @@ func TestIdentityRoleGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Identity.Roles.Get(
 		context.TODO(),
 		"rl_3xknmfqflhvb",
-		augno.IdentityRoleGetParams{
+		openmrp.IdentityRoleGetParams{
 			Include: []string{"owner"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -77,23 +77,23 @@ func TestIdentityRoleUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Identity.Roles.Update(
 		context.TODO(),
 		"rl_3xknmfqflhvb",
-		augno.IdentityRoleUpdateParams{
+		openmrp.IdentityRoleUpdateParams{
 			Include: []string{"owner"},
-			UpdateRoleRequest: augno.UpdateRoleRequestParam{
-				Name:        augno.String("Updated Manager"),
+			UpdateRoleRequest: openmrp.UpdateRoleRequestParam{
+				Name:        openmrp.String("Updated Manager"),
 				Permissions: []string{"customers:read", "customers:update"},
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -109,19 +109,19 @@ func TestIdentityRoleListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Identity.Roles.List(context.TODO(), augno.IdentityRoleListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Identity.Roles.List(context.TODO(), openmrp.IdentityRoleListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"owner"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 		Types:   []string{"admin"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -137,13 +137,13 @@ func TestIdentityRoleDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Identity.Roles.Delete(context.TODO(), "rl_3xknmfqflhvb")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

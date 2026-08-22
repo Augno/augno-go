@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -11,20 +11,20 @@ import (
 	"slices"
 	"time"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	shimjson "github.com/augno/augno-go/internal/encoding/json"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	shimjson "github.com/open-mrp/openmrp-go/internal/encoding/json"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // Provision and manage routable email inboxes that bind inbound mail to chat
 // conversations and send agent replies.
 //
 // MessagingEmailInboxService contains methods and other services that help with
-// interacting with the augno API.
+// interacting with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -208,10 +208,10 @@ type EmailInbox struct {
 	// After registration the domain starts in `pending`; publish the returned DKIM
 	// records, then poll the verify action until it flips to `verified`.
 	EmailDomain EmailDomain `json:"email_domain" api:"required"`
-	// A forwarding address on an Augno-owned domain that also routes to this inbox.
+	// A forwarding address on an OpenMRP-owned domain that also routes to this inbox.
 	//
 	// Use this when your domain's mail is hosted elsewhere (e.g. Google Workspace,
-	// Microsoft 365) and you cannot point its MX records at Augno: forward mail from
+	// Microsoft 365) and you cannot point its MX records at OpenMRP: forward mail from
 	// `address` to this address instead, and it will still be threaded into a
 	// conversation.
 	ForwardingAddress string `json:"forwarding_address" api:"required"`

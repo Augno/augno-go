@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestFinancePaymentTermNewWithOptionalParams(t *testing.T) {
@@ -21,18 +21,18 @@ func TestFinancePaymentTermNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Finance.PaymentTerms.New(context.TODO(), augno.FinancePaymentTermNewParams{
-		CreatePaymentTermRequest: augno.CreatePaymentTermRequestParam{
+	_, err := client.Finance.PaymentTerms.New(context.TODO(), openmrp.FinancePaymentTermNewParams{
+		CreatePaymentTermRequest: openmrp.CreatePaymentTermRequestParam{
 			Name: "Net 30",
 		},
 		Include: []string{"owner"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -48,19 +48,19 @@ func TestFinancePaymentTermGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Finance.PaymentTerms.Get(
 		context.TODO(),
 		"pytm_skssmsy21lem",
-		augno.FinancePaymentTermGetParams{
+		openmrp.FinancePaymentTermGetParams{
 			Include: []string{"owner"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -76,22 +76,22 @@ func TestFinancePaymentTermUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Finance.PaymentTerms.Update(
 		context.TODO(),
 		"pytm_skssmsy21lem",
-		augno.FinancePaymentTermUpdateParams{
+		openmrp.FinancePaymentTermUpdateParams{
 			Include: []string{"owner"},
-			UpdatePaymentTermRequest: augno.UpdatePaymentTermRequestParam{
-				Name: augno.String("Net 60"),
+			UpdatePaymentTermRequest: openmrp.UpdatePaymentTermRequestParam{
+				Name: openmrp.String("Net 60"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -107,18 +107,18 @@ func TestFinancePaymentTermListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Finance.PaymentTerms.List(context.TODO(), augno.FinancePaymentTermListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Finance.PaymentTerms.List(context.TODO(), openmrp.FinancePaymentTermListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"owner"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -134,13 +134,13 @@ func TestFinancePaymentTermDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Finance.PaymentTerms.Delete(context.TODO(), "pytm_skssmsy21lem")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

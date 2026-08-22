@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSaleSalesOrderActionBulkDelete(t *testing.T) {
@@ -22,17 +22,17 @@ func TestSaleSalesOrderActionBulkDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.SalesOrders.Actions.BulkDelete(context.TODO(), augno.SaleSalesOrderActionBulkDeleteParams{
-		BulkDeleteSalesOrdersRequest: augno.BulkDeleteSalesOrdersRequestParam{
+	_, err := client.Sales.SalesOrders.Actions.BulkDelete(context.TODO(), openmrp.SaleSalesOrderActionBulkDeleteParams{
+		BulkDeleteSalesOrdersRequest: openmrp.BulkDeleteSalesOrdersRequestParam{
 			SalesOrderIDs: []string{"or_9lqo07quiwyb"},
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -48,13 +48,13 @@ func TestSaleSalesOrderActionClose(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Actions.Close(context.TODO(), "or_9lqo07quiwyb")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -70,19 +70,19 @@ func TestSaleSalesOrderActionNewProductionRunWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Actions.NewProductionRun(
 		context.TODO(),
 		"or_9lqo07quiwyb",
-		augno.SaleSalesOrderActionNewProductionRunParams{
+		openmrp.SaleSalesOrderActionNewProductionRunParams{
 			Include: []string{"responsible_user"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -98,21 +98,21 @@ func TestSaleSalesOrderActionIssue(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Actions.Issue(
 		context.TODO(),
 		"or_9lqo07quiwyb",
-		augno.SaleSalesOrderActionIssueParams{
-			IssueSalesOrderRequest: augno.IssueSalesOrderRequestParam{
+		openmrp.SaleSalesOrderActionIssueParams{
+			IssueSalesOrderRequest: openmrp.IssueSalesOrderRequestParam{
 				NotifyCustomer: true,
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -128,13 +128,13 @@ func TestSaleSalesOrderActionOpen(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Actions.Open(context.TODO(), "or_9lqo07quiwyb")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -150,25 +150,25 @@ func TestSaleSalesOrderActionQuoteCommitmentWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.SalesOrders.Actions.QuoteCommitment(context.TODO(), augno.SaleSalesOrderActionQuoteCommitmentParams{
-		QuoteSalesOrderCommitmentRequest: augno.QuoteSalesOrderCommitmentRequestParam{
-			BuyerAccountID:       augno.String("ac_ykxoradjoeb3"),
-			CarrierID:            augno.String("carrier_id"),
-			IssuedAt:             augno.Time(time.Now()),
-			LeadTimeOverrideDays: augno.Int(0),
-			PromisedAt:           augno.Time(time.Now()),
-			SalesOrderID:         augno.String("sales_order_id"),
-			ServiceLevelID:       augno.String("crop_4ilk9p6gccrx"),
-			ShipByOverrideDate:   augno.Time(time.Now()),
-			ShipToAddressID:      augno.String("ad_npqa5y43q26z"),
+	_, err := client.Sales.SalesOrders.Actions.QuoteCommitment(context.TODO(), openmrp.SaleSalesOrderActionQuoteCommitmentParams{
+		QuoteSalesOrderCommitmentRequest: openmrp.QuoteSalesOrderCommitmentRequestParam{
+			BuyerAccountID:       openmrp.String("ac_ykxoradjoeb3"),
+			CarrierID:            openmrp.String("carrier_id"),
+			IssuedAt:             openmrp.Time(time.Now()),
+			LeadTimeOverrideDays: openmrp.Int(0),
+			PromisedAt:           openmrp.Time(time.Now()),
+			SalesOrderID:         openmrp.String("sales_order_id"),
+			ServiceLevelID:       openmrp.String("crop_4ilk9p6gccrx"),
+			ShipByOverrideDate:   openmrp.Time(time.Now()),
+			ShipToAddressID:      openmrp.String("ad_npqa5y43q26z"),
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -184,13 +184,13 @@ func TestSaleSalesOrderActionQuoteFreight(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Actions.QuoteFreight(context.TODO(), "or_9lqo07quiwyb")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -206,13 +206,13 @@ func TestSaleSalesOrderActionUnissue(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Actions.Unissue(context.TODO(), "or_9lqo07quiwyb")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

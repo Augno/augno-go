@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogUnitGroupUnitNewWithOptionalParams(t *testing.T) {
@@ -21,25 +21,25 @@ func TestCatalogUnitGroupUnitNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.UnitGroups.Units.New(
 		context.TODO(),
 		"ug_andst6m79n41",
-		augno.CatalogUnitGroupUnitNewParams{
-			CreateUnitGroupUnitRequest: augno.CreateUnitGroupUnitRequestParam{
+		openmrp.CatalogUnitGroupUnitNewParams{
+			CreateUnitGroupUnitRequest: openmrp.CreateUnitGroupUnitRequestParam{
 				UnitID:                   "un_82bd37dae5po",
-				CustomerPortalVisibility: augno.CreateUnitGroupUnitRequestCustomerPortalVisibilityVisible,
-				DiscountFixed:            augno.Float(0),
-				DiscountPercentage:       augno.Float(1),
+				CustomerPortalVisibility: openmrp.CreateUnitGroupUnitRequestCustomerPortalVisibilityVisible,
+				DiscountFixed:            openmrp.Float(0),
+				DiscountPercentage:       openmrp.Float(1),
 			},
 			Include: []string{"unit"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -55,20 +55,20 @@ func TestCatalogUnitGroupUnitGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.UnitGroups.Units.Get(
 		context.TODO(),
 		"un_82bd37dae5po",
-		augno.CatalogUnitGroupUnitGetParams{
+		openmrp.CatalogUnitGroupUnitGetParams{
 			UnitGroupID: "ug_andst6m79n41",
 			Include:     []string{"unit"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -84,26 +84,26 @@ func TestCatalogUnitGroupUnitUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.UnitGroups.Units.Update(
 		context.TODO(),
 		"un_82bd37dae5po",
-		augno.CatalogUnitGroupUnitUpdateParams{
+		openmrp.CatalogUnitGroupUnitUpdateParams{
 			UnitGroupID: "ug_andst6m79n41",
 			Include:     []string{"unit"},
-			UpdateUnitGroupUnitRequest: augno.UpdateUnitGroupUnitRequestParam{
-				CustomerPortalVisibility: augno.UpdateUnitGroupUnitRequestCustomerPortalVisibilityVisible,
-				DiscountFixed:            augno.Float(2.5),
-				DiscountPercentage:       augno.Float(0.9),
-				UnitID:                   augno.String("un_82bd37dae5po"),
+			UpdateUnitGroupUnitRequest: openmrp.UpdateUnitGroupUnitRequestParam{
+				CustomerPortalVisibility: openmrp.UpdateUnitGroupUnitRequestCustomerPortalVisibilityVisible,
+				DiscountFixed:            openmrp.Float(2.5),
+				DiscountPercentage:       openmrp.Float(0.9),
+				UnitID:                   openmrp.String("un_82bd37dae5po"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -119,19 +119,19 @@ func TestCatalogUnitGroupUnitListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.UnitGroups.Units.List(
 		context.TODO(),
 		"ug_andst6m79n41",
-		augno.CatalogUnitGroupUnitListParams{
+		openmrp.CatalogUnitGroupUnitListParams{
 			Include: []string{"unit"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -147,19 +147,19 @@ func TestCatalogUnitGroupUnitDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.UnitGroups.Units.Delete(
 		context.TODO(),
 		"un_82bd37dae5po",
-		augno.CatalogUnitGroupUnitDeleteParams{
+		openmrp.CatalogUnitGroupUnitDeleteParams{
 			UnitGroupID: "ug_andst6m79n41",
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

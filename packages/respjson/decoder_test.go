@@ -3,8 +3,8 @@ package respjson_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/augno/augno-go/internal/apijson"
-	rj "github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	rj "github.com/open-mrp/openmrp-go/packages/respjson"
 	"reflect"
 	"testing"
 )

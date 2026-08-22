@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -11,18 +11,18 @@ import (
 	"slices"
 	"time"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // List and retrieve audit events.
 //
 // CoreAuditEventService contains methods and other services that help with
-// interacting with the augno API.
+// interacting with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -99,7 +99,7 @@ func (r *CoreAuditEventService) GetResourceTypes(ctx context.Context, opts ...op
 type AuditEvent struct {
 	// Audit event ID.
 	ID string `json:"id" api:"required"`
-	// An organization on Augno, including its branding and customer portal
+	// An organization on OpenMRP, including its branding and customer portal
 	// sub-resources.
 	//
 	// Your own account and any customer or supplier account you trade with are both
@@ -943,7 +943,7 @@ type CoreAuditEventListParams struct {
 	// Filter by the actor type.
 	//
 	// Events are recorded for actors of type `user`, `api_key`, and `agent` — the last
-	// covering changes an Augno agent made on your account's behalf.
+	// covering changes an OpenMRP agent made on your account's behalf.
 	//
 	// Any of "user", "api_key", "agent", "group".
 	ActorTypes []string `query:"actor_types,omitzero" json:"-"`

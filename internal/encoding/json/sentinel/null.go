@@ -1,7 +1,7 @@
 package sentinel
 
 import (
-	"github.com/augno/augno-go/internal/encoding/json/shims"
+	"github.com/open-mrp/openmrp-go/internal/encoding/json/shims"
 	"reflect"
 	"sync"
 )

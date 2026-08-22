@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestAIAgentNewWithOptionalParams(t *testing.T) {
@@ -21,43 +21,43 @@ func TestAIAgentNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.AI.Agents.New(context.TODO(), augno.AIAgentNewParams{
-		CreateAgentRequest: augno.CreateAgentRequestParam{
+	_, err := client.AI.Agents.New(context.TODO(), openmrp.AIAgentNewParams{
+		CreateAgentRequest: openmrp.CreateAgentRequestParam{
 			CategoryCode: "inventory",
-			Config: augno.ConfigInputParam{
+			Config: openmrp.ConfigInputParam{
 				EndpointToolReview: map[string]bool{
 					"foo": true,
 				},
 				EndpointToolSlugs: []string{"string"},
-				SystemPrompt:      augno.String("You are an order processing agent. Parse incoming emails and create draft orders."),
-				Temperature:       augno.Float(0.2),
-				Tier:              augno.ConfigInputTierHigh,
-				TriggerConfig: augno.TriggerConfigInputParam{
-					CronSchedule: augno.String("cron_schedule"),
+				SystemPrompt:      openmrp.String("You are an order processing agent. Parse incoming emails and create draft orders."),
+				Temperature:       openmrp.Float(0.2),
+				Tier:              openmrp.ConfigInputTierHigh,
+				TriggerConfig: openmrp.TriggerConfigInputParam{
+					CronSchedule: openmrp.String("cron_schedule"),
 					EventFilters: []string{"email.received"},
-					Timezone:     augno.String("timezone"),
+					Timezone:     openmrp.String("timezone"),
 				},
 			},
 			Name:        "Inventory Monitor",
 			Slug:        "inventory_monitor",
-			TriggerType: augno.CreateAgentRequestTriggerTypeEvent,
-			Description: augno.String("Monitors inventory levels and creates restock alerts."),
-			RoleID:      augno.String("rl_3xknmfqflhvb"),
-			Tools: []augno.ToolInputParam{{
-				Tool:          augno.ToolInputToolReadDoc,
-				ConfigJson:    augno.String("config_json"),
-				RequireReview: augno.Bool(true),
-				SortOrder:     augno.Int(1),
+			TriggerType: openmrp.CreateAgentRequestTriggerTypeEvent,
+			Description: openmrp.String("Monitors inventory levels and creates restock alerts."),
+			RoleID:      openmrp.String("rl_3xknmfqflhvb"),
+			Tools: []openmrp.ToolInputParam{{
+				Tool:          openmrp.ToolInputToolReadDoc,
+				ConfigJson:    openmrp.String("config_json"),
+				RequireReview: openmrp.Bool(true),
+				SortOrder:     openmrp.Int(1),
 			}},
 		},
 		Include: []string{"config"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -73,19 +73,19 @@ func TestAIAgentGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.AI.Agents.Get(
 		context.TODO(),
 		"agdf_ah7tkyfxk8jl",
-		augno.AIAgentGetParams{
+		openmrp.AIAgentGetParams{
 			Include: []string{"config"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -101,47 +101,47 @@ func TestAIAgentUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.AI.Agents.Update(
 		context.TODO(),
 		"agdf_ah7tkyfxk8jl",
-		augno.AIAgentUpdateParams{
+		openmrp.AIAgentUpdateParams{
 			Include: []string{"config"},
-			UpdateAgentRequest: augno.UpdateAgentRequestParam{
-				CategoryCode: augno.String("category_code"),
-				Config: augno.ConfigInputParam{
+			UpdateAgentRequest: openmrp.UpdateAgentRequestParam{
+				CategoryCode: openmrp.String("category_code"),
+				Config: openmrp.ConfigInputParam{
 					EndpointToolReview: map[string]bool{
 						"foo": true,
 					},
 					EndpointToolSlugs: []string{"string"},
-					SystemPrompt:      augno.String("You are an order processing agent. Parse incoming emails and create draft orders."),
-					Temperature:       augno.Float(0.2),
-					Tier:              augno.ConfigInputTierHigh,
-					TriggerConfig: augno.TriggerConfigInputParam{
-						CronSchedule: augno.String("cron_schedule"),
+					SystemPrompt:      openmrp.String("You are an order processing agent. Parse incoming emails and create draft orders."),
+					Temperature:       openmrp.Float(0.2),
+					Tier:              openmrp.ConfigInputTierHigh,
+					TriggerConfig: openmrp.TriggerConfigInputParam{
+						CronSchedule: openmrp.String("cron_schedule"),
 						EventFilters: []string{"email.received"},
-						Timezone:     augno.String("timezone"),
+						Timezone:     openmrp.String("timezone"),
 					},
 				},
-				Description: augno.String("description"),
-				Name:        augno.String("Inventory Monitor"),
-				RoleID:      augno.String("role_id"),
-				Slug:        augno.String("slug"),
-				Tools: []augno.ToolInputParam{{
-					Tool:          augno.ToolInputToolReadDoc,
-					ConfigJson:    augno.String("config_json"),
-					RequireReview: augno.Bool(true),
-					SortOrder:     augno.Int(1),
+				Description: openmrp.String("description"),
+				Name:        openmrp.String("Inventory Monitor"),
+				RoleID:      openmrp.String("role_id"),
+				Slug:        openmrp.String("slug"),
+				Tools: []openmrp.ToolInputParam{{
+					Tool:          openmrp.ToolInputToolReadDoc,
+					ConfigJson:    openmrp.String("config_json"),
+					RequireReview: openmrp.Bool(true),
+					SortOrder:     openmrp.Int(1),
 				}},
-				TriggerType: augno.UpdateAgentRequestTriggerTypeScheduled,
+				TriggerType: openmrp.UpdateAgentRequestTriggerTypeScheduled,
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -157,21 +157,21 @@ func TestAIAgentListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.AI.Agents.List(context.TODO(), augno.AIAgentListParams{
-		Cursor:          augno.String("cursor"),
+	_, err := client.AI.Agents.List(context.TODO(), openmrp.AIAgentListParams{
+		Cursor:          openmrp.String("cursor"),
 		DefinitionTypes: []string{"system"},
 		Include:         []string{"config"},
-		Limit:           augno.Int(0),
-		Q:               augno.String("q"),
+		Limit:           openmrp.Int(0),
+		Q:               openmrp.String("q"),
 		Statuses:        []string{"active"},
 		TriggerTypes:    []string{"scheduled"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -187,13 +187,13 @@ func TestAIAgentDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.AI.Agents.Delete(context.TODO(), "agdf_ah7tkyfxk8jl")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -209,22 +209,22 @@ func TestAIAgentUpdateStatusWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.AI.Agents.UpdateStatus(
 		context.TODO(),
 		"agdf_ah7tkyfxk8jl",
-		augno.AIAgentUpdateStatusParams{
-			UpdateAgentStatusRequest: augno.UpdateAgentStatusRequestParam{
+		openmrp.AIAgentUpdateStatusParams{
+			UpdateAgentStatusRequest: openmrp.UpdateAgentStatusRequestParam{
 				Status: "active",
 			},
 			Include: []string{"config"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

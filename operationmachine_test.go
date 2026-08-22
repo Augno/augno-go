@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationMachineNewWithOptionalParams(t *testing.T) {
@@ -21,21 +21,21 @@ func TestOperationMachineNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.Machines.New(context.TODO(), augno.OperationMachineNewParams{
-		CreateMachineRequest: augno.CreateMachineRequestParam{
+	_, err := client.Operations.Machines.New(context.TODO(), openmrp.OperationMachineNewParams{
+		CreateMachineRequest: openmrp.CreateMachineRequestParam{
 			DepartmentID: "dp_m0jayebxnkos",
 			Name:         "CNC Router",
 			SerialNumber: "SN-2024-0001",
-			Notes:        augno.String("notes"),
+			Notes:        openmrp.String("notes"),
 		},
 		Include: []string{"department"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -51,19 +51,19 @@ func TestOperationMachineGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Machines.Get(
 		context.TODO(),
 		"mc_ffcfk9dxixis",
-		augno.OperationMachineGetParams{
+		openmrp.OperationMachineGetParams{
 			Include: []string{"department"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -79,24 +79,24 @@ func TestOperationMachineUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Machines.Update(
 		context.TODO(),
 		"mc_ffcfk9dxixis",
-		augno.OperationMachineUpdateParams{
+		openmrp.OperationMachineUpdateParams{
 			Include: []string{"department"},
-			UpdateMachineRequest: augno.UpdateMachineRequestParam{
-				Name:         augno.String("Updated CNC Router"),
-				Notes:        augno.String("notes"),
-				SerialNumber: augno.String("serial_number"),
+			UpdateMachineRequest: openmrp.UpdateMachineRequestParam{
+				Name:         openmrp.String("Updated CNC Router"),
+				Notes:        openmrp.String("notes"),
+				SerialNumber: openmrp.String("serial_number"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -112,17 +112,17 @@ func TestOperationMachineListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.Machines.List(context.TODO(), augno.OperationMachineListParams{
-		Cursor: augno.String("cursor"),
-		Limit:  augno.Int(0),
-		Q:      augno.String("q"),
+	_, err := client.Operations.Machines.List(context.TODO(), openmrp.OperationMachineListParams{
+		Cursor: openmrp.String("cursor"),
+		Limit:  openmrp.Int(0),
+		Q:      openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -138,13 +138,13 @@ func TestOperationMachineDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Machines.Delete(context.TODO(), "mc_ffcfk9dxixis")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

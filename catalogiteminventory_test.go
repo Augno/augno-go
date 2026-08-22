@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogItemInventoryUpdateWithOptionalParams(t *testing.T) {
@@ -21,28 +21,28 @@ func TestCatalogItemInventoryUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Items.Inventory.Update(
 		context.TODO(),
 		"it_pej07ckhvu62",
-		augno.CatalogItemInventoryUpdateParams{
-			UpdateItemInventoryRequest: augno.UpdateItemInventoryRequestParam{
-				Quantity: augno.QuantityInputParam{
+		openmrp.CatalogItemInventoryUpdateParams{
+			UpdateItemInventoryRequest: openmrp.UpdateItemInventoryRequestParam{
+				Quantity: openmrp.QuantityInputParam{
 					UnitID: "un_82bd37dae5po",
 					Value:  "10.5",
 				},
-				CustomerID: augno.String("ac_opnlh43ymyee"),
-				LocationID: augno.String("lc_yonnys0hx3ju"),
-				LotNumber:  augno.String("lot_number"),
-				Operation:  augno.UpdateItemInventoryRequestOperationAdjust,
+				CustomerID: openmrp.String("ac_opnlh43ymyee"),
+				LocationID: openmrp.String("lc_yonnys0hx3ju"),
+				LotNumber:  openmrp.String("lot_number"),
+				Operation:  openmrp.UpdateItemInventoryRequestOperationAdjust,
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -58,19 +58,19 @@ func TestCatalogItemInventoryListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Items.Inventory.List(
 		context.TODO(),
 		"it_pej07ckhvu62",
-		augno.CatalogItemInventoryListParams{
+		openmrp.CatalogItemInventoryListParams{
 			Include: []string{"on_hand"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -11,19 +11,19 @@ import (
 	"slices"
 	"time"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	shimjson "github.com/augno/augno-go/internal/encoding/json"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	shimjson "github.com/open-mrp/openmrp-go/internal/encoding/json"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // List, retrieve, trigger, cancel, and continue agent runs.
 //
 // AIRunService contains methods and other services that help with interacting with
-// the augno API.
+// the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -158,7 +158,7 @@ type AgentAction struct {
 	//
 	//   - `create_artifact`: create an artifact such as a report, document, or data
 	//     export.
-	//   - `read_doc`: read Augno documentation pages.
+	//   - `read_doc`: read OpenMRP documentation pages.
 	//   - `fetch_url`: fetch content from a public URL.
 	//   - `draft_reply`: propose a reply to the case's external party as a draft held
 	//     for human approval (not sent).
@@ -242,7 +242,7 @@ const (
 //
 //   - `create_artifact`: create an artifact such as a report, document, or data
 //     export.
-//   - `read_doc`: read Augno documentation pages.
+//   - `read_doc`: read OpenMRP documentation pages.
 //   - `fetch_url`: fetch content from a public URL.
 //   - `draft_reply`: propose a reply to the case's external party as a draft held
 //     for human approval (not sent).

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSaleAddressNewWithOptionalParams(t *testing.T) {
@@ -21,27 +21,27 @@ func TestSaleAddressNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Addresses.New(context.TODO(), augno.SaleAddressNewParams{
-		AddressInput: augno.AddressInputParam{
+	_, err := client.Sales.Addresses.New(context.TODO(), openmrp.SaleAddressNewParams{
+		AddressInput: openmrp.AddressInputParam{
 			Country:           "US",
 			Name:              "Headquarters",
-			Email:             augno.String("warehouse@acme.com"),
-			Locality:          augno.String("Springfield"),
-			Phone:             augno.String("555-123-4567"),
-			PostalCode:        augno.String("62701"),
-			ReceiveCalendarID: augno.String("receive_calendar_id"),
-			State:             augno.String("IL"),
-			StreetLine1:       augno.String("123 Main St"),
-			StreetLine2:       augno.String("Suite 400"),
-			Type:              augno.AddressInputTypeStandard,
+			Email:             openmrp.String("warehouse@acme.com"),
+			Locality:          openmrp.String("Springfield"),
+			Phone:             openmrp.String("555-123-4567"),
+			PostalCode:        openmrp.String("62701"),
+			ReceiveCalendarID: openmrp.String("receive_calendar_id"),
+			State:             openmrp.String("IL"),
+			StreetLine1:       openmrp.String("123 Main St"),
+			StreetLine2:       openmrp.String("Suite 400"),
+			Type:              openmrp.AddressInputTypeStandard,
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -57,13 +57,13 @@ func TestSaleAddressGet(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.Addresses.Get(context.TODO(), "ad_j8cz0b79pwdb")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -79,31 +79,31 @@ func TestSaleAddressUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.Addresses.Update(
 		context.TODO(),
 		"ad_j8cz0b79pwdb",
-		augno.SaleAddressUpdateParams{
-			UpdateAddressRequest: augno.UpdateAddressRequestParam{
-				Country:           augno.String("US"),
-				Email:             augno.String("warehouse@acme.com"),
-				Locality:          augno.String("Springfield"),
-				Name:              augno.String("Warehouse"),
-				Phone:             augno.String("555-123-4567"),
-				PostalCode:        augno.String("62701"),
-				ReceiveCalendarID: augno.String("receive_calendar_id"),
-				State:             augno.String("IL"),
-				StreetLine1:       augno.String("123 Main St"),
-				StreetLine2:       augno.String("Suite 400"),
-				Type:              augno.UpdateAddressRequestTypeStandard,
+		openmrp.SaleAddressUpdateParams{
+			UpdateAddressRequest: openmrp.UpdateAddressRequestParam{
+				Country:           openmrp.String("US"),
+				Email:             openmrp.String("warehouse@acme.com"),
+				Locality:          openmrp.String("Springfield"),
+				Name:              openmrp.String("Warehouse"),
+				Phone:             openmrp.String("555-123-4567"),
+				PostalCode:        openmrp.String("62701"),
+				ReceiveCalendarID: openmrp.String("receive_calendar_id"),
+				State:             openmrp.String("IL"),
+				StreetLine1:       openmrp.String("123 Main St"),
+				StreetLine2:       openmrp.String("Suite 400"),
+				Type:              openmrp.UpdateAddressRequestTypeStandard,
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -119,18 +119,18 @@ func TestSaleAddressListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.Addresses.List(context.TODO(), augno.SaleAddressListParams{
-		Cursor: augno.String("cursor"),
-		Limit:  augno.Int(0),
-		Q:      augno.String("q"),
-		Type:   augno.SaleAddressListParamsTypeStandard,
+	_, err := client.Sales.Addresses.List(context.TODO(), openmrp.SaleAddressListParams{
+		Cursor: openmrp.String("cursor"),
+		Limit:  openmrp.Int(0),
+		Q:      openmrp.String("q"),
+		Type:   openmrp.SaleAddressListParamsTypeStandard,
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -146,13 +146,13 @@ func TestSaleAddressDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.Addresses.Delete(context.TODO(), "ad_j8cz0b79pwdb")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

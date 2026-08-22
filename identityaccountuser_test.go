@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestIdentityAccountUserNewWithOptionalParams(t *testing.T) {
@@ -21,28 +21,28 @@ func TestIdentityAccountUserNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Identity.AccountUsers.New(context.TODO(), augno.IdentityAccountUserNewParams{
+	_, err := client.Identity.AccountUsers.New(context.TODO(), openmrp.IdentityAccountUserNewParams{
 		Include: []string{"user"},
-		CreateAccountUserRequest: augno.CreateAccountUserRequestParam{
-			DepartmentID:         augno.String("dp_m0jayebxnkos"),
-			Email:                augno.String("jdoe@augno.com"),
-			IsCommissionEligible: augno.Bool(false),
-			Name:                 augno.String("John Doe"),
-			Password:             augno.String("QgS7Z8Hhj3&1"),
-			Preferences: []augno.NotificationPreferenceItemParam{{
+		CreateAccountUserRequest: openmrp.CreateAccountUserRequestParam{
+			DepartmentID:         openmrp.String("dp_m0jayebxnkos"),
+			Email:                openmrp.String("jdoe@openmrp.ai"),
+			IsCommissionEligible: openmrp.Bool(false),
+			Name:                 openmrp.String("John Doe"),
+			Password:             openmrp.String("QgS7Z8Hhj3&1"),
+			Preferences: []openmrp.NotificationPreferenceItemParam{{
 				Enabled:          true,
-				NotificationType: augno.NotificationPreferenceItemNotificationTypeOrderAcknowledgement,
+				NotificationType: openmrp.NotificationPreferenceItemNotificationTypeOrderAcknowledgement,
 			}},
-			RoleID:   augno.String("rl_3xknmfqflhvb"),
-			Username: augno.String("jdoe"),
+			RoleID:   openmrp.String("rl_3xknmfqflhvb"),
+			Username: openmrp.String("jdoe"),
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -58,19 +58,19 @@ func TestIdentityAccountUserGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Identity.AccountUsers.Get(
 		context.TODO(),
 		"acus_e5zu8bde0z3h",
-		augno.IdentityAccountUserGetParams{
+		openmrp.IdentityAccountUserGetParams{
 			Include: []string{"user"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -86,31 +86,31 @@ func TestIdentityAccountUserUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Identity.AccountUsers.Update(
 		context.TODO(),
 		"acus_e5zu8bde0z3h",
-		augno.IdentityAccountUserUpdateParams{
+		openmrp.IdentityAccountUserUpdateParams{
 			Include: []string{"user"},
-			UpdateAccountUserRequest: augno.UpdateAccountUserRequestParam{
-				DepartmentID:         augno.String("dp_m0jayebxnkos"),
-				Email:                augno.String("jdoe@augno.com"),
-				IsCommissionEligible: augno.Bool(false),
-				Name:                 augno.String("John Doe"),
-				Preferences: []augno.NotificationPreferenceItemParam{{
+			UpdateAccountUserRequest: openmrp.UpdateAccountUserRequestParam{
+				DepartmentID:         openmrp.String("dp_m0jayebxnkos"),
+				Email:                openmrp.String("jdoe@openmrp.ai"),
+				IsCommissionEligible: openmrp.Bool(false),
+				Name:                 openmrp.String("John Doe"),
+				Preferences: []openmrp.NotificationPreferenceItemParam{{
 					Enabled:          true,
-					NotificationType: augno.NotificationPreferenceItemNotificationTypeOrderAcknowledgement,
+					NotificationType: openmrp.NotificationPreferenceItemNotificationTypeOrderAcknowledgement,
 				}},
-				RoleID:   augno.String("rl_3xknmfqflhvb"),
-				Username: augno.String("jdoe"),
+				RoleID:   openmrp.String("rl_3xknmfqflhvb"),
+				Username: openmrp.String("jdoe"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -126,21 +126,21 @@ func TestIdentityAccountUserListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Identity.AccountUsers.List(context.TODO(), augno.IdentityAccountUserListParams{
-		Cursor:               augno.String("cursor"),
+	_, err := client.Identity.AccountUsers.List(context.TODO(), openmrp.IdentityAccountUserListParams{
+		Cursor:               openmrp.String("cursor"),
 		Include:              []string{"user"},
-		IsCommissionEligible: augno.Bool(true),
-		Limit:                augno.Int(0),
-		Q:                    augno.String("q"),
-		RemovedScope:         augno.IdentityAccountUserListParamsRemovedScopeExcluded,
-		RoleType:             augno.IdentityAccountUserListParamsRoleTypeAdmin,
+		IsCommissionEligible: openmrp.Bool(true),
+		Limit:                openmrp.Int(0),
+		Q:                    openmrp.String("q"),
+		RemovedScope:         openmrp.IdentityAccountUserListParamsRemovedScopeExcluded,
+		RoleType:             openmrp.IdentityAccountUserListParamsRoleTypeAdmin,
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationMachineDowntimeEventNewWithOptionalParams(t *testing.T) {
@@ -22,30 +22,30 @@ func TestOperationMachineDowntimeEventNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.MachineDowntimeEvents.New(context.TODO(), augno.OperationMachineDowntimeEventNewParams{
-		CreateMachineDowntimeEventRequest: augno.CreateMachineDowntimeEventRequestParam{
+	_, err := client.Operations.MachineDowntimeEvents.New(context.TODO(), openmrp.OperationMachineDowntimeEventNewParams{
+		CreateMachineDowntimeEventRequest: openmrp.CreateMachineDowntimeEventRequestParam{
 			MachineID: "mc_ffcfk9dxixis",
-			Reason:    augno.CreateMachineDowntimeEventRequestReasonBreakdown,
+			Reason:    openmrp.CreateMachineDowntimeEventRequestReasonBreakdown,
 			StartedAt: time.Now(),
-			BatchID:   augno.String("batch_id"),
-			Duration: augno.QuantityInputParam{
+			BatchID:   openmrp.String("batch_id"),
+			Duration: openmrp.QuantityInputParam{
 				UnitID: "unit_id",
 				Value:  "value",
 			},
-			EndedAt:         augno.Time(time.Now()),
-			ItemID:          augno.String("item_id"),
-			Note:            augno.String("note"),
-			ProductionRunID: augno.String("production_run_id"),
-			Source:          augno.CreateMachineDowntimeEventRequestSourceManual,
+			EndedAt:         openmrp.Time(time.Now()),
+			ItemID:          openmrp.String("item_id"),
+			Note:            openmrp.String("note"),
+			ProductionRunID: openmrp.String("production_run_id"),
+			Source:          openmrp.CreateMachineDowntimeEventRequestSourceManual,
 		},
 		Include: []string{"machine"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -61,19 +61,19 @@ func TestOperationMachineDowntimeEventGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.MachineDowntimeEvents.Get(
 		context.TODO(),
 		"mcdt_ff5te1hqttco",
-		augno.OperationMachineDowntimeEventGetParams{
+		openmrp.OperationMachineDowntimeEventGetParams{
 			Include: []string{"machine"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -89,33 +89,33 @@ func TestOperationMachineDowntimeEventUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.MachineDowntimeEvents.Update(
 		context.TODO(),
 		"mcdt_ff5te1hqttco",
-		augno.OperationMachineDowntimeEventUpdateParams{
+		openmrp.OperationMachineDowntimeEventUpdateParams{
 			Include: []string{"machine"},
-			UpdateMachineDowntimeEventRequest: augno.UpdateMachineDowntimeEventRequestParam{
-				BatchID: augno.String("batch_id"),
-				Duration: augno.QuantityInputParam{
+			UpdateMachineDowntimeEventRequest: openmrp.UpdateMachineDowntimeEventRequestParam{
+				BatchID: openmrp.String("batch_id"),
+				Duration: openmrp.QuantityInputParam{
 					UnitID: "unit_id",
 					Value:  "value",
 				},
-				EndedAt:         augno.Time(time.Now()),
-				ItemID:          augno.String("item_id"),
-				MachineID:       augno.String("machine_id"),
-				Note:            augno.String("note"),
-				ProductionRunID: augno.String("production_run_id"),
-				Reason:          augno.UpdateMachineDowntimeEventRequestReasonBreakdown,
-				StartedAt:       augno.Time(time.Now()),
+				EndedAt:         openmrp.Time(time.Now()),
+				ItemID:          openmrp.String("item_id"),
+				MachineID:       openmrp.String("machine_id"),
+				Note:            openmrp.String("note"),
+				ProductionRunID: openmrp.String("production_run_id"),
+				Reason:          openmrp.UpdateMachineDowntimeEventRequestReasonBreakdown,
+				StartedAt:       openmrp.Time(time.Now()),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -131,24 +131,24 @@ func TestOperationMachineDowntimeEventListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.MachineDowntimeEvents.List(context.TODO(), augno.OperationMachineDowntimeEventListParams{
-		Cursor:        augno.String("cursor"),
+	_, err := client.Operations.MachineDowntimeEvents.List(context.TODO(), openmrp.OperationMachineDowntimeEventListParams{
+		Cursor:        openmrp.String("cursor"),
 		DepartmentIDs: []string{"string"},
-		EndsAt:        augno.String("ends_at"),
+		EndsAt:        openmrp.String("ends_at"),
 		Include:       []string{"machine"},
-		Limit:         augno.Int(0),
+		Limit:         openmrp.Int(0),
 		MachineIDs:    []string{"string"},
-		Open:          augno.Bool(true),
-		Q:             augno.String("q"),
+		Open:          openmrp.Bool(true),
+		Q:             openmrp.String("q"),
 		Reasons:       []string{"breakdown"},
-		StartsAt:      augno.String("starts_at"),
+		StartsAt:      openmrp.String("starts_at"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -164,13 +164,13 @@ func TestOperationMachineDowntimeEventDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.MachineDowntimeEvents.Delete(context.TODO(), "mcdt_ff5te1hqttco")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

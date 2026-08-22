@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestMessagingConversationNewWithOptionalParams(t *testing.T) {
@@ -21,23 +21,23 @@ func TestMessagingConversationNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Messaging.Conversations.New(context.TODO(), augno.MessagingConversationNewParams{
-		CreateConversationRequest: augno.CreateConversationRequestParam{
+	_, err := client.Messaging.Conversations.New(context.TODO(), openmrp.MessagingConversationNewParams{
+		CreateConversationRequest: openmrp.CreateConversationRequestParam{
 			ParticipantAccountUserIDs: []string{"acus_e5zu8bde0z3h"},
-			Type:                      augno.CreateConversationRequestTypeGroup,
-			GroupID:                   augno.String("cvgp_wjlypugna7s4"),
-			Title:                     augno.String("Order #1042 — shipping question"),
-			TopicResourceID:           augno.String("or_9lqo07quiwyb"),
-			TopicResourceType:         augno.CreateConversationRequestTopicResourceTypeSalesOrder,
+			Type:                      openmrp.CreateConversationRequestTypeGroup,
+			GroupID:                   openmrp.String("cvgp_wjlypugna7s4"),
+			Title:                     openmrp.String("Order #1042 — shipping question"),
+			TopicResourceID:           openmrp.String("or_9lqo07quiwyb"),
+			TopicResourceType:         openmrp.CreateConversationRequestTopicResourceTypeSalesOrder,
 		},
 		Include: []string{"assignee"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -53,19 +53,19 @@ func TestMessagingConversationGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Get(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationGetParams{
+		openmrp.MessagingConversationGetParams{
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -81,22 +81,22 @@ func TestMessagingConversationUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Update(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationUpdateParams{
+		openmrp.MessagingConversationUpdateParams{
 			Include: []string{"assignee"},
-			UpdateConversationRequest: augno.UpdateConversationRequestParam{
-				Title: augno.String("Fulfillment war room"),
+			UpdateConversationRequest: openmrp.UpdateConversationRequestParam{
+				Title: openmrp.String("Fulfillment war room"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -112,27 +112,27 @@ func TestMessagingConversationListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Messaging.Conversations.List(context.TODO(), augno.MessagingConversationListParams{
-		AssigneeResourceID: augno.String("assignee_resource_id"),
-		Audience:           augno.MessagingConversationListParamsAudienceInternal,
-		Cursor:             augno.String("cursor"),
+	_, err := client.Messaging.Conversations.List(context.TODO(), openmrp.MessagingConversationListParams{
+		AssigneeResourceID: openmrp.String("assignee_resource_id"),
+		Audience:           openmrp.MessagingConversationListParamsAudienceInternal,
+		Cursor:             openmrp.String("cursor"),
 		Include:            []string{"assignee"},
-		IncludeArchived:    augno.Bool(true),
-		Limit:              augno.Int(0),
-		Q:                  augno.String("q"),
-		Status:             augno.MessagingConversationListParamsStatusActive,
-		TopicResourceID:    augno.String("topic_resource_id"),
-		TopicResourceType:  augno.MessagingConversationListParamsTopicResourceTypeAccount,
-		Type:               augno.MessagingConversationListParamsTypeDirectMessage,
-		Unassigned:         augno.Bool(true),
-		WorkflowStatus:     augno.MessagingConversationListParamsWorkflowStatusNew,
+		IncludeArchived:    openmrp.Bool(true),
+		Limit:              openmrp.Int(0),
+		Q:                  openmrp.String("q"),
+		Status:             openmrp.MessagingConversationListParamsStatusActive,
+		TopicResourceID:    openmrp.String("topic_resource_id"),
+		TopicResourceType:  openmrp.MessagingConversationListParamsTopicResourceTypeAccount,
+		Type:               openmrp.MessagingConversationListParamsTypeDirectMessage,
+		Unassigned:         openmrp.Bool(true),
+		WorkflowStatus:     openmrp.MessagingConversationListParamsWorkflowStatusNew,
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

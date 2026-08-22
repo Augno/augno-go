@@ -3,8 +3,8 @@ package apijson_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/packages/param"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/packages/param"
 	"reflect"
 	"testing"
 )

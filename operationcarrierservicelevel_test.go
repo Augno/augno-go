@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationCarrierServiceLevelNewWithOptionalParams(t *testing.T) {
@@ -21,26 +21,26 @@ func TestOperationCarrierServiceLevelNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Carriers.ServiceLevels.New(
 		context.TODO(),
 		"cr_tv5vfjtgu1n3",
-		augno.OperationCarrierServiceLevelNewParams{
-			CreateServiceLevelRequest: augno.CreateServiceLevelRequestParam{
+		openmrp.OperationCarrierServiceLevelNewParams{
+			CreateServiceLevelRequest: openmrp.CreateServiceLevelRequestParam{
 				Code:                     "ground",
 				IsDefault:                false,
 				Name:                     "Ground Shipping",
-				CustomerPortalVisibility: augno.CreateServiceLevelRequestCustomerPortalVisibilityVisible,
-				DefaultTransitDays:       augno.Int(3),
+				CustomerPortalVisibility: openmrp.CreateServiceLevelRequestCustomerPortalVisibilityVisible,
+				DefaultTransitDays:       openmrp.Int(3),
 			},
 			Include: []string{"owner"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -56,20 +56,20 @@ func TestOperationCarrierServiceLevelGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Carriers.ServiceLevels.Get(
 		context.TODO(),
 		"crop_4ilk9p6gccrx",
-		augno.OperationCarrierServiceLevelGetParams{
+		openmrp.OperationCarrierServiceLevelGetParams{
 			CarrierID: "cr_tv5vfjtgu1n3",
 			Include:   []string{"owner"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -85,27 +85,27 @@ func TestOperationCarrierServiceLevelUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Carriers.ServiceLevels.Update(
 		context.TODO(),
 		"crop_4ilk9p6gccrx",
-		augno.OperationCarrierServiceLevelUpdateParams{
+		openmrp.OperationCarrierServiceLevelUpdateParams{
 			CarrierID: "cr_tv5vfjtgu1n3",
 			Include:   []string{"owner"},
-			UpdateServiceLevelRequest: augno.UpdateServiceLevelRequestParam{
-				Code:                     augno.String("express"),
-				CustomerPortalVisibility: augno.UpdateServiceLevelRequestCustomerPortalVisibilityVisible,
-				DefaultTransitDays:       augno.Int(0),
-				IsDefault:                augno.Bool(false),
-				Name:                     augno.String("Express Shipping"),
+			UpdateServiceLevelRequest: openmrp.UpdateServiceLevelRequestParam{
+				Code:                     openmrp.String("express"),
+				CustomerPortalVisibility: openmrp.UpdateServiceLevelRequestCustomerPortalVisibilityVisible,
+				DefaultTransitDays:       openmrp.Int(0),
+				IsDefault:                openmrp.Bool(false),
+				Name:                     openmrp.String("Express Shipping"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -121,22 +121,22 @@ func TestOperationCarrierServiceLevelListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Carriers.ServiceLevels.List(
 		context.TODO(),
 		"cr_tv5vfjtgu1n3",
-		augno.OperationCarrierServiceLevelListParams{
-			Cursor:  augno.String("cursor"),
+		openmrp.OperationCarrierServiceLevelListParams{
+			Cursor:  openmrp.String("cursor"),
 			Include: []string{"owner"},
-			Limit:   augno.Int(0),
-			Q:       augno.String("q"),
+			Limit:   openmrp.Int(0),
+			Q:       openmrp.String("q"),
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -152,19 +152,19 @@ func TestOperationCarrierServiceLevelDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Carriers.ServiceLevels.Delete(
 		context.TODO(),
 		"crop_4ilk9p6gccrx",
-		augno.OperationCarrierServiceLevelDeleteParams{
+		openmrp.OperationCarrierServiceLevelDeleteParams{
 			CarrierID: "cr_tv5vfjtgu1n3",
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

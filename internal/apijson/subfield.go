@@ -1,7 +1,7 @@
 package apijson
 
 import (
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 	"reflect"
 )
 

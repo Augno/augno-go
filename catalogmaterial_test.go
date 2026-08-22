@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogMaterialNewWithOptionalParams(t *testing.T) {
@@ -22,31 +22,31 @@ func TestCatalogMaterialNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Materials.New(context.TODO(), augno.CatalogMaterialNewParams{
-		CreateMaterialRequest: augno.CreateMaterialRequestParam{
+	_, err := client.Catalog.Materials.New(context.TODO(), openmrp.CatalogMaterialNewParams{
+		CreateMaterialRequest: openmrp.CreateMaterialRequestParam{
 			CategoryID:   "ic_d06g9c6yc9ck",
 			SKU:          "MAT-001",
 			AttributeIDs: []string{"at_rf1w295jt5ia"},
-			Description:  augno.String("Cold-rolled 304 stainless steel sheet, 1.5mm"),
-			LeadTime: augno.QuantityInputRequestParam{
+			Description:  openmrp.String("Cold-rolled 304 stainless steel sheet, 1.5mm"),
+			LeadTime: openmrp.QuantityInputRequestParam{
 				UnitID: "un_82bd37dae5po",
 				Value:  "7.00",
 			},
-			Notes: augno.String("Store flat in a dry area to avoid surface oxidation."),
-			OrderPoint: augno.QuantityInputRequestParam{
+			Notes: openmrp.String("Store flat in a dry area to avoid surface oxidation."),
+			OrderPoint: openmrp.QuantityInputRequestParam{
 				UnitID: "un_82bd37dae5po",
 				Value:  "100.00",
 			},
-			UnitCost: augno.RateInputParam{
+			UnitCost: openmrp.RateInputParam{
 				DenominatorUnitID: "un_82bd37dae5po",
 				NumeratorUnitID:   "un_82bd37dae5po",
 				Value:             "8.25",
 			},
-			UnitPrice: augno.RateInputParam{
+			UnitPrice: openmrp.RateInputParam{
 				DenominatorUnitID: "un_82bd37dae5po",
 				NumeratorUnitID:   "un_82bd37dae5po",
 				Value:             "12.50",
@@ -55,7 +55,7 @@ func TestCatalogMaterialNewWithOptionalParams(t *testing.T) {
 		Include: []string{"item"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -71,19 +71,19 @@ func TestCatalogMaterialGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Materials.Get(
 		context.TODO(),
 		"ml_ow202v78slbl",
-		augno.CatalogMaterialGetParams{
+		openmrp.CatalogMaterialGetParams{
 			Include: []string{"item"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -99,28 +99,28 @@ func TestCatalogMaterialUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Materials.Update(
 		context.TODO(),
 		"ml_ow202v78slbl",
-		augno.CatalogMaterialUpdateParams{
+		openmrp.CatalogMaterialUpdateParams{
 			Include: []string{"item"},
-			UpdateMaterialRequest: augno.UpdateMaterialRequestParam{
-				Description: augno.String("Cold-rolled 304 stainless steel sheet, 2.0mm"),
-				LeadTime: augno.QuantityInputRequestParam{
+			UpdateMaterialRequest: openmrp.UpdateMaterialRequestParam{
+				Description: openmrp.String("Cold-rolled 304 stainless steel sheet, 2.0mm"),
+				LeadTime: openmrp.QuantityInputRequestParam{
 					UnitID: "un_82bd37dae5po",
 					Value:  "10.00",
 				},
-				Notes: augno.String("Reorder point raised after Q2 demand spike."),
-				OrderPoint: augno.QuantityInputRequestParam{
+				Notes: openmrp.String("Reorder point raised after Q2 demand spike."),
+				OrderPoint: openmrp.QuantityInputRequestParam{
 					UnitID: "un_82bd37dae5po",
 					Value:  "150.00",
 				},
-				SKU: augno.String("MAT-001-UPDATED"),
-				UnitCost: augno.RateInputParam{
+				SKU: openmrp.String("MAT-001-UPDATED"),
+				UnitCost: openmrp.RateInputParam{
 					DenominatorUnitID: "un_82bd37dae5po",
 					NumeratorUnitID:   "un_82bd37dae5po",
 					Value:             "9.10",
@@ -129,7 +129,7 @@ func TestCatalogMaterialUpdateWithOptionalParams(t *testing.T) {
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -145,22 +145,22 @@ func TestCatalogMaterialListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Materials.List(context.TODO(), augno.CatalogMaterialListParams{
+	_, err := client.Catalog.Materials.List(context.TODO(), openmrp.CatalogMaterialListParams{
 		AttributeIDs: []string{"string"},
 		CategoryIDs:  []string{"string"},
-		Cursor:       augno.String("cursor"),
-		EndsAt:       augno.Time(time.Now()),
+		Cursor:       openmrp.String("cursor"),
+		EndsAt:       openmrp.Time(time.Now()),
 		Include:      []string{"item"},
-		Limit:        augno.Int(0),
-		Q:            augno.String("q"),
-		StartsAt:     augno.Time(time.Now()),
+		Limit:        openmrp.Int(0),
+		Q:            openmrp.String("q"),
+		StartsAt:     openmrp.Time(time.Now()),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -176,13 +176,13 @@ func TestCatalogMaterialDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Materials.Delete(context.TODO(), "ml_ow202v78slbl")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

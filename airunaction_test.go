@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestAIRunActionCancelWithOptionalParams(t *testing.T) {
@@ -21,19 +21,19 @@ func TestAIRunActionCancelWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.AI.Runs.Actions.Cancel(
 		context.TODO(),
 		"agrn_l6ob5relrd7t",
-		augno.AIRunActionCancelParams{
+		openmrp.AIRunActionCancelParams{
 			Include: []string{"actions"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -49,15 +49,15 @@ func TestAIRunActionContinueWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.AI.Runs.Actions.Continue(
 		context.TODO(),
 		"agrn_l6ob5relrd7t",
-		augno.AIRunActionContinueParams{
-			ContinueRunRequest: augno.ContinueRunRequestParam{
+		openmrp.AIRunActionContinueParams{
+			ContinueRunRequest: openmrp.ContinueRunRequestParam{
 				Message:             "Yes, proceed with creating the order.",
 				ApprovedToolCallIDs: []string{"string"},
 				ApprovedToolSlugs:   []string{"string"},
@@ -68,7 +68,7 @@ func TestAIRunActionContinueWithOptionalParams(t *testing.T) {
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -84,19 +84,19 @@ func TestAIRunActionRetryWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.AI.Runs.Actions.Retry(
 		context.TODO(),
 		"agrn_l6ob5relrd7t",
-		augno.AIRunActionRetryParams{
+		openmrp.AIRunActionRetryParams{
 			Include: []string{"actions"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

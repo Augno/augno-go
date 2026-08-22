@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestMessagingConversationParticipantNewWithOptionalParams(t *testing.T) {
@@ -21,23 +21,23 @@ func TestMessagingConversationParticipantNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Participants.New(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationParticipantNewParams{
-			AddParticipantRequest: augno.AddParticipantRequestParam{
+		openmrp.MessagingConversationParticipantNewParams{
+			AddParticipantRequest: openmrp.AddParticipantRequestParam{
 				AccountUserID: "acus_e5zu8bde0z3h",
-				Role:          augno.AddParticipantRequestRoleMember,
+				Role:          openmrp.AddParticipantRequestRoleMember,
 			},
 			Include: []string{"participants"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -53,19 +53,19 @@ func TestMessagingConversationParticipantDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Participants.Delete(
 		context.TODO(),
 		"cvpt_be2h3ul14cts",
-		augno.MessagingConversationParticipantDeleteParams{
+		openmrp.MessagingConversationParticipantDeleteParams{
 			ID: "cv_w35z4ck68yq7",
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

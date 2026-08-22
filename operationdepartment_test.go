@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationDepartmentNewWithOptionalParams(t *testing.T) {
@@ -21,27 +21,27 @@ func TestOperationDepartmentNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.Departments.New(context.TODO(), augno.OperationDepartmentNewParams{
-		CreateDepartmentRequest: augno.CreateDepartmentRequestParam{
+	_, err := client.Operations.Departments.New(context.TODO(), openmrp.OperationDepartmentNewParams{
+		CreateDepartmentRequest: openmrp.CreateDepartmentRequestParam{
 			Name: "Fabrication",
-			LaborRate: augno.DepartmentRateInputParam{
+			LaborRate: openmrp.DepartmentRateInputParam{
 				DenominatorUnitID: "denominator_unit_id",
 				NumeratorUnitID:   "numerator_unit_id",
 				Value:             "value",
 			},
-			LocationID:         augno.String("location_id"),
+			LocationID:         openmrp.String("location_id"),
 			MachineIDs:         []string{"mc_ffcfk9dxixis"},
-			Notes:              augno.String("notes"),
+			Notes:              openmrp.String("notes"),
 			ScanningStationIDs: []string{"scst_t71bn7lq5yov"},
 		},
 		Include: []string{"location"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -57,19 +57,19 @@ func TestOperationDepartmentGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Departments.Get(
 		context.TODO(),
 		"dp_m0jayebxnkos",
-		augno.OperationDepartmentGetParams{
+		openmrp.OperationDepartmentGetParams{
 			Include: []string{"location"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -85,31 +85,31 @@ func TestOperationDepartmentUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Departments.Update(
 		context.TODO(),
 		"dp_m0jayebxnkos",
-		augno.OperationDepartmentUpdateParams{
+		openmrp.OperationDepartmentUpdateParams{
 			Include: []string{"location"},
-			UpdateDepartmentRequest: augno.UpdateDepartmentRequestParam{
-				LaborRate: augno.DepartmentRateInputParam{
+			UpdateDepartmentRequest: openmrp.UpdateDepartmentRequestParam{
+				LaborRate: openmrp.DepartmentRateInputParam{
 					DenominatorUnitID: "denominator_unit_id",
 					NumeratorUnitID:   "numerator_unit_id",
 					Value:             "value",
 				},
-				LocationID:         augno.String("location_id"),
+				LocationID:         openmrp.String("location_id"),
 				MachineIDs:         []string{"string"},
-				Name:               augno.String("Production"),
-				Notes:              augno.String("notes"),
+				Name:               openmrp.String("Production"),
+				Notes:              openmrp.String("notes"),
 				ScanningStationIDs: []string{"string"},
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -125,18 +125,18 @@ func TestOperationDepartmentListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.Departments.List(context.TODO(), augno.OperationDepartmentListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Operations.Departments.List(context.TODO(), openmrp.OperationDepartmentListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"location"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -152,13 +152,13 @@ func TestOperationDepartmentDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Departments.Delete(context.TODO(), "dp_m0jayebxnkos")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

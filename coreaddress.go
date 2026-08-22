@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -8,18 +8,18 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // Autocomplete, look up details, and validate addresses.
 //
 // CoreAddressService contains methods and other services that help with
-// interacting with the augno API.
+// interacting with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -63,7 +63,7 @@ type AddressSuggestion struct {
 	//
 	// Pass this value as the `id` path parameter of the address details endpoint to
 	// retrieve the full parsed address. It is issued by the underlying address
-	// provider rather than by Augno, so it is not a durable Augno resource ID.
+	// provider rather than by OpenMRP, so it is not a durable OpenMRP resource ID.
 	ID string `json:"id" api:"required"`
 	// Full description of the address.
 	Description string `json:"description" api:"required"`

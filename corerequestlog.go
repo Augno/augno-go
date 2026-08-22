@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -11,18 +11,18 @@ import (
 	"slices"
 	"time"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // List and retrieve request logs.
 //
 // CoreRequestLogService contains methods and other services that help with
-// interacting with the augno API.
+// interacting with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -205,7 +205,7 @@ const (
 type RequestLog struct {
 	// Request log ID.
 	ID string `json:"id" api:"required"`
-	// An organization on Augno, including its branding and customer portal
+	// An organization on OpenMRP, including its branding and customer portal
 	// sub-resources.
 	//
 	// Your own account and any customer or supplier account you trade with are both
@@ -216,13 +216,13 @@ type RequestLog struct {
 	Actor Actor `json:"actor" api:"required"`
 	// The API version the request was served with.
 	//
-	// Taken from the `Augno-Version` header the caller sent; requests rejected for
+	// Taken from the `OpenMRP-Version` header the caller sent; requests rejected for
 	// omitting that header record no version.
 	APIVersion string `json:"api_version" api:"required"`
 	// Client IP address the request came from.
 	//
-	// Not recorded for requests an Augno agent made on your behalf, since those
-	// originate inside Augno's own network.
+	// Not recorded for requests an OpenMRP agent made on your behalf, since those
+	// originate inside OpenMRP's own network.
 	ClientIP string `json:"client_ip" api:"required"`
 	// When the log entry was written.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
@@ -237,14 +237,14 @@ type RequestLog struct {
 	ErrorMessage string `json:"error_message" api:"required"`
 	// Request host.
 	//
-	// Usually `api.augno.com`.
+	// Usually `api.openmrp.ai`.
 	Host string `json:"host" api:"required"`
 	// User-provided idempotency key.
 	IdempotencyKey string `json:"idempotency_key" api:"required"`
 	// Request latency in microseconds.
 	//
 	// Measured at the API edge, from the moment the request was received until the
-	// response was written, so it excludes network time between your client and Augno.
+	// response was written, so it excludes network time between your client and OpenMRP.
 	LatencyUs int64 `json:"latency_us" api:"required"`
 	// HTTP method.
 	Method string `json:"method" api:"required"`
@@ -280,7 +280,7 @@ type RequestLog struct {
 	// JSON value (object, array, string, number, boolean, or null), not a JSON-encoded
 	// string.
 	RequestBody any `json:"request_body" api:"required"`
-	// The JSON body Augno responded with.
+	// The JSON body OpenMRP responded with.
 	//
 	// Sensitive values such as generated API key secrets are redacted before the body
 	// is stored. Bodies larger than 256 KB are not stored in full; a small marker
@@ -390,7 +390,7 @@ type CoreRequestLogListParams struct {
 	// Filter by the actor type.
 	//
 	// Requests are recorded for actors of type `user`, `api_key`, and `agent` — the
-	// last covering calls an Augno agent made on your account's behalf.
+	// last covering calls an OpenMRP agent made on your account's behalf.
 	//
 	// Any of "user", "api_key", "agent", "group".
 	ActorTypes []string `query:"actor_types,omitzero" json:"-"`
@@ -411,7 +411,7 @@ type CoreRequestLogListParams struct {
 	// Exclude request logs whose API error code is in this set.
 	//
 	// Applied as a negative filter after all other filters. Successful requests (which
-	// have no error code) are always kept. The Augno dashboard uses this to hide
+	// have no error code) are always kept. The OpenMRP dashboard uses this to hide
 	// routine `expired_token` 401s — the noise from short-lived access tokens expiring
 	// and clients silently refreshing — while still surfacing genuine auth failures
 	// like `invalid_credentials`.
@@ -430,7 +430,7 @@ type CoreRequestLogListParams struct {
 	ExcludeErrorCodes []string `query:"exclude_error_codes,omitzero" json:"-"`
 	// Filter by the request host.
 	//
-	// Typically `api.augno.com`.
+	// Typically `api.openmrp.ai`.
 	Hosts []string `query:"hosts,omitzero" json:"-"`
 	// Sub-objects to expand in the response. When omitted, sub-objects are returned as
 	// `null`.

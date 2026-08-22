@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSaleSalesOrderLineNewWithOptionalParams(t *testing.T) {
@@ -21,23 +21,23 @@ func TestSaleSalesOrderLineNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Lines.New(
 		context.TODO(),
 		"or_9lqo07quiwyb",
-		augno.SaleSalesOrderLineNewParams{
-			CreateSalesOrderLineRequest: augno.CreateSalesOrderLineRequestParam{
+		openmrp.SaleSalesOrderLineNewParams{
+			CreateSalesOrderLineRequest: openmrp.CreateSalesOrderLineRequestParam{
 				ProductID:  "pd_07oe0r7adh2w",
 				ProductSKU: "WIDGET-001",
-				Quantity: augno.QuantityInputParam{
+				Quantity: openmrp.QuantityInputParam{
 					UnitID: "un_82bd37dae5po",
 					Value:  "10",
 				},
-				ProductDescription: augno.String("product_description"),
-				UnitPrice: augno.RateInputParam{
+				ProductDescription: openmrp.String("product_description"),
+				UnitPrice: openmrp.RateInputParam{
 					DenominatorUnitID: "denominator_unit_id",
 					NumeratorUnitID:   "numerator_unit_id",
 					Value:             "value",
@@ -47,7 +47,7 @@ func TestSaleSalesOrderLineNewWithOptionalParams(t *testing.T) {
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -63,29 +63,29 @@ func TestSaleSalesOrderLineUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Lines.Update(
 		context.TODO(),
 		"example",
-		augno.SaleSalesOrderLineUpdateParams{
+		openmrp.SaleSalesOrderLineUpdateParams{
 			ID:      "or_9lqo07quiwyb",
 			Include: []string{"product"},
-			UpdateSalesOrderLineRequest: augno.UpdateSalesOrderLineRequestParam{
-				ProductDescription: augno.String("product_description"),
-				ProductSKU:         augno.String("product_sku"),
-				Quantity: augno.QuantityInputParam{
+			UpdateSalesOrderLineRequest: openmrp.UpdateSalesOrderLineRequestParam{
+				ProductDescription: openmrp.String("product_description"),
+				ProductSKU:         openmrp.String("product_sku"),
+				Quantity: openmrp.QuantityInputParam{
 					UnitID: "un_82bd37dae5po",
 					Value:  "20",
 				},
-				UnitCost: augno.RateInputParam{
+				UnitCost: openmrp.RateInputParam{
 					DenominatorUnitID: "denominator_unit_id",
 					NumeratorUnitID:   "numerator_unit_id",
 					Value:             "value",
 				},
-				UnitPrice: augno.RateInputParam{
+				UnitPrice: openmrp.RateInputParam{
 					DenominatorUnitID: "un_82bd37dae5po",
 					NumeratorUnitID:   "un_82bd37dae5po",
 					Value:             "30.00",
@@ -94,7 +94,7 @@ func TestSaleSalesOrderLineUpdateWithOptionalParams(t *testing.T) {
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -110,19 +110,19 @@ func TestSaleSalesOrderLineDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Lines.Delete(
 		context.TODO(),
 		"example",
-		augno.SaleSalesOrderLineDeleteParams{
+		openmrp.SaleSalesOrderLineDeleteParams{
 			ID: "or_9lqo07quiwyb",
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

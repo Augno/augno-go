@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationCarrierNewWithOptionalParams(t *testing.T) {
@@ -21,21 +21,21 @@ func TestOperationCarrierNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.Carriers.New(context.TODO(), augno.OperationCarrierNewParams{
-		CreateCarrierRequest: augno.CreateCarrierRequestParam{
+	_, err := client.Operations.Carriers.New(context.TODO(), openmrp.OperationCarrierNewParams{
+		CreateCarrierRequest: openmrp.CreateCarrierRequestParam{
 			Name:                     "FedEx",
-			AccountNumber:            augno.String("1234567890"),
-			Code:                     augno.CreateCarrierRequestCodeFedex,
-			CustomerPortalVisibility: augno.CreateCarrierRequestCustomerPortalVisibilityVisible,
+			AccountNumber:            openmrp.String("1234567890"),
+			Code:                     openmrp.CreateCarrierRequestCodeFedex,
+			CustomerPortalVisibility: openmrp.CreateCarrierRequestCustomerPortalVisibilityVisible,
 		},
 		Include: []string{"owner"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -51,19 +51,19 @@ func TestOperationCarrierGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Carriers.Get(
 		context.TODO(),
 		"cr_tv5vfjtgu1n3",
-		augno.OperationCarrierGetParams{
+		openmrp.OperationCarrierGetParams{
 			Include: []string{"owner"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -79,23 +79,23 @@ func TestOperationCarrierUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Carriers.Update(
 		context.TODO(),
 		"cr_tv5vfjtgu1n3",
-		augno.OperationCarrierUpdateParams{
+		openmrp.OperationCarrierUpdateParams{
 			Include: []string{"owner"},
-			UpdateCarrierRequest: augno.UpdateCarrierRequestParam{
-				CustomerPortalVisibility: augno.UpdateCarrierRequestCustomerPortalVisibilityVisible,
-				Name:                     augno.String("FedEx Express"),
+			UpdateCarrierRequest: openmrp.UpdateCarrierRequestParam{
+				CustomerPortalVisibility: openmrp.UpdateCarrierRequestCustomerPortalVisibilityVisible,
+				Name:                     openmrp.String("FedEx Express"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -111,18 +111,18 @@ func TestOperationCarrierListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.Carriers.List(context.TODO(), augno.OperationCarrierListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Operations.Carriers.List(context.TODO(), openmrp.OperationCarrierListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"owner"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -138,13 +138,13 @@ func TestOperationCarrierDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.Carriers.Delete(context.TODO(), "cr_tv5vfjtgu1n3")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

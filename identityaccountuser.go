@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -10,19 +10,19 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	shimjson "github.com/augno/augno-go/internal/encoding/json"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	shimjson "github.com/open-mrp/openmrp-go/internal/encoding/json"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // List and manage account users.
 //
 // IdentityAccountUserService contains methods and other services that help with
-// interacting with the augno API.
+// interacting with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -53,7 +53,7 @@ func NewIdentityAccountUserService(opts ...option.RequestOption) (r IdentityAcco
 // restored rather than duplicated. Adding a user to your own account consumes a
 // seat and is rejected once your plan's seat limit is reached.
 //
-// When you add a user to a customer or supplier account that has its own Augno
+// When you add a user to a customer or supplier account that has its own OpenMRP
 // subscription, the membership is created disabled and has to be activated before
 // that user can sign in.
 //

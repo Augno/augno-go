@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSaleSalesOrderNewWithOptionalParams(t *testing.T) {
@@ -22,23 +22,23 @@ func TestSaleSalesOrderNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.SalesOrders.New(context.TODO(), augno.SaleSalesOrderNewParams{
-		CreateSalesOrderRequest: augno.CreateSalesOrderRequestParam{
+	_, err := client.Sales.SalesOrders.New(context.TODO(), openmrp.SaleSalesOrderNewParams{
+		CreateSalesOrderRequest: openmrp.CreateSalesOrderRequestParam{
 			BillToAddressID: "ad_npqa5y43q26z",
 			BuyerAccountID:  "ac_opnlh43ymyee",
-			Lines: []augno.CreateSalesOrderLineInputParam{{
+			Lines: []openmrp.CreateSalesOrderLineInputParam{{
 				ProductID: "pd_07oe0r7adh2w",
-				Quantity: augno.QuantityInputParam{
+				Quantity: openmrp.QuantityInputParam{
 					UnitID: "un_82bd37dae5po",
 					Value:  "10",
 				},
-				ProductDescription: augno.String("product_description"),
-				ProductSKU:         augno.String("product_sku"),
-				UnitPrice: augno.RateInputParam{
+				ProductDescription: openmrp.String("product_description"),
+				ProductSKU:         openmrp.String("product_sku"),
+				UnitPrice: openmrp.RateInputParam{
 					DenominatorUnitID: "denominator_unit_id",
 					NumeratorUnitID:   "numerator_unit_id",
 					Value:             "value",
@@ -46,30 +46,30 @@ func TestSaleSalesOrderNewWithOptionalParams(t *testing.T) {
 			}},
 			PriorityCode:    "normal",
 			ShipToAddressID: "ad_npqa5y43q26z",
-			AcknowledgementEmailContacts: []augno.SalesOrderEmailContactInputParam{{
+			AcknowledgementEmailContacts: []openmrp.SalesOrderEmailContactInputParam{{
 				AccountUserID: "acus_e5zu8bde0z3h",
 			}},
-			CarrierBillingAccountNumber: augno.String("123456789"),
-			CarrierBillingType:          augno.CreateSalesOrderRequestCarrierBillingTypeSender,
-			CarrierID:                   augno.String("cr_tv5vfjtgu1n3"),
-			CustomerPurchaseOrderNumber: augno.String("PO-88231"),
-			InvoiceEmailContacts: []augno.SalesOrderEmailContactInputParam{{
+			CarrierBillingAccountNumber: openmrp.String("123456789"),
+			CarrierBillingType:          openmrp.CreateSalesOrderRequestCarrierBillingTypeSender,
+			CarrierID:                   openmrp.String("cr_tv5vfjtgu1n3"),
+			CustomerPurchaseOrderNumber: openmrp.String("PO-88231"),
+			InvoiceEmailContacts: []openmrp.SalesOrderEmailContactInputParam{{
 				AccountUserID: "acus_e5zu8bde0z3h",
 			}},
-			LeadTimeOverrideDays: augno.Int(0),
-			Note:                 augno.String("Rush order for trade show"),
-			OrderDiscountID:      augno.String("ords_qnbrjvq5ih2q"),
-			PaymentTermID:        augno.String("pytm_skssmsy21lem"),
-			PromisedAt:           augno.Time(time.Now()),
-			SalesRepID:           augno.String("acus_e5zu8bde0z3h"),
-			ServiceLevelID:       augno.String("crop_4ilk9p6gccrx"),
-			ShipByOverrideDate:   augno.Time(time.Now()),
-			ShippingTermID:       augno.String("shtm_c5gxy05whw6r"),
+			LeadTimeOverrideDays: openmrp.Int(0),
+			Note:                 openmrp.String("Rush order for trade show"),
+			OrderDiscountID:      openmrp.String("ords_qnbrjvq5ih2q"),
+			PaymentTermID:        openmrp.String("pytm_skssmsy21lem"),
+			PromisedAt:           openmrp.Time(time.Now()),
+			SalesRepID:           openmrp.String("acus_e5zu8bde0z3h"),
+			ServiceLevelID:       openmrp.String("crop_4ilk9p6gccrx"),
+			ShipByOverrideDate:   openmrp.Time(time.Now()),
+			ShippingTermID:       openmrp.String("shtm_c5gxy05whw6r"),
 		},
 		Include: []string{"customer"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -85,19 +85,19 @@ func TestSaleSalesOrderGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Get(
 		context.TODO(),
 		"or_9lqo07quiwyb",
-		augno.SaleSalesOrderGetParams{
+		openmrp.SaleSalesOrderGetParams{
 			Include: []string{"customer"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -113,45 +113,45 @@ func TestSaleSalesOrderUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Update(
 		context.TODO(),
 		"or_9lqo07quiwyb",
-		augno.SaleSalesOrderUpdateParams{
+		openmrp.SaleSalesOrderUpdateParams{
 			Include: []string{"customer"},
-			UpdateSalesOrderRequest: augno.UpdateSalesOrderRequestParam{
-				AcknowledgementEmailContacts: []augno.SalesOrderEmailContactInputParam{{
+			UpdateSalesOrderRequest: openmrp.UpdateSalesOrderRequestParam{
+				AcknowledgementEmailContacts: []openmrp.SalesOrderEmailContactInputParam{{
 					AccountUserID: "account_user_id",
 				}},
-				AcknowledgmentStatus:        augno.UpdateSalesOrderRequestAcknowledgmentStatusNotSent,
-				BillingAddressID:            augno.String("billing_address_id"),
-				CarrierBillingAccountNumber: augno.String("carrier_billing_account_number"),
-				CarrierBillingType:          augno.UpdateSalesOrderRequestCarrierBillingTypeSender,
-				CarrierID:                   augno.String("cr_tv5vfjtgu1n3"),
-				CustomerID:                  augno.String("customer_id"),
-				CustomerPurchaseOrderNumber: augno.String("customer_purchase_order_number"),
-				InvoiceEmailContacts: []augno.SalesOrderEmailContactInputParam{{
+				AcknowledgmentStatus:        openmrp.UpdateSalesOrderRequestAcknowledgmentStatusNotSent,
+				BillingAddressID:            openmrp.String("billing_address_id"),
+				CarrierBillingAccountNumber: openmrp.String("carrier_billing_account_number"),
+				CarrierBillingType:          openmrp.UpdateSalesOrderRequestCarrierBillingTypeSender,
+				CarrierID:                   openmrp.String("cr_tv5vfjtgu1n3"),
+				CustomerID:                  openmrp.String("customer_id"),
+				CustomerPurchaseOrderNumber: openmrp.String("customer_purchase_order_number"),
+				InvoiceEmailContacts: []openmrp.SalesOrderEmailContactInputParam{{
 					AccountUserID: "account_user_id",
 				}},
-				LeadTimeOverrideDays: augno.Int(0),
-				Note:                 augno.String("Updated shipping instructions"),
-				OrderDiscountID:      augno.String("order_discount_id"),
-				PaymentTermID:        augno.String("payment_term_id"),
-				PriorityCode:         augno.String("normal"),
-				PromisedAt:           augno.Time(time.Now()),
-				SalesRepID:           augno.String("sales_rep_id"),
-				ServiceLevelID:       augno.String("service_level_id"),
-				ShipByOverrideDate:   augno.Time(time.Now()),
-				ShippingAddressID:    augno.String("ad_npqa5y43q26z"),
-				ShippingTermID:       augno.String("shipping_term_id"),
+				LeadTimeOverrideDays: openmrp.Int(0),
+				Note:                 openmrp.String("Updated shipping instructions"),
+				OrderDiscountID:      openmrp.String("order_discount_id"),
+				PaymentTermID:        openmrp.String("payment_term_id"),
+				PriorityCode:         openmrp.String("normal"),
+				PromisedAt:           openmrp.Time(time.Now()),
+				SalesRepID:           openmrp.String("sales_rep_id"),
+				ServiceLevelID:       openmrp.String("service_level_id"),
+				ShipByOverrideDate:   openmrp.Time(time.Now()),
+				ShippingAddressID:    openmrp.String("ad_npqa5y43q26z"),
+				ShippingTermID:       openmrp.String("shipping_term_id"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -167,29 +167,29 @@ func TestSaleSalesOrderListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.SalesOrders.List(context.TODO(), augno.SaleSalesOrderListParams{
-		Cursor:           augno.String("cursor"),
+	_, err := client.Sales.SalesOrders.List(context.TODO(), openmrp.SaleSalesOrderListParams{
+		Cursor:           openmrp.String("cursor"),
 		CustomerGroupIDs: []string{"string"},
 		CustomerIDs:      []string{"string"},
-		EndsAt:           augno.String("ends_at"),
+		EndsAt:           openmrp.String("ends_at"),
 		Include:          []string{"customer"},
 		ItemIDs:          []string{"string"},
-		Limit:            augno.Int(0),
-		PastDue:          augno.Bool(true),
+		Limit:            openmrp.Int(0),
+		PastDue:          openmrp.Bool(true),
 		ProductLineIDs:   []string{"string"},
-		Q:                augno.String("q"),
+		Q:                openmrp.String("q"),
 		SalesRepIDs:      []string{"string"},
-		ShipByAfter:      augno.String("ship_by_after"),
-		ShipByBefore:     augno.String("ship_by_before"),
-		StartsAt:         augno.String("starts_at"),
+		ShipByAfter:      openmrp.String("ship_by_after"),
+		ShipByBefore:     openmrp.String("ship_by_before"),
+		StartsAt:         openmrp.String("starts_at"),
 		StatusCodes:      []string{"estimate"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -205,13 +205,13 @@ func TestSaleSalesOrderDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Delete(context.TODO(), "or_9lqo07quiwyb")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -227,21 +227,21 @@ func TestSaleSalesOrderCheckout(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.SalesOrders.Checkout(
 		context.TODO(),
 		"or_9lqo07quiwyb",
-		augno.SaleSalesOrderCheckoutParams{
-			CheckoutSalesOrderRequest: augno.CheckoutSalesOrderRequestParam{
+		openmrp.SaleSalesOrderCheckoutParams{
+			CheckoutSalesOrderRequest: openmrp.CheckoutSalesOrderRequestParam{
 				Email: "operations@acme.example.com",
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -257,16 +257,16 @@ func TestSaleSalesOrderPriceQuote(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.SalesOrders.PriceQuote(context.TODO(), augno.SaleSalesOrderPriceQuoteParams{
-		QuoteSalesOrderPricesRequest: augno.QuoteSalesOrderPricesRequestParam{
+	_, err := client.Sales.SalesOrders.PriceQuote(context.TODO(), openmrp.SaleSalesOrderPriceQuoteParams{
+		QuoteSalesOrderPricesRequest: openmrp.QuoteSalesOrderPricesRequestParam{
 			BuyerAccountID: "ac_opnlh43ymyee",
-			Lines: []augno.QuoteSalesOrderLineInputParam{{
+			Lines: []openmrp.QuoteSalesOrderLineInputParam{{
 				ProductID: "pd_07oe0r7adh2w",
-				Quantity: augno.QuantityInputParam{
+				Quantity: openmrp.QuantityInputParam{
 					UnitID: "un_82bd37dae5po",
 					Value:  "10",
 				},
@@ -274,7 +274,7 @@ func TestSaleSalesOrderPriceQuote(t *testing.T) {
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -290,18 +290,18 @@ func TestSaleSalesOrderGetStatusesWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.SalesOrders.GetStatuses(context.TODO(), augno.SaleSalesOrderGetStatusesParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Sales.SalesOrders.GetStatuses(context.TODO(), openmrp.SaleSalesOrderGetStatusesParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"owner"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

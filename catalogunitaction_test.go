@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogUnitActionBulkUpsertWithOptionalParams(t *testing.T) {
@@ -21,13 +21,13 @@ func TestCatalogUnitActionBulkUpsertWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Units.Actions.BulkUpsert(context.TODO(), augno.CatalogUnitActionBulkUpsertParams{
-		BulkUpsertUnitsRequest: augno.BulkUpsertUnitsRequestParam{
-			Units: []augno.UpsertUnitInputParam{{
+	_, err := client.Catalog.Units.Actions.BulkUpsert(context.TODO(), openmrp.CatalogUnitActionBulkUpsertParams{
+		BulkUpsertUnitsRequest: openmrp.BulkUpsertUnitsRequestParam{
+			Units: []openmrp.UpsertUnitInputParam{{
 				Abbreviation:      "kg",
 				IsBaseUnit:        false,
 				Name:              "Kilogram",
@@ -35,13 +35,13 @@ func TestCatalogUnitActionBulkUpsertWithOptionalParams(t *testing.T) {
 				OffsetNumerator:   "0",
 				RatioDenominator:  "1",
 				RatioNumerator:    "1000",
-				Type:              augno.UpsertUnitInputTypeMass,
+				Type:              openmrp.UpsertUnitInputTypeMass,
 			}},
 		},
 		Include: []string{"created_by"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

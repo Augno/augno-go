@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationDemandOverrideNewWithOptionalParams(t *testing.T) {
@@ -22,29 +22,29 @@ func TestOperationDemandOverrideNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.DemandOverrides.New(context.TODO(), augno.OperationDemandOverrideNewParams{
-		CreateDemandOverrideRequest: augno.CreateDemandOverrideRequestParam{
-			Adjustment:     augno.CreateDemandOverrideRequestAdjustmentDeltaUnits,
+	_, err := client.Operations.DemandOverrides.New(context.TODO(), openmrp.OperationDemandOverrideNewParams{
+		CreateDemandOverrideRequest: openmrp.CreateDemandOverrideRequestParam{
+			Adjustment:     openmrp.CreateDemandOverrideRequestAdjustmentDeltaUnits,
 			PeriodEndsAt:   time.Now(),
 			PeriodStartsAt: time.Now(),
 			ScopeRefID:     "it_pej07ckhvu62",
-			ScopeType:      augno.CreateDemandOverrideRequestScopeTypeItem,
+			ScopeType:      openmrp.CreateDemandOverrideRequestScopeTypeItem,
 			Value:          5000,
-			Active:         augno.Bool(false),
-			EffectiveAt:    augno.Time(time.Now()),
-			ExpiresAt:      augno.Time(time.Now()),
-			Note:           augno.String("note"),
-			Reason:         augno.CreateDemandOverrideRequestReasonNewCustomer,
-			UnitID:         augno.String("unit_id"),
+			Active:         openmrp.Bool(false),
+			EffectiveAt:    openmrp.Time(time.Now()),
+			ExpiresAt:      openmrp.Time(time.Now()),
+			Note:           openmrp.String("note"),
+			Reason:         openmrp.CreateDemandOverrideRequestReasonNewCustomer,
+			UnitID:         openmrp.String("unit_id"),
 		},
 		Include: []string{"scope"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -60,19 +60,19 @@ func TestOperationDemandOverrideGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.DemandOverrides.Get(
 		context.TODO(),
 		"deov_p8roudstrung",
-		augno.OperationDemandOverrideGetParams{
+		openmrp.OperationDemandOverrideGetParams{
 			Include: []string{"scope"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -88,30 +88,30 @@ func TestOperationDemandOverrideUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.DemandOverrides.Update(
 		context.TODO(),
 		"deov_p8roudstrung",
-		augno.OperationDemandOverrideUpdateParams{
+		openmrp.OperationDemandOverrideUpdateParams{
 			Include: []string{"scope"},
-			UpdateDemandOverrideRequest: augno.UpdateDemandOverrideRequestParam{
-				Active:         augno.Bool(false),
-				Adjustment:     augno.UpdateDemandOverrideRequestAdjustmentAbsolute,
-				ExpiresAt:      augno.Time(time.Now()),
-				Note:           augno.String("note"),
-				PeriodEndsAt:   augno.Time(time.Now()),
-				PeriodStartsAt: augno.Time(time.Now()),
-				Reason:         augno.UpdateDemandOverrideRequestReasonNewCustomer,
-				UnitID:         augno.String("unit_id"),
-				Value:          augno.Float(7500),
+			UpdateDemandOverrideRequest: openmrp.UpdateDemandOverrideRequestParam{
+				Active:         openmrp.Bool(false),
+				Adjustment:     openmrp.UpdateDemandOverrideRequestAdjustmentAbsolute,
+				ExpiresAt:      openmrp.Time(time.Now()),
+				Note:           openmrp.String("note"),
+				PeriodEndsAt:   openmrp.Time(time.Now()),
+				PeriodStartsAt: openmrp.Time(time.Now()),
+				Reason:         openmrp.UpdateDemandOverrideRequestReasonNewCustomer,
+				UnitID:         openmrp.String("unit_id"),
+				Value:          openmrp.Float(7500),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -127,24 +127,24 @@ func TestOperationDemandOverrideListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.DemandOverrides.List(context.TODO(), augno.OperationDemandOverrideListParams{
+	_, err := client.Operations.DemandOverrides.List(context.TODO(), openmrp.OperationDemandOverrideListParams{
 		Adjustments: []string{"absolute"},
-		Cursor:      augno.String("cursor"),
-		EndsAt:      augno.String("ends_at"),
+		Cursor:      openmrp.String("cursor"),
+		EndsAt:      openmrp.String("ends_at"),
 		Include:     []string{"scope"},
-		Limit:       augno.Int(0),
-		Q:           augno.String("q"),
+		Limit:       openmrp.Int(0),
+		Q:           openmrp.String("q"),
 		ScopeRefIDs: []string{"string"},
 		ScopeTypes:  []string{"item"},
-		StartsAt:    augno.String("starts_at"),
+		StartsAt:    openmrp.String("starts_at"),
 		Statuses:    []string{"active"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -160,13 +160,13 @@ func TestOperationDemandOverrideDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.DemandOverrides.Delete(context.TODO(), "deov_p8roudstrung")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

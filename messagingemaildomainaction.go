@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -10,15 +10,15 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 // Register customer-owned domains with the email bridge and verify them for
 // sending and receiving mail.
 //
 // MessagingEmailDomainActionService contains methods and other services that help
-// with interacting with the augno API.
+// with interacting with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use

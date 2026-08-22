@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationProductionScheduleSettingItemGet(t *testing.T) {
@@ -21,13 +21,13 @@ func TestOperationProductionScheduleSettingItemGet(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ProductionScheduleSettings.Items.Get(context.TODO(), "example")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -43,23 +43,23 @@ func TestOperationProductionScheduleSettingItemUpdateWithOptionalParams(t *testi
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ProductionScheduleSettings.Items.Update(
 		context.TODO(),
 		"example",
-		augno.OperationProductionScheduleSettingItemUpdateParams{
-			UpsertItemSettingRequest: augno.UpsertItemSettingRequestParam{
-				ParticipationStatus: augno.UpsertItemSettingRequestParticipationStatusIncluded,
-				FulfillmentPolicy:   augno.UpsertItemSettingRequestFulfillmentPolicyMakeToOrder,
-				LotMultipleUnits:    augno.Float(0),
+		openmrp.OperationProductionScheduleSettingItemUpdateParams{
+			UpsertItemSettingRequest: openmrp.UpsertItemSettingRequestParam{
+				ParticipationStatus: openmrp.UpsertItemSettingRequestParticipationStatusIncluded,
+				FulfillmentPolicy:   openmrp.UpsertItemSettingRequestFulfillmentPolicyMakeToOrder,
+				LotMultipleUnits:    openmrp.Float(0),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -75,13 +75,13 @@ func TestOperationProductionScheduleSettingItemList(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ProductionScheduleSettings.Items.List(context.TODO())
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -97,13 +97,13 @@ func TestOperationProductionScheduleSettingItemDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ProductionScheduleSettings.Items.Delete(context.TODO(), "example")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

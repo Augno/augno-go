@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestMessagingConversationActionArchiveWithOptionalParams(t *testing.T) {
@@ -22,19 +22,19 @@ func TestMessagingConversationActionArchiveWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.Archive(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionArchiveParams{
+		openmrp.MessagingConversationActionArchiveParams{
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -50,23 +50,23 @@ func TestMessagingConversationActionAssignWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.Assign(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionAssignParams{
+		openmrp.MessagingConversationActionAssignParams{
 			Include: []string{"assignee"},
-			AssignConversationRequest: augno.AssignConversationRequestParam{
-				AssigneeResourceID:   augno.String("acus_e5zu8bde0z3h"),
-				AssigneeResourceType: augno.String("account_user"),
+			AssignConversationRequest: openmrp.AssignConversationRequestParam{
+				AssigneeResourceID:   openmrp.String("acus_e5zu8bde0z3h"),
+				AssigneeResourceType: openmrp.String("account_user"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -82,19 +82,19 @@ func TestMessagingConversationActionHideWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.Hide(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionHideParams{
+		openmrp.MessagingConversationActionHideParams{
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -110,19 +110,19 @@ func TestMessagingConversationActionLeaveWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.Leave(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionLeaveParams{
+		openmrp.MessagingConversationActionLeaveParams{
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -138,22 +138,22 @@ func TestMessagingConversationActionMuteWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.Mute(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionMuteParams{
+		openmrp.MessagingConversationActionMuteParams{
 			Include: []string{"assignee"},
-			MuteConversationRequest: augno.MuteConversationRequestParam{
-				MutedUntil: augno.Time(time.Now()),
+			MuteConversationRequest: openmrp.MuteConversationRequestParam{
+				MutedUntil: openmrp.Time(time.Now()),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -169,22 +169,22 @@ func TestMessagingConversationActionReadWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.Read(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionReadParams{
-			MarkConversationReadRequest: augno.MarkConversationReadRequestParam{
+		openmrp.MessagingConversationActionReadParams{
+			MarkConversationReadRequest: openmrp.MarkConversationReadRequestParam{
 				UpToSequence: 42,
 			},
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -200,19 +200,19 @@ func TestMessagingConversationActionRedactWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.Redact(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionRedactParams{
+		openmrp.MessagingConversationActionRedactParams{
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -228,23 +228,23 @@ func TestMessagingConversationActionReportWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.Report(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionReportParams{
-			ReportConversationRequest: augno.ReportConversationRequestParam{
+		openmrp.MessagingConversationActionReportParams{
+			ReportConversationRequest: openmrp.ReportConversationRequestParam{
 				Reason:    "spam",
-				MessageID: augno.String("mg_fdny8633ebgw"),
+				MessageID: openmrp.String("mg_fdny8633ebgw"),
 			},
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -260,22 +260,22 @@ func TestMessagingConversationActionSetLegalHoldWithOptionalParams(t *testing.T)
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.SetLegalHold(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionSetLegalHoldParams{
-			SetLegalHoldRequest: augno.SetLegalHoldRequestParam{
-				LegalHold: augno.SetLegalHoldRequestLegalHoldHeld,
+		openmrp.MessagingConversationActionSetLegalHoldParams{
+			SetLegalHoldRequest: openmrp.SetLegalHoldRequestParam{
+				LegalHold: openmrp.SetLegalHoldRequestLegalHoldHeld,
 			},
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -291,22 +291,22 @@ func TestMessagingConversationActionSetStatusWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.SetStatus(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionSetStatusParams{
-			SetWorkflowStatusRequest: augno.SetWorkflowStatusRequestParam{
-				WorkflowStatus: augno.SetWorkflowStatusRequestWorkflowStatusOpen,
+		openmrp.MessagingConversationActionSetStatusParams{
+			SetWorkflowStatusRequest: openmrp.SetWorkflowStatusRequestParam{
+				WorkflowStatus: openmrp.SetWorkflowStatusRequestWorkflowStatusOpen,
 			},
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -322,19 +322,19 @@ func TestMessagingConversationActionUnarchiveWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.Unarchive(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionUnarchiveParams{
+		openmrp.MessagingConversationActionUnarchiveParams{
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -350,19 +350,19 @@ func TestMessagingConversationActionUnhideWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.Unhide(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionUnhideParams{
+		openmrp.MessagingConversationActionUnhideParams{
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -378,19 +378,19 @@ func TestMessagingConversationActionUnmuteWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Messaging.Conversations.Actions.Unmute(
 		context.TODO(),
 		"cv_w35z4ck68yq7",
-		augno.MessagingConversationActionUnmuteParams{
+		openmrp.MessagingConversationActionUnmuteParams{
 			Include: []string{"assignee"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

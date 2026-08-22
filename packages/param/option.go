@@ -3,7 +3,7 @@ package param
 import (
 	"encoding/json"
 	"fmt"
-	shimjson "github.com/augno/augno-go/internal/encoding/json"
+	shimjson "github.com/open-mrp/openmrp-go/internal/encoding/json"
 	"time"
 )
 

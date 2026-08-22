@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -11,19 +11,19 @@ import (
 	"slices"
 	"time"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	shimjson "github.com/augno/augno-go/internal/encoding/json"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
-	"github.com/augno/augno-go/packages/respjson"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	shimjson "github.com/open-mrp/openmrp-go/internal/encoding/json"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
+	"github.com/open-mrp/openmrp-go/packages/respjson"
 )
 
 // List, create, update, and delete agent definitions.
 //
 // AIAgentService contains methods and other services that help with interacting
-// with the augno API.
+// with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -56,7 +56,7 @@ func (r *AIAgentService) New(ctx context.Context, params AIAgentNewParams, opts 
 
 // Retrieves a single agent by ID.
 //
-// Resolves both the `system` agents Augno provides and the `custom` agents in your
+// Resolves both the `system` agents OpenMRP provides and the `custom` agents in your
 // account; the `status` reflects whether the agent is enabled for your account
 // specifically.
 //
@@ -74,7 +74,7 @@ func (r *AIAgentService) Get(ctx context.Context, id string, query AIAgentGetPar
 
 // Updates a custom agent.
 //
-// Only the fields provided in the request are changed. Augno's `system` agents
+// Only the fields provided in the request are changed. OpenMRP's `system` agents
 // cannot be edited — the only thing you can change about them is whether they are
 // enabled for your account, with the Update Agent Status endpoint.
 //
@@ -92,7 +92,7 @@ func (r *AIAgentService) Update(ctx context.Context, id string, params AIAgentUp
 
 // Lists the agents available to your account, newest first.
 //
-// Covers both the `system` agents Augno provides to every account and the `custom`
+// Covers both the `system` agents OpenMRP provides to every account and the `custom`
 // agents created in yours. Deleted agents are never returned. The `q` parameter
 // matches an agent's name, slug, description, or ID.
 //
@@ -108,7 +108,7 @@ func (r *AIAgentService) List(ctx context.Context, query AIAgentListParams, opts
 //
 // The agent is withdrawn from the API: it stops appearing in listings, no longer
 // resolves by ID, and can no longer be run or modified. Runs it already produced
-// are kept. Augno's `system` agents cannot be deleted — disable one for your
+// are kept. OpenMRP's `system` agents cannot be deleted — disable one for your
 // account with the Update Agent Status endpoint instead.
 //
 // This endpoint requires the permission: `agents:delete`.
@@ -125,7 +125,7 @@ func (r *AIAgentService) Delete(ctx context.Context, id string, opts ...option.R
 
 // Enables or disables an agent for your account.
 //
-// Activation is per-account, so this works for the `system` agents Augno shares
+// Activation is per-account, so this works for the `system` agents OpenMRP shares
 // across accounts as well as your own `custom` agents: disabling one here leaves
 // the underlying agent untouched for everyone else. Triggering an inactive agent
 // returns a validation error.
@@ -159,9 +159,9 @@ type AgentDefinition struct {
 	Config AgentDefinitionConfig `json:"config" api:"required"`
 	// Creation timestamp.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Whether the agent is provided by Augno or created in this account.
+	// Whether the agent is provided by OpenMRP or created in this account.
 	//
-	// - `system`: provided by Augno; cannot be edited or deleted.
+	// - `system`: provided by OpenMRP; cannot be edited or deleted.
 	// - `custom`: created by a user in this account.
 	//
 	// Any of "system", "custom".
@@ -240,9 +240,9 @@ func (r *AgentDefinition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Whether the agent is provided by Augno or created in this account.
+// Whether the agent is provided by OpenMRP or created in this account.
 //
-// - `system`: provided by Augno; cannot be edited or deleted.
+// - `system`: provided by OpenMRP; cannot be edited or deleted.
 // - `custom`: created by a user in this account.
 type AgentDefinitionDefinitionType string
 
@@ -490,7 +490,7 @@ const (
 type ConfigInputParam struct {
 	// Instructions that define the agent's role and how it should behave.
 	//
-	// Sent to the model on every turn of a run, alongside the platform guidance Augno
+	// Sent to the model on every turn of a run, alongside the platform guidance OpenMRP
 	// adds automatically.
 	SystemPrompt param.Opt[string] `json:"system_prompt,omitzero"`
 	// How much randomness the model uses when generating text.
@@ -731,7 +731,7 @@ const (
 type ToolInputParam struct {
 	// The built-in tool to attach.
 	//
-	// Only Augno's built-in tools are attached here. Access to API-endpoint tools
+	// Only OpenMRP's built-in tools are attached here. Access to API-endpoint tools
 	// (creating a customer, listing orders, and so on) is granted separately through
 	// `config.endpoint_tool_slugs`. The List Tools endpoint (`GET /v1/ai/tools`)
 	// returns both kinds, with API-endpoint tools in the `api_endpoint` category.
@@ -764,7 +764,7 @@ func (r *ToolInputParam) UnmarshalJSON(data []byte) error {
 
 // The built-in tool to attach.
 //
-// Only Augno's built-in tools are attached here. Access to API-endpoint tools
+// Only OpenMRP's built-in tools are attached here. Access to API-endpoint tools
 // (creating a customer, listing orders, and so on) is granted separately through
 // `config.endpoint_tool_slugs`. The List Tools endpoint (`GET /v1/ai/tools`)
 // returns both kinds, with API-endpoint tools in the `api_endpoint` category.

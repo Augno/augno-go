@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSettingIntegrationNew(t *testing.T) {
@@ -21,19 +21,19 @@ func TestSettingIntegrationNew(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Settings.Integrations.New(context.TODO(), augno.SettingIntegrationNewParams{
-		CreateAccountIntegrationRequest: augno.CreateAccountIntegrationRequestParam{
+	_, err := client.Settings.Integrations.New(context.TODO(), openmrp.SettingIntegrationNewParams{
+		CreateAccountIntegrationRequest: openmrp.CreateAccountIntegrationRequestParam{
 			Credentials: `{"private_key":"sk_test_...","publishable_key":"pk_test_...","webhook_secret":"whsec_..."}`,
 			Name:        "My Stripe Integration",
-			Provider:    augno.CreateAccountIntegrationRequestProviderStripe,
+			Provider:    openmrp.CreateAccountIntegrationRequestProviderStripe,
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -49,22 +49,22 @@ func TestSettingIntegrationUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Settings.Integrations.Update(
 		context.TODO(),
 		"acig_5ilahyezrs63",
-		augno.SettingIntegrationUpdateParams{
-			UpdateAccountIntegrationRequest: augno.UpdateAccountIntegrationRequestParam{
-				Name:   augno.String("Updated Stripe Integration"),
-				Status: augno.UpdateAccountIntegrationRequestStatusActive,
+		openmrp.SettingIntegrationUpdateParams{
+			UpdateAccountIntegrationRequest: openmrp.UpdateAccountIntegrationRequestParam{
+				Name:   openmrp.String("Updated Stripe Integration"),
+				Status: openmrp.UpdateAccountIntegrationRequestStatusActive,
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -80,17 +80,17 @@ func TestSettingIntegrationListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Settings.Integrations.List(context.TODO(), augno.SettingIntegrationListParams{
-		Cursor: augno.String("cursor"),
-		Limit:  augno.Int(0),
-		Q:      augno.String("q"),
+	_, err := client.Settings.Integrations.List(context.TODO(), openmrp.SettingIntegrationListParams{
+		Cursor: openmrp.String("cursor"),
+		Limit:  openmrp.Int(0),
+		Q:      openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -106,13 +106,13 @@ func TestSettingIntegrationDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Settings.Integrations.Delete(context.TODO(), "acig_5ilahyezrs63")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

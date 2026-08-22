@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogUnitGroupNewWithOptionalParams(t *testing.T) {
@@ -21,27 +21,27 @@ func TestCatalogUnitGroupNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.UnitGroups.New(context.TODO(), augno.CatalogUnitGroupNewParams{
-		CreateUnitGroupRequest: augno.CreateUnitGroupRequestParam{
+	_, err := client.Catalog.UnitGroups.New(context.TODO(), openmrp.CatalogUnitGroupNewParams{
+		CreateUnitGroupRequest: openmrp.CreateUnitGroupRequestParam{
 			BaseUnitID: "un_82bd37dae5po",
 			Name:       "Weight Units",
-			Type:       augno.CreateUnitGroupRequestTypeMass,
-			AssociatedUnits: []augno.CreateUnitGroupUnitParam{{
+			Type:       openmrp.CreateUnitGroupRequestTypeMass,
+			AssociatedUnits: []openmrp.CreateUnitGroupUnitParam{{
 				UnitID:                   "un_82bd37dae5po",
-				CustomerPortalVisibility: augno.CreateUnitGroupUnitParamCustomerPortalVisibilityVisible,
-				DiscountFixed:            augno.Float(0),
-				DiscountPercentage:       augno.Float(1),
+				CustomerPortalVisibility: openmrp.CreateUnitGroupUnitParamCustomerPortalVisibilityVisible,
+				DiscountFixed:            openmrp.Float(0),
+				DiscountPercentage:       openmrp.Float(1),
 			}},
-			Notes: augno.String("Used for raw-material weight tracking across the warehouse."),
+			Notes: openmrp.String("Used for raw-material weight tracking across the warehouse."),
 		},
 		Include: []string{"owner"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -57,19 +57,19 @@ func TestCatalogUnitGroupGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.UnitGroups.Get(
 		context.TODO(),
 		"ug_andst6m79n41",
-		augno.CatalogUnitGroupGetParams{
+		openmrp.CatalogUnitGroupGetParams{
 			Include: []string{"owner"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -85,30 +85,30 @@ func TestCatalogUnitGroupUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.UnitGroups.Update(
 		context.TODO(),
 		"ug_andst6m79n41",
-		augno.CatalogUnitGroupUpdateParams{
+		openmrp.CatalogUnitGroupUpdateParams{
 			Include: []string{"owner"},
-			UpdateUnitGroupRequest: augno.UpdateUnitGroupRequestParam{
-				AssociatedUnits: []augno.CreateUnitGroupUnitParam{{
+			UpdateUnitGroupRequest: openmrp.UpdateUnitGroupRequestParam{
+				AssociatedUnits: []openmrp.CreateUnitGroupUnitParam{{
 					UnitID:                   "un_82bd37dae5po",
-					CustomerPortalVisibility: augno.CreateUnitGroupUnitParamCustomerPortalVisibilityVisible,
-					DiscountFixed:            augno.Float(0),
-					DiscountPercentage:       augno.Float(1),
+					CustomerPortalVisibility: openmrp.CreateUnitGroupUnitParamCustomerPortalVisibilityVisible,
+					DiscountFixed:            openmrp.Float(0),
+					DiscountPercentage:       openmrp.Float(1),
 				}},
-				BaseUnitID: augno.String("un_82bd37dae5po"),
-				Name:       augno.String("Weight Units (Updated)"),
-				Notes:      augno.String("Added kilogram association for metric orders."),
+				BaseUnitID: openmrp.String("un_82bd37dae5po"),
+				Name:       openmrp.String("Weight Units (Updated)"),
+				Notes:      openmrp.String("Added kilogram association for metric orders."),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -124,19 +124,19 @@ func TestCatalogUnitGroupListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.UnitGroups.List(context.TODO(), augno.CatalogUnitGroupListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Catalog.UnitGroups.List(context.TODO(), openmrp.CatalogUnitGroupListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"owner"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
-		Type:    augno.CatalogUnitGroupListParamsTypeCurrency,
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
+		Type:    openmrp.CatalogUnitGroupListParamsTypeCurrency,
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -152,13 +152,13 @@ func TestCatalogUnitGroupDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.UnitGroups.Delete(context.TODO(), "ug_andst6m79n41")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

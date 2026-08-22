@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSaleAccountGroupNewWithOptionalParams(t *testing.T) {
@@ -21,22 +21,22 @@ func TestSaleAccountGroupNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.AccountGroups.New(context.TODO(), augno.SaleAccountGroupNewParams{
-		CreateAccountGroupRequest: augno.CreateAccountGroupRequestParam{
+	_, err := client.Sales.AccountGroups.New(context.TODO(), openmrp.SaleAccountGroupNewParams{
+		CreateAccountGroupRequest: openmrp.CreateAccountGroupRequestParam{
 			Name:                "Wholesale Customers",
-			Type:                augno.CreateAccountGroupRequestTypeTypeGroup,
-			CommissionPolicy:    augno.CreateAccountGroupRequestCommissionPolicyCommissionExempt,
-			DefaultLeadTimeDays: augno.Int(0),
-			Description:         augno.String("Customers who buy in bulk at wholesale pricing."),
-			FreightPolicy:       augno.CreateAccountGroupRequestFreightPolicyBilledFreight,
+			Type:                openmrp.CreateAccountGroupRequestTypeTypeGroup,
+			CommissionPolicy:    openmrp.CreateAccountGroupRequestCommissionPolicyCommissionExempt,
+			DefaultLeadTimeDays: openmrp.Int(0),
+			Description:         openmrp.String("Customers who buy in bulk at wholesale pricing."),
+			FreightPolicy:       openmrp.CreateAccountGroupRequestFreightPolicyBilledFreight,
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -52,13 +52,13 @@ func TestSaleAccountGroupGet(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.AccountGroups.Get(context.TODO(), "acgp_6p4z57e9alaf")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -74,25 +74,25 @@ func TestSaleAccountGroupUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.AccountGroups.Update(
 		context.TODO(),
 		"acgp_6p4z57e9alaf",
-		augno.SaleAccountGroupUpdateParams{
-			UpdateAccountGroupRequest: augno.UpdateAccountGroupRequestParam{
-				CommissionPolicy:    augno.UpdateAccountGroupRequestCommissionPolicyCommissionExempt,
-				DefaultLeadTimeDays: augno.Int(0),
-				Description:         augno.String("Customers who buy in bulk at wholesale pricing."),
-				FreightPolicy:       augno.UpdateAccountGroupRequestFreightPolicyBilledFreight,
-				Name:                augno.String("Updated Wholesale Customers"),
+		openmrp.SaleAccountGroupUpdateParams{
+			UpdateAccountGroupRequest: openmrp.UpdateAccountGroupRequestParam{
+				CommissionPolicy:    openmrp.UpdateAccountGroupRequestCommissionPolicyCommissionExempt,
+				DefaultLeadTimeDays: openmrp.Int(0),
+				Description:         openmrp.String("Customers who buy in bulk at wholesale pricing."),
+				FreightPolicy:       openmrp.UpdateAccountGroupRequestFreightPolicyBilledFreight,
+				Name:                openmrp.String("Updated Wholesale Customers"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -108,18 +108,18 @@ func TestSaleAccountGroupListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.AccountGroups.List(context.TODO(), augno.SaleAccountGroupListParams{
-		Cursor: augno.String("cursor"),
-		Limit:  augno.Int(0),
-		Q:      augno.String("q"),
-		Type:   augno.SaleAccountGroupListParamsTypePricingGroup,
+	_, err := client.Sales.AccountGroups.List(context.TODO(), openmrp.SaleAccountGroupListParams{
+		Cursor: openmrp.String("cursor"),
+		Limit:  openmrp.Int(0),
+		Q:      openmrp.String("q"),
+		Type:   openmrp.SaleAccountGroupListParamsTypePricingGroup,
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -135,13 +135,13 @@ func TestSaleAccountGroupDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.AccountGroups.Delete(context.TODO(), "acgp_6p4z57e9alaf")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

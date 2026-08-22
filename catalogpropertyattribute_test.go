@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogPropertyAttributeNewWithOptionalParams(t *testing.T) {
@@ -21,23 +21,23 @@ func TestCatalogPropertyAttributeNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Properties.Attributes.New(
 		context.TODO(),
 		"pp_fhnnvtt3q3ov",
-		augno.CatalogPropertyAttributeNewParams{
-			CreateAttributeRequest: augno.CreateAttributeRequestParam{
+		openmrp.CatalogPropertyAttributeNewParams{
+			CreateAttributeRequest: openmrp.CreateAttributeRequestParam{
 				Value:     "Red",
-				Color:     augno.CreateAttributeRequestColorRed,
-				SortOrder: augno.Int(1),
+				Color:     openmrp.CreateAttributeRequestColorRed,
+				SortOrder: openmrp.Int(1),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -53,19 +53,19 @@ func TestCatalogPropertyAttributeGet(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Properties.Attributes.Get(
 		context.TODO(),
 		"at_rf1w295jt5ia",
-		augno.CatalogPropertyAttributeGetParams{
+		openmrp.CatalogPropertyAttributeGetParams{
 			PropertyID: "pp_fhnnvtt3q3ov",
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -81,24 +81,24 @@ func TestCatalogPropertyAttributeUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Properties.Attributes.Update(
 		context.TODO(),
 		"at_rf1w295jt5ia",
-		augno.CatalogPropertyAttributeUpdateParams{
+		openmrp.CatalogPropertyAttributeUpdateParams{
 			PropertyID: "pp_fhnnvtt3q3ov",
-			UpdateAttributeRequest: augno.UpdateAttributeRequestParam{
-				Color:     augno.UpdateAttributeRequestColorBlue,
-				SortOrder: augno.Int(2),
-				Value:     augno.String("Blue"),
+			UpdateAttributeRequest: openmrp.UpdateAttributeRequestParam{
+				Color:     openmrp.UpdateAttributeRequestColorBlue,
+				SortOrder: openmrp.Int(2),
+				Value:     openmrp.String("Blue"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -114,21 +114,21 @@ func TestCatalogPropertyAttributeListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Properties.Attributes.List(
 		context.TODO(),
 		"pp_fhnnvtt3q3ov",
-		augno.CatalogPropertyAttributeListParams{
-			Cursor: augno.String("cursor"),
-			Limit:  augno.Int(0),
-			Q:      augno.String("q"),
+		openmrp.CatalogPropertyAttributeListParams{
+			Cursor: openmrp.String("cursor"),
+			Limit:  openmrp.Int(0),
+			Q:      openmrp.String("q"),
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -144,19 +144,19 @@ func TestCatalogPropertyAttributeDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Properties.Attributes.Delete(
 		context.TODO(),
 		"at_rf1w295jt5ia",
-		augno.CatalogPropertyAttributeDeleteParams{
+		openmrp.CatalogPropertyAttributeDeleteParams{
 			PropertyID: "pp_fhnnvtt3q3ov",
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

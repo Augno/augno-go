@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCatalogPropertyNewWithOptionalParams(t *testing.T) {
@@ -21,18 +21,18 @@ func TestCatalogPropertyNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Properties.New(context.TODO(), augno.CatalogPropertyNewParams{
-		CreatePropertyRequest: augno.CreatePropertyRequestParam{
+	_, err := client.Catalog.Properties.New(context.TODO(), openmrp.CatalogPropertyNewParams{
+		CreatePropertyRequest: openmrp.CreatePropertyRequestParam{
 			Name: "Color",
 		},
 		Include: []string{"attributes"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -48,19 +48,19 @@ func TestCatalogPropertyGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Properties.Get(
 		context.TODO(),
 		"pp_fhnnvtt3q3ov",
-		augno.CatalogPropertyGetParams{
+		openmrp.CatalogPropertyGetParams{
 			Include: []string{"attributes"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -76,22 +76,22 @@ func TestCatalogPropertyUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Properties.Update(
 		context.TODO(),
 		"pp_fhnnvtt3q3ov",
-		augno.CatalogPropertyUpdateParams{
+		openmrp.CatalogPropertyUpdateParams{
 			Include: []string{"attributes"},
-			UpdatePropertyRequest: augno.UpdatePropertyRequestParam{
-				Name: augno.String("Size"),
+			UpdatePropertyRequest: openmrp.UpdatePropertyRequestParam{
+				Name: openmrp.String("Size"),
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -107,18 +107,18 @@ func TestCatalogPropertyListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Catalog.Properties.List(context.TODO(), augno.CatalogPropertyListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Catalog.Properties.List(context.TODO(), openmrp.CatalogPropertyListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"attributes"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -134,13 +134,13 @@ func TestCatalogPropertyDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Catalog.Properties.Delete(context.TODO(), "pp_fhnnvtt3q3ov")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

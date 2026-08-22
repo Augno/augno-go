@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationShippingTermNewWithOptionalParams(t *testing.T) {
@@ -21,20 +21,20 @@ func TestOperationShippingTermNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ShippingTerms.New(context.TODO(), augno.OperationShippingTermNewParams{
-		CreateShippingTermRequest: augno.CreateShippingTermRequestParam{
+	_, err := client.Operations.ShippingTerms.New(context.TODO(), openmrp.OperationShippingTermNewParams{
+		CreateShippingTermRequest: openmrp.CreateShippingTermRequestParam{
 			Name: "Prepaid",
-			Type: augno.CreateShippingTermRequestTypeFlatRateFreight,
-			FlatRate: augno.QuantityInputParam{
+			Type: openmrp.CreateShippingTermRequestTypeFlatRateFreight,
+			FlatRate: openmrp.QuantityInputParam{
 				UnitID: "un_82bd37dae5po",
 				Value:  "15.00",
 			},
 			FreeShippingServiceLevelIDs: []string{"crop_4ilk9p6gccrx"},
-			MinimumOrderValue: augno.QuantityInputParam{
+			MinimumOrderValue: openmrp.QuantityInputParam{
 				UnitID: "un_82bd37dae5po",
 				Value:  "500.00",
 			},
@@ -42,7 +42,7 @@ func TestOperationShippingTermNewWithOptionalParams(t *testing.T) {
 		Include: []string{"owner"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -58,19 +58,19 @@ func TestOperationShippingTermGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ShippingTerms.Get(
 		context.TODO(),
 		"shtm_c5gxy05whw6r",
-		augno.OperationShippingTermGetParams{
+		openmrp.OperationShippingTermGetParams{
 			Include: []string{"owner"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -86,32 +86,32 @@ func TestOperationShippingTermUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ShippingTerms.Update(
 		context.TODO(),
 		"shtm_c5gxy05whw6r",
-		augno.OperationShippingTermUpdateParams{
+		openmrp.OperationShippingTermUpdateParams{
 			Include: []string{"owner"},
-			UpdateShippingTermRequest: augno.UpdateShippingTermRequestParam{
-				FlatRate: augno.QuantityInputParam{
+			UpdateShippingTermRequest: openmrp.UpdateShippingTermRequestParam{
+				FlatRate: openmrp.QuantityInputParam{
 					UnitID: "un_82bd37dae5po",
 					Value:  "15.00",
 				},
 				FreeShippingServiceLevelIDs: []string{"crop_4ilk9p6gccrx"},
-				MinimumOrderValue: augno.QuantityInputParam{
+				MinimumOrderValue: openmrp.QuantityInputParam{
 					UnitID: "un_82bd37dae5po",
 					Value:  "500.00",
 				},
-				Name: augno.String("Collect"),
-				Type: augno.UpdateShippingTermRequestTypeFlatRateFreight,
+				Name: openmrp.String("Collect"),
+				Type: openmrp.UpdateShippingTermRequestTypeFlatRateFreight,
 			},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -127,18 +127,18 @@ func TestOperationShippingTermListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ShippingTerms.List(context.TODO(), augno.OperationShippingTermListParams{
-		Cursor:  augno.String("cursor"),
+	_, err := client.Operations.ShippingTerms.List(context.TODO(), openmrp.OperationShippingTermListParams{
+		Cursor:  openmrp.String("cursor"),
 		Include: []string{"owner"},
-		Limit:   augno.Int(0),
-		Q:       augno.String("q"),
+		Limit:   openmrp.Int(0),
+		Q:       openmrp.String("q"),
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -154,13 +154,13 @@ func TestOperationShippingTermDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ShippingTerms.Delete(context.TODO(), "shtm_c5gxy05whw6r")
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno
+package openmrp
 
 import (
 	"context"
@@ -11,18 +11,18 @@ import (
 	"slices"
 	"time"
 
-	"github.com/augno/augno-go/internal/apijson"
-	"github.com/augno/augno-go/internal/apiquery"
-	shimjson "github.com/augno/augno-go/internal/encoding/json"
-	"github.com/augno/augno-go/internal/requestconfig"
-	"github.com/augno/augno-go/option"
-	"github.com/augno/augno-go/packages/param"
+	"github.com/open-mrp/openmrp-go/internal/apijson"
+	"github.com/open-mrp/openmrp-go/internal/apiquery"
+	shimjson "github.com/open-mrp/openmrp-go/internal/encoding/json"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/option"
+	"github.com/open-mrp/openmrp-go/packages/param"
 )
 
 // Create and manage API keys for programmatic access.
 //
 // AuthAPIKeyActionService contains methods and other services that help with
-// interacting with the augno API.
+// interacting with the openmrp API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -40,7 +40,7 @@ func NewAuthAPIKeyActionService(opts ...option.RequestOption) (r AuthAPIKeyActio
 	return
 }
 
-// Rotates an [API key](https://docs.augno.com/api/api-keys) by revoking the
+// Rotates an [API key](https://docs.openmrp.ai/api/api-keys) by revoking the
 // existing key and issuing a replacement with the same name, role, and expiration
 // (unless overridden).
 //
@@ -51,7 +51,7 @@ func NewAuthAPIKeyActionService(opts ...option.RequestOption) (r AuthAPIKeyActio
 //
 // The secret key is returned once and cannot be retrieved later, so you should
 // store it securely. We provide some
-// [recommendations](https://docs.augno.com/api/managing-api-keys) on how you can
+// [recommendations](https://docs.openmrp.ai/api/managing-api-keys) on how you can
 // manage your API keys.
 //
 // This endpoint requires the `admin` role type.

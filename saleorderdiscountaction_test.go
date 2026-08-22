@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSaleOrderDiscountActionFindByCodeWithOptionalParams(t *testing.T) {
@@ -21,19 +21,19 @@ func TestSaleOrderDiscountActionFindByCodeWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Sales.OrderDiscounts.Actions.FindByCode(context.TODO(), augno.SaleOrderDiscountActionFindByCodeParams{
-		FindOrderDiscountByCodeRequest: augno.FindOrderDiscountByCodeRequestParam{
+	_, err := client.Sales.OrderDiscounts.Actions.FindByCode(context.TODO(), openmrp.SaleOrderDiscountActionFindByCodeParams{
+		FindOrderDiscountByCodeRequest: openmrp.FindOrderDiscountByCodeRequestParam{
 			Code:           "SAVE10",
-			BuyerAccountID: augno.String("buyer_account_id"),
-			SalesOrderID:   augno.String("sales_order_id"),
+			BuyerAccountID: openmrp.String("buyer_account_id"),
+			SalesOrderID:   openmrp.String("sales_order_id"),
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

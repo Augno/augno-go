@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestSaleAccountUserSalesTargetNew(t *testing.T) {
@@ -22,15 +22,15 @@ func TestSaleAccountUserSalesTargetNew(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.AccountUsers.SalesTargets.New(
 		context.TODO(),
 		"acus_e5zu8bde0z3h",
-		augno.SaleAccountUserSalesTargetNewParams{
-			CreateSalesTargetRequest: augno.CreateSalesTargetRequestParam{
+		openmrp.SaleAccountUserSalesTargetNewParams{
+			CreateSalesTargetRequest: openmrp.CreateSalesTargetRequestParam{
 				AmountUnitID: "un_82bd37dae5po",
 				AmountValue:  "50000.00",
 				EndsAt:       time.Now(),
@@ -39,7 +39,7 @@ func TestSaleAccountUserSalesTargetNew(t *testing.T) {
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -55,16 +55,16 @@ func TestSaleAccountUserSalesTargetUpdate(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.AccountUsers.SalesTargets.Update(
 		context.TODO(),
 		"example",
-		augno.SaleAccountUserSalesTargetUpdateParams{
+		openmrp.SaleAccountUserSalesTargetUpdateParams{
 			ID: "acus_e5zu8bde0z3h",
-			UpsertSalesTargetRequest: augno.UpsertSalesTargetRequestParam{
+			UpsertSalesTargetRequest: openmrp.UpsertSalesTargetRequestParam{
 				AmountUnitID: "un_82bd37dae5po",
 				AmountValue:  "75000.00",
 				EndsAt:       time.Now(),
@@ -73,7 +73,7 @@ func TestSaleAccountUserSalesTargetUpdate(t *testing.T) {
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -89,21 +89,21 @@ func TestSaleAccountUserSalesTargetListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Sales.AccountUsers.SalesTargets.List(
 		context.TODO(),
 		"acus_e5zu8bde0z3h",
-		augno.SaleAccountUserSalesTargetListParams{
-			Cursor: augno.String("cursor"),
-			Limit:  augno.Int(0),
-			Q:      augno.String("q"),
+		openmrp.SaleAccountUserSalesTargetListParams{
+			Cursor: openmrp.String("cursor"),
+			Limit:  openmrp.Int(0),
+			Q:      openmrp.String("q"),
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

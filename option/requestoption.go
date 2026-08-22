@@ -11,15 +11,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/augno/augno-go/internal/requestconfig"
+	"github.com/open-mrp/openmrp-go/internal/requestconfig"
 	"github.com/tidwall/sjson"
 )
 
-// RequestOption is an option for the requests made by the augno API Client
+// RequestOption is an option for the requests made by the openmrp API Client
 // which can be supplied to clients, services, and methods. You can read more about this functional
 // options pattern in our [README].
 //
-// [README]: https://pkg.go.dev/github.com/augno/augno-go#readme-requestoptions
+// [README]: https://pkg.go.dev/github.com/open-mrp/openmrp-go#readme-requestoptions
 type RequestOption = requestconfig.RequestOption
 
 // WithBaseURL returns a RequestOption that sets the BaseURL for the client.
@@ -263,7 +263,7 @@ func WithRequestTimeout(dur time.Duration) RequestOption {
 // environment to be the "production" environment. An environment specifies which base URL
 // to use by default.
 func WithEnvironmentProduction() RequestOption {
-	return requestconfig.WithDefaultBaseURL("https://api.augno.com/")
+	return requestconfig.WithDefaultBaseURL("https://api.openmrp.ai/")
 }
 
 // WithEnvironmentLocal returns a RequestOption that sets the current
@@ -281,10 +281,10 @@ func WithBearerToken(value string) RequestOption {
 	})
 }
 
-// WithAugnoAccountID returns a RequestOption that sets the client setting "augno_account_id".
-func WithAugnoAccountID(value string) RequestOption {
+// WithOpenMRPAccountID returns a RequestOption that sets the client setting "openmrp_account_id".
+func WithOpenMRPAccountID(value string) RequestOption {
 	return requestconfig.RequestOptionFunc(func(r *requestconfig.RequestConfig) error {
-		r.AugnoAccountID = value
-		return r.Apply(WithHeader("Augno-Account", value))
+		r.OpenMRPAccountID = value
+		return r.Apply(WithHeader("OpenMRP-Account", value))
 	})
 }

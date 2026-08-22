@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestOperationProductionScheduleSettingUpdateWithOptionalParams(t *testing.T) {
@@ -21,14 +21,14 @@ func TestOperationProductionScheduleSettingUpdateWithOptionalParams(t *testing.T
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Operations.ProductionScheduleSettings.Update(context.TODO(), augno.OperationProductionScheduleSettingUpdateParams{
-		UpdateProductionScheduleSettingsRequest: augno.UpdateProductionScheduleSettingsRequestParam{
-			AutoPublishStatus:              augno.UpdateProductionScheduleSettingsRequestAutoPublishStatusInactive,
-			CadenceStatus:                  augno.UpdateProductionScheduleSettingsRequestCadenceStatusInactive,
+	_, err := client.Operations.ProductionScheduleSettings.Update(context.TODO(), openmrp.OperationProductionScheduleSettingUpdateParams{
+		UpdateProductionScheduleSettingsRequest: openmrp.UpdateProductionScheduleSettingsRequestParam{
+			AutoPublishStatus:              openmrp.UpdateProductionScheduleSettingsRequestAutoPublishStatusInactive,
+			CadenceStatus:                  openmrp.UpdateProductionScheduleSettingsRequestCadenceStatusInactive,
 			CapacityHeadroomPct:            0.9,
 			ChangeoverAvgMinutes:           0,
 			ChangeoverLaborRate:            0,
@@ -36,9 +36,9 @@ func TestOperationProductionScheduleSettingUpdateWithOptionalParams(t *testing.T
 			ChangeoverMinMinutes:           0,
 			DefaultConstraintLeadTimeWeeks: 0,
 			DefaultCustomerLeadTimeDays:    30,
-			DefaultFulfillmentPolicy:       augno.UpdateProductionScheduleSettingsRequestDefaultFulfillmentPolicyMakeToStock,
+			DefaultFulfillmentPolicy:       openmrp.UpdateProductionScheduleSettingsRequestDefaultFulfillmentPolicyMakeToStock,
 			DefaultLotUnits:                60,
-			DemandBasis:                    augno.UpdateProductionScheduleSettingsRequestDemandBasisTrailing12,
+			DemandBasis:                    openmrp.UpdateProductionScheduleSettingsRequestDemandBasisTrailing12,
 			DemandWindowMonths:             12,
 			FinishLeadTimeWeeks:            0,
 			ForecastHistoryMonths:          24,
@@ -56,14 +56,14 @@ func TestOperationProductionScheduleSettingUpdateWithOptionalParams(t *testing.T
 			WeekStartDay:                   1,
 			WeeksPerYear:                   52,
 			WorkDaysPerWeek:                5,
-			ConstraintDepartmentID:         augno.String("constraint_department_id"),
-			GenerationCron:                 augno.String("generation_cron"),
-			ReceiveCalendarID:              augno.String("receive_calendar_id"),
-			ShipCalendarID:                 augno.String("ship_calendar_id"),
+			ConstraintDepartmentID:         openmrp.String("constraint_department_id"),
+			GenerationCron:                 openmrp.String("generation_cron"),
+			ReceiveCalendarID:              openmrp.String("receive_calendar_id"),
+			ShipCalendarID:                 openmrp.String("ship_calendar_id"),
 		},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -79,13 +79,13 @@ func TestOperationProductionScheduleSettingList(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Operations.ProductionScheduleSettings.List(context.TODO())
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

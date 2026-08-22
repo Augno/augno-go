@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package augno_test
+package openmrp_test
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/augno/augno-go"
-	"github.com/augno/augno-go/internal/testutil"
-	"github.com/augno/augno-go/option"
+	"github.com/open-mrp/openmrp-go"
+	"github.com/open-mrp/openmrp-go/internal/testutil"
+	"github.com/open-mrp/openmrp-go/option"
 )
 
 func TestCoreAuditEventGetWithOptionalParams(t *testing.T) {
@@ -22,19 +22,19 @@ func TestCoreAuditEventGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Core.AuditEvents.Get(
 		context.TODO(),
 		"ae_emripvn8t1xl",
-		augno.CoreAuditEventGetParams{
+		openmrp.CoreAuditEventGetParams{
 			Include: []string{"account"},
 		},
 	)
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -50,29 +50,29 @@ func TestCoreAuditEventListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Core.AuditEvents.List(context.TODO(), augno.CoreAuditEventListParams{
+	_, err := client.Core.AuditEvents.List(context.TODO(), openmrp.CoreAuditEventListParams{
 		Actions:          []string{"create"},
 		ActorAccountIDs:  []string{"string"},
 		ActorIDs:         []string{"string"},
 		ActorTypes:       []string{"user"},
-		Cursor:           augno.String("cursor"),
-		EndsAt:           augno.Time(time.Now()),
+		Cursor:           openmrp.String("cursor"),
+		EndsAt:           openmrp.Time(time.Now()),
 		Include:          []string{"account"},
-		Limit:            augno.Int(0),
-		Q:                augno.String("q"),
+		Limit:            openmrp.Int(0),
+		Q:                openmrp.String("q"),
 		ResourceIDs:      []string{"string"},
 		ResourceTypes:    []string{"account"},
-		RootResourceID:   augno.String("root_resource_id"),
-		RootResourceType: augno.CoreAuditEventListParamsRootResourceTypeAccount,
-		StartsAt:         augno.Time(time.Now()),
+		RootResourceID:   openmrp.String("root_resource_id"),
+		RootResourceType: openmrp.CoreAuditEventListParamsRootResourceTypeAccount,
+		StartsAt:         openmrp.Time(time.Now()),
 		TargetAccountIDs: []string{"string"},
 	})
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -88,13 +88,13 @@ func TestCoreAuditEventGetResourceTypes(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := augno.NewClient(
+	client := openmrp.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Core.AuditEvents.GetResourceTypes(context.TODO())
 	if err != nil {
-		var apierr *augno.Error
+		var apierr *openmrp.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
